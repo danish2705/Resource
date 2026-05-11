@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, ClipboardList, UserCircle, BarChart3, ChevronDown, ListChecks, PlusCircle, Database, TrendingUp,
+  LayoutDashboard, Users, ClipboardList, UserCircle, BarChart3, ChevronDown, ListChecks, PlusCircle, Database, TrendingUp, Clock,
 } from 'lucide-react';
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader,
@@ -25,6 +25,7 @@ const lowerItems = [
   { title: 'Resource Information', url: '/resources', icon: UserCircle },
   { title: 'Reporting Dashboard', url: '/reports', icon: BarChart3 },
   { title: 'Data Management', url: '/data-management', icon: Database },
+  { title: 'Forecast vs Actual', url: '/forecast-actual', icon: TrendingUp },
 ];
 
 export function AppSidebar() {

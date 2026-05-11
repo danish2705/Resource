@@ -17,6 +17,7 @@ interface Resource {
   allocatedHours: number;
   projectHours: number;
   operationalHours: number;
+  actualHours: number;
 }
 
 const slugify = (name: string) =>
@@ -33,17 +34,30 @@ export default function ResourceInformation() {
     if (i % 3 === 0) status = 'Busy';
     else if (i % 7 === 0) status = 'Leave';
 
-    // ✅ NEW: Work type split
     let projectHours = 20 + (i % 20);
     let operationalHours = 5 + (i % 10);
 
-    // ✅ Force overload for some rows
     if (i === 2 || i === 7) {
-      projectHours = 45 + i * 2;
+      projectHours = 60;
       operationalHours = 10;
     }
 
+    if (i % 4 === 0) {
+      projectHours += 10;
+    }
+
     const allocatedHours = projectHours + operationalHours;
+
+    // ✅ Actuals (simulated timesheet data)
+    let actualHours = allocatedHours - (i % 8);
+
+    if (i === 3 || i === 8) {
+      actualHours = allocatedHours + 10;
+    }
+
+    if (i === 5) {
+      actualHours = allocatedHours - 15;
+    }
 
     return {
       id: `res-${i}`,
@@ -58,26 +72,19 @@ export default function ResourceInformation() {
       projectHours,
       operationalHours,
       allocatedHours,
+      actualHours,
       projects: 1 + (i % 4),
     };
   });
 
-  // Utilization
-  const getUtilization = (hours: number) => {
-    return Math.round((hours / 40) * 100);
-  };
+  const totalCapacity = data.length * 40;
+  const totalDemand = data.reduce((sum, r) => sum + r.allocatedHours, 0);
+  const overloadedCount = data.filter(r => r.allocatedHours > 40).length;
 
-  // Remaining capacity
-  const getRemainingCapacity = (hours: number) => {
-    return 40 - hours;
-  };
+  const getUtilization = (hours: number) => Math.round((hours / 40) * 100);
 
   const columns: Column<Resource>[] = [
-    {
-      key: 'name',
-      header: 'Name',
-      render: (r) => <span className="font-medium text-primary">{r.name}</span>
-    },
+    { key: 'name', header: 'Name', render: (r) => <span className="font-medium text-primary">{r.name}</span> },
     { key: 'resId', header: 'Res ID' },
     { key: 'email', header: 'Email' },
 
@@ -100,61 +107,115 @@ export default function ResourceInformation() {
       header: 'Status',
       render: (r) => {
         const variant =
-          r.status === 'Available'
-            ? 'default'
-            : r.status === 'Busy'
-            ? 'destructive'
-            : 'secondary';
+          r.status === 'Available' ? 'default'
+          : r.status === 'Busy' ? 'destructive'
+          : 'secondary';
 
         return <Badge variant={variant}>{r.status}</Badge>;
       }
     },
 
-    // ✅ Project Hours
+    { key: 'projectHours', header: 'Project Hrs' },
+    { key: 'operationalHours', header: 'Operational Hrs' },
+
+    // ✅ Forecast
+    { key: 'allocatedHours', header: 'Forecast (Hrs)' },
+
+    // ✅ Actual
+    { key: 'actualHours', header: 'Actual (Hrs)' },
+
+    // ✅ Variance
     {
-      key: 'projectHours',
-      header: 'Project Hrs',
+      key: 'variance',
+      header: 'Variance (Hrs)',
+      render: (r) => {
+        const variance = r.actualHours - r.allocatedHours;
+
+        return (
+          <span className={
+            variance > 0 ? 'text-red-600 font-medium'
+            : variance < 0 ? 'text-green-600 font-medium'
+            : ''
+          }>
+            {variance}
+          </span>
+        );
+      }
     },
 
-    // ✅ Operational Hours
+    // ✅ Variance %
     {
-      key: 'operationalHours',
-      header: 'Operational Hrs',
+      key: 'variancePercent',
+      header: 'Variance (%)',
+      render: (r) => {
+        const variance = r.actualHours - r.allocatedHours;
+        const percent = Math.round((variance / r.allocatedHours) * 100);
+
+        return (
+          <span className={
+            percent > 20 ? 'text-red-600 font-medium'
+            : percent < -20 ? 'text-green-600 font-medium'
+            : ''
+          }>
+            {percent}%
+          </span>
+        );
+      }
     },
 
-    // ✅ Utilization
     {
       key: 'utilization',
       header: 'Utilization %',
       render: (r) => {
         const utilization = getUtilization(r.allocatedHours);
 
-        let className = '';
-
-        if (utilization > 100) {
-          className = 'bg-red-100 text-red-700 px-2 py-1 rounded text-xs';
-        } else if (utilization >= 80) {
-          className = 'bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs';
-        } else {
-          className = 'bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs';
-        }
+        const className =
+          utilization > 100 ? 'bg-red-100 text-red-700 px-2 py-1 rounded text-xs'
+          : utilization >= 80 ? 'bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs'
+          : 'bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs';
 
         return <span className={className}>{utilization}%</span>;
       }
     },
 
-    // ✅ Remaining Capacity
     {
-      key: 'capacity',
-      header: 'Remaining Hrs',
+      key: 'availability',
+      header: 'Availability (Hrs)',
       render: (r) => {
-        const remaining = getRemainingCapacity(r.allocatedHours);
+        const availability = 40 - r.allocatedHours;
 
         return (
-          <span className={remaining < 0 ? 'text-red-600 font-medium' : ''}>
-            {remaining}
+          <span className={
+            availability < 0 ? 'text-red-600 font-medium'
+            : availability <= 10 ? 'text-yellow-600 font-medium'
+            : 'text-green-600 font-medium'
+          }>
+            {availability}
           </span>
         );
+      }
+    },
+
+    {
+      key: 'alerts',
+      header: 'Alerts',
+      render: (r) => {
+        const utilization = getUtilization(r.allocatedHours);
+        const availability = 40 - r.allocatedHours;
+
+        if (utilization > 100) {
+          return <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Overloaded</span>;
+        }
+
+        if (availability < 0) {
+          return <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">No Capacity</span>;
+        }
+
+        if (availability <= 5) {
+          return <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">Low Capacity</span>;
+        }
+
+        return <span className="text-muted-foreground">—</span>;
       }
     },
 
@@ -168,6 +229,33 @@ export default function ResourceInformation() {
       </CardHeader>
 
       <CardContent>
+        <div className="grid grid-cols-3 gap-4 mb-4">
+
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">Total Capacity</p>
+              <p className="text-xl font-bold">{totalCapacity} hrs</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">Total Demand</p>
+              <p className={`text-xl font-bold ${totalDemand > totalCapacity ? 'text-red-600' : ''}`}>
+                {totalDemand} hrs
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">Overloaded Resources</p>
+              <p className="text-xl font-bold text-red-600">{overloadedCount}</p>
+            </CardContent>
+          </Card>
+
+        </div>
+
         <DataTable data={data} columns={columns} pageSize={10} />
       </CardContent>
     </Card>
