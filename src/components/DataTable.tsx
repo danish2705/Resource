@@ -19,7 +19,13 @@ interface Props<T> {
   pageSize?: number;
 }
 
-export default function DataTable<T extends Record<string, any>>({ data, columns, searchPlaceholder = 'Search...', pageSize: defaultPageSize = 10 }: Props<T>) {
+export default function DataTable<T extends Record<string, any>>({
+  data,
+  columns,
+  searchPlaceholder = 'Search...',
+  pageSize: defaultPageSize = 10
+}: Props<T>) {
+
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(defaultPageSize);
@@ -29,7 +35,11 @@ export default function DataTable<T extends Record<string, any>>({ data, columns
   const filtered = useMemo(() => {
     if (!search) return data;
     const s = search.toLowerCase();
-    return data.filter((row) => columns.some((col) => String(row[col.key] ?? '').toLowerCase().includes(s)));
+    return data.filter((row) =>
+      columns.some((col) =>
+        String(row[col.key] ?? '').toLowerCase().includes(s)
+      )
+    );
   }, [data, search, columns]);
 
   const sorted = useMemo(() => {
@@ -46,25 +56,53 @@ export default function DataTable<T extends Record<string, any>>({ data, columns
 
   const handleSort = (key: string) => {
     if (sortKey === key) setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
-    else { setSortKey(key); setSortDir('asc'); }
+    else {
+      setSortKey(key);
+      setSortDir('asc');
+    }
+  };
+
+  // ✅ NEW: status badge helper
+  const getStatusStyle = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'available':
+        return 'bg-green-100 text-green-700 px-2 py-1 rounded text-xs';
+      case 'busy':
+        return 'bg-red-100 text-red-700 px-2 py-1 rounded text-xs';
+      case 'leave':
+        return 'bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs';
+      default:
+        return '';
+    }
   };
 
   return (
     <div className="space-y-3">
+
+      {/* Top Controls */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           Show
           <Select value={String(pageSize)} onValueChange={(v) => { setPageSize(Number(v)); setPage(0); }}>
             <SelectTrigger className="w-20 h-8"><SelectValue /></SelectTrigger>
             <SelectContent>
-              {[5, 10, 25, 50].map((n) => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
+              {[5, 10, 25, 50].map((n) => (
+                <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
           entries
         </div>
-        <Input className="max-w-xs h-8" placeholder={searchPlaceholder} value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} />
+
+        <Input
+          className="max-w-xs h-8"
+          placeholder={searchPlaceholder}
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+        />
       </div>
 
+      {/* Table */}
       <div className="border rounded-md overflow-auto">
         <Table>
           <TableHeader>
@@ -81,35 +119,69 @@ export default function DataTable<T extends Record<string, any>>({ data, columns
               ))}
             </TableRow>
           </TableHeader>
+
           <TableBody>
             {paged.length === 0 ? (
-              <TableRow><TableCell colSpan={columns.length} className="text-center text-muted-foreground py-8">No data available</TableCell></TableRow>
+              <TableRow>
+                <TableCell colSpan={columns.length} className="text-center text-muted-foreground py-8">
+                  No data available
+                </TableCell>
+              </TableRow>
             ) : paged.map((row, i) => (
               <TableRow key={(row as any).id ?? i} className="hover:bg-accent/30">
-                {columns.map((col) => (
-                  <TableCell key={col.key}>
-                    {col.render ? col.render(row, page * pageSize + i) : String(row[col.key] ?? '')}
-                  </TableCell>
-                ))}
+                {columns.map((col) => {
+                  const value = row[col.key];
+
+                  return (
+                    <TableCell key={col.key}>
+                      {/* ✅ NEW: Auto status styling */}
+                      {col.key === 'status' ? (
+                        <span className={getStatusStyle(value)}>
+                          {value}
+                        </span>
+                      ) : col.render ? (
+                        col.render(row, page * pageSize + i)
+                      ) : (
+                        String(value ?? '')
+                      )}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
 
+      {/* Pagination */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
-        <span>Showing {sorted.length === 0 ? 0 : page * pageSize + 1} to {Math.min((page + 1) * pageSize, sorted.length)} of {sorted.length} entries</span>
+        <span>
+          Showing {sorted.length === 0 ? 0 : page * pageSize + 1} to {Math.min((page + 1) * pageSize, sorted.length)} of {sorted.length} entries
+        </span>
+
         <div className="flex items-center gap-1">
-          <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}><ChevronLeft className="h-4 w-4" /></Button>
+          <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+
           {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
             const p = totalPages <= 5 ? i : Math.max(0, Math.min(page - 2, totalPages - 5)) + i;
             return (
-              <Button key={p} variant={p === page ? 'default' : 'outline'} size="sm" className="w-8 h-8" onClick={() => setPage(p)}>
+              <Button
+                key={p}
+                variant={p === page ? 'default' : 'outline'}
+                size="sm"
+                className="w-8 h-8"
+                onClick={() => setPage(p)}
+              >
                 {p + 1}
               </Button>
             );
           })}
-          <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)}><ChevronRight className="h-4 w-4" /></Button>
+
+          <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </div>
