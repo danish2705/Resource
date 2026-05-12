@@ -45,12 +45,12 @@ const demandSubItems = [
 ];
 
 const lowerItems = [
-  { title: "Resource Forecast", url: "/forecast", icon: TrendingUp },
-  { title: "Allocation", url: "/allocation", icon: Users },
-  { title: "Resource", url: "/resources", icon: UserCircle },
-  { title: "Reporting Dashboard", url: "/reports", icon: BarChart3 },
-  { title: "Data Management", url: "/data-management", icon: Database },
-  { title: "Forecast vs Actual", url: "/forecast-actual", icon: TrendingUp },
+  { title: 'Capacity Planning', url: '/capacity-planning', icon: TrendingUp },
+  { title: 'Allocation', url: '/allocation', icon: Users },
+  { title: 'Resource', url: '/resources', icon: UserCircle },
+  { title: 'Timesheets & Actuals', url: '/timesheets-actuals', icon: Clock },
+  { title: 'Reporting Dashboard', url: '/reports', icon: BarChart3 },
+  { title: 'Data Management', url: '/data-management', icon: Database },
 ];
 
 export function AppSidebar() {
