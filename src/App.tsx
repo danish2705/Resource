@@ -14,6 +14,7 @@ import NotFound from "@/pages/NotFound";
 import ForecastActual from "@/pages/ForecastActual";
 import CapacityPlanning from "@/pages/CapacityPlanning";
 import TimesheetsActuals from "@/pages/TimesheetsActuals";
+import ProjectsPage from "./pages/Projects";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/resources" element={<ResourceInformation />} />
             <Route path="/reports" element={<ReportingDashboard />} />
             <Route path="/data-management" element={<DataManagement />} />
+            <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/forecast-actual" element={<ForecastActual />} />
             <Route path="/timesheets-actuals" element={<TimesheetsActuals />} />
             <Route path="*" element={<NotFound />} />
