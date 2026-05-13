@@ -7,10 +7,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
 import {
   Select,
   SelectContent,
@@ -18,24 +16,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export interface Column<T> {
-  key: string;
+type TableRowData = {
+  id?: string | number;
+};
+
+export interface Column<T extends object> {
+  key: keyof T;
   header: string;
   render?: (row: T, index: number) => React.ReactNode;
   sortable?: boolean;
 }
 
-interface Props<T> {
+interface Props<T extends object> {
   data: T[];
   columns: Column<T>[];
   searchPlaceholder?: string;
   pageSize?: number;
 }
 
-export default function DataTable<T extends object>({
+export default function DataTable<T extends TableRowData>({
   data,
   columns,
   searchPlaceholder = "Search...",
@@ -45,8 +46,7 @@ export default function DataTable<T extends object>({
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(defaultPageSize);
 
-  const [sortKey, setSortKey] = useState<string | null>(null);
-
+  const [sortKey, setSortKey] = useState<keyof T | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
   const filtered = useMemo(() => {
@@ -56,7 +56,7 @@ export default function DataTable<T extends object>({
 
     return data.filter((row) =>
       columns.some((col) =>
-        String((row as Record<string, unknown>)[col.key] ?? "")
+        String(row[col.key] ?? "")
           .toLowerCase()
           .includes(s),
       ),
@@ -67,8 +67,8 @@ export default function DataTable<T extends object>({
     if (!sortKey) return filtered;
 
     return [...filtered].sort((a, b) => {
-      const av = (a as Record<string, unknown>)[sortKey];
-      const bv = (b as Record<string, unknown>)[sortKey];
+      const av = a[sortKey];
+      const bv = b[sortKey];
 
       const cmp = String(av).localeCompare(String(bv), undefined, {
         numeric: true,
@@ -82,7 +82,7 @@ export default function DataTable<T extends object>({
 
   const paged = sorted.slice(page * pageSize, (page + 1) * pageSize);
 
-  const handleSort = (key: string) => {
+  const handleSort = (key: keyof T) => {
     if (sortKey === key) {
       setSortDir(sortDir === "asc" ? "desc" : "asc");
     } else {
@@ -91,29 +91,37 @@ export default function DataTable<T extends object>({
     }
   };
 
-  const getStatusStyle = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "available":
-        return "bg-green-100 text-green-700 px-2 py-1 rounded text-xs";
-
-      case "busy":
-        return "bg-red-100 text-red-700 px-2 py-1 rounded text-xs";
-
-      case "leave":
-        return "bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs";
-
-      default:
-        return "";
-    }
-  };
-
   return (
     <div className="space-y-3">
-      {/* Top Controls */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        {/* Search */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          Show
+          <Select
+            value={String(pageSize)}
+            onValueChange={(v) => {
+              setPageSize(Number(v));
+              setPage(0);
+            }}
+          >
+            <SelectTrigger className="w-20 h-8">
+              <SelectValue />
+            </SelectTrigger>
+
+            <SelectContent>
+              {[5, 10, 25, 50].map((n) => (
+                <SelectItem key={n} value={String(n)}>
+                  {n}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <span className="text-sm text-muted-foreground whitespace-nowrap">
+            {filtered.length} results
+          </span>
+        </div>
+
         <Input
-          className="max-w-md h-10"
+          className="max-w-xs h-8"
           placeholder={searchPlaceholder}
           value={search}
           onChange={(e) => {
@@ -121,54 +129,15 @@ export default function DataTable<T extends object>({
             setPage(0);
           }}
         />
-
-        {/* Filters */}
-        <div className="flex items-center gap-3">
-          {/* Team Filter */}
-          <Select>
-            <SelectTrigger className="w-48 h-10">
-              <SelectValue placeholder="All Teams" />
-            </SelectTrigger>
-
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="cloud">Cloud Engineering</SelectItem>
-              <SelectItem value="data">Data Engineering</SelectItem>
-              <SelectItem value="devsecops">DevSecOps</SelectItem>
-              <SelectItem value="delivery">Delivery Management</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* Status Filter */}
-          <Select>
-            <SelectTrigger className="w-40 h-10">
-              <SelectValue placeholder="All Status" />
-            </SelectTrigger>
-
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="allocated">Allocated</SelectItem>
-              <SelectItem value="available">Available</SelectItem>
-              <SelectItem value="bench">Bench</SelectItem>
-              <SelectItem value="overallocated">Overallocated</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* Results Count */}
-          <span className="text-sm text-muted-foreground whitespace-nowrap">
-            {filtered.length} results
-          </span>
-        </div>
       </div>
 
-      {/* Table */}
       <div className="border rounded-md overflow-auto">
         <Table>
           <TableHeader>
             <TableRow>
               {columns.map((col) => (
                 <TableHead
-                  key={col.key}
+                  key={String(col.key)}
                   className={
                     col.sortable !== false
                       ? "cursor-pointer select-none hover:bg-muted/50"
@@ -195,42 +164,22 @@ export default function DataTable<T extends object>({
                 </TableCell>
               </TableRow>
             ) : (
-              paged.map((row, i) => {
-                const rowData = row as Record<string, unknown>;
-
-                return (
-                  <TableRow
-                    key={(rowData.id as string | number) ?? i}
-                    className="hover:bg-accent/30"
-                  >
-                    {columns.map((col) => {
-                      const value = rowData[col.key];
-
-                      return (
-                        <TableCell key={col.key}>
-                          {col.key === "status" ? (
-                            <span
-                              className={getStatusStyle(String(value ?? ""))}
-                            >
-                              {String(value ?? "")}
-                            </span>
-                          ) : col.render ? (
-                            col.render(row, page * pageSize + i)
-                          ) : (
-                            String(value ?? "")
-                          )}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })
+              paged.map((row, i) => (
+                <TableRow key={row.id ?? i} className="hover:bg-accent/30">
+                  {columns.map((col) => (
+                    <TableCell key={String(col.key)}>
+                      {col.render
+                        ? col.render(row, page * pageSize + i)
+                        : String(row[col.key] ?? "")}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>
       </div>
 
-      {/* Pagination */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
           Showing {sorted.length === 0 ? 0 : page * pageSize + 1} to{" "}
