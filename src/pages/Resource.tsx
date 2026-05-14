@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -751,6 +752,7 @@ export function ResourceDialog({
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const handleClose = () => {
     onOpenChange(false);
@@ -782,8 +784,9 @@ export function ResourceDialog({
         duration: 5000,
       });
       handleClose();
+      navigate("/demand-status"); // ← only new line
     }, 800);
-  };
+  };  
 
   const startEdit = (r: AssignedResource) => {
     setEditingId(r.id);
