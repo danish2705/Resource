@@ -1,8 +1,15 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -31,13 +38,14 @@ import {
   CheckCircle2,
   Search,
   Zap,
-  UserCheck,
   AlertCircle,
+  Save,
+  SendHorizonal,
 } from "lucide-react";
 import { toast } from "sonner";
 import DataTable, { type Column } from "@/components/DataTable";
 
-// ─── Shared Resource type (page table) ───────────────────────────────────────
+// ─── Shared Resource type ─────────────────────────────────────────────────────
 
 interface Resource {
   id: string;
@@ -243,17 +251,7 @@ const resourceData: Resource[] = [
   },
 ];
 
-const totalAllocated = resourceData.filter(
-  (r) => r.status === "Allocated",
-).length;
-const totalAvailable = resourceData.filter(
-  (r) => r.status === "Available",
-).length;
-const totalOverallocated = resourceData.filter(
-  (r) => r.status === "Overallocated",
-).length;
-
-// ─── Page Table Columns ───────────────────────────────────────────────────────
+// ─── Table Columns ────────────────────────────────────────────────────────────
 
 const columns: Column<Resource>[] = [
   { key: "resourceId", header: "Resource ID" },
@@ -418,14 +416,10 @@ function AllocationModeChooser({
             <div className="font-semibold text-foreground mb-1">
               Auto Allocate
             </div>
-            <div className="text-xs text-muted-foreground leading-relaxed">
+            <div className="text-xs text-muted-foreground leading-relaxed py-3">
               We'll match resources based on required skills & current
               availability score
             </div>
-          </div>
-          <div className="flex items-center gap-1 text-xs text-primary font-medium mt-1">
-            <Zap className="h-3 w-3" />
-            AI-ranked suggestions
           </div>
         </button>
 
@@ -440,20 +434,11 @@ function AllocationModeChooser({
             <div className="font-semibold text-foreground mb-1">
               Manual Allocate
             </div>
-            <div className="text-xs text-muted-foreground leading-relaxed">
+            <div className="text-xs text-muted-foreground leading-relaxed py-3">
               Browse the full resource catalogue and hand-pick whoever you need
             </div>
           </div>
-          <div className="flex items-center gap-1 text-xs text-primary font-medium mt-1">
-            <UserCheck className="h-3 w-3" />
-            Full control
-          </div>
         </button>
-      </div>
-      <div className="flex justify-center mt-6">
-        <Button variant="ghost" size="sm" onClick={onCancel}>
-          Cancel
-        </Button>
       </div>
     </div>
   );
@@ -511,7 +496,6 @@ function ResourcePicker({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Header */}
       <div className="flex items-center gap-3">
         <Button
           variant="ghost"
@@ -546,7 +530,6 @@ function ResourcePicker({
         </span>
       </div>
 
-      {/* Auto mode banner */}
       {mode === "auto" && (
         <div className="flex items-start gap-2 rounded-lg bg-primary/8 border border-primary/20 px-3 py-2 text-xs text-primary">
           <Zap className="h-3.5 w-3.5 mt-0.5 shrink-0" />
@@ -557,7 +540,6 @@ function ResourcePicker({
         </div>
       )}
 
-      {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
         <Input
@@ -568,7 +550,6 @@ function ResourcePicker({
         />
       </div>
 
-      {/* Table */}
       <div className="border rounded-lg overflow-hidden max-h-[380px] overflow-y-auto">
         {displayList.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 text-muted-foreground text-sm gap-2">
@@ -697,7 +678,6 @@ function ResourcePicker({
         )}
       </div>
 
-      {/* Footer */}
       <div className="flex items-center justify-between pt-1">
         <span className="text-xs text-muted-foreground">
           {displayList.length} resource{displayList.length !== 1 ? "s" : ""}{" "}
@@ -724,7 +704,7 @@ function ResourcePicker({
   );
 }
 
-// ─── ResourceDialog (named export) ───────────────────────────────────────────
+// ─── ResourceDialog ───────────────────────────────────────────────────────────
 
 type ModalStep = "list" | "chooseMode" | "picker";
 
@@ -751,10 +731,15 @@ export function ResourceDialog({
     {
       id: "r1",
       name: "Alice Johnson",
-      email: "alice@company.com",
+      email: "alice.johnson@company.com",
       domain: "Cloud",
     },
-    { id: "r2", name: "Bob Smith", email: "bob@company.com", domain: "Data" },
+    {
+      id: "r2",
+      name: "Bob Smith",
+      email: "bob.smith@company.com",
+      domain: "Data",
+    },
   ]);
   const [step, setStep] = useState<ModalStep>("list");
   const [pickerMode, setPickerMode] = useState<"auto" | "manual">("manual");
@@ -763,10 +748,41 @@ export function ResourceDialog({
   const [addForm, setAddForm] = useState<Omit<AssignedResource, "id">>(empty);
   const [showAddRow, setShowAddRow] = useState(false);
   const [removeId, setRemoveId] = useState<string | null>(null);
+  const [hasPendingChanges, setHasPendingChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleClose = () => {
     onOpenChange(false);
-    setTimeout(() => setStep("list"), 300);
+    setTimeout(() => {
+      setStep("list");
+      setHasPendingChanges(false);
+    }, 300);
+  };
+
+  const handleSave = () => {
+    setIsSaving(true);
+    setTimeout(() => {
+      setIsSaving(false);
+      setHasPendingChanges(false);
+      toast.success(`Resource allocation saved to ${projectName}`, {
+        description: `${resources.length} resource${resources.length !== 1 ? "s" : ""} have been saved to this project. Changes are in draft.`,
+        duration: 4000,
+      });
+    }, 600);
+  };
+
+  const handleSaveAndSubmit = () => {
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setHasPendingChanges(false);
+      toast.success(`Allocation submitted for approval`, {
+        description: `${resources.length} resource${resources.length !== 1 ? "s" : ""} on ${projectName} have been sent to the delivery manager for approval.`,
+        duration: 5000,
+      });
+      handleClose();
+    }, 800);
   };
 
   const startEdit = (r: AssignedResource) => {
@@ -787,9 +803,13 @@ export function ResourceDialog({
   };
 
   const confirmRemove = () => {
+    const removed = resources.find((r) => r.id === removeId);
     setResources((prev) => prev.filter((r) => r.id !== removeId));
     setRemoveId(null);
-    toast.success("Resource removed");
+    setHasPendingChanges(true);
+    toast.info(`${removed?.name ?? "Resource"} removed`, {
+      description: "Save your changes to confirm this removal.",
+    });
   };
 
   const addResource = () => {
@@ -800,7 +820,10 @@ export function ResourceDialog({
     setResources((prev) => [...prev, { id: `r${Date.now()}`, ...addForm }]);
     setAddForm(empty);
     setShowAddRow(false);
-    toast.success("Resource added");
+    setHasPendingChanges(true);
+    toast.info(`${addForm.name} added`, {
+      description: "Save your changes to confirm this addition.",
+    });
   };
 
   const handlePickerSubmit = (picked: Resource[]) => {
@@ -817,8 +840,12 @@ export function ResourceDialog({
         ...newResources.filter((r) => !existingNames.has(r.name)),
       ];
     });
-    toast.success(
-      `${picked.length} resource${picked.length > 1 ? "s" : ""} allocated`,
+    setHasPendingChanges(true);
+    toast.info(
+      `${picked.length} resource${picked.length > 1 ? "s" : ""} added`,
+      {
+        description: "Save your changes to confirm this allocation.",
+      },
     );
     setStep("list");
   };
@@ -845,7 +872,6 @@ export function ResourceDialog({
             </DialogTitle>
           </DialogHeader>
 
-          {/* ── STEP: Resource list ── */}
           {step === "list" && (
             <>
               <div className="border rounded-md overflow-hidden">
@@ -933,16 +959,8 @@ export function ResourceDialog({
                               {r.domain}
                             </Badge>
                           </td>
-                          <td className="px-3 py-2">
+                          <td className="px-6 py-2">
                             <div className="flex gap-1">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0"
-                                onClick={() => startEdit(r)}
-                              >
-                                <Pencil className="h-3.5 w-3.5" />
-                              </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -1042,14 +1060,38 @@ export function ResourceDialog({
                   <Plus className="h-3.5 w-3.5 mr-1" />
                   Add Resource
                 </Button>
-                <Button size="sm" variant="ghost" onClick={handleClose}>
-                  Close
-                </Button>
+
+                {hasPendingChanges && (
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-amber-400 flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-400 inline-block" />
+                      Unsaved changes
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1.5"
+                      disabled={isSaving || isSubmitting}
+                      onClick={handleSave}
+                    >
+                      <Save className="h-3.5 w-3.5" />
+                      {isSaving ? "Saving…" : "Save"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="gap-1.5"
+                      disabled={isSaving || isSubmitting}
+                      onClick={handleSaveAndSubmit}
+                    >
+                      <SendHorizonal className="h-3.5 w-3.5" />
+                      {isSubmitting ? "Submitting…" : "Save & Submit"}
+                    </Button>
+                  </div>
+                )}
               </div>
             </>
           )}
 
-          {/* ── STEP: Choose mode ── */}
           {step === "chooseMode" && (
             <AllocationModeChooser
               onSelect={(mode) => {
@@ -1060,7 +1102,6 @@ export function ResourceDialog({
             />
           )}
 
-          {/* ── STEP: Picker ── */}
           {step === "picker" && (
             <ResourcePicker
               mode={pickerMode}
@@ -1096,6 +1137,49 @@ export function ResourceDialog({
 // ─── ResourceInformation (default export — the page) ─────────────────────────
 
 export default function ResourceInformation() {
+  const [search, setSearch] = useState("");
+  const [filterTeam, setFilterTeam] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterType, setFilterType] = useState("all");
+  const [filterUtil, setFilterUtil] = useState("all");
+
+  const filteredData = useMemo(() => {
+    const q = search.toLowerCase();
+    return resourceData.filter((r) => {
+      const matchSearch =
+        !q ||
+        r.name.toLowerCase().includes(q) ||
+        r.role.toLowerCase().includes(q) ||
+        r.resourceId.toLowerCase().includes(q);
+
+      const matchTeam = filterTeam === "all" || r.team === filterTeam;
+      const matchStatus = filterStatus === "all" || r.status === filterStatus;
+      const matchType = filterType === "all" || r.employeeType === filterType;
+      const matchUtil =
+        filterUtil === "all" ||
+        (filterUtil === "low" && r.utilization < 80) ||
+        (filterUtil === "mid" && r.utilization >= 80 && r.utilization < 100) ||
+        (filterUtil === "full" && r.utilization >= 100);
+
+      return matchSearch && matchTeam && matchStatus && matchType && matchUtil;
+    });
+  }, [search, filterTeam, filterStatus, filterType, filterUtil]);
+
+  const hasActiveFilters =
+    search ||
+    filterTeam !== "all" ||
+    filterStatus !== "all" ||
+    filterType !== "all" ||
+    filterUtil !== "all";
+
+  const clearFilters = () => {
+    setSearch("");
+    setFilterTeam("all");
+    setFilterStatus("all");
+    setFilterType("all");
+    setFilterUtil("all");
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -1106,34 +1190,91 @@ export default function ResourceInformation() {
       </CardHeader>
 
       <CardContent>
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          <Card>
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">Allocated</p>
-              <p className="text-xl font-bold text-blue-500">
-                {totalAllocated}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">Available</p>
-              <p className="text-xl font-bold text-green-500">
-                {totalAvailable}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">Overallocated</p>
-              <p className="text-xl font-bold text-red-500">
-                {totalOverallocated}
-              </p>
-            </CardContent>
-          </Card>
+        {/* ── Search + Filters ── */}
+        <div className="flex items-center gap-2 flex-wrap mb-4">
+          {/* Search */}
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input
+              className="pl-9 h-9 text-sm"
+              placeholder="Search resource, role, ID…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          {/* Team */}
+          <Select value={filterTeam} onValueChange={setFilterTeam}>
+            <SelectTrigger className="h-9 w-[140px] text-sm">
+              <SelectValue placeholder="All Teams" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Teams</SelectItem>
+              {[...new Set(resourceData.map((r) => r.team))].sort().map((t) => (
+                <SelectItem key={t} value={t}>
+                  {t}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Status */}
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="h-9 w-[140px] text-sm">
+              <SelectValue placeholder="All Statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="Available">Available</SelectItem>
+              <SelectItem value="Allocated">Allocated</SelectItem>
+              <SelectItem value="Overallocated">Overallocated</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Employee Type */}
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger className="h-9 w-[130px] text-sm">
+              <SelectValue placeholder="All Types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="FTE">FTE</SelectItem>
+              <SelectItem value="Contractor">Contractor</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Utilization */}
+          <Select value={filterUtil} onValueChange={setFilterUtil}>
+            <SelectTrigger className="h-9 w-[150px] text-sm">
+              <SelectValue placeholder="All Utilization" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Utilization</SelectItem>
+              <SelectItem value="low">Under 80%</SelectItem>
+              <SelectItem value="mid">80–99%</SelectItem>
+              <SelectItem value="full">100%+</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Result count + clear */}
+          <span className="text-sm text-muted-foreground ml-1">
+            {filteredData.length} result{filteredData.length !== 1 ? "s" : ""}
+          </span>
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-9 px-2 text-xs text-muted-foreground"
+              onClick={clearFilters}
+            >
+              <X className="h-3.5 w-3.5 mr-1" />
+              Clear
+            </Button>
+          )}
         </div>
 
-        <DataTable data={resourceData} columns={columns} pageSize={10} />
+        {/* ── Table ── */}
+        <DataTable data={filteredData} columns={columns} pageSize={10} />
       </CardContent>
     </Card>
   );

@@ -412,15 +412,6 @@ export default function DemandSummary() {
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 p-0"
-            onClick={() => setHistoryData(row.history)}
-            title="History"
-          >
-            <History className="h-3.5 w-3.5" />
-          </Button>
         </div>
       ),
     },
@@ -432,31 +423,6 @@ export default function DemandSummary() {
       <Card>
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle className="text-base">Demand Summary</CardTitle>
-          <div className="flex gap-2">
-            <Button size="sm" onClick={() => navigate("/demand/create")}>
-              <Plus className="h-4 w-4 mr-1" />
-              Add
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => setImportChooserOpen(true)}
-            >
-              <Upload className="h-4 w-4 mr-1" />
-              Import
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => setShowAdvSearch(!showAdvSearch)}
-            >
-              <Search className="h-4 w-4 mr-1" />
-              Advance Search
-            </Button>
-            <Button size="sm" variant="outline">
-              <Download className="h-4 w-4" />
-            </Button>
-          </div>
         </CardHeader>
 
         <CardContent>
