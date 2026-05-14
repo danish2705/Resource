@@ -35,12 +35,12 @@ import {
 import {
   Pencil,
   Trash2,
-  History,
   Search,
   Download,
   Upload,
   Plus,
   Users,
+  X,
 } from "lucide-react";
 import DataTable, { type Column } from "@/components/DataTable";
 import HistoryModal from "@/components/HistoryModal";
@@ -118,39 +118,6 @@ function mapRowToDemand(row: Record<string, string>): DemandForm | null {
   };
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-function FilterSelect({
-  label,
-  value,
-  onChange,
-  options,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: string[];
-}) {
-  return (
-    <div>
-      <Label className="text-sm">{label}</Label>
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="h-9">
-          <SelectValue placeholder="Select" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All</SelectItem>
-          {options.map((o) => (
-            <SelectItem key={o} value={o}>
-              {o}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
-  );
-}
-
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function DemandSummary() {
@@ -161,7 +128,8 @@ export default function DemandSummary() {
   const roles = useActiveValues("roles");
   const locationOpts = useActiveValues("countries");
 
-  const [showAdvSearch, setShowAdvSearch] = useState(false);
+  // ── Filters ──
+  const [fSearch, setFSearch] = useState("");
   const [fProject, setFProject] = useState("all");
   const [fRole, setFRole] = useState("all");
   const [fPillar, setFPillar] = useState("all");
@@ -185,17 +153,40 @@ export default function DemandSummary() {
   const [importPreview, setImportPreview] = useState<DemandForm[]>([]);
   const [importSource, setImportSource] = useState<ImportSource>("Excel");
 
-  const filtered = useMemo(
-    () =>
-      demands.filter(
-        (d) =>
-          (fProject === "all" || d.projectName === fProject) &&
-          (fRole === "all" || d.projectRole === fRole) &&
-          (fPillar === "all" || d.pillar === fPillar) &&
-          (fStatus === "all" || d.status === fStatus),
-      ),
-    [demands, fProject, fRole, fPillar, fStatus],
-  );
+  // ── Filtered data ──
+  const filtered = useMemo(() => {
+    const q = fSearch.toLowerCase();
+    return demands.filter((d) => {
+      const matchSearch =
+        !q ||
+        d.projectName.toLowerCase().includes(q) ||
+        d.projectRole.toLowerCase().includes(q) ||
+        d.budgetCode.toLowerCase().includes(q) ||
+        d.pillar.toLowerCase().includes(q);
+      const matchProject = fProject === "all" || d.projectName === fProject;
+      const matchRole = fRole === "all" || d.projectRole === fRole;
+      const matchPillar = fPillar === "all" || d.pillar === fPillar;
+      const matchStatus = fStatus === "all" || d.status === fStatus;
+      return (
+        matchSearch && matchProject && matchRole && matchPillar && matchStatus
+      );
+    });
+  }, [demands, fSearch, fProject, fRole, fPillar, fStatus]);
+
+  const hasActiveFilters =
+    fSearch ||
+    fProject !== "all" ||
+    fRole !== "all" ||
+    fPillar !== "all" ||
+    fStatus !== "all";
+
+  const clearFilters = () => {
+    setFSearch("");
+    setFProject("all");
+    setFRole("all");
+    setFPillar("all");
+    setFStatus("all");
+  };
 
   const handleDelete = () => {
     if (deleteId) {
@@ -422,63 +413,111 @@ export default function DemandSummary() {
     <>
       <Card>
         <CardHeader className="flex-row items-center justify-between">
-          <CardTitle className="text-base">Demand Summary</CardTitle>
+          <div>
+            <CardTitle className="text-base">Demand Summary</CardTitle>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {demands.length} demands
+            </p>
+          </div>
         </CardHeader>
 
         <CardContent>
-          {showAdvSearch && (
-            <div className="border rounded-md p-4 mb-4 grid grid-cols-2 md:grid-cols-4 gap-3">
-              <FilterSelect
-                label="Project"
-                value={fProject}
-                onChange={setFProject}
-                options={projects}
+          {/* ── Search + Filters ── */}
+          <div className="flex items-center gap-2 flex-wrap mb-4">
+            {/* Search */}
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                className="pl-9 h-9 text-sm"
+                placeholder="Search project, role, pillar, budget code…"
+                value={fSearch}
+                onChange={(e) => setFSearch(e.target.value)}
               />
-              <FilterSelect
-                label="Required Skills"
-                value={fRole}
-                onChange={setFRole}
-                options={roles}
-              />
-              <FilterSelect
-                label="Domain / Pillar"
-                value={fPillar}
-                onChange={setFPillar}
-                options={pillars}
-              />
-              <FilterSelect
-                label="Demand Status"
-                value={fStatus}
-                onChange={setFStatus}
-                options={[
-                  "Pending",
-                  "Approved",
-                  "Rejected",
-                  "Awaiting Approval",
-                ]}
-              />
-              <div className="col-span-full flex gap-2">
-                <Button size="sm">Search</Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setFProject("all");
-                    setFRole("all");
-                    setFPillar("all");
-                    setFStatus("all");
-                  }}
-                >
-                  Clear
-                </Button>
-              </div>
             </div>
-          )}
+
+            {/* Project */}
+            <Select value={fProject} onValueChange={setFProject}>
+              <SelectTrigger className="h-9 w-[150px] text-sm">
+                <SelectValue placeholder="All Projects" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Projects</SelectItem>
+                {projects.map((p) => (
+                  <SelectItem key={p} value={p}>
+                    {p}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Domain / Pillar */}
+            <Select value={fPillar} onValueChange={setFPillar}>
+              <SelectTrigger className="h-9 w-[150px] text-sm">
+                <SelectValue placeholder="All Pillars" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Pillars</SelectItem>
+                {pillars.map((p) => (
+                  <SelectItem key={p} value={p}>
+                    {p}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Status */}
+            <Select value={fStatus} onValueChange={setFStatus}>
+              <SelectTrigger className="h-9 w-[140px] text-sm">
+                <SelectValue placeholder="All Statuses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="Pending">Pending</SelectItem>
+                <SelectItem value="Approved">Approved</SelectItem>
+                <SelectItem value="Rejected">Rejected</SelectItem>
+                <SelectItem value="Awaiting Approval">
+                  Awaiting Approval
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Required Skills */}
+            <Select value={fRole} onValueChange={setFRole}>
+              <SelectTrigger className="h-9 w-[150px] text-sm">
+                <SelectValue placeholder="All Skills" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Skills</SelectItem>
+                {roles.map((r) => (
+                  <SelectItem key={r} value={r}>
+                    {r}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Result count + clear */}
+            <span className="text-sm text-muted-foreground whitespace-nowrap">
+              {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+            </span>
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-9 px-2 text-xs text-muted-foreground"
+                onClick={clearFilters}
+              >
+                <X className="h-3.5 w-3.5 mr-1" />
+                Clear
+              </Button>
+            )}
+          </div>
+
           <DataTable data={filtered} columns={columns} pageSize={5} />
         </CardContent>
       </Card>
 
-      {/* ── Resource Dialog with Auto / Manual allocation flow ── */}
+      {/* ── Resource Dialog ── */}
       <ResourceDialog
         open={resourceModal.open}
         onOpenChange={(v) => setResourceModal((s) => ({ ...s, open: v }))}
