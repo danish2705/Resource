@@ -94,41 +94,7 @@ export default function DataTable<T extends TableRowData>({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          Show
-          <Select
-            value={String(pageSize)}
-            onValueChange={(v) => {
-              setPageSize(Number(v));
-              setPage(0);
-            }}
-          >
-            <SelectTrigger className="w-20 h-8">
-              <SelectValue />
-            </SelectTrigger>
-
-            <SelectContent>
-              {[5, 10, 25, 50].map((n) => (
-                <SelectItem key={n} value={String(n)}>
-                  {n}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <span className="text-sm text-muted-foreground whitespace-nowrap">
-            {filtered.length} results
-          </span>
-        </div>
-
-        <Input
-          className="max-w-xs h-8"
-          placeholder={searchPlaceholder}
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(0);
-          }}
-        />
+        <div className="flex items-center gap-2 text-sm text-muted-foreground"></div>
       </div>
 
       <div className="border rounded-md overflow-auto">

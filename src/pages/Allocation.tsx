@@ -1,8 +1,15 @@
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Search, Download, CheckCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Search } from "lucide-react";
 import DataTable, { type Column } from "@/components/DataTable";
-import { toast } from "sonner";
 
 interface AllocationRecord {
   id?: string;
@@ -170,13 +177,11 @@ const columns: Column<AllocationRecord>[] = [
     header: "Resource ID",
     render: (r) => <span className="text-xs font-medium">{r.resourceId}</span>,
   },
-
   {
     key: "projectId",
     header: "Project ID",
     render: (r) => <span className="text-xs font-medium">{r.projectId}</span>,
   },
-
   {
     key: "resource",
     header: "Resource",
@@ -184,7 +189,6 @@ const columns: Column<AllocationRecord>[] = [
       <span className="font-semibold text-foreground">{r.resource}</span>
     ),
   },
-
   {
     key: "project",
     header: "Project",
@@ -192,7 +196,6 @@ const columns: Column<AllocationRecord>[] = [
       <span className="text-sm text-muted-foreground">{r.project}</span>
     ),
   },
-
   {
     key: "role",
     header: "Role",
@@ -200,7 +203,6 @@ const columns: Column<AllocationRecord>[] = [
       <span className="text-sm text-muted-foreground">{r.role}</span>
     ),
   },
-
   {
     key: "billable",
     header: "Billable",
@@ -209,7 +211,6 @@ const columns: Column<AllocationRecord>[] = [
         r.billable === "Yes"
           ? "bg-green-500/20 text-green-400 border border-green-500/30"
           : "bg-gray-500/20 text-gray-300 border border-gray-500/30";
-
       return (
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${color}`}>
           {r.billable}
@@ -217,7 +218,6 @@ const columns: Column<AllocationRecord>[] = [
       );
     },
   },
-
   {
     key: "allocationType",
     header: "Allocation Type",
@@ -226,7 +226,6 @@ const columns: Column<AllocationRecord>[] = [
         r.allocationType === "Client"
           ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
           : "bg-purple-500/20 text-purple-400 border border-purple-500/30";
-
       return (
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${color}`}>
           {r.allocationType}
@@ -234,7 +233,6 @@ const columns: Column<AllocationRecord>[] = [
       );
     },
   },
-
   {
     key: "allocPercent",
     header: "Alloc %",
@@ -245,19 +243,16 @@ const columns: Column<AllocationRecord>[] = [
           : r.allocPercent >= 80
             ? "text-yellow-400"
             : "text-cyan-400";
-
       return (
         <span className={`font-semibold ${color}`}>{r.allocPercent}%</span>
       );
     },
   },
-
   {
     key: "hrsPerWeek",
     header: "Hrs/Wk",
     render: (r) => <span className="text-sm">{r.hrsPerWeek}</span>,
   },
-
   {
     key: "start",
     header: "Start",
@@ -265,7 +260,6 @@ const columns: Column<AllocationRecord>[] = [
       <span className="text-sm text-muted-foreground">{r.start}</span>
     ),
   },
-
   {
     key: "end",
     header: "End",
@@ -273,7 +267,6 @@ const columns: Column<AllocationRecord>[] = [
       <span className="text-sm text-muted-foreground">{r.end}</span>
     ),
   },
-
   {
     key: "totalUtil",
     header: "Total Util",
@@ -283,7 +276,6 @@ const columns: Column<AllocationRecord>[] = [
         Full: "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
         Overallocated: "bg-red-500/20 text-red-400 border border-red-500/30",
       };
-
       return (
         <span
           className={`px-2 py-1 rounded-full text-xs font-medium ${colorMap[r.totalUtil]}`}
@@ -295,36 +287,133 @@ const columns: Column<AllocationRecord>[] = [
   },
 ];
 
+// Derive unique project IDs for dropdown
+const allProjects = Array.from(new Set(allocationData.map((r) => r.projectId)));
+
 export default function ResourceAllocation() {
+  const [search, setSearch] = useState("");
+  const [billableFilter, setBillableFilter] = useState("all");
+  const [allocationTypeFilter, setAllocationTypeFilter] = useState("all");
+  const [totalUtilFilter, setTotalUtilFilter] = useState("all");
+  const [projectFilter, setProjectFilter] = useState("all");
+
+  const filteredData = useMemo(() => {
+    const q = search.toLowerCase();
+    return allocationData.filter((r) => {
+      const matchSearch =
+        !q ||
+        r.resource.toLowerCase().includes(q) ||
+        r.resourceId.toLowerCase().includes(q) ||
+        r.project.toLowerCase().includes(q) ||
+        r.role.toLowerCase().includes(q) ||
+        r.projectId.toLowerCase().includes(q);
+      const matchBillable =
+        billableFilter === "all" || r.billable === billableFilter;
+      const matchType =
+        allocationTypeFilter === "all" ||
+        r.allocationType === allocationTypeFilter;
+      const matchUtil =
+        totalUtilFilter === "all" || r.totalUtil === totalUtilFilter;
+      const matchProject =
+        projectFilter === "all" || r.projectId === projectFilter;
+      return (
+        matchSearch && matchBillable && matchType && matchUtil && matchProject
+      );
+    });
+  }, [
+    search,
+    billableFilter,
+    allocationTypeFilter,
+    totalUtilFilter,
+    projectFilter,
+  ]);
+
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader className="flex-row items-center justify-between">
+        <CardHeader>
           <CardTitle className="text-base">Allocation Details</CardTitle>
-
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <Search className="h-4 w-4 mr-2" />
-              Search
-            </Button>
-
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-
-            <Button
-              size="sm"
-              onClick={() => toast.success("Allocation validated successfully")}
-            >
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Validate
-            </Button>
-          </div>
+          <p className="text-sm text-muted-foreground">
+            {filteredData.length} allocation
+            {filteredData.length !== 1 ? "s" : ""}
+          </p>
         </CardHeader>
 
         <CardContent>
-          <DataTable data={allocationData} columns={columns} pageSize={10} />
+          {/* Filter bar */}
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            {/* Search */}
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                className="pl-9"
+                placeholder="Search resource, project, role..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+
+            {/* Project ID */}
+            <Select value={projectFilter} onValueChange={setProjectFilter}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="All Projects" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Projects</SelectItem>
+                {allProjects.map((p) => (
+                  <SelectItem key={p} value={p}>
+                    {p}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Billable */}
+            <Select value={billableFilter} onValueChange={setBillableFilter}>
+              <SelectTrigger className="w-[130px]">
+                <SelectValue placeholder="Billable" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Billable</SelectItem>
+                <SelectItem value="Yes">Yes</SelectItem>
+                <SelectItem value="No">No</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Allocation Type */}
+            <Select
+              value={allocationTypeFilter}
+              onValueChange={setAllocationTypeFilter}
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Alloc Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="Client">Client</SelectItem>
+                <SelectItem value="Internal">Internal</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Total Util */}
+            <Select value={totalUtilFilter} onValueChange={setTotalUtilFilter}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Total Util" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Utilization</SelectItem>
+                <SelectItem value="OK">OK</SelectItem>
+                <SelectItem value="Full">Full</SelectItem>
+                <SelectItem value="Overallocated">Overallocated</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <span className="text-sm text-muted-foreground whitespace-nowrap">
+              {filteredData.length} results
+            </span>
+          </div>
+
+          <DataTable data={filteredData} columns={columns} pageSize={10} />
         </CardContent>
       </Card>
     </div>

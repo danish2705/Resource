@@ -8,11 +8,9 @@ import DemandManagement from "@/pages/DemandManagement";
 import ResourceAllocation from "@/pages/Allocation";
 import ResourceInformation from "@/pages/Resource";
 import ReportingDashboard from "@/pages/ReportingDashboard";
-import DataManagement from "@/pages/DataManagement";
 import ResourceForecast from "@/pages/ResourceForecast";
 import NotFound from "@/pages/NotFound";
 import ForecastActual from "@/pages/ForecastActual";
-import CapacityPlanning from "@/pages/CapacityPlanning";
 import TimesheetsActuals from "@/pages/TimesheetsActuals";
 import ProjectsPage from "./pages/Projects";
 
@@ -28,11 +26,9 @@ const App = () => (
             <Route path="/" element={<Dashboard />} />
             <Route path="/demand" element={<DemandManagement />} />
             <Route path="/forecast" element={<ResourceForecast />} />
-            <Route path="/capacity-planning" element={<CapacityPlanning />} />
             <Route path="/allocation" element={<ResourceAllocation />} />
             <Route path="/resources" element={<ResourceInformation />} />
             <Route path="/reports" element={<ReportingDashboard />} />
-            <Route path="/data-management" element={<DataManagement />} />
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/forecast-actual" element={<ForecastActual />} />
             <Route path="/timesheets-actuals" element={<TimesheetsActuals />} />
