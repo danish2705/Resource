@@ -11,7 +11,6 @@ import ResourceInformation from "@/pages/Resource";
 import DemandStatus from "@/pages/DemandStatus";
 import ReportingDashboard from "@/pages/ReportingDashboard";
 import ResourceForecast from "@/pages/ResourceForecast";
-import NotFound from "@/pages/NotFound";
 import ForecastActual from "@/pages/ForecastActual";
 import TimesheetsActuals from "@/pages/TimesheetsActuals";
 import ProjectsPage from "./pages/Projects";
@@ -39,7 +38,6 @@ const App = () => (
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/forecast-actual" element={<ForecastActual />} />
             <Route path="/timesheets-actuals" element={<TimesheetsActuals />} />
-            <Route path="*" element={<NotFound />} />
           </Routes>
         </AppLayout>
       </BrowserRouter>

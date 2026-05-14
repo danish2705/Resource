@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useStore } from "@/store/useStore";
 import { useActiveValues } from "@/store/useMasterData";
 import type { Demand } from "@/store/useStore";
+import { ResourceDialog } from "@/pages/Resource";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -38,11 +40,23 @@ import {
   Download,
   Upload,
   Plus,
+  Users,
 } from "lucide-react";
 import DataTable, { type Column } from "@/components/DataTable";
 import HistoryModal from "@/components/HistoryModal";
 import { toast } from "sonner";
 import type { DemandForm } from "./CreateDemand";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type ImportSource =
+  | "Excel"
+  | "Jira"
+  | "Planisware"
+  | "Smartsheets"
+  | "Connected Source";
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const statusColor = (s: string) => {
   switch (s) {
@@ -104,12 +118,7 @@ function mapRowToDemand(row: Record<string, string>): DemandForm | null {
   };
 }
 
-type ImportSource =
-  | "Excel"
-  | "Jira"
-  | "Planisware"
-  | "Smartsheets"
-  | "Connected Source";
+// ─── Sub-components ───────────────────────────────────────────────────────────
 
 function FilterSelect({
   label,
@@ -142,6 +151,8 @@ function FilterSelect({
   );
 }
 
+// ─── Main Component ───────────────────────────────────────────────────────────
+
 export default function DemandSummary() {
   const navigate = useNavigate();
   const { demands, addDemands, deleteDemand } = useStore();
@@ -160,6 +171,13 @@ export default function DemandSummary() {
   const [historyData, setHistoryData] = useState<Demand["history"] | null>(
     null,
   );
+
+  const [resourceModal, setResourceModal] = useState<{
+    open: boolean;
+    demandId: string;
+    projectName: string;
+    projectSkills: string[];
+  }>({ open: false, demandId: "", projectName: "", projectSkills: [] });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importChooserOpen, setImportChooserOpen] = useState(false);
@@ -295,7 +313,81 @@ export default function DemandSummary() {
     setImportPreview([]);
   };
 
+  // ── Columns ──────────────────────────────────────────────────────────────────
   const columns: Column<Demand>[] = [
+    {
+      key: "id",
+      header: "Project ID",
+      render: (row) => (
+        <span className="font-mono text-xs text-muted-foreground">
+          {row.id.slice(0, 8).toUpperCase()}
+        </span>
+      ),
+    },
+    { key: "projectName", header: "Project Name" },
+    {
+      key: "projectRole",
+      header: "Required Skills",
+      render: (row) =>
+        row.projectRole ? (
+          <Badge variant="secondary" className="text-xs">
+            {row.projectRole}
+          </Badge>
+        ) : (
+          <span className="text-muted-foreground text-xs">—</span>
+        ),
+    },
+    { key: "budgetCode", header: "Budget Code" },
+    {
+      key: "pillar",
+      header: "Domain / Pillar",
+      render: (row) => <Badge variant="outline">{row.pillar}</Badge>,
+    },
+    {
+      key: "resourceName",
+      header: "No. of Resources",
+      sortable: false,
+      render: (row) => {
+        const count = row.resourceName ? 2 : 0;
+        return (
+          <button
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors cursor-pointer"
+            onClick={() =>
+              setResourceModal({
+                open: true,
+                demandId: row.id,
+                projectName: row.projectName,
+                projectSkills: row.projectRole ? [row.projectRole] : [],
+              })
+            }
+          >
+            <Users className="h-3 w-3" />
+            {count}
+          </button>
+        );
+      },
+    },
+    {
+      key: "estimatedRate",
+      header: "Estimated Rate",
+      render: (row) =>
+        row.estimatedRate ? `$${row.estimatedRate.toFixed(2)}` : "—",
+    },
+    {
+      key: "currentYearForecast",
+      header: "Current Year Forecast",
+      render: (row) =>
+        row.currentYearForecast
+          ? `$${row.currentYearForecast.toLocaleString()}`
+          : "—",
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (row) => (
+        <Badge variant={statusColor(row.status)}>{row.status}</Badge>
+      ),
+    },
     {
       key: "action",
       header: "Action",
@@ -307,6 +399,7 @@ export default function DemandSummary() {
             size="sm"
             className="h-7 w-7 p-0"
             onClick={() => navigate(`/demand/create?id=${row.id}`)}
+            title="Edit"
           >
             <Pencil className="h-3.5 w-3.5" />
           </Button>
@@ -315,6 +408,7 @@ export default function DemandSummary() {
             size="sm"
             className="h-7 w-7 p-0 text-destructive"
             onClick={() => setDeleteId(row.id)}
+            title="Delete"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
@@ -323,45 +417,16 @@ export default function DemandSummary() {
             size="sm"
             className="h-7 w-7 p-0"
             onClick={() => setHistoryData(row.history)}
+            title="History"
           >
             <History className="h-3.5 w-3.5" />
           </Button>
         </div>
       ),
     },
-    { key: "projectName", header: "Project Name" },
-    { key: "projectRole", header: "Project Role" },
-    { key: "budgetCode", header: "Budget Code" },
-    {
-      key: "pillar",
-      header: "Pillar",
-      render: (row) => <Badge variant="outline">{row.pillar}</Badge>,
-    },
-    { key: "allocationPercent", header: "Allocation(%)" },
-    {
-      key: "status",
-      header: "Status",
-      render: (row) => (
-        <Badge variant={statusColor(row.status)}>{row.status}</Badge>
-      ),
-    },
-    {
-      key: "estimatedRate",
-      header: "Estimated Rate",
-      render: (row) =>
-        row.estimatedRate ? `$${row.estimatedRate.toFixed(2)}` : "",
-    },
-    {
-      key: "currentYearForecast",
-      header: "Current Year Forecast",
-      render: (row) =>
-        row.currentYearForecast
-          ? `$${row.currentYearForecast.toLocaleString()}`
-          : "",
-    },
-    { key: "resourceName", header: "Resource Name" },
   ];
 
+  // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <>
       <Card>
@@ -393,6 +458,7 @@ export default function DemandSummary() {
             </Button>
           </div>
         </CardHeader>
+
         <CardContent>
           {showAdvSearch && (
             <div className="border rounded-md p-4 mb-4 grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -403,13 +469,13 @@ export default function DemandSummary() {
                 options={projects}
               />
               <FilterSelect
-                label="Project Role"
+                label="Required Skills"
                 value={fRole}
                 onChange={setFRole}
                 options={roles}
               />
               <FilterSelect
-                label="Pillar"
+                label="Domain / Pillar"
                 value={fPillar}
                 onChange={setFPillar}
                 options={pillars}
@@ -446,7 +512,16 @@ export default function DemandSummary() {
         </CardContent>
       </Card>
 
-      {/* Import Source Chooser */}
+      {/* ── Resource Dialog with Auto / Manual allocation flow ── */}
+      <ResourceDialog
+        open={resourceModal.open}
+        onOpenChange={(v) => setResourceModal((s) => ({ ...s, open: v }))}
+        demandId={resourceModal.demandId}
+        projectName={resourceModal.projectName}
+        projectSkills={resourceModal.projectSkills}
+      />
+
+      {/* ── Import Source Chooser ── */}
       <Dialog open={importChooserOpen} onOpenChange={setImportChooserOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -470,6 +545,7 @@ export default function DemandSummary() {
                 Upload .xlsx or .csv with Project, Role, Pillar columns
               </div>
             </button>
+
             {(["Jira", "Planisware", "Smartsheets"] as const).map((src) => (
               <button
                 key={src}
@@ -490,6 +566,7 @@ export default function DemandSummary() {
                 </div>
               </button>
             ))}
+
             <button
               onClick={() => fetchFromExternal("Connected Source")}
               className="border rounded-md p-4 text-left hover:bg-accent transition-colors col-span-2"
@@ -517,7 +594,7 @@ export default function DemandSummary() {
         </DialogContent>
       </Dialog>
 
-      {/* Import Preview */}
+      {/* ── Import Preview ── */}
       <Dialog open={showImport} onOpenChange={setShowImport}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -532,8 +609,8 @@ export default function DemandSummary() {
                 <tr>
                   {[
                     "Project Name",
-                    "Role",
-                    "Pillar",
+                    "Required Skills",
+                    "Domain / Pillar",
                     "Budget Code",
                     "Resource",
                     "Type",
@@ -567,7 +644,7 @@ export default function DemandSummary() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation */}
+      {/* ── Delete Confirmation ── */}
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>

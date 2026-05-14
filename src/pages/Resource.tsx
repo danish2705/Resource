@@ -1,16 +1,43 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Search } from "lucide-react";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Pencil,
+  Trash2,
+  Plus,
+  Users,
+  X,
+  Wand2,
+  ClipboardList,
+  ArrowLeft,
+  CheckCircle2,
+  Search,
+  Zap,
+  UserCheck,
+  AlertCircle,
+} from "lucide-react";
+import { toast } from "sonner";
 import DataTable, { type Column } from "@/components/DataTable";
+
+// ─── Shared Resource type (page table) ───────────────────────────────────────
 
 interface Resource {
   id: string;
@@ -30,6 +57,8 @@ interface Resource {
   status: "Allocated" | "Available" | "Overallocated";
   utilization: number;
 }
+
+// ─── Resource Data ────────────────────────────────────────────────────────────
 
 const resourceData: Resource[] = [
   {
@@ -214,6 +243,18 @@ const resourceData: Resource[] = [
   },
 ];
 
+const totalAllocated = resourceData.filter(
+  (r) => r.status === "Allocated",
+).length;
+const totalAvailable = resourceData.filter(
+  (r) => r.status === "Available",
+).length;
+const totalOverallocated = resourceData.filter(
+  (r) => r.status === "Overallocated",
+).length;
+
+// ─── Page Table Columns ───────────────────────────────────────────────────────
+
 const columns: Column<Resource>[] = [
   { key: "resourceId", header: "Resource ID" },
   {
@@ -315,203 +356,784 @@ const columns: Column<Resource>[] = [
   },
 ];
 
-// Derive unique values for dropdowns
-const allTeams = Array.from(new Set(resourceData.map((r) => r.team)));
-const allLevels = Array.from(new Set(resourceData.map((r) => r.level)));
-const allLocations = Array.from(new Set(resourceData.map((r) => r.location)));
-const allManagers = Array.from(
-  new Set(resourceData.map((r) => r.reportingManager)),
-);
+// ─── Dialog Types ─────────────────────────────────────────────────────────────
 
-export default function ResourceInformation() {
+interface AssignedResource {
+  id: string;
+  name: string;
+  email: string;
+  domain: string;
+}
+
+// ─── Dialog Helpers ───────────────────────────────────────────────────────────
+
+function scoreResource(r: Resource, requiredSkills: string[]): number {
+  if (r.status === "Overallocated") return 0;
+  const skillMatch = requiredSkills.length
+    ? r.skills.filter((s) =>
+        requiredSkills.some((req) =>
+          s.toLowerCase().includes(req.toLowerCase()),
+        ),
+      ).length / requiredSkills.length
+    : 0.5;
+  const availScore =
+    r.status === "Available" ? 1 : r.utilization < 80 ? 0.8 : 0.4;
+  return skillMatch * 0.6 + availScore * 0.4;
+}
+
+function getStatusStyle(status: Resource["status"]) {
+  switch (status) {
+    case "Available":
+      return "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30";
+    case "Allocated":
+      return "bg-blue-500/15 text-blue-400 border border-blue-500/30";
+    case "Overallocated":
+      return "bg-red-500/15 text-red-400 border border-red-500/30";
+  }
+}
+
+// ─── AllocationModeChooser ────────────────────────────────────────────────────
+
+function AllocationModeChooser({
+  onSelect,
+  onCancel,
+}: {
+  onSelect: (mode: "auto" | "manual") => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="py-2">
+      <p className="text-sm text-muted-foreground mb-5 text-center">
+        How would you like to allocate a resource to this demand?
+      </p>
+      <div className="grid grid-cols-2 gap-4">
+        <button
+          onClick={() => onSelect("auto")}
+          className="group relative flex flex-col items-center gap-3 rounded-xl border-2 border-dashed border-border p-6 text-center transition-all duration-200 hover:border-primary hover:bg-primary/5 focus:outline-none"
+        >
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Wand2 className="h-7 w-7" />
+          </div>
+          <div>
+            <div className="font-semibold text-foreground mb-1">
+              Auto Allocate
+            </div>
+            <div className="text-xs text-muted-foreground leading-relaxed">
+              We'll match resources based on required skills & current
+              availability score
+            </div>
+          </div>
+          <div className="flex items-center gap-1 text-xs text-primary font-medium mt-1">
+            <Zap className="h-3 w-3" />
+            AI-ranked suggestions
+          </div>
+        </button>
+
+        <button
+          onClick={() => onSelect("manual")}
+          className="group relative flex flex-col items-center gap-3 rounded-xl border-2 border-dashed border-border p-6 text-center transition-all duration-200 hover:border-primary hover:bg-primary/5 focus:outline-none"
+        >
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <ClipboardList className="h-7 w-7" />
+          </div>
+          <div>
+            <div className="font-semibold text-foreground mb-1">
+              Manual Allocate
+            </div>
+            <div className="text-xs text-muted-foreground leading-relaxed">
+              Browse the full resource catalogue and hand-pick whoever you need
+            </div>
+          </div>
+          <div className="flex items-center gap-1 text-xs text-primary font-medium mt-1">
+            <UserCheck className="h-3 w-3" />
+            Full control
+          </div>
+        </button>
+      </div>
+      <div className="flex justify-center mt-6">
+        <Button variant="ghost" size="sm" onClick={onCancel}>
+          Cancel
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ─── ResourcePicker ───────────────────────────────────────────────────────────
+
+function ResourcePicker({
+  mode,
+  requiredSkills,
+  onSubmit,
+  onBack,
+}: {
+  mode: "auto" | "manual";
+  requiredSkills: string[];
+  onSubmit: (selected: Resource[]) => void;
+  onBack: () => void;
+}) {
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [teamFilter, setTeamFilter] = useState("all");
-  const [levelFilter, setLevelFilter] = useState("all");
-  const [empTypeFilter, setEmpTypeFilter] = useState("all");
-  const [locationFilter, setLocationFilter] = useState("all");
-  const [managerFilter, setManagerFilter] = useState("all");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
-  const filteredData = useMemo(() => {
+  const displayList = (() => {
     const q = search.toLowerCase();
-    return resourceData.filter((r) => {
+    let list = resourceData.filter((r) => {
       const matchSearch =
         !q ||
         r.name.toLowerCase().includes(q) ||
         r.role.toLowerCase().includes(q) ||
-        r.resourceId.toLowerCase().includes(q) ||
         r.skills.some((s) => s.toLowerCase().includes(q));
-      const matchStatus = statusFilter === "all" || r.status === statusFilter;
-      const matchTeam = teamFilter === "all" || r.team === teamFilter;
-      const matchLevel = levelFilter === "all" || r.level === levelFilter;
-      const matchEmpType =
-        empTypeFilter === "all" || r.employeeType === empTypeFilter;
-      const matchLocation =
-        locationFilter === "all" || r.location === locationFilter;
-      const matchManager =
-        managerFilter === "all" || r.reportingManager === managerFilter;
-      return (
-        matchSearch &&
-        matchStatus &&
-        matchTeam &&
-        matchLevel &&
-        matchEmpType &&
-        matchLocation &&
-        matchManager
-      );
+      return matchSearch;
     });
-  }, [
-    search,
-    statusFilter,
-    teamFilter,
-    levelFilter,
-    empTypeFilter,
-    locationFilter,
-    managerFilter,
+    if (mode === "auto") {
+      list = list
+        .filter((r) => r.status !== "Overallocated" && r.utilization < 100)
+        .sort(
+          (a, b) =>
+            scoreResource(b, requiredSkills) - scoreResource(a, requiredSkills),
+        );
+    }
+    return list;
+  })();
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const matchedSkillCount = (r: Resource) =>
+    requiredSkills.filter((req) =>
+      r.skills.some((s) => s.toLowerCase().includes(req.toLowerCase())),
+    ).length;
+
+  return (
+    <div className="flex flex-col gap-3">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0"
+          onClick={onBack}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <div className="font-semibold text-sm">
+            {mode === "auto" ? (
+              <span className="flex items-center gap-1.5">
+                <Wand2 className="h-4 w-4 text-primary" />
+                Auto Allocate — Suggested Resources
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5">
+                <ClipboardList className="h-4 w-4 text-primary" />
+                Manual Allocate — Select Resources
+              </span>
+            )}
+          </div>
+          {mode === "auto" && requiredSkills.length > 0 && (
+            <div className="text-xs text-muted-foreground mt-0.5">
+              Matching on: {requiredSkills.join(", ")}
+            </div>
+          )}
+        </div>
+        <span className="text-xs text-muted-foreground">
+          {selected.size} selected
+        </span>
+      </div>
+
+      {/* Auto mode banner */}
+      {mode === "auto" && (
+        <div className="flex items-start gap-2 rounded-lg bg-primary/8 border border-primary/20 px-3 py-2 text-xs text-primary">
+          <Zap className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+          <span>
+            Resources are ranked by skill match & availability. Overallocated
+            resources are excluded.
+          </span>
+        </div>
+      )}
+
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+        <Input
+          className="pl-9 h-8 text-sm"
+          placeholder="Search by name, role, skill…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      {/* Table */}
+      <div className="border rounded-lg overflow-hidden max-h-[380px] overflow-y-auto">
+        {displayList.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 text-muted-foreground text-sm gap-2">
+            <AlertCircle className="h-5 w-5" />
+            No resources match your criteria
+          </div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead className="bg-muted sticky top-0 z-10">
+              <tr>
+                <th className="px-3 py-2 text-left w-8"></th>
+                <th className="px-3 py-2 text-left font-medium">Resource</th>
+                <th className="px-3 py-2 text-left font-medium">Skills</th>
+                {mode === "auto" && (
+                  <th className="px-3 py-2 text-left font-medium">Match</th>
+                )}
+                <th className="px-3 py-2 text-left font-medium">
+                  Availability
+                </th>
+                <th className="px-3 py-2 text-left font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayList.map((r) => {
+                const isSelected = selected.has(r.id);
+                const score =
+                  mode === "auto" ? scoreResource(r, requiredSkills) : null;
+                const matched = matchedSkillCount(r);
+                return (
+                  <tr
+                    key={r.id}
+                    className={`border-t cursor-pointer transition-colors ${isSelected ? "bg-primary/8" : "hover:bg-muted/40"}`}
+                    onClick={() => toggleSelect(r.id)}
+                  >
+                    <td className="px-3 py-2.5">
+                      <div
+                        className={`h-4 w-4 rounded border-2 flex items-center justify-center transition-colors ${isSelected ? "bg-primary border-primary" : "border-border"}`}
+                      >
+                        {isSelected && (
+                          <svg
+                            className="h-2.5 w-2.5 text-primary-foreground"
+                            viewBox="0 0 10 8"
+                            fill="none"
+                          >
+                            <path
+                              d="M1 4l3 3 5-6"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <div className="flex items-center gap-2">
+                        <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-semibold shrink-0">
+                          {r.initials}
+                        </div>
+                        <div>
+                          <div className="font-medium text-xs">{r.name}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {r.role}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <div className="flex flex-wrap gap-1 max-w-[160px]">
+                        {r.skills.map((s) => {
+                          const isMatch =
+                            mode === "auto" &&
+                            requiredSkills.some((req) =>
+                              s.toLowerCase().includes(req.toLowerCase()),
+                            );
+                          return (
+                            <Badge
+                              key={s}
+                              variant="secondary"
+                              className={`text-xs px-1.5 py-0 ${isMatch ? "bg-primary/20 text-primary border border-primary/30" : ""}`}
+                            >
+                              {s}
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    </td>
+                    {mode === "auto" && (
+                      <td className="px-3 py-2.5">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-primary"
+                              style={{
+                                width: `${Math.round((score ?? 0) * 100)}%`,
+                              }}
+                            />
+                          </div>
+                          <span className="text-xs text-primary font-medium">
+                            {Math.round((score ?? 0) * 100)}%
+                          </span>
+                        </div>
+                        {requiredSkills.length > 0 && (
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            {matched}/{requiredSkills.length} skills
+                          </div>
+                        )}
+                      </td>
+                    )}
+                    <td className="px-3 py-2.5 text-xs text-muted-foreground">
+                      {r.availableAfter}
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusStyle(r.status)}`}
+                      >
+                        {r.status}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-1">
+        <span className="text-xs text-muted-foreground">
+          {displayList.length} resource{displayList.length !== 1 ? "s" : ""}{" "}
+          shown
+        </span>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={onBack}>
+            Back
+          </Button>
+          <Button
+            size="sm"
+            disabled={selected.size === 0}
+            onClick={() =>
+              onSubmit(resourceData.filter((r) => selected.has(r.id)))
+            }
+            className="gap-1.5"
+          >
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Allocate {selected.size > 0 ? `(${selected.size})` : ""}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── ResourceDialog (named export) ───────────────────────────────────────────
+
+type ModalStep = "list" | "chooseMode" | "picker";
+
+export function ResourceDialog({
+  open,
+  onOpenChange,
+  demandId,
+  projectName,
+  projectSkills = [],
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  demandId: string;
+  projectName: string;
+  projectSkills?: string[];
+}) {
+  const empty: Omit<AssignedResource, "id"> = {
+    name: "",
+    email: "",
+    domain: "",
+  };
+
+  const [resources, setResources] = useState<AssignedResource[]>([
+    {
+      id: "r1",
+      name: "Alice Johnson",
+      email: "alice@company.com",
+      domain: "Cloud",
+    },
+    { id: "r2", name: "Bob Smith", email: "bob@company.com", domain: "Data" },
   ]);
+  const [step, setStep] = useState<ModalStep>("list");
+  const [pickerMode, setPickerMode] = useState<"auto" | "manual">("manual");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<Omit<AssignedResource, "id">>(empty);
+  const [addForm, setAddForm] = useState<Omit<AssignedResource, "id">>(empty);
+  const [showAddRow, setShowAddRow] = useState(false);
+  const [removeId, setRemoveId] = useState<string | null>(null);
 
-  const activeFilterCount = [
-    statusFilter,
-    teamFilter,
-    levelFilter,
-    empTypeFilter,
-    locationFilter,
-    managerFilter,
-  ].filter((v) => v !== "all").length;
+  const handleClose = () => {
+    onOpenChange(false);
+    setTimeout(() => setStep("list"), 300);
+  };
 
-  function clearAllFilters() {
-    setSearch("");
-    setStatusFilter("all");
-    setTeamFilter("all");
-    setLevelFilter("all");
-    setEmpTypeFilter("all");
-    setLocationFilter("all");
-    setManagerFilter("all");
-  }
+  const startEdit = (r: AssignedResource) => {
+    setEditingId(r.id);
+    setEditForm({ name: r.name, email: r.email, domain: r.domain });
+  };
 
+  const saveEdit = () => {
+    if (!editForm.name.trim()) {
+      toast.error("Name is required");
+      return;
+    }
+    setResources((prev) =>
+      prev.map((r) => (r.id === editingId ? { ...r, ...editForm } : r)),
+    );
+    setEditingId(null);
+    toast.success("Resource updated");
+  };
+
+  const confirmRemove = () => {
+    setResources((prev) => prev.filter((r) => r.id !== removeId));
+    setRemoveId(null);
+    toast.success("Resource removed");
+  };
+
+  const addResource = () => {
+    if (!addForm.name.trim()) {
+      toast.error("Name is required");
+      return;
+    }
+    setResources((prev) => [...prev, { id: `r${Date.now()}`, ...addForm }]);
+    setAddForm(empty);
+    setShowAddRow(false);
+    toast.success("Resource added");
+  };
+
+  const handlePickerSubmit = (picked: Resource[]) => {
+    const newResources: AssignedResource[] = picked.map((r) => ({
+      id: `r${Date.now()}-${r.id}`,
+      name: r.name,
+      email: `${r.name.toLowerCase().replace(" ", ".")}@company.com`,
+      domain: r.team,
+    }));
+    setResources((prev) => {
+      const existingNames = new Set(prev.map((r) => r.name));
+      return [
+        ...prev,
+        ...newResources.filter((r) => !existingNames.has(r.name)),
+      ];
+    });
+    toast.success(
+      `${picked.length} resource${picked.length > 1 ? "s" : ""} allocated`,
+    );
+    setStep("list");
+  };
+
+  const modalTitle = () => {
+    if (step === "chooseMode") return `Allocate Resource — ${projectName}`;
+    if (step === "picker")
+      return pickerMode === "auto"
+        ? `Auto Allocate — ${projectName}`
+        : `Manual Allocate — ${projectName}`;
+    return `Resources — ${projectName}`;
+  };
+
+  return (
+    <>
+      <Dialog open={open} onOpenChange={handleClose}>
+        <DialogContent
+          className={step === "picker" ? "max-w-4xl" : "max-w-2xl"}
+        >
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              {modalTitle()}
+            </DialogTitle>
+          </DialogHeader>
+
+          {/* ── STEP: Resource list ── */}
+          {step === "list" && (
+            <>
+              <div className="border rounded-md overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-medium">
+                        Resource Name
+                      </th>
+                      <th className="px-3 py-2 text-left font-medium">Email</th>
+                      <th className="px-3 py-2 text-left font-medium">
+                        Domain
+                      </th>
+                      <th className="px-3 py-2 text-left font-medium w-28">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {resources.map((r) =>
+                      editingId === r.id ? (
+                        <tr key={r.id} className="border-t bg-accent/30">
+                          <td className="px-2 py-1.5">
+                            <Input
+                              className="h-7 text-sm"
+                              value={editForm.name}
+                              onChange={(e) =>
+                                setEditForm((f) => ({
+                                  ...f,
+                                  name: e.target.value,
+                                }))
+                              }
+                            />
+                          </td>
+                          <td className="px-2 py-1.5">
+                            <Input
+                              className="h-7 text-sm"
+                              value={editForm.email}
+                              onChange={(e) =>
+                                setEditForm((f) => ({
+                                  ...f,
+                                  email: e.target.value,
+                                }))
+                              }
+                            />
+                          </td>
+                          <td className="px-2 py-1.5">
+                            <Input
+                              className="h-7 text-sm"
+                              value={editForm.domain}
+                              onChange={(e) =>
+                                setEditForm((f) => ({
+                                  ...f,
+                                  domain: e.target.value,
+                                }))
+                              }
+                            />
+                          </td>
+                          <td className="px-2 py-1.5 flex gap-1">
+                            <Button
+                              size="sm"
+                              className="h-7 text-xs"
+                              onClick={saveEdit}
+                            >
+                              Save
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0"
+                              onClick={() => setEditingId(null)}
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ) : (
+                        <tr key={r.id} className="border-t hover:bg-muted/40">
+                          <td className="px-3 py-2">{r.name}</td>
+                          <td className="px-3 py-2 text-muted-foreground">
+                            {r.email}
+                          </td>
+                          <td className="px-3 py-2">
+                            <Badge variant="outline" className="text-xs">
+                              {r.domain}
+                            </Badge>
+                          </td>
+                          <td className="px-3 py-2">
+                            <div className="flex gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0"
+                                onClick={() => startEdit(r)}
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0 text-destructive"
+                                onClick={() => setRemoveId(r.id)}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ),
+                    )}
+                    {showAddRow && (
+                      <tr className="border-t bg-accent/20">
+                        <td className="px-2 py-1.5">
+                          <Input
+                            className="h-7 text-sm"
+                            placeholder="Name"
+                            value={addForm.name}
+                            onChange={(e) =>
+                              setAddForm((f) => ({
+                                ...f,
+                                name: e.target.value,
+                              }))
+                            }
+                          />
+                        </td>
+                        <td className="px-2 py-1.5">
+                          <Input
+                            className="h-7 text-sm"
+                            placeholder="Email"
+                            value={addForm.email}
+                            onChange={(e) =>
+                              setAddForm((f) => ({
+                                ...f,
+                                email: e.target.value,
+                              }))
+                            }
+                          />
+                        </td>
+                        <td className="px-2 py-1.5">
+                          <Input
+                            className="h-7 text-sm"
+                            placeholder="Domain"
+                            value={addForm.domain}
+                            onChange={(e) =>
+                              setAddForm((f) => ({
+                                ...f,
+                                domain: e.target.value,
+                              }))
+                            }
+                          />
+                        </td>
+                        <td className="px-2 py-1.5 flex gap-1">
+                          <Button
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={addResource}
+                          >
+                            Add
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0"
+                            onClick={() => {
+                              setShowAddRow(false);
+                              setAddForm(empty);
+                            }}
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </Button>
+                        </td>
+                      </tr>
+                    )}
+                    {resources.length === 0 && !showAddRow && (
+                      <tr>
+                        <td
+                          colSpan={4}
+                          className="px-3 py-4 text-center text-muted-foreground text-sm"
+                        >
+                          No resources assigned yet.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <div className="flex justify-between items-center mt-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setStep("chooseMode")}
+                  disabled={showAddRow}
+                >
+                  <Plus className="h-3.5 w-3.5 mr-1" />
+                  Add Resource
+                </Button>
+                <Button size="sm" variant="ghost" onClick={handleClose}>
+                  Close
+                </Button>
+              </div>
+            </>
+          )}
+
+          {/* ── STEP: Choose mode ── */}
+          {step === "chooseMode" && (
+            <AllocationModeChooser
+              onSelect={(mode) => {
+                setPickerMode(mode);
+                setStep("picker");
+              }}
+              onCancel={() => setStep("list")}
+            />
+          )}
+
+          {/* ── STEP: Picker ── */}
+          {step === "picker" && (
+            <ResourcePicker
+              mode={pickerMode}
+              requiredSkills={projectSkills}
+              onSubmit={handlePickerSubmit}
+              onBack={() => setStep("chooseMode")}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={!!removeId} onOpenChange={() => setRemoveId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Resource</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove this resource? This cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRemove}>
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+
+// ─── ResourceInformation (default export — the page) ─────────────────────────
+
+export default function ResourceInformation() {
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-base">Named Resource Catalogue</CardTitle>
         <p className="text-sm text-muted-foreground">
-          {filteredData.length} resources · live utilization from allocations
+          {resourceData.length} resources · live utilization from allocations
         </p>
       </CardHeader>
 
       <CardContent>
-        {/* Row 1: Search + results count + clear */}
-        <div className="flex items-center gap-3 mb-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              className="pl-9"
-              placeholder="Search name, role, skill, ID..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <span className="text-sm text-muted-foreground whitespace-nowrap">
-            {filteredData.length} results
-          </span>
-          {activeFilterCount > 0 && (
-            <button
-              onClick={clearAllFilters}
-              className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 whitespace-nowrap transition-colors"
-            >
-              Clear {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""}
-            </button>
-          )}
+        <div className="grid grid-cols-3 gap-4 mb-4">
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">Allocated</p>
+              <p className="text-xl font-bold text-blue-500">
+                {totalAllocated}
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">Available</p>
+              <p className="text-xl font-bold text-green-500">
+                {totalAvailable}
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">Overallocated</p>
+              <p className="text-xl font-bold text-red-500">
+                {totalOverallocated}
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Row 2: Dropdown filters */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {/* Status */}
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="All Statuses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="Allocated">Allocated</SelectItem>
-              <SelectItem value="Available">Available</SelectItem>
-              <SelectItem value="Overallocated">Overallocated</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* Team */}
-          <Select value={teamFilter} onValueChange={setTeamFilter}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="All Teams" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Teams</SelectItem>
-              {allTeams.map((t) => (
-                <SelectItem key={t} value={t}>
-                  {t}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* Level */}
-          <Select value={levelFilter} onValueChange={setLevelFilter}>
-            <SelectTrigger className="w-[130px]">
-              <SelectValue placeholder="All Levels" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Levels</SelectItem>
-              {allLevels.map((l) => (
-                <SelectItem key={l} value={l}>
-                  {l}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* Employee Type */}
-          <Select value={empTypeFilter} onValueChange={setEmpTypeFilter}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="All Emp Types" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Emp Types</SelectItem>
-              <SelectItem value="FTE">FTE</SelectItem>
-              <SelectItem value="Contractor">Contractor</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* Location */}
-          <Select value={locationFilter} onValueChange={setLocationFilter}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="All Locations" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Locations</SelectItem>
-              {allLocations.map((loc) => (
-                <SelectItem key={loc} value={loc}>
-                  {loc}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* Reporting Manager */}
-          <Select value={managerFilter} onValueChange={setManagerFilter}>
-            <SelectTrigger className="w-[170px]">
-              <SelectValue placeholder="All Managers" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Managers</SelectItem>
-              {allManagers.map((m) => (
-                <SelectItem key={m} value={m}>
-                  {m}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <DataTable data={filteredData} columns={columns} pageSize={10} />
+        <DataTable data={resourceData} columns={columns} pageSize={10} />
       </CardContent>
     </Card>
   );
