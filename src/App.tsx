@@ -4,7 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import AppLayout from "@/components/AppLayout";
 import Dashboard from "@/pages/Dashboard";
-import DemandManagement from "@/pages/DemandManagement";
+import DemandSummary from "@/pages/DemandSummary";
+import CreateDemand from "@/pages/CreateDemand";
 import ResourceAllocation from "@/pages/Allocation";
 import ResourceInformation from "@/pages/Resource";
 import DemandStatus from "@/pages/DemandStatus";
@@ -25,13 +26,17 @@ const App = () => (
         <AppLayout>
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/demand" element={<DemandManagement />} />
+
+            {/* Demand Management group */}
+            <Route path="/demand/create" element={<CreateDemand />} />
+            {/* /demand-status already exists — sidebar just needs to point here */}
+            <Route path="/demand-status" element={<DemandStatus />} />
+            <Route path="/demand" element={<DemandSummary />} />
             <Route path="/forecast" element={<ResourceForecast />} />
             <Route path="/allocation" element={<ResourceAllocation />} />
             <Route path="/resources" element={<ResourceInformation />} />
             <Route path="/reports" element={<ReportingDashboard />} />
             <Route path="/projects" element={<ProjectsPage />} />
-            <Route path="/demand-status" element={<DemandStatus />} />
             <Route path="/forecast-actual" element={<ForecastActual />} />
             <Route path="/timesheets-actuals" element={<TimesheetsActuals />} />
             <Route path="*" element={<NotFound />} />

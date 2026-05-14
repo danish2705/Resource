@@ -44,7 +44,7 @@ const mainItems = [
 const demandSubItems = [
   {
     title: "Create Demand",
-    url: "/demand?action=create",
+    url: "/demand/create",
     icon: PlusCircle,
   },
   {
