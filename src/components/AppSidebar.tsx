@@ -9,10 +9,10 @@ import {
   ChevronDown,
   ListChecks,
   PlusCircle,
-  Database,
   TrendingUp,
   Clock,
 } from "lucide-react";
+
 import {
   Sidebar,
   SidebarContent,
@@ -28,7 +28,9 @@ import {
   SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+
 import { NavLink } from "@/components/NavLink";
+
 import {
   Collapsible,
   CollapsibleContent,
@@ -40,8 +42,22 @@ const mainItems = [
 ];
 
 const demandSubItems = [
-  { title: "Demand Summary", url: "/demand", icon: ListChecks, end: true },
-  { title: "Create Demand", url: "/demand?action=create", icon: PlusCircle },
+  {
+    title: "Create Demand",
+    url: "/demand?action=create",
+    icon: PlusCircle,
+  },
+  {
+    title: "Demand Status",
+    url: "/demand-status",
+    icon: TrendingUp,
+  },
+  {
+    title: "Demand Summary",
+    url: "/demand",
+    icon: ListChecks,
+    end: true,
+  },
 ];
 
 const lowerItems = [
@@ -55,14 +71,21 @@ const lowerItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+
   const location = useLocation();
-  const demandActive = location.pathname.startsWith("/demand");
+
+  const demandActive =
+    location.pathname.startsWith("/demand") ||
+    location.pathname.startsWith("/demand-status");
+
   const [demandOpen, setDemandOpen] = useState(demandActive);
 
   const linkBase =
     "flex items-center gap-2 w-full transition-colors rounded-md";
+
   const linkInactive =
     "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
+
   const linkActive =
     "bg-sidebar-accent text-sidebar-accent-foreground font-medium";
 
@@ -73,6 +96,7 @@ export function AppSidebar() {
           <div className="h-8 w-8 rounded-md bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shrink-0">
             RM
           </div>
+
           {!collapsed && (
             <div className="flex flex-col leading-tight">
               <span className="text-sm font-semibold text-sidebar-foreground">
@@ -86,6 +110,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Main</SidebarGroupLabel>
+
           <SidebarGroupContent>
             <SidebarMenu>
               {mainItems.map((item) => (
@@ -98,6 +123,7 @@ export function AppSidebar() {
                       activeClassName={linkActive}
                     >
                       <item.icon className="h-4 w-4 shrink-0" />
+
                       {!collapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -116,14 +142,17 @@ export function AppSidebar() {
                       className={demandActive ? linkActive : linkInactive}
                     >
                       <ClipboardList className="h-4 w-4 shrink-0" />
+
                       {!collapsed && (
                         <>
                           <span>Demand Management</span>
+
                           <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
                         </>
                       )}
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
+
                   {!collapsed && (
                     <CollapsibleContent>
                       <SidebarMenuSub>
@@ -137,6 +166,7 @@ export function AppSidebar() {
                                 activeClassName={linkActive}
                               >
                                 <sub.icon className="h-3.5 w-3.5 shrink-0" />
+
                                 <span>{sub.title}</span>
                               </NavLink>
                             </SidebarMenuSubButton>
@@ -157,6 +187,7 @@ export function AppSidebar() {
                       activeClassName={linkActive}
                     >
                       <item.icon className="h-4 w-4 shrink-0" />
+
                       {!collapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
