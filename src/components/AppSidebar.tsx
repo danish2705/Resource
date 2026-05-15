@@ -61,8 +61,8 @@ const demandSubItems = [
 ];
 
 const lowerItems = [
-  { title: "Allocation", url: "/allocation", icon: Users },
-  { title: "Resource", url: "/resources", icon: UserCircle },
+  { title: "Allocation Details", url: "/allocation", icon: Users },
+  { title: "Resource Information", url: "/resources", icon: UserCircle },
   { title: "Projects", url: "/projects", icon: ClipboardList },
   { title: "Timesheets & Actuals", url: "/timesheets-actuals", icon: Clock },
   { title: "Reporting Dashboard", url: "/reports", icon: BarChart3 },

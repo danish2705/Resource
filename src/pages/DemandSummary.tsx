@@ -308,7 +308,7 @@ export default function DemandSummary() {
   const columns: Column<Demand>[] = [
     {
       key: "id",
-      header: "Project ID",
+      header: "Demand ID",
       render: (row) => (
         <span className="font-mono text-xs text-muted-foreground">
           {row.id.slice(0, 8).toUpperCase()}
