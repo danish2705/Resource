@@ -12,6 +12,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
+import {
+  timelineMonths,
+  getMonthlyAllocation,
+} from '@/utils/capacityTimeline';
+
+import CapacityAnalytics from '@/components/capacity/CapacityAnalytics';
+
 interface CapacityGridRow {
   id: string;
   resourceName: string;
@@ -39,7 +46,11 @@ const getUtilizationColor = (allocation: number) => {
     return 'text-yellow-700 bg-yellow-50 border-yellow-200';
   }
 
-  return 'text-green-700 bg-green-50 border-green-200';
+  if (allocation > 0) {
+    return 'text-green-700 bg-green-50 border-green-200';
+  }
+
+  return 'text-muted-foreground bg-muted';
 };
 
 const getStatusBadge = (status: string) => {
@@ -131,15 +142,23 @@ export default function CapacityPlanningGrid({
 
       <CardContent>
         <div className="overflow-x-auto border rounded-md">
-          <Table className="w-full table-fixed">
-            {/* STRICT COLUMN MODEL */}
+          <Table className="w-full table-fixed min-w-[1700px]">
+
+            {/* COLUMN MODEL */}
 
             <colgroup>
-              <col style={{ width: '38%' }} />
-              <col style={{ width: '18%' }} />
+              <col style={{ width: '24%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '10%' }} />
               <col style={{ width: '14%' }} />
-              <col style={{ width: '14%' }} />
-              <col style={{ width: '16%' }} />
+
+              {timelineMonths.map((month) => (
+                <col
+                  key={month.key}
+                  style={{ width: '10%' }}
+                />
+              ))}
             </colgroup>
 
             {/* HEADER */}
@@ -165,6 +184,15 @@ export default function CapacityPlanningGrid({
                 <TableHead className="whitespace-nowrap">
                   Planning Status
                 </TableHead>
+
+                {timelineMonths.map((month) => (
+                  <TableHead
+                    key={month.key}
+                    className="whitespace-nowrap text-center"
+                  >
+                    {month.label}
+                  </TableHead>
+                ))}
               </TableRow>
             </TableHeader>
 
@@ -173,6 +201,7 @@ export default function CapacityPlanningGrid({
             <TableBody>
               {groupedData.map((group) => (
                 <Fragment key={group.resourceName}>
+
                   {/* PARENT ROW */}
 
                   <TableRow>
@@ -211,7 +240,7 @@ export default function CapacityPlanningGrid({
                       {group.vendor}
                     </TableCell>
 
-                    {/* ALLOCATION */}
+                    {/* TOTAL ALLOCATION */}
 
                     <TableCell className="text-center align-middle">
                       <div
@@ -223,7 +252,7 @@ export default function CapacityPlanningGrid({
                       </div>
                     </TableCell>
 
-                    {/* AVAILABLE */}
+                    {/* AVAILABLE CAPACITY */}
 
                     <TableCell className="text-center whitespace-nowrap align-middle">
                       {group.availableCapacity}%
@@ -240,6 +269,39 @@ export default function CapacityPlanningGrid({
                         {group.planningStatus}
                       </div>
                     </TableCell>
+
+                    {/* TIMELINE MONTHS */}
+
+                    {timelineMonths.map((month) => {
+                      const monthlyAllocation =
+                        group.allocations.reduce(
+                          (sum, allocation) =>
+                            sum +
+                            getMonthlyAllocation(
+                              allocation.startDate,
+                              allocation.endDate,
+                              allocation.allocationPercent,
+                              month.start,
+                              month.end
+                            ),
+                          0
+                        );
+
+                      return (
+                        <TableCell
+                          key={month.key}
+                          className="text-center align-middle"
+                        >
+                          <div
+                            className={`inline-flex items-center justify-center rounded-md px-2 py-1 text-xs font-medium border whitespace-nowrap ${getUtilizationColor(
+                              monthlyAllocation
+                            )}`}
+                          >
+                            {monthlyAllocation}%
+                          </div>
+                        </TableCell>
+                      );
+                    })}
                   </TableRow>
 
                   {/* CHILD ROWS */}
@@ -284,8 +346,8 @@ export default function CapacityPlanningGrid({
 
                         {/* AVAILABLE */}
 
-                        <TableCell className="text-center whitespace-nowrap align-middle">
-                          {allocation.availableCapacity}%
+                        <TableCell className="text-center whitespace-nowrap align-middle text-muted-foreground">
+                          —
                         </TableCell>
 
                         {/* STATUS */}
@@ -299,6 +361,34 @@ export default function CapacityPlanningGrid({
                             {allocation.planningStatus}
                           </div>
                         </TableCell>
+
+                        {/* TIMELINE MONTHS */}
+
+                        {timelineMonths.map((month) => {
+                          const monthlyAllocation =
+                            getMonthlyAllocation(
+                              allocation.startDate,
+                              allocation.endDate,
+                              allocation.allocationPercent,
+                              month.start,
+                              month.end
+                            );
+
+                          return (
+                            <TableCell
+                              key={month.key}
+                              className="text-center align-middle"
+                            >
+                              <div
+                                className={`inline-flex items-center justify-center rounded-md px-2 py-1 text-xs font-medium border whitespace-nowrap ${getUtilizationColor(
+                                  monthlyAllocation
+                                )}`}
+                              >
+                                {monthlyAllocation}%
+                              </div>
+                            </TableCell>
+                          );
+                        })}
                       </TableRow>
                     ))}
                 </Fragment>

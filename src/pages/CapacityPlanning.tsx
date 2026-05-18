@@ -1,5 +1,14 @@
 import { useMemo, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+import { useStore } from '@/store/useStore';
+
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+
 import {
   Select,
   SelectContent,
@@ -7,129 +16,125 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useStore } from '@/store/useStore';
-import { Users, Briefcase, AlertTriangle, TrendingUp } from 'lucide-react';
+
 import CapacityPlanningGrid from '@/components/capacity/CapacityPlanningGrid';
+import CapacityAnalytics from '@/components/capacity/CapacityAnalytics';
+import CapacityAlerts from '@/components/capacity/CapacityAlerts';
+import BenchInsights from '@/components/capacity/BenchInsights';
+import ScenarioPlanning from '@/components/capacity/ScenarioPlanning';
 
-const CapacityPlanning = () => {
-  const { resources, allocations, demands, forecasts } = useStore();
+export default function CapacityPlanning() {
 
-  // =========================
-  // FILTER STATES
-  // =========================
-
-  const [selectedProject, setSelectedProject] = useState('all');
-  const [selectedResource, setSelectedResource] = useState('all');
-  const [selectedVendor, setSelectedVendor] = useState('all');
-  const [selectedSkill, setSelectedSkill] = useState('all');
-  const [selectedEmploymentType, setSelectedEmploymentType] =
-    useState('all');
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [selectedPeriod, setSelectedPeriod] = useState('monthly');
+  const {
+    allocations,
+    resources,
+  } = useStore();
 
   // =========================
-  // PLANNING STATUS HELPERS
+  // FILTERS
   // =========================
 
-  const getPlanningStatus = (allocationPercent: number) => {
-    if (allocationPercent === 0) return 'Available';
-    if (allocationPercent < 100) return 'Partial Allocation';
-    if (allocationPercent === 100) return 'Fully Allocated';
+  const [selectedVendor, setSelectedVendor] =
+    useState('All');
 
-    return 'Overallocated';
-  };
+  const [selectedStatus, setSelectedStatus] =
+    useState('All');
 
   // =========================
   // FILTER OPTIONS
   // =========================
 
-  const projectOptions = Array.from(
-    new Set(allocations.map((item) => item.project))
-  );
+  const vendorOptions = useMemo(() => {
 
-  const resourceOptions = Array.from(
-    new Set(resources.map((item) => item.name))
-  );
+    const vendors = new Set(
+      resources.map(
+        (resource) => resource.vendor
+      )
+    );
 
-  const vendorOptions = Array.from(
-    new Set(
-      resources
-        .map((item) => item.vendor)
-        .filter((vendor) => vendor && vendor !== 'N/A')
-    )
-  );
+    return ['All', ...vendors];
 
-  const skillOptions = Array.from(
-    new Set(resources.map((item) => item.primarySkill))
-  );
-
-  const employmentTypeOptions = Array.from(
-    new Set(resources.map((item) => item.type))
-  );
-
-  const statusOptions = [
-    'Available',
-    'Partial Allocation',
-    'Fully Allocated',
-    'Overallocated',
-    'Bench',
-  ];
+  }, [resources]);
 
   // =========================
-  // FILTERED DATASETS
+  // FILTERED DATA
   // =========================
 
   const filteredAllocations = useMemo(() => {
+
     return allocations.filter((allocation) => {
+
       const resource = resources.find(
-        (res) => res.name === allocation.resourceName
+        (r) =>
+          r.resourceName ===
+          allocation.resourceName
       );
 
-      const planningStatus = getPlanningStatus(
-        allocation.allocationPercent
-      );
+      const vendor =
+        resource?.vendor || 'Internal';
 
-      const matchesProject =
-        selectedProject === 'all' ||
-        allocation.project === selectedProject;
+      // =========================
+      // TOTAL RESOURCE ALLOCATION
+      // =========================
 
-      const matchesResource =
-        selectedResource === 'all' ||
-        allocation.resourceName === selectedResource;
+      const totalResourceAllocation =
+        allocations
+          .filter(
+            (a) =>
+              a.resourceName ===
+              allocation.resourceName
+          )
+          .reduce(
+            (sum, item) =>
+              sum + item.allocationPercent,
+            0
+          );
 
-      const matchesVendor =
-        selectedVendor === 'all' ||
-        resource?.vendor === selectedVendor;
+      let planningStatus = 'Available';
 
-      const matchesSkill =
-        selectedSkill === 'all' ||
-        resource?.primarySkill === selectedSkill;
+      if (totalResourceAllocation > 100) {
 
-      const matchesEmploymentType =
-        selectedEmploymentType === 'all' ||
-        resource?.type === selectedEmploymentType;
+        planningStatus = 'Overallocated';
 
-      const matchesStatus =
-        selectedStatus === 'all' ||
+      } else if (
+        totalResourceAllocation === 100
+      ) {
+
+        planningStatus =
+          'Fully Allocated';
+
+      } else if (
+        totalResourceAllocation > 0
+      ) {
+
+        planningStatus =
+          'Partial Allocation';
+
+      }
+
+      // =========================
+      // FILTERS
+      // =========================
+
+      const vendorMatch =
+        selectedVendor === 'All' ||
+        vendor === selectedVendor;
+
+      const statusMatch =
+        selectedStatus === 'All' ||
         planningStatus === selectedStatus;
 
       return (
-        matchesProject &&
-        matchesResource &&
-        matchesVendor &&
-        matchesSkill &&
-        matchesEmploymentType &&
-        matchesStatus
+        vendorMatch &&
+        statusMatch
       );
+
     });
+
   }, [
     allocations,
     resources,
-    selectedProject,
-    selectedResource,
     selectedVendor,
-    selectedSkill,
-    selectedEmploymentType,
     selectedStatus,
   ]);
 
@@ -137,384 +142,528 @@ const CapacityPlanning = () => {
   // KPI CALCULATIONS
   // =========================
 
-  // Workforce size
-  const totalResources = resources.length;
+  const capacityMetrics = useMemo(() => {
 
-  // Total workforce capacity
-  const totalCapacity = totalResources * 100;
+    const groupedResources:
+      Record<string, number> = {};
 
-  // Current allocated %
-  const allocatedCapacity = filteredAllocations.reduce(
-    (sum, allocation) => sum + allocation.allocationPercent,
-    0
-  );
+    filteredAllocations.forEach(
+      (allocation) => {
 
-  // Workforce utilization %
-  const workforceUtilization =
-    totalCapacity > 0
-      ? Number(
-          ((allocatedCapacity / totalCapacity) * 100).toFixed(1)
-        )
-      : 0;
+        groupedResources[
+          allocation.resourceName
+        ] =
+          (
+            groupedResources[
+              allocation.resourceName
+            ] || 0
+          ) +
+          allocation.allocationPercent;
 
-  // Remaining / deficit capacity
-  const remainingCapacity = totalCapacity - allocatedCapacity;
+      }
+    );
 
-  const isOverCapacity = remainingCapacity < 0;
+    // TOTAL RESOURCES
 
-  const availableCapacityPercent = Number(
-    Math.abs((remainingCapacity / totalCapacity) * 100).toFixed(1)
-  );
+    const totalResources =
+      Object.keys(groupedResources)
+        .length;
 
-  // Allocation map
-  const resourceAllocationMap = filteredAllocations.reduce(
-    (acc, allocation) => {
-      acc[allocation.resourceName] =
-        (acc[allocation.resourceName] || 0) +
-        allocation.allocationPercent;
+    // TOTAL CAPACITY
 
-      return acc;
-    },
-    {} as Record<string, number>
-  );
+    const totalCapacity =
+      totalResources * 100;
 
-  // Overallocated resources
-  const overallocatedResources = Object.values(
-    resourceAllocationMap
-  ).filter((value) => value > 100).length;
+    // ALLOCATED CAPACITY
 
-  // Demand allocation requirement
-  const totalDemandCapacity = demands
-    .filter((demand) => demand.identified)
-    .reduce((sum, demand) => {
-      return sum + demand.allocationPercent;
-    }, 0);
+    const allocatedCapacity =
+      Object.values(
+        groupedResources
+      ).reduce(
+        (sum, allocation) =>
+          sum + allocation,
+        0
+      );
 
-  // Demand coverage %
-  const demandCoverage =
-    totalDemandCapacity > 0
-      ? Number(
-          Math.min(
-            100,
-            (allocatedCapacity / totalDemandCapacity) * 100
-          ).toFixed(1)
-        )
-      : 0;
+    // NORMALIZED DISPLAY
 
-  // Forecasted demand estimation
-  const totalForecastDemand = forecasts.reduce(
-    (sum, forecast) => {
-      return sum + forecast.headcount * 100;
-    },
-    0
-  );
+    const normalizedAllocatedCapacity =
+      totalResources > 0
+        ? Number(
+            (
+              allocatedCapacity /
+              totalResources
+            ).toFixed(1)
+          )
+        : 0;
 
-  // Forecast utilization %
-  const forecastUtilization =
-    totalCapacity > 0
-      ? Number(
-          Math.min(
-            999,
-            (totalForecastDemand / totalCapacity) * 100
-          ).toFixed(1)
-        )
-      : 0;
+    // AVAILABLE CAPACITY
+
+    const rawAvailableCapacity =
+      totalCapacity -
+      allocatedCapacity;
+
+    const availableCapacity =
+      Math.max(
+        0,
+        rawAvailableCapacity
+      );
+
+    // OVERFLOW
+
+    const capacityOverflow =
+      allocatedCapacity > totalCapacity
+        ? allocatedCapacity -
+          totalCapacity
+        : 0;
+
+    // OVERALLOCATED
+
+    const overallocatedResources =
+      Object.values(
+        groupedResources
+      ).filter(
+        (allocation) =>
+          allocation > 100
+      ).length;
+
+    // UTILIZATION
+
+    const utilization =
+      totalCapacity > 0
+        ? Math.round(
+            (
+              allocatedCapacity /
+              totalCapacity
+            ) * 100
+          )
+        : 0;
+
+    return {
+      totalResources,
+      totalCapacity,
+      allocatedCapacity,
+      normalizedAllocatedCapacity,
+      availableCapacity,
+      capacityOverflow,
+      overallocatedResources,
+      utilization,
+    };
+
+  }, [filteredAllocations]);
 
   // =========================
   // GRID DATA
   // =========================
 
-  const gridData = filteredAllocations.map((allocation) => {
-    const resource = resources.find(
-      (res) => res.name === allocation.resourceName
+  const capacityGridData = useMemo(() => {
+
+    return filteredAllocations.map(
+      (allocation) => {
+
+        const resource =
+          resources.find(
+            (r) =>
+              r.resourceName ===
+              allocation.resourceName
+          );
+
+        const vendor =
+          resource?.vendor ||
+          'Internal';
+
+        const totalResourceAllocation =
+          allocations
+            .filter(
+              (a) =>
+                a.resourceName ===
+                allocation.resourceName
+            )
+            .reduce(
+              (sum, item) =>
+                sum +
+                item.allocationPercent,
+              0
+            );
+
+        const availableCapacity =
+          Math.max(
+            0,
+            100 -
+              totalResourceAllocation
+          );
+
+        let planningStatus =
+          'Available';
+
+        if (
+          totalResourceAllocation > 100
+        ) {
+
+          planningStatus =
+            'Overallocated';
+
+        } else if (
+          totalResourceAllocation === 100
+        ) {
+
+          planningStatus =
+            'Fully Allocated';
+
+        } else if (
+          totalResourceAllocation > 0
+        ) {
+
+          planningStatus =
+            'Partial Allocation';
+
+        }
+
+        return {
+          id: allocation.id,
+          resourceName:
+            allocation.resourceName,
+          role:
+            allocation.projectRole,
+          vendor,
+          project:
+            allocation.project,
+          allocationPercent:
+            allocation.allocationPercent,
+          totalAllocation:
+            totalResourceAllocation,
+          availableCapacity,
+          planningStatus,
+          startDate:
+            allocation.startDate,
+          endDate:
+            allocation.endDate,
+        };
+
+      }
     );
 
-    const totalResourceAllocation =
-      resourceAllocationMap[allocation.resourceName] || 0;
-
-    const availableCapacity = Math.max(
-      0,
-      100 - totalResourceAllocation
-    );
-
-    let planningStatus = 'Available';
-
-    if (totalResourceAllocation > 100) {
-      planningStatus = 'Overallocated';
-    } else if (totalResourceAllocation === 100) {
-      planningStatus = 'Fully Allocated';
-    } else if (totalResourceAllocation > 0) {
-      planningStatus = 'Partial Allocation';
-    }
-
-    return {
-      id: allocation.id,
-      resourceName: allocation.resourceName,
-      role: allocation.projectRole,
-      vendor: resource?.vendor || 'Internal',
-      project: allocation.project,
-      allocationPercent: allocation.allocationPercent,
-      totalAllocation: totalResourceAllocation,
-      availableCapacity,
-      planningStatus,
-      startDate: allocation.startDate,
-      endDate: allocation.endDate,
-    };
-  });
-
-  const kpis = [
-    {
-      title: 'Workforce Size',
-      value: `${totalResources}`,
-      icon: Users,
-      description: 'Total active resources',
-    },
-    {
-      title: 'Workforce Utilization',
-      value: `${workforceUtilization}%`,
-      icon: Briefcase,
-      description: `${filteredAllocations.length} active allocations`,
-    },
-    {
-      title: isOverCapacity
-        ? 'Capacity Deficit'
-        : 'Available Capacity',
-      value: `${availableCapacityPercent}%`,
-      icon: TrendingUp,
-      description: isOverCapacity
-        ? 'Organization over capacity'
-        : 'Remaining workforce bandwidth',
-    },
-    {
-      title: 'Overallocated Resources',
-      value: `${overallocatedResources}`,
-      icon: AlertTriangle,
-      description: 'Resources above 100% allocation',
-    },
-    {
-      title: 'Demand Coverage',
-      value: `${demandCoverage}%`,
-      icon: Briefcase,
-      description: 'Demand fulfilled by current allocations',
-    },
-    {
-      title: 'Forecast Utilization',
-      value: `${forecastUtilization}%`,
-      icon: TrendingUp,
-      description: `${selectedPeriod} planning horizon`,
-    },
-  ];
+  }, [
+    filteredAllocations,
+    resources,
+    allocations,
+  ]);
 
   return (
+
     <div className="space-y-6">
-      {/* PAGE HEADER */}
+
+      {/* PAGE TITLE */}
 
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">
+
+        <h1 className="text-2xl font-bold">
           Capacity Planning
         </h1>
 
         <p className="text-sm text-muted-foreground mt-1">
-          Enterprise workforce capacity, allocation, and forecast planning
+          Enterprise workforce planning
+          and utilization management
         </p>
+
       </div>
 
-      {/* GLOBAL FILTERS */}
+      {/* KPI CARDS */}
+
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">
+              Total Capacity
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {
+                capacityMetrics.totalResources
+              }
+            </div>
+
+            <div className="text-sm text-muted-foreground mt-1">
+              Resources
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">
+              Allocated Capacity
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {
+                capacityMetrics.normalizedAllocatedCapacity
+              }
+              %
+            </div>
+
+            <div className="text-sm text-muted-foreground mt-1">
+              Average allocation utilization
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">
+              Available Capacity
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent>
+            <div className="text-3xl font-bold text-green-600">
+              {
+                capacityMetrics.availableCapacity
+              }
+              %
+            </div>
+
+            <div className="text-sm text-muted-foreground mt-1">
+              Remaining healthy capacity
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">
+              Capacity Overflow
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent>
+            <div className="text-3xl font-bold text-amber-600">
+              {
+                capacityMetrics.capacityOverflow
+              }
+              %
+            </div>
+
+            <div className="text-sm text-muted-foreground mt-1">
+              Capacity beyond organization limit
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">
+              Overallocated
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent>
+            <div className="text-3xl font-bold text-destructive">
+              {
+                capacityMetrics.overallocatedResources
+              }
+            </div>
+
+            <div className="text-sm text-muted-foreground mt-1">
+              Resources above 100%
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">
+              Utilization
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {
+                capacityMetrics.utilization
+              }
+              %
+            </div>
+
+            <div className="text-sm text-muted-foreground mt-1">
+              Overall workforce utilization
+            </div>
+          </CardContent>
+        </Card>
+
+      </div>
+
+      {/* FILTERS */}
 
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">
-            Global Filters
+
+        <CardHeader>
+          <CardTitle className="text-sm">
+            Capacity Filters
           </CardTitle>
         </CardHeader>
 
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {/* Project */}
 
-            <Select
-              value={selectedProject}
-              onValueChange={setSelectedProject}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Project" />
-              </SelectTrigger>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-              <SelectContent>
-                <SelectItem value="all">All Projects</SelectItem>
+            <div>
 
-                {projectOptions.map((project) => (
-                  <SelectItem key={project} value={project}>
-                    {project}
+              <div className="text-sm font-medium mb-2">
+                Vendor
+              </div>
+
+              <Select
+                value={selectedVendor}
+                onValueChange={
+                  setSelectedVendor
+                }
+              >
+
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+
+                <SelectContent>
+
+                  {vendorOptions.map(
+                    (vendor) => (
+                      <SelectItem
+                        key={vendor}
+                        value={vendor}
+                      >
+                        {vendor}
+                      </SelectItem>
+                    )
+                  )}
+
+                </SelectContent>
+
+              </Select>
+
+            </div>
+
+            <div>
+
+              <div className="text-sm font-medium mb-2">
+                Planning Status
+              </div>
+
+              <Select
+                value={selectedStatus}
+                onValueChange={
+                  setSelectedStatus
+                }
+              >
+
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+
+                <SelectContent>
+
+                  <SelectItem value="All">
+                    All
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
 
-            {/* Resource */}
-
-            <Select
-              value={selectedResource}
-              onValueChange={setSelectedResource}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Resource" />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem value="all">All Resources</SelectItem>
-
-                {resourceOptions.map((resource) => (
-                  <SelectItem key={resource} value={resource}>
-                    {resource}
+                  <SelectItem value="Available">
+                    Available
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
 
-            {/* Vendor */}
-
-            <Select
-              value={selectedVendor}
-              onValueChange={setSelectedVendor}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Vendor" />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem value="all">All Vendors</SelectItem>
-
-                {vendorOptions.map((vendor) => (
-                  <SelectItem key={vendor} value={vendor}>
-                    {vendor}
+                  <SelectItem value="Partial Allocation">
+                    Partial Allocation
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
 
-            {/* Skill */}
-
-            <Select
-              value={selectedSkill}
-              onValueChange={setSelectedSkill}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Skill" />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem value="all">All Skills</SelectItem>
-
-                {skillOptions.map((skill) => (
-                  <SelectItem key={skill} value={skill}>
-                    {skill}
+                  <SelectItem value="Fully Allocated">
+                    Fully Allocated
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
 
-            {/* Employment Type */}
-
-            <Select
-              value={selectedEmploymentType}
-              onValueChange={setSelectedEmploymentType}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Employment Type" />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem value="all">
-                  All Employment Types
-                </SelectItem>
-
-                {employmentTypeOptions.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
+                  <SelectItem value="Overallocated">
+                    Overallocated
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
 
-            {/* Status */}
+                </SelectContent>
 
-            <Select
-              value={selectedStatus}
-              onValueChange={setSelectedStatus}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
+              </Select>
 
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
+            </div>
 
-                {statusOptions.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {status}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Time Period */}
-
-            <Select
-              value={selectedPeriod}
-              onValueChange={setSelectedPeriod}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Time Period" />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem value="weekly">Weekly</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-                <SelectItem value="quarterly">
-                  Quarterly
-                </SelectItem>
-              </SelectContent>
-            </Select>
           </div>
+
         </CardContent>
+
       </Card>
 
-      {/* KPI CARDS */}
+      {/* GRID */}
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {kpis.map((kpi) => {
-          const Icon = kpi.icon;
+      <CapacityPlanningGrid
+        data={capacityGridData}
+      />
 
-          return (
-            <Card key={kpi.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {kpi.title}
-                </CardTitle>
+      {/* ANALYTICS */}
 
-                <Icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
+      <CapacityAnalytics
+        allocations={filteredAllocations.map(
+          (allocation) => ({
+            resourceName:
+              allocation.resourceName,
+            allocationPercent:
+              allocation.allocationPercent,
+          })
+        )}
+      />
 
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {kpi.value}
-                </div>
+      {/* EXCEPTION ALERTS */}
 
-                <p className="text-xs text-muted-foreground mt-1">
-                  {kpi.description}
-                </p>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+      <CapacityAlerts
+        allocations={filteredAllocations.map(
+          (allocation) => ({
+            resourceName:
+              allocation.resourceName,
+            allocationPercent:
+              allocation.allocationPercent,
+            endDate:
+              allocation.endDate,
+          })
+        )}
+      />
 
-      {/* CAPACITY PLANNING GRID */}
+      {/* SCENARIO PLANNING */}
 
-      <CapacityPlanningGrid data={gridData} />
+      <ScenarioPlanning
+        allocations={filteredAllocations.map(
+          (allocation) => ({
+            id: allocation.id,
+            resourceName:
+              allocation.resourceName,
+            project:
+              allocation.project,
+            allocationPercent:
+              allocation.allocationPercent,
+          })
+        )}
+      />
+
+      {/* BENCH INSIGHTS */}
+
+      <BenchInsights
+        allocations={filteredAllocations.map(
+          (allocation) => ({
+            resourceName:
+              allocation.resourceName,
+            allocationPercent:
+              allocation.allocationPercent,
+            endDate:
+              allocation.endDate,
+          })
+        )}
+      />
+
     </div>
   );
-};
-
-export default CapacityPlanning;
+}
