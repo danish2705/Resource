@@ -17,8 +17,6 @@ import {
   getMonthlyAllocation,
 } from '@/utils/capacityTimeline';
 
-import CapacityAnalytics from '@/components/capacity/CapacityAnalytics';
-
 interface CapacityGridRow {
   id: string;
   resourceName: string;

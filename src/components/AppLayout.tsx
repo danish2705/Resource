@@ -86,9 +86,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="h-screen overflow-hidden flex w-full bg-background">
         <AppSidebar />
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
           <header className="h-14 flex items-center justify-between border-b bg-card px-4 shadow-sm">
             <div className="flex items-center gap-2">
               <SidebarTrigger />
@@ -216,7 +216,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
           </header>
 
-          <main className="flex-1 p-6 overflow-auto">{children}</main>
+          <main className="flex-1 p-6 overflow-y-auto overflow-x-hidden">
+  {children}
+</main>
         </div>
       </div>
     </SidebarProvider>
