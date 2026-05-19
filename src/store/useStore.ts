@@ -139,15 +139,25 @@ interface AppState {
   addDemand: (
     d: Omit<
       Demand,
-      'id' | 'history' | 'createdBy' | 'createdDate' | 'updatedBy' | 'updatedDate'
-    >
+      | "id"
+      | "history"
+      | "createdBy"
+      | "createdDate"
+      | "updatedBy"
+      | "updatedDate"
+    >,
   ) => void;
 
   addDemands: (
     ds: Omit<
       Demand,
-      'id' | 'history' | 'createdBy' | 'createdDate' | 'updatedBy' | 'updatedDate'
-    >[]
+      | "id"
+      | "history"
+      | "createdBy"
+      | "createdDate"
+      | "updatedBy"
+      | "updatedDate"
+    >[],
   ) => void;
 
   updateDemand: (id: string, updates: Partial<Demand>) => void;
@@ -159,9 +169,9 @@ interface AppState {
   updateResource: (id: string, updates: Partial<ResourceProfile>) => void;
 
   addForecast: (
-    f: Omit<Forecast, 'id' | 'createdBy' | 'createdDate' | 'status'> & {
-      status?: Forecast['status'];
-    }
+    f: Omit<Forecast, "id" | "createdBy" | "createdDate" | "status"> & {
+      status?: Forecast["status"];
+    },
   ) => void;
 
   updateForecast: (id: string, updates: Partial<Forecast>) => void;
@@ -286,8 +296,8 @@ const mockDemands: Demand[] = Array.from({ length: 47 }, (_, i) => ({
   status: statuses[i % statuses.length],
   comments: "",
   identified: i % 2 === 0,
-  estimatedRate: i % 2 === 0 ? 110 + i * 10 : 0,
-  currentYearForecast: i % 2 === 0 ? 100000 + i * 10000 : 0,
+  estimatedRate: 110 + i * 10,
+  currentYearForecast: 100000 + i * 10000,
   resourceName: i % 2 === 0 ? resourceNames[i % resourceNames.length] : "",
   workstream: "WS-" + ((i % 3) + 1),
   subTeam: "ST-" + ((i % 4) + 1),
@@ -391,10 +401,10 @@ export const useStore = create<AppState>((set) => ({
   resources: mockResources,
   forecasts: mockForecasts,
 
-  selectedProject: 'Global',
+  selectedProject: "Global",
 
   powerBiUrl:
-    'https://app.powerbi.com/reportEmbed?reportId=6fe8891f-cbe6-4462-98ec-5044e47b137d&autoAuth=true&ctid=1a264c83-db2d-4da1-8cc5-44b1b94837a8',
+    "https://app.powerbi.com/reportEmbed?reportId=6fe8891f-cbe6-4462-98ec-5044e47b137d&autoAuth=true&ctid=1a264c83-db2d-4da1-8cc5-44b1b94837a8",
 
   addDemand: (d) =>
     set((state) => ({
@@ -404,9 +414,9 @@ export const useStore = create<AppState>((set) => ({
           ...d,
           id: `dem-${Date.now()}`,
           history: [],
-          createdBy: '[REDACTED_EMAIL_ADDRESS_3]',
+          createdBy: "[REDACTED_EMAIL_ADDRESS_3]",
           createdDate: new Date().toLocaleDateString(),
-          updatedBy: '[REDACTED_EMAIL_ADDRESS_3]',
+          updatedBy: "[REDACTED_EMAIL_ADDRESS_3]",
           updatedDate: new Date().toLocaleDateString(),
         },
       ],

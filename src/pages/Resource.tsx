@@ -57,7 +57,7 @@ interface Resource {
   level: string;
   team: string;
   reportingManager: string;
-  employeeType: "FTE" | "Contractor";
+  employeeType: "Full Time" | "Contractor";
   availableAfter: string;
   skills: string[];
   ratePerHr: number;
@@ -78,9 +78,9 @@ const resourceData: Resource[] = [
     initials: "PS",
     level: "Senior",
     team: "Cloud Eng",
-    reportingManager: "Ananya Rao",
-    employeeType: "FTE",
-    availableAfter: "Jun 4",
+    reportingManager: "Emma Wilson",
+    employeeType: "Full Time",
+    availableAfter: "Jun 4 2026",
     skills: ["AWS", "Terraform", "Kubernetes"],
     ratePerHr: 95,
     capacity: "40 hrs",
@@ -91,14 +91,14 @@ const resourceData: Resource[] = [
   {
     id: "res-1",
     resourceId: "RID-1002",
-    name: "Arjun Mehta",
+    name: "Liam Anderson",
     role: "Data Engineer",
-    initials: "AM",
+    initials: "LA",
     level: "Mid",
     team: "Data Eng",
     reportingManager: "Ananya Rao",
     employeeType: "Contractor",
-    availableAfter: "May 6",
+    availableAfter: "May 6 2027",
     skills: ["Python", "Spark", "SQL"],
     ratePerHr: 75,
     capacity: "40 hrs",
@@ -114,9 +114,9 @@ const resourceData: Resource[] = [
     initials: "SI",
     level: "Senior",
     team: "DevSecOps",
-    reportingManager: "Dev Krishnan",
-    employeeType: "FTE",
-    availableAfter: "Dec 8",
+    reportingManager: "Daniel Carter",
+    employeeType: "Full Time",
+    availableAfter: "Dec 8 2027",
     skills: ["Docker", "CI/CD", "Security"],
     ratePerHr: 85,
     capacity: "40 hrs",
@@ -134,7 +134,7 @@ const resourceData: Resource[] = [
     team: "Cloud Eng",
     reportingManager: "Priya Sharma",
     employeeType: "Contractor",
-    availableAfter: "Jul 12",
+    availableAfter: "Jul 12 2026",
     skills: ["React", "Node.js", "APIs"],
     ratePerHr: 70,
     capacity: "40 hrs",
@@ -145,14 +145,14 @@ const resourceData: Resource[] = [
   {
     id: "res-4",
     resourceId: "RID-1005",
-    name: "Ananya Rao",
+    name: "Olivia Bennett",
     role: "Delivery Manager",
-    initials: "AR",
+    initials: "OB",
     level: "Senior",
     team: "Delivery",
     reportingManager: "Executive Board",
-    employeeType: "FTE",
-    availableAfter: "Aug 2",
+    employeeType: "Full Time",
+    availableAfter: "Aug 2 2027",
     skills: ["Agile", "PMO", "Stakeholder Mgmt"],
     ratePerHr: 90,
     capacity: "40 hrs",
@@ -168,9 +168,9 @@ const resourceData: Resource[] = [
     initials: "RN",
     level: "Mid",
     team: "Data Eng",
-    reportingManager: "Ananya Rao",
-    employeeType: "FTE",
-    availableAfter: "May 18",
+    reportingManager: "Olivia Bennett",
+    employeeType: "Full Time",
+    availableAfter: "May 18 2026",
     skills: ["ML", "Python", "TensorFlow"],
     ratePerHr: 80,
     capacity: "40 hrs",
@@ -181,14 +181,14 @@ const resourceData: Resource[] = [
   {
     id: "res-6",
     resourceId: "RID-1007",
-    name: "Meera Joshi",
+    name: "Sophia Miller",
     role: "Cloud Engineer",
-    initials: "MJ",
+    initials: "SM",
     level: "Junior",
     team: "Cloud Eng",
     reportingManager: "Priya Sharma",
-    employeeType: "FTE",
-    availableAfter: "Jun 10",
+    employeeType: "Full Time",
+    availableAfter: "Jun 10 2026",
     skills: ["Azure", "ARM Templates", "Networking"],
     ratePerHr: 55,
     capacity: "40 hrs",
@@ -204,9 +204,9 @@ const resourceData: Resource[] = [
     initials: "DK",
     level: "Senior",
     team: "DevSecOps",
-    reportingManager: "Ananya Rao",
-    employeeType: "FTE",
-    availableAfter: "May 30",
+    reportingManager: "Emma Wilson",
+    employeeType: "Full Time",
+    availableAfter: "May 30 2027",
     skills: ["Pen Testing", "SIEM", "IAM"],
     ratePerHr: 90,
     capacity: "40 hrs",
@@ -217,14 +217,14 @@ const resourceData: Resource[] = [
   {
     id: "res-8",
     resourceId: "RID-1009",
-    name: "Vikram Singh",
+    name: "Ethan Brooks",
     role: "Cloud Engineer",
-    initials: "VS",
+    initials: "EB",
     level: "Mid",
     team: "Cloud Eng",
     reportingManager: "Priya Sharma",
     employeeType: "Contractor",
-    availableAfter: "Jun 21",
+    availableAfter: "Jun 21 2026",
     skills: ["AWS", "CloudFormation", "Lambda"],
     ratePerHr: 75,
     capacity: "40 hrs",
@@ -241,8 +241,8 @@ const resourceData: Resource[] = [
     level: "Mid",
     team: "Data Eng",
     reportingManager: "Rohit Nair",
-    employeeType: "FTE",
-    availableAfter: "Sep 14",
+    employeeType: "Full Time",
+    availableAfter: "Sep 14 2026",
     skills: ["ML", "Python", "Spark"],
     ratePerHr: 80,
     capacity: "40 hrs",
@@ -283,7 +283,14 @@ const columns: Column<Resource>[] = [
       </Badge>
     ),
   },
-  { key: "availableAfter", header: "Available After" },
+  // { key: "availableAfter", header: "Start Date" },
+  {
+    key: "availableAfter",
+    header: "Start Date",
+    render: (r) => (
+      <span className="whitespace-nowrap">{r.availableAfter}</span>
+    ),
+  },
   {
     key: "skills",
     header: "Skills",
@@ -299,10 +306,10 @@ const columns: Column<Resource>[] = [
   },
   {
     key: "ratePerHr",
-    header: "Rate/Hr",
+    header: "Rate/Hours",
     render: (r) => <span className="font-medium">${r.ratePerHr}</span>,
   },
-  { key: "capacity", header: "Capacity" },
+
   { key: "location", header: "Location" },
   {
     key: "status",
@@ -786,7 +793,7 @@ export function ResourceDialog({
       handleClose();
       navigate("/demand-status"); // ← only new line
     }, 800);
-  };  
+  };
 
   const startEdit = (r: AssignedResource) => {
     setEditingId(r.id);
@@ -1186,9 +1193,9 @@ export default function ResourceInformation() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Named Resource Catalogue</CardTitle>
+        <CardTitle className="text-base">Resource Catalogue</CardTitle>
         <p className="text-sm text-muted-foreground">
-          {resourceData.length} resources · live utilization from allocations
+          {resourceData.length} resources
         </p>
       </CardHeader>
 

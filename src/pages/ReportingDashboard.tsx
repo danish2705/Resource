@@ -1,23 +1,98 @@
 import { useState } from "react";
 import {
-  BarChart, Bar, LineChart, Line, AreaChart, Area, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
 } from "recharts";
 
 const COLORS = {
-  blue: "#378ADD", green: "#639922", orange: "#BA7517", red: "#E24B4A",
-  purple: "#7F77DD", teal: "#1D9E75", gray: "#888780", amber: "#EF9F27",
+  blue: "#378ADD",
+  green: "#639922",
+  orange: "#BA7517",
+  red: "#E24B4A",
+  purple: "#7F77DD",
+  teal: "#1D9E75",
+  gray: "#888780",
+  amber: "#EF9F27",
 };
 
 const kpis = [
-  { label: "Total Resources (FTE)", value: "8,532", delta: "+2.3%", deltaUp: true, icon: "👥", color: COLORS.blue },
-  { label: "Total Capacity (FTE)", value: "7,427", delta: "+1.8%", deltaUp: true, icon: "🏗️", color: COLORS.teal },
-  { label: "Total Demand (FTE)", value: "8,016", delta: "+3.6%", deltaUp: true, icon: "📋", color: COLORS.orange },
-  { label: "Capacity Gap (FTE)", value: "-589", delta: "-4.7%", deltaUp: false, icon: "📉", color: COLORS.red },
-  { label: "Utilization", value: "83%", delta: "+2pp", deltaUp: true, icon: "📈", color: COLORS.purple },
-  { label: "Over Allocated (FTE)", value: "312", delta: "-3.2%", deltaUp: true, icon: "⚠️", color: COLORS.amber },
-  { label: "Open Demands", value: "412", delta: "-5.1%", deltaUp: true, icon: "📂", color: COLORS.blue },
-  { label: "Projects On Track", value: "78%", delta: "+3pp", deltaUp: true, icon: "✅", color: COLORS.green },
+  {
+    label: "Total Resources (Full Time)",
+    value: "8,532",
+    delta: "+2.3%",
+    deltaUp: true,
+    icon: "👥",
+    color: COLORS.blue,
+  },
+  {
+    label: "Total Capacity (FTE)",
+    value: "7,427",
+    delta: "+1.8%",
+    deltaUp: true,
+    icon: "🏗️",
+    color: COLORS.teal,
+  },
+  {
+    label: "Total Demand (FTE)",
+    value: "8,016",
+    delta: "+3.6%",
+    deltaUp: true,
+    icon: "📋",
+    color: COLORS.orange,
+  },
+  {
+    label: "Capacity Gap (FTE)",
+    value: "-589",
+    delta: "-4.7%",
+    deltaUp: false,
+    icon: "📉",
+    color: COLORS.red,
+  },
+  {
+    label: "Utilization",
+    value: "83%",
+    delta: "+2pp",
+    deltaUp: true,
+    icon: "📈",
+    color: COLORS.purple,
+  },
+  {
+    label: "Over Allocated (FTE)",
+    value: "312",
+    delta: "-3.2%",
+    deltaUp: true,
+    icon: "⚠️",
+    color: COLORS.amber,
+  },
+  {
+    label: "Open Demands",
+    value: "412",
+    delta: "-5.1%",
+    deltaUp: true,
+    icon: "📂",
+    color: COLORS.blue,
+  },
+  {
+    label: "Projects On Track",
+    value: "78%",
+    delta: "+3pp",
+    deltaUp: true,
+    icon: "✅",
+    color: COLORS.green,
+  },
 ];
 
 const capacityDemandTrend = [
@@ -46,26 +121,59 @@ const workforceRisks = [
 ];
 
 const portfolioReadiness = [
-  { portfolio: "Digital Transformation", onTrack: 14, atRisk: 6, offTrack: 3, readiness: "72%" },
-  { portfolio: "Product Engineering", onTrack: 12, atRisk: 4, offTrack: 2, readiness: "80%" },
-  { portfolio: "Cloud Services", onTrack: 8, atRisk: 3, offTrack: 2, readiness: "77%" },
-  { portfolio: "Data & Analytics", onTrack: 6, atRisk: 3, offTrack: 1, readiness: "67%" },
-  { portfolio: "Business Applications", onTrack: 5, atRisk: 2, offTrack: 1, readiness: "75%" },
+  {
+    portfolio: "Digital Transformation",
+    onTrack: 14,
+    atRisk: 6,
+    offTrack: 3,
+    readiness: "72%",
+  },
+  {
+    portfolio: "Product Engineering",
+    onTrack: 12,
+    atRisk: 4,
+    offTrack: 2,
+    readiness: "80%",
+  },
+  {
+    portfolio: "Cloud Services",
+    onTrack: 8,
+    atRisk: 3,
+    offTrack: 2,
+    readiness: "77%",
+  },
+  {
+    portfolio: "Data & Analytics",
+    onTrack: 6,
+    atRisk: 3,
+    offTrack: 1,
+    readiness: "67%",
+  },
+  {
+    portfolio: "Business Applications",
+    onTrack: 5,
+    atRisk: 2,
+    offTrack: 1,
+    readiness: "75%",
+  },
 ];
 
 const reportCards = [
   {
-    num: 1, title: "Executive Leadership Report",
+    num: 1,
+    title: "Executive Leadership Report",
     desc: "Enterprise view of performance, risks, gaps & portfolio readiness",
     execStats: [
       { label: "Capacity Gap", value: "-589 FTE", color: COLORS.red },
       { label: "Workforce Risk", value: "High", color: COLORS.red },
       { label: "Portfolio Readiness", value: "78%", color: COLORS.green },
     ],
-    icon: "🎯", color: COLORS.purple,
+    icon: "🎯",
+    color: COLORS.purple,
   },
   {
-    num: 2, title: "Resource Management Dashboard",
+    num: 2,
+    title: "Resource Management Dashboard",
     desc: "Overview of capacity, demand, allocation & utilization",
     barData: [
       { name: "Engineering", value: 85, cap: 3240 },
@@ -78,10 +186,12 @@ const reportCards = [
       { label: "Demand", value: "8,016" },
       { label: "Utilization", value: "83%" },
     ],
-    icon: "🏢", color: COLORS.teal,
+    icon: "🏢",
+    color: COLORS.teal,
   },
   {
-    num: 3, title: "Resource Planning Dashboard",
+    num: 3,
+    title: "Resource Planning Dashboard",
     desc: "Real-time view of planning inputs, owners & visibility across organization",
     stats: [
       { label: "Planning Inputs", value: "1,245" },
@@ -93,10 +203,12 @@ const reportCards = [
       { label: "Michael Lee", value: "188" },
       { label: "Emily Davis", value: "176" },
     ],
-    icon: "📊", color: COLORS.blue,
+    icon: "📊",
+    color: COLORS.blue,
   },
   {
-    num: 4, title: "Resource Allocation Report",
+    num: 4,
+    title: "Resource Allocation Report",
     desc: "Report for showing resource allocation across projects",
     donut: [
       { name: "Cloud Migration", value: 18 },
@@ -108,10 +220,12 @@ const reportCards = [
     ],
     centerLabel: "7,115 FTE",
     centerSub: "Total Allocated",
-    icon: "🥧", color: COLORS.purple,
+    icon: "🥧",
+    color: COLORS.purple,
   },
   {
-    num: 5, title: "Resource Over-Allocation Report",
+    num: 5,
+    title: "Resource Over-Allocation Report",
     desc: "Report for showing resources over-allocation",
     overList: [
       { name: "John Smith", pct: 132, color: COLORS.red },
@@ -121,16 +235,24 @@ const reportCards = [
       { name: "Carlos M.", pct: 112, color: COLORS.amber },
     ],
     highlight: "312 FTE",
-    icon: "🚨", color: COLORS.red,
+    icon: "🚨",
+    color: COLORS.red,
   },
   {
-    num: 6, title: "Resource Availability & Shared Resources",
+    num: 6,
+    title: "Resource Availability & Shared Resources",
     desc: "Report for showing resources shared across projects with availability",
-    availability: { available: "1,842 FTE", shared: "2,315 FTE", bench: "1,842 (24.8%)" },
-    icon: "🔗", color: COLORS.teal,
+    availability: {
+      available: "1,842 FTE",
+      shared: "2,315 FTE",
+      bench: "1,842 (24.8%)",
+    },
+    icon: "🔗",
+    color: COLORS.teal,
   },
   {
-    num: 7, title: "Monthly Compliance Report",
+    num: 7,
+    title: "Monthly Compliance Report",
     desc: "Report for showing monthly compliance details",
     compliance: 92,
     items: [
@@ -139,12 +261,19 @@ const reportCards = [
       { label: "Manager Approval", value: 93 },
       { label: "Data Quality", value: 88 },
     ],
-    icon: "✅", color: COLORS.green,
+    icon: "✅",
+    color: COLORS.green,
   },
   {
-    num: 8, title: "Budget Variance Report",
+    num: 8,
+    title: "Budget Variance Report",
     desc: "Report for showing budget variance",
-    budget: { total: "$24.80M", actual: "$20.36M", variance: "-$4.44M", varPct: "-17.9%" },
+    budget: {
+      total: "$24.80M",
+      actual: "$20.36M",
+      variance: "-$4.44M",
+      varPct: "-17.9%",
+    },
     budgetRows: [
       { name: "Digital Transformation", variance: -1.2 },
       { name: "Product Engineering", variance: -1.12 },
@@ -152,10 +281,12 @@ const reportCards = [
       { name: "Data & Analytics", variance: -0.73 },
       { name: "Business Applications", variance: -0.42 },
     ],
-    icon: "💲", color: COLORS.orange,
+    icon: "💲",
+    color: COLORS.orange,
   },
   {
-    num: 9, title: "Vendor Ranking Report",
+    num: 9,
+    title: "Vendor Ranking Report",
     desc: "Report for showing vendor ranking report based on budget spent",
     vendors: [
       { name: "Tech Mahindra", spend: "$3.21M", rank: 1, score: 92 },
@@ -164,10 +295,12 @@ const reportCards = [
       { name: "Wipro", spend: "$1.89M", rank: 4, score: 80 },
       { name: "HCL Technologies", spend: "$1.46M", rank: 5, score: 78 },
     ],
-    icon: "🏆", color: COLORS.amber,
+    icon: "🏆",
+    color: COLORS.amber,
   },
   {
-    num: 10, title: "Demand Management Dashboard",
+    num: 10,
+    title: "Demand Management Dashboard",
     desc: "Track workforce demand, fulfillment progress & staffing gaps",
     demandStats: [
       { label: "Open Demands", value: "412", color: COLORS.red },
@@ -179,10 +312,12 @@ const reportCards = [
       { label: "Medium", value: 164, pct: "40%" },
       { label: "Low", value: 92, pct: "22%" },
     ],
-    icon: "📋", color: COLORS.blue,
+    icon: "📋",
+    color: COLORS.blue,
   },
   {
-    num: 11, title: "Forecasting & Capacity Planning",
+    num: 11,
+    title: "Forecasting & Capacity Planning",
     desc: "Forecast demand vs capacity & identify future gaps",
     forecastData: [
       { month: "May 24", cap: 8.0, demand: 8.9, gap: -0.9 },
@@ -192,10 +327,12 @@ const reportCards = [
       { month: "Sep 24", cap: 6.9, demand: 8.8, gap: -0.9 },
       { month: "Oct 24", cap: 7.5, demand: 8.4, gap: -0.9 },
     ],
-    icon: "🔮", color: COLORS.purple,
+    icon: "🔮",
+    color: COLORS.purple,
   },
   {
-    num: 12, title: "Utilization Dashboard",
+    num: 12,
+    title: "Utilization Dashboard",
     desc: "Measure resource utilization across teams, roles & work types",
     utilOverall: 83,
     utilByType: [
@@ -204,10 +341,12 @@ const reportCards = [
       { label: "Internal Initiatives", value: 74 },
       { label: "Training", value: 65 },
     ],
-    icon: "📈", color: COLORS.teal,
+    icon: "📈",
+    color: COLORS.teal,
   },
   {
-    num: 13, title: "Timesheet & Actuals Dashboard",
+    num: 13,
+    title: "Timesheet & Actuals Dashboard",
     desc: "Compare planned allocations vs actual efforts",
     tsCompliance: 96,
     tsBreakdown: [
@@ -216,42 +355,82 @@ const reportCards = [
       { label: "Under", pct: 10, color: COLORS.orange },
     ],
     actualFTE: "2,850",
-    icon: "⏱️", color: COLORS.blue,
+    icon: "⏱️",
+    color: COLORS.blue,
   },
   {
-    num: 14, title: "Governance & Approval Dashboard",
+    num: 14,
+    title: "Governance & Approval Dashboard",
     desc: "Monitor approvals, exceptions & workflow status",
-    pending: 27, overdue: 12,
+    pending: 27,
+    overdue: 12,
     byType: [
       { label: "Resource Requests", value: 12 },
       { label: "Project Requests", value: 7 },
       { label: "Allocation Changes", value: 5 },
       { label: "Time Off Requests", value: 3 },
     ],
-    icon: "🔐", color: COLORS.amber,
+    icon: "🔐",
+    color: COLORS.amber,
   },
   {
-    num: 15, title: "Reports Hub",
+    num: 15,
+    title: "Reports Hub",
     desc: "Access all reports in one place",
     hub: true,
-    icon: "🗂️", color: COLORS.gray,
+    icon: "🗂️",
+    color: COLORS.gray,
   },
 ];
 
-const DONUT_COLORS = [COLORS.blue, COLORS.teal, COLORS.orange, COLORS.purple, COLORS.green, COLORS.gray];
+const DONUT_COLORS = [
+  COLORS.blue,
+  COLORS.teal,
+  COLORS.orange,
+  COLORS.purple,
+  COLORS.green,
+  COLORS.gray,
+];
 
 function KpiCard({ kpi }) {
   return (
-    <div style={{
-      background: "#fff", border: "0.5px solid #e5e7eb", borderRadius: 10, padding: "12px 14px",
-      display: "flex", flexDirection: "column", gap: 4, minWidth: 0,
-    }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <span style={{ fontSize: 11, color: "#6b7280", lineHeight: 1.3 }}>{kpi.label}</span>
+    <div
+      style={{
+        background: "#fff",
+        border: "0.5px solid #e5e7eb",
+        borderRadius: 10,
+        padding: "12px 14px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 4,
+        minWidth: 0,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+        }}
+      >
+        <span style={{ fontSize: 11, color: "#6b7280", lineHeight: 1.3 }}>
+          {kpi.label}
+        </span>
         <span style={{ fontSize: 18 }}>{kpi.icon}</span>
       </div>
-      <div style={{ fontSize: 22, fontWeight: 700, color: kpi.color, lineHeight: 1.1 }}>{kpi.value}</div>
-      <div style={{ fontSize: 11, color: kpi.deltaUp ? COLORS.green : COLORS.red }}>
+      <div
+        style={{
+          fontSize: 22,
+          fontWeight: 700,
+          color: kpi.color,
+          lineHeight: 1.1,
+        }}
+      >
+        {kpi.value}
+      </div>
+      <div
+        style={{ fontSize: 11, color: kpi.deltaUp ? COLORS.green : COLORS.red }}
+      >
         {kpi.delta} <span style={{ color: "#9ca3af" }}>vs Apr 2024</span>
       </div>
     </div>
@@ -260,8 +439,23 @@ function KpiCard({ kpi }) {
 
 function MiniBar({ value, max = 100, color = COLORS.blue }) {
   return (
-    <div style={{ flex: 1, height: 6, background: "#f3f4f6", borderRadius: 3, overflow: "hidden" }}>
-      <div style={{ width: `${(value / max) * 100}%`, height: "100%", background: color, borderRadius: 3 }} />
+    <div
+      style={{
+        flex: 1,
+        height: 6,
+        background: "#f3f4f6",
+        borderRadius: 3,
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          width: `${(value / max) * 100}%`,
+          height: "100%",
+          background: color,
+          borderRadius: 3,
+        }}
+      />
     </div>
   );
 }
@@ -269,20 +463,52 @@ function MiniBar({ value, max = 100, color = COLORS.blue }) {
 function SmallDonut({ data, centerLabel, centerSub, size = 90 }) {
   const total = data.reduce((s, d) => s + d.value, 0);
   return (
-    <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
+    <div
+      style={{ position: "relative", width: size, height: size, flexShrink: 0 }}
+    >
       <PieChart width={size} height={size}>
-        <Pie data={data} cx={size / 2 - 1} cy={size / 2 - 1} innerRadius={size * 0.3} outerRadius={size * 0.47}
-          dataKey="value" startAngle={90} endAngle={-270}>
-          {data.map((_, i) => <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />)}
+        <Pie
+          data={data}
+          cx={size / 2 - 1}
+          cy={size / 2 - 1}
+          innerRadius={size * 0.3}
+          outerRadius={size * 0.47}
+          dataKey="value"
+          startAngle={90}
+          endAngle={-270}
+        >
+          {data.map((_, i) => (
+            <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />
+          ))}
         </Pie>
       </PieChart>
       {centerLabel && (
-        <div style={{
-          position: "absolute", inset: 0, display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center", pointerEvents: "none",
-        }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: "#111", lineHeight: 1 }}>{centerLabel}</div>
-          {centerSub && <div style={{ fontSize: 8, color: "#6b7280", lineHeight: 1.2 }}>{centerSub}</div>}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            pointerEvents: "none",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              color: "#111",
+              lineHeight: 1,
+            }}
+          >
+            {centerLabel}
+          </div>
+          {centerSub && (
+            <div style={{ fontSize: 8, color: "#6b7280", lineHeight: 1.2 }}>
+              {centerSub}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -291,20 +517,55 @@ function SmallDonut({ data, centerLabel, centerSub, size = 90 }) {
 
 function ReportCard({ card, onView }) {
   return (
-    <div style={{
-      background: "#fff", border: "0.5px solid #e5e7eb", borderRadius: 10, padding: "14px",
-      display: "flex", flexDirection: "column", gap: 10, minHeight: 220,
-    }}>
+    <div
+      style={{
+        background: "#fff",
+        border: "0.5px solid #e5e7eb",
+        borderRadius: 10,
+        padding: "14px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+        minHeight: 220,
+      }}
+    >
       <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-        <div style={{
-          width: 32, height: 32, borderRadius: 8, background: card.color + "22",
-          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0,
-        }}>{card.icon}</div>
+        <div
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: 8,
+            background: card.color + "22",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 16,
+            flexShrink: 0,
+          }}
+        >
+          {card.icon}
+        </div>
         <div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#111", lineHeight: 1.3 }}>
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#111",
+              lineHeight: 1.3,
+            }}
+          >
             {card.num}. {card.title}
           </div>
-          <div style={{ fontSize: 10, color: "#9ca3af", lineHeight: 1.4, marginTop: 2 }}>{card.desc}</div>
+          <div
+            style={{
+              fontSize: 10,
+              color: "#9ca3af",
+              lineHeight: 1.4,
+              marginTop: 2,
+            }}
+          >
+            {card.desc}
+          </div>
         </div>
       </div>
 
@@ -313,7 +574,15 @@ function ReportCard({ card, onView }) {
           <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
             {card.stats.map((s, i) => (
               <div key={i}>
-                <div style={{ fontSize: 16, fontWeight: 700, color: s.color || "#111" }}>{s.value}</div>
+                <div
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: s.color || "#111",
+                  }}
+                >
+                  {s.value}
+                </div>
                 <div style={{ fontSize: 10, color: "#6b7280" }}>{s.label}</div>
               </div>
             ))}
@@ -322,8 +591,17 @@ function ReportCard({ card, onView }) {
         {card.extra && (
           <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
             {card.extra.map((e, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#374151" }}>
-                <span>{e.label}</span><span style={{ fontWeight: 600 }}>{e.value}</span>
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: 11,
+                  color: "#374151",
+                }}
+              >
+                <span>{e.label}</span>
+                <span style={{ fontWeight: 600 }}>{e.value}</span>
               </div>
             ))}
           </div>
@@ -333,7 +611,9 @@ function ReportCard({ card, onView }) {
           <div style={{ display: "flex", gap: 10, marginBottom: 8 }}>
             {card.summaryStats.map((s, i) => (
               <div key={i}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: "#111" }}>{s.value}</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#111" }}>
+                  {s.value}
+                </div>
                 <div style={{ fontSize: 10, color: "#6b7280" }}>{s.label}</div>
               </div>
             ))}
@@ -342,10 +622,22 @@ function ReportCard({ card, onView }) {
         {card.barData && (
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             {card.barData.map((r, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10 }}>
-                <span style={{ color: "#6b7280", minWidth: 90, fontSize: 9 }}>{r.name}</span>
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 10,
+                }}
+              >
+                <span style={{ color: "#6b7280", minWidth: 90, fontSize: 9 }}>
+                  {r.name}
+                </span>
                 <MiniBar value={r.value} color={COLORS.teal} />
-                <span style={{ color: "#111", minWidth: 28, fontWeight: 600 }}>{r.value}%</span>
+                <span style={{ color: "#111", minWidth: 28, fontWeight: 600 }}>
+                  {r.value}%
+                </span>
               </div>
             ))}
           </div>
@@ -353,11 +645,32 @@ function ReportCard({ card, onView }) {
 
         {card.donut && (
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <SmallDonut data={card.donut} centerLabel={card.centerLabel} centerSub={card.centerSub} size={80} />
+            <SmallDonut
+              data={card.donut}
+              centerLabel={card.centerLabel}
+              centerSub={card.centerSub}
+              size={80}
+            />
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {card.donut.slice(0, 5).map((d, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 9, color: "#374151" }}>
-                  <div style={{ width: 7, height: 7, borderRadius: 2, background: DONUT_COLORS[i] }} />
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    fontSize: 9,
+                    color: "#374151",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 7,
+                      height: 7,
+                      borderRadius: 2,
+                      background: DONUT_COLORS[i],
+                    }}
+                  />
                   {d.name} <span style={{ color: "#9ca3af" }}>{d.value}%</span>
                 </div>
               ))}
@@ -367,12 +680,34 @@ function ReportCard({ card, onView }) {
 
         {card.overList && (
           <div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: COLORS.red, marginBottom: 4 }}>{card.highlight}</div>
-            <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 6 }}>Over Allocated Resources</div>
+            <div
+              style={{
+                fontSize: 18,
+                fontWeight: 800,
+                color: COLORS.red,
+                marginBottom: 4,
+              }}
+            >
+              {card.highlight}
+            </div>
+            <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 6 }}>
+              Over Allocated Resources
+            </div>
             {card.overList.map((r, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 10, padding: "2px 0", borderBottom: "0.5px solid #f3f4f6" }}>
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: 10,
+                  padding: "2px 0",
+                  borderBottom: "0.5px solid #f3f4f6",
+                }}
+              >
                 <span style={{ color: "#374151" }}>{r.name}</span>
-                <span style={{ fontWeight: 700, color: r.color }}>{r.pct}%</span>
+                <span style={{ fontWeight: 700, color: r.color }}>
+                  {r.pct}%
+                </span>
               </div>
             ))}
           </div>
@@ -381,12 +716,26 @@ function ReportCard({ card, onView }) {
         {card.availability && (
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {[
-              { label: "Available", value: card.availability.available, color: COLORS.green },
-              { label: "Shared", value: card.availability.shared, color: COLORS.blue },
-              { label: "Bench", value: card.availability.bench, color: COLORS.gray },
+              {
+                label: "Available",
+                value: card.availability.available,
+                color: COLORS.green,
+              },
+              {
+                label: "Shared",
+                value: card.availability.shared,
+                color: COLORS.blue,
+              },
+              {
+                label: "Bench",
+                value: card.availability.bench,
+                color: COLORS.gray,
+              },
             ].map((r, i) => (
               <div key={i}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: r.color }}>{r.value}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: r.color }}>
+                  {r.value}
+                </div>
                 <div style={{ fontSize: 10, color: "#6b7280" }}>{r.label}</div>
               </div>
             ))}
@@ -395,13 +744,30 @@ function ReportCard({ card, onView }) {
 
         {card.compliance !== undefined && (
           <div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: COLORS.green }}>{card.compliance}%</div>
-            <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 6 }}>Overall Compliance</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: COLORS.green }}>
+              {card.compliance}%
+            </div>
+            <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 6 }}>
+              Overall Compliance
+            </div>
             {card.items.map((r, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, marginBottom: 3 }}>
-                <span style={{ color: "#6b7280", minWidth: 120 }}>{r.label}</span>
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 10,
+                  marginBottom: 3,
+                }}
+              >
+                <span style={{ color: "#6b7280", minWidth: 120 }}>
+                  {r.label}
+                </span>
                 <MiniBar value={r.value} color={COLORS.green} />
-                <span style={{ fontWeight: 600, color: "#111" }}>{r.value}%</span>
+                <span style={{ fontWeight: 600, color: "#111" }}>
+                  {r.value}%
+                </span>
               </div>
             ))}
           </div>
@@ -416,15 +782,28 @@ function ReportCard({ card, onView }) {
                 { l: "Variance", v: card.budget.variance, c: COLORS.red },
               ].map((b, i) => (
                 <div key={i}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: b.c }}>{b.v}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: b.c }}>
+                    {b.v}
+                  </div>
                   <div style={{ fontSize: 9, color: "#9ca3af" }}>{b.l}</div>
                 </div>
               ))}
             </div>
             {card.budgetRows.map((r, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#374151", padding: "2px 0" }}>
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: 10,
+                  color: "#374151",
+                  padding: "2px 0",
+                }}
+              >
                 <span>{r.name}</span>
-                <span style={{ color: COLORS.red, fontWeight: 600 }}>${r.variance}M</span>
+                <span style={{ color: COLORS.red, fontWeight: 600 }}>
+                  ${r.variance}M
+                </span>
               </div>
             ))}
           </div>
@@ -432,15 +811,48 @@ function ReportCard({ card, onView }) {
 
         {card.vendors && (
           <div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: "3px 8px", fontSize: 10, color: "#6b7280", marginBottom: 2 }}>
-              <span>Vendor</span><span>Spend</span><span>Rank</span><span>Score</span>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr auto auto auto",
+                gap: "3px 8px",
+                fontSize: 10,
+                color: "#6b7280",
+                marginBottom: 2,
+              }}
+            >
+              <span>Vendor</span>
+              <span>Spend</span>
+              <span>Rank</span>
+              <span>Score</span>
             </div>
             {card.vendors.map((v, i) => (
-              <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: "2px 8px", fontSize: 10, padding: "2px 0", borderBottom: "0.5px solid #f3f4f6" }}>
+              <div
+                key={i}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr auto auto auto",
+                  gap: "2px 8px",
+                  fontSize: 10,
+                  padding: "2px 0",
+                  borderBottom: "0.5px solid #f3f4f6",
+                }}
+              >
                 <span style={{ color: "#374151" }}>{v.name}</span>
-                <span style={{ fontWeight: 600, color: "#111" }}>{v.spend}</span>
-                <span style={{ color: COLORS.blue, fontWeight: 700 }}>#{v.rank}</span>
-                <span style={{ color: v.score >= 85 ? COLORS.green : COLORS.orange, fontWeight: 600 }}>{v.score}%</span>
+                <span style={{ fontWeight: 600, color: "#111" }}>
+                  {v.spend}
+                </span>
+                <span style={{ color: COLORS.blue, fontWeight: 700 }}>
+                  #{v.rank}
+                </span>
+                <span
+                  style={{
+                    color: v.score >= 85 ? COLORS.green : COLORS.orange,
+                    fontWeight: 600,
+                  }}
+                >
+                  {v.score}%
+                </span>
               </div>
             ))}
           </div>
@@ -451,16 +863,38 @@ function ReportCard({ card, onView }) {
             <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
               {card.demandStats.map((d, i) => (
                 <div key={i}>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: d.color }}>{d.value}</div>
-                  <div style={{ fontSize: 10, color: "#6b7280" }}>{d.label}</div>
+                  <div
+                    style={{ fontSize: 18, fontWeight: 800, color: d.color }}
+                  >
+                    {d.value}
+                  </div>
+                  <div style={{ fontSize: 10, color: "#6b7280" }}>
+                    {d.label}
+                  </div>
                 </div>
               ))}
             </div>
             {card.demandByPriority.map((r, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, marginBottom: 3 }}>
-                <span style={{ color: "#6b7280", minWidth: 50 }}>{r.label}</span>
-                <MiniBar value={parseInt(r.pct)} color={[COLORS.red, COLORS.orange, COLORS.blue][i]} />
-                <span style={{ color: "#374151" }}>{r.value} ({r.pct})</span>
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 10,
+                  marginBottom: 3,
+                }}
+              >
+                <span style={{ color: "#6b7280", minWidth: 50 }}>
+                  {r.label}
+                </span>
+                <MiniBar
+                  value={parseInt(r.pct)}
+                  color={[COLORS.red, COLORS.orange, COLORS.blue][i]}
+                />
+                <span style={{ color: "#374151" }}>
+                  {r.value} ({r.pct})
+                </span>
               </div>
             ))}
           </div>
@@ -469,14 +903,39 @@ function ReportCard({ card, onView }) {
         {card.forecastData && (
           <div style={{ height: 90 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={card.forecastData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
+              <LineChart
+                data={card.forecastData}
+                margin={{ top: 5, right: 5, bottom: 5, left: -20 }}
+              >
                 <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
                 <XAxis dataKey="month" tick={{ fontSize: 8 }} />
                 <YAxis tick={{ fontSize: 8 }} domain={[5, 11]} />
                 <Tooltip contentStyle={{ fontSize: 10 }} />
-                <Line type="monotone" dataKey="cap" stroke={COLORS.green} strokeWidth={1.5} dot={false} name="Capacity" />
-                <Line type="monotone" dataKey="demand" stroke={COLORS.blue} strokeWidth={1.5} dot={false} name="Demand" />
-                <Line type="monotone" dataKey="gap" stroke={COLORS.red} strokeWidth={1.5} dot={false} name="Gap" strokeDasharray="3 3" />
+                <Line
+                  type="monotone"
+                  dataKey="cap"
+                  stroke={COLORS.green}
+                  strokeWidth={1.5}
+                  dot={false}
+                  name="Capacity"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="demand"
+                  stroke={COLORS.blue}
+                  strokeWidth={1.5}
+                  dot={false}
+                  name="Demand"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="gap"
+                  stroke={COLORS.red}
+                  strokeWidth={1.5}
+                  dot={false}
+                  name="Gap"
+                  strokeDasharray="3 3"
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -484,13 +943,30 @@ function ReportCard({ card, onView }) {
 
         {card.utilOverall && (
           <div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: COLORS.teal }}>{card.utilOverall}%</div>
-            <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 6 }}>Overall Utilization</div>
+            <div style={{ fontSize: 26, fontWeight: 800, color: COLORS.teal }}>
+              {card.utilOverall}%
+            </div>
+            <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 6 }}>
+              Overall Utilization
+            </div>
             {card.utilByType.map((r, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, marginBottom: 3 }}>
-                <span style={{ color: "#6b7280", minWidth: 110, fontSize: 9 }}>{r.label}</span>
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 10,
+                  marginBottom: 3,
+                }}
+              >
+                <span style={{ color: "#6b7280", minWidth: 110, fontSize: 9 }}>
+                  {r.label}
+                </span>
                 <MiniBar value={r.value} color={COLORS.teal} />
-                <span style={{ fontWeight: 600, color: "#111" }}>{r.value}%</span>
+                <span style={{ fontWeight: 600, color: "#111" }}>
+                  {r.value}%
+                </span>
               </div>
             ))}
           </div>
@@ -499,18 +975,46 @@ function ReportCard({ card, onView }) {
         {card.tsCompliance && (
           <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
             <div>
-              <div style={{ fontSize: 26, fontWeight: 800, color: COLORS.green }}>{card.tsCompliance}%</div>
-              <div style={{ fontSize: 10, color: "#6b7280" }}>TS Compliance</div>
+              <div
+                style={{ fontSize: 26, fontWeight: 800, color: COLORS.green }}
+              >
+                {card.tsCompliance}%
+              </div>
+              <div style={{ fontSize: 10, color: "#6b7280" }}>
+                TS Compliance
+              </div>
               {card.tsBreakdown.map((r, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, marginTop: 2 }}>
-                  <div style={{ width: 7, height: 7, borderRadius: 2, background: r.color }} />
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    fontSize: 10,
+                    marginTop: 2,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 7,
+                      height: 7,
+                      borderRadius: 2,
+                      background: r.color,
+                    }}
+                  />
                   <span style={{ color: "#6b7280" }}>{r.label}</span>
-                  <span style={{ fontWeight: 600, color: "#111" }}>{r.pct}%</span>
+                  <span style={{ fontWeight: 600, color: "#111" }}>
+                    {r.pct}%
+                  </span>
                 </div>
               ))}
             </div>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: COLORS.blue }}>{card.actualFTE}</div>
+              <div
+                style={{ fontSize: 22, fontWeight: 800, color: COLORS.blue }}
+              >
+                {card.actualFTE}
+              </div>
               <div style={{ fontSize: 10, color: "#6b7280" }}>Actual FTE</div>
             </div>
           </div>
@@ -520,43 +1024,103 @@ function ReportCard({ card, onView }) {
           <div>
             <div style={{ display: "flex", gap: 16, marginBottom: 8 }}>
               <div>
-                <div style={{ fontSize: 26, fontWeight: 800, color: COLORS.orange }}>{card.pending}</div>
-                <div style={{ fontSize: 10, color: "#6b7280" }}>Pending Approvals</div>
+                <div
+                  style={{
+                    fontSize: 26,
+                    fontWeight: 800,
+                    color: COLORS.orange,
+                  }}
+                >
+                  {card.pending}
+                </div>
+                <div style={{ fontSize: 10, color: "#6b7280" }}>
+                  Pending Approvals
+                </div>
               </div>
               <div>
-                <div style={{ fontSize: 26, fontWeight: 800, color: COLORS.red }}>{card.overdue}</div>
-                <div style={{ fontSize: 10, color: "#6b7280" }}>Overdue Approvals</div>
+                <div
+                  style={{ fontSize: 26, fontWeight: 800, color: COLORS.red }}
+                >
+                  {card.overdue}
+                </div>
+                <div style={{ fontSize: 10, color: "#6b7280" }}>
+                  Overdue Approvals
+                </div>
               </div>
             </div>
             {card.byType.map((r, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 10, padding: "2px 0", color: "#374151" }}>
-                <span>{r.label}</span><span style={{ fontWeight: 700 }}>{r.value}</span>
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: 10,
+                  padding: "2px 0",
+                  color: "#374151",
+                }}
+              >
+                <span>{r.label}</span>
+                <span style={{ fontWeight: 700 }}>{r.value}</span>
               </div>
             ))}
           </div>
         )}
 
         {card.execStats && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 4 }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+              marginTop: 4,
+            }}
+          >
             {card.execStats.map((s, i) => (
-              <div key={i} style={{
-                background: s.color + "11", border: `0.5px solid ${s.color}44`,
-                borderRadius: 8, padding: "8px 12px", display: "flex", justifyContent: "space-between",
-              }}>
-                <span style={{ fontSize: 11, color: "#6b7280" }}>{s.label}</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: s.color }}>{s.value}</span>
+              <div
+                key={i}
+                style={{
+                  background: s.color + "11",
+                  border: `0.5px solid ${s.color}44`,
+                  borderRadius: 8,
+                  padding: "8px 12px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
+                <span style={{ fontSize: 11, color: "#6b7280" }}>
+                  {s.label}
+                </span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: s.color }}>
+                  {s.value}
+                </span>
               </div>
             ))}
           </div>
         )}
 
         {card.hub && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 4 }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 10,
+              marginTop: 4,
+            }}
+          >
             {["All Reports", "Favorites", "Recent", "Scheduled"].map((l, i) => (
-              <div key={i} style={{
-                background: "#f9fafb", border: "0.5px solid #e5e7eb", borderRadius: 8,
-                padding: "10px", textAlign: "center", fontSize: 11, color: "#374151", fontWeight: 500,
-              }}>
+              <div
+                key={i}
+                style={{
+                  background: "#f9fafb",
+                  border: "0.5px solid #e5e7eb",
+                  borderRadius: 8,
+                  padding: "10px",
+                  textAlign: "center",
+                  fontSize: 11,
+                  color: "#374151",
+                  fontWeight: 500,
+                }}
+              >
                 {["📊", "⭐", "🕐", "📅"][i]} {l}
               </div>
             ))}
@@ -564,11 +1128,23 @@ function ReportCard({ card, onView }) {
         )}
       </div>
 
-      <button onClick={() => onView(card)} style={{
-        background: "none", border: "none", padding: 0, cursor: "pointer",
-        fontSize: 11, color: card.color, fontWeight: 600, textAlign: "left",
-        display: "flex", alignItems: "center", gap: 4, marginTop: "auto",
-      }}>
+      <button
+        onClick={() => onView(card)}
+        style={{
+          background: "none",
+          border: "none",
+          padding: 0,
+          cursor: "pointer",
+          fontSize: 11,
+          color: card.color,
+          fontWeight: 600,
+          textAlign: "left",
+          display: "flex",
+          alignItems: "center",
+          gap: 4,
+          marginTop: "auto",
+        }}
+      >
         View Report →
       </button>
     </div>
@@ -576,27 +1152,77 @@ function ReportCard({ card, onView }) {
 }
 
 const riskTopItems = [
-  { icon: "⚠️", text: "Critical skill shortage in Data Engineering", count: 5, color: COLORS.red },
-  { icon: "⚠️", text: "Over allocation in Multiple Projects", count: 4, color: COLORS.red },
-  { icon: "🟠", text: "Open high priority demands", count: 6, color: COLORS.orange },
-  { icon: "🔵", text: "Key resource attrition risk", count: 3, color: COLORS.blue },
-  { icon: "📋", text: "Timesheets pending submission", count: 6, color: COLORS.blue },
+  {
+    icon: "⚠️",
+    text: "Critical skill shortage in Data Engineering",
+    count: 5,
+    color: COLORS.red,
+  },
+  {
+    icon: "⚠️",
+    text: "Over allocation in Multiple Projects",
+    count: 4,
+    color: COLORS.red,
+  },
+  {
+    icon: "🟠",
+    text: "Open high priority demands",
+    count: 6,
+    color: COLORS.orange,
+  },
+  {
+    icon: "🔵",
+    text: "Key resource attrition risk",
+    count: 3,
+    color: COLORS.blue,
+  },
+  {
+    icon: "📋",
+    text: "Timesheets pending submission",
+    count: 6,
+    color: COLORS.blue,
+  },
 ];
 
 // ─── Shared helpers for detail views ─────────────────────────────────────────
 
 function DetailMiniBar({ value, max = 100, color = COLORS.blue }) {
   return (
-    <div style={{ flex: 1, height: 7, background: "#f3f4f6", borderRadius: 3, overflow: "hidden" }}>
-      <div style={{ width: `${Math.min((value / max) * 100, 100)}%`, height: "100%", background: color, borderRadius: 3 }} />
+    <div
+      style={{
+        flex: 1,
+        height: 7,
+        background: "#f3f4f6",
+        borderRadius: 3,
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          width: `${Math.min((value / max) * 100, 100)}%`,
+          height: "100%",
+          background: color,
+          borderRadius: 3,
+        }}
+      />
     </div>
   );
 }
 
 function StatTile({ label, value, color }) {
   return (
-    <div style={{ background: "#fff", border: `1px solid ${color}33`, borderRadius: 10, padding: "12px 16px", borderLeft: `3px solid ${color}` }}>
-      <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 4 }}>{label}</div>
+    <div
+      style={{
+        background: "#fff",
+        border: `1px solid ${color}33`,
+        borderRadius: 10,
+        padding: "12px 16px",
+        borderLeft: `3px solid ${color}`,
+      }}
+    >
+      <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 4 }}>
+        {label}
+      </div>
       <div style={{ fontSize: 22, fontWeight: 800, color }}>{value}</div>
     </div>
   );
@@ -604,7 +1230,19 @@ function StatTile({ label, value, color }) {
 
 function SectionLabel({ children }) {
   return (
-    <div style={{ fontSize: 11, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10, marginTop: 18, borderBottom: "0.5px solid #e5e7eb", paddingBottom: 6 }}>
+    <div
+      style={{
+        fontSize: 11,
+        fontWeight: 700,
+        color: "#374151",
+        textTransform: "uppercase",
+        letterSpacing: "0.06em",
+        marginBottom: 10,
+        marginTop: 18,
+        borderBottom: "0.5px solid #e5e7eb",
+        paddingBottom: 6,
+      }}
+    >
       {children}
     </div>
   );
@@ -612,7 +1250,15 @@ function SectionLabel({ children }) {
 
 function DetailCard({ children, style = {} }) {
   return (
-    <div style={{ background: "#fff", border: "0.5px solid #e5e7eb", borderRadius: 10, padding: "16px 18px", ...style }}>
+    <div
+      style={{
+        background: "#fff",
+        border: "0.5px solid #e5e7eb",
+        borderRadius: 10,
+        padding: "16px 18px",
+        ...style,
+      }}
+    >
       {children}
     </div>
   );
@@ -624,7 +1270,19 @@ function DetailTable({ headers, rows }) {
       <thead>
         <tr>
           {headers.map((h, i) => (
-            <th key={i} style={{ textAlign: "left", padding: "6px 8px", fontSize: 10, color: "#6b7280", borderBottom: "0.5px solid #e5e7eb", fontWeight: 600 }}>{h}</th>
+            <th
+              key={i}
+              style={{
+                textAlign: "left",
+                padding: "6px 8px",
+                fontSize: 10,
+                color: "#6b7280",
+                borderBottom: "0.5px solid #e5e7eb",
+                fontWeight: 600,
+              }}
+            >
+              {h}
+            </th>
           ))}
         </tr>
       </thead>
@@ -632,7 +1290,9 @@ function DetailTable({ headers, rows }) {
         {rows.map((row, i) => (
           <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
             {row.map((cell, j) => (
-              <td key={j} style={{ padding: "7px 8px", fontSize: 11 }}>{cell}</td>
+              <td key={j} style={{ padding: "7px 8px", fontSize: 11 }}>
+                {cell}
+              </td>
             ))}
           </tr>
         ))}
@@ -646,26 +1306,54 @@ function DetailTable({ headers, rows }) {
 function ReportDetail1() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3,1fr)",
+          gap: 10,
+        }}
+      >
         <StatTile label="Capacity Gap" value="-589 FTE" color={COLORS.red} />
         <StatTile label="Workforce Risk" value="High" color={COLORS.red} />
-        <StatTile label="Portfolio Readiness" value="78%" color={COLORS.green} />
-        <StatTile label="Overall Utilization" value="83%" color={COLORS.purple} />
-        <StatTile label="Budget Variance" value="-17.9%" color={COLORS.orange} />
+        <StatTile
+          label="Portfolio Readiness"
+          value="78%"
+          color={COLORS.green}
+        />
+        <StatTile
+          label="Overall Utilization"
+          value="83%"
+          color={COLORS.purple}
+        />
+        <StatTile
+          label="Budget Variance"
+          value="-17.9%"
+          color={COLORS.orange}
+        />
         <StatTile label="Compliance Rate" value="92%" color={COLORS.green} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <DetailCard>
           <SectionLabel>Capacity vs Demand Trend</SectionLabel>
           <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={capacityDemandTrend} margin={{ top: 5, right: 5, bottom: 5, left: -15 }}>
+            <BarChart
+              data={capacityDemandTrend}
+              margin={{ top: 5, right: 5, bottom: 5, left: -15 }}
+            >
               <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
               <XAxis dataKey="month" tick={{ fontSize: 9 }} />
               <YAxis tick={{ fontSize: 9 }} />
-              <Tooltip contentStyle={{ fontSize: 10 }} formatter={v => v.toLocaleString()} />
-              <Bar dataKey="Capacity" fill={COLORS.blue} radius={[2,2,0,0]} />
-              <Bar dataKey="Demand" fill={COLORS.teal} radius={[2,2,0,0]} />
-              <Bar dataKey="Gap" fill={COLORS.red} radius={[2,2,0,0]} />
+              <Tooltip
+                contentStyle={{ fontSize: 10 }}
+                formatter={(v) => v.toLocaleString()}
+              />
+              <Bar
+                dataKey="Capacity"
+                fill={COLORS.blue}
+                radius={[2, 2, 0, 0]}
+              />
+              <Bar dataKey="Demand" fill={COLORS.teal} radius={[2, 2, 0, 0]} />
+              <Bar dataKey="Gap" fill={COLORS.red} radius={[2, 2, 0, 0]} />
               <Legend wrapperStyle={{ fontSize: 9 }} />
             </BarChart>
           </ResponsiveContainer>
@@ -673,43 +1361,135 @@ function ReportDetail1() {
         <DetailCard>
           <SectionLabel>Portfolio Health</SectionLabel>
           {portfolioReadiness.map((p, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 9 }}>
-              <span style={{ fontSize: 10, color: "#374151", minWidth: 150 }}>{p.portfolio}</span>
-              <DetailMiniBar value={parseInt(p.readiness)} color={parseInt(p.readiness) >= 75 ? COLORS.green : COLORS.orange} />
-              <span style={{ fontSize: 11, fontWeight: 700, color: parseInt(p.readiness) >= 75 ? COLORS.green : COLORS.orange, minWidth: 34 }}>{p.readiness}</span>
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 9,
+              }}
+            >
+              <span style={{ fontSize: 10, color: "#374151", minWidth: 150 }}>
+                {p.portfolio}
+              </span>
+              <DetailMiniBar
+                value={parseInt(p.readiness)}
+                color={
+                  parseInt(p.readiness) >= 75 ? COLORS.green : COLORS.orange
+                }
+              />
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color:
+                    parseInt(p.readiness) >= 75 ? COLORS.green : COLORS.orange,
+                  minWidth: 34,
+                }}
+              >
+                {p.readiness}
+              </span>
             </div>
           ))}
         </DetailCard>
         <DetailCard>
           <SectionLabel>Top Workforce Risks</SectionLabel>
           {[
-            { text: "Critical skill shortage — Data Engineering", level: "Critical", color: COLORS.red },
-            { text: "Over-allocation across multiple projects", level: "Critical", color: COLORS.red },
-            { text: "6 open high-priority demands unfulfilled", level: "High", color: COLORS.orange },
-            { text: "Key resource attrition risk identified", level: "High", color: COLORS.orange },
-            { text: "Timesheet submissions pending (6 staff)", level: "Medium", color: COLORS.amber },
+            {
+              text: "Critical skill shortage — Data Engineering",
+              level: "Critical",
+              color: COLORS.red,
+            },
+            {
+              text: "Over-allocation across multiple projects",
+              level: "Critical",
+              color: COLORS.red,
+            },
+            {
+              text: "6 open high-priority demands unfulfilled",
+              level: "High",
+              color: COLORS.orange,
+            },
+            {
+              text: "Key resource attrition risk identified",
+              level: "High",
+              color: COLORS.orange,
+            },
+            {
+              text: "Timesheet submissions pending (6 staff)",
+              level: "Medium",
+              color: COLORS.amber,
+            },
           ].map((r, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 0", borderBottom: "0.5px solid #f3f4f6" }}>
-              <span style={{ fontSize: 11, color: "#374151", flex: 1 }}>{r.text}</span>
-              <span style={{ fontSize: 10, fontWeight: 700, color: r.color, background: r.color + "18", padding: "2px 8px", borderRadius: 4 }}>{r.level}</span>
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "7px 0",
+                borderBottom: "0.5px solid #f3f4f6",
+              }}
+            >
+              <span style={{ fontSize: 11, color: "#374151", flex: 1 }}>
+                {r.text}
+              </span>
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: r.color,
+                  background: r.color + "18",
+                  padding: "2px 8px",
+                  borderRadius: 4,
+                }}
+              >
+                {r.level}
+              </span>
             </div>
           ))}
         </DetailCard>
         <DetailCard>
           <SectionLabel>Utilization Trend</SectionLabel>
           <ResponsiveContainer width="100%" height={150}>
-            <AreaChart data={utilizationTrend} margin={{ top: 5, right: 5, bottom: 5, left: -15 }}>
+            <AreaChart
+              data={utilizationTrend}
+              margin={{ top: 5, right: 5, bottom: 5, left: -15 }}
+            >
               <defs>
                 <linearGradient id="ug1" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={COLORS.purple} stopOpacity={0.35} />
-                  <stop offset="100%" stopColor={COLORS.purple} stopOpacity={0.05} />
+                  <stop
+                    offset="0%"
+                    stopColor={COLORS.purple}
+                    stopOpacity={0.35}
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor={COLORS.purple}
+                    stopOpacity={0.05}
+                  />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
               <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-              <YAxis domain={[60,100]} tick={{ fontSize: 9 }} tickFormatter={v=>`${v}%`} />
-              <Tooltip contentStyle={{ fontSize: 10 }} formatter={v=>`${v}%`} />
-              <Area type="monotone" dataKey="rate" stroke={COLORS.purple} strokeWidth={2} fill="url(#ug1)" name="Utilization" />
+              <YAxis
+                domain={[60, 100]}
+                tick={{ fontSize: 9 }}
+                tickFormatter={(v) => `${v}%`}
+              />
+              <Tooltip
+                contentStyle={{ fontSize: 10 }}
+                formatter={(v) => `${v}%`}
+              />
+              <Area
+                type="monotone"
+                dataKey="rate"
+                stroke={COLORS.purple}
+                strokeWidth={2}
+                fill="url(#ug1)"
+                name="Utilization"
+              />
             </AreaChart>
           </ResponsiveContainer>
         </DetailCard>
@@ -720,11 +1500,35 @@ function ReportDetail1() {
 
 function ReportDetail2() {
   const byRole = [
-    { role: "Developers", allocated: 3240, capacity: 3825, util: "85%", gap: -585 },
-    { role: "Consultants", allocated: 1910, capacity: 2310, util: "83%", gap: -400 },
-    { role: "Analysts", allocated: 1105, capacity: 1320, util: "84%", gap: -215 },
+    {
+      role: "Developers",
+      allocated: 3240,
+      capacity: 3825,
+      util: "85%",
+      gap: -585,
+    },
+    {
+      role: "Consultants",
+      allocated: 1910,
+      capacity: 2310,
+      util: "83%",
+      gap: -400,
+    },
+    {
+      role: "Analysts",
+      allocated: 1105,
+      capacity: 1320,
+      util: "84%",
+      gap: -215,
+    },
     { role: "Testers", allocated: 605, capacity: 720, util: "84%", gap: -115 },
-    { role: "Architects", allocated: 255, capacity: 300, util: "85%", gap: -45 },
+    {
+      role: "Architects",
+      allocated: 255,
+      capacity: 300,
+      util: "85%",
+      gap: -45,
+    },
   ];
   const buUtil = [
     { name: "Engineering", util: 85, color: COLORS.blue },
@@ -734,24 +1538,42 @@ function ReportDetail2() {
   ];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 10 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(5,1fr)",
+          gap: 10,
+        }}
+      >
         <StatTile label="Total Capacity" value="7,427" color={COLORS.blue} />
         <StatTile label="Total Demand" value="8,016" color={COLORS.orange} />
         <StatTile label="Allocated (FTE)" value="7,115" color={COLORS.teal} />
         <StatTile label="Utilization" value="83%" color={COLORS.purple} />
         <StatTile label="Capacity Gap" value="-589" color={COLORS.red} />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 12 }}>
+      <div
+        style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 12 }}
+      >
         <DetailCard>
           <SectionLabel>Capacity vs Demand Trend</SectionLabel>
           <ResponsiveContainer width="100%" height={190}>
-            <BarChart data={capacityDemandTrend} margin={{ top: 5, right: 5, bottom: 5, left: -15 }}>
+            <BarChart
+              data={capacityDemandTrend}
+              margin={{ top: 5, right: 5, bottom: 5, left: -15 }}
+            >
               <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
               <XAxis dataKey="month" tick={{ fontSize: 9 }} />
               <YAxis tick={{ fontSize: 9 }} />
-              <Tooltip contentStyle={{ fontSize: 10 }} formatter={v=>v.toLocaleString()} />
-              <Bar dataKey="Capacity" fill={COLORS.blue} radius={[2,2,0,0]} />
-              <Bar dataKey="Demand" fill={COLORS.teal} radius={[2,2,0,0]} />
+              <Tooltip
+                contentStyle={{ fontSize: 10 }}
+                formatter={(v) => v.toLocaleString()}
+              />
+              <Bar
+                dataKey="Capacity"
+                fill={COLORS.blue}
+                radius={[2, 2, 0, 0]}
+              />
+              <Bar dataKey="Demand" fill={COLORS.teal} radius={[2, 2, 0, 0]} />
               <Legend wrapperStyle={{ fontSize: 9 }} />
             </BarChart>
           </ResponsiveContainer>
@@ -760,9 +1582,17 @@ function ReportDetail2() {
           <SectionLabel>Utilization by Business Unit</SectionLabel>
           {buUtil.map((r, i) => (
             <div key={i} style={{ marginBottom: 12 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 4,
+                }}
+              >
                 <span style={{ fontSize: 11, color: "#374151" }}>{r.name}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: r.color }}>{r.util}%</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: r.color }}>
+                  {r.util}%
+                </span>
               </div>
               <DetailMiniBar value={r.util} color={r.color} />
             </div>
@@ -772,12 +1602,20 @@ function ReportDetail2() {
       <DetailCard>
         <SectionLabel>Allocation by Role</SectionLabel>
         <DetailTable
-          headers={["Role", "Allocated (FTE)", "Capacity (FTE)", "Utilization", "Gap"]}
-          rows={byRole.map(r => [
+          headers={[
+            "Role",
+            "Allocated (FTE)",
+            "Capacity (FTE)",
+            "Utilization",
+            "Gap",
+          ]}
+          rows={byRole.map((r) => [
             <span style={{ color: "#374151", fontWeight: 600 }}>{r.role}</span>,
             r.allocated.toLocaleString(),
             r.capacity.toLocaleString(),
-            <span style={{ color: COLORS.green, fontWeight: 700 }}>{r.util}</span>,
+            <span style={{ color: COLORS.green, fontWeight: 700 }}>
+              {r.util}
+            </span>,
             <span style={{ color: COLORS.red, fontWeight: 700 }}>{r.gap}</span>,
           ])}
         />
@@ -788,11 +1626,41 @@ function ReportDetail2() {
 
 function ReportDetail3() {
   const owners = [
-    { name: "Sarah Johnson", total: 235, approved: 168, pending: 67, rate: "71%" },
-    { name: "Michael Lee", total: 188, approved: 128, pending: 60, rate: "68%" },
-    { name: "Emily Davis", total: 176, approved: 129, pending: 47, rate: "73%" },
-    { name: "David Brown", total: 154, approved: 101, pending: 53, rate: "66%" },
-    { name: "Olivia Martin", total: 138, approved: 92, pending: 46, rate: "67%" },
+    {
+      name: "Sarah Johnson",
+      total: 235,
+      approved: 168,
+      pending: 67,
+      rate: "71%",
+    },
+    {
+      name: "Michael Lee",
+      total: 188,
+      approved: 128,
+      pending: 60,
+      rate: "68%",
+    },
+    {
+      name: "Emily Davis",
+      total: 176,
+      approved: 129,
+      pending: 47,
+      rate: "73%",
+    },
+    {
+      name: "David Brown",
+      total: 154,
+      approved: 101,
+      pending: 53,
+      rate: "66%",
+    },
+    {
+      name: "Olivia Martin",
+      total: 138,
+      approved: 92,
+      pending: 46,
+      rate: "67%",
+    },
   ];
   const approvalTrend = [
     { month: "Dec 23", Approved: 720, Pending: 310 },
@@ -811,8 +1679,18 @@ function ReportDetail3() {
   ];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
-        <StatTile label="Total Planning Inputs" value="1,245" color={COLORS.blue} />
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 10,
+        }}
+      >
+        <StatTile
+          label="Total Planning Inputs"
+          value="1,245"
+          color={COLORS.blue}
+        />
         <StatTile label="Approved" value="864" color={COLORS.green} />
         <StatTile label="Pending" value="381" color={COLORS.orange} />
         <StatTile label="Approval Rate" value="69.4%" color={COLORS.teal} />
@@ -821,13 +1699,28 @@ function ReportDetail3() {
         <DetailCard>
           <SectionLabel>Approval Trend (Last 6 Months)</SectionLabel>
           <ResponsiveContainer width="100%" height={180}>
-            <AreaChart data={approvalTrend} margin={{ top: 5, right: 5, bottom: 5, left: -15 }}>
+            <AreaChart
+              data={approvalTrend}
+              margin={{ top: 5, right: 5, bottom: 5, left: -15 }}
+            >
               <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
               <XAxis dataKey="month" tick={{ fontSize: 9 }} />
               <YAxis tick={{ fontSize: 9 }} />
               <Tooltip contentStyle={{ fontSize: 10 }} />
-              <Area type="monotone" dataKey="Approved" stroke={COLORS.green} fill={COLORS.green+"33"} strokeWidth={2} />
-              <Area type="monotone" dataKey="Pending" stroke={COLORS.orange} fill={COLORS.orange+"33"} strokeWidth={2} />
+              <Area
+                type="monotone"
+                dataKey="Approved"
+                stroke={COLORS.green}
+                fill={COLORS.green + "33"}
+                strokeWidth={2}
+              />
+              <Area
+                type="monotone"
+                dataKey="Pending"
+                stroke={COLORS.orange}
+                fill={COLORS.orange + "33"}
+                strokeWidth={2}
+              />
               <Legend wrapperStyle={{ fontSize: 9 }} />
             </AreaChart>
           </ResponsiveContainer>
@@ -835,13 +1728,28 @@ function ReportDetail3() {
         <DetailCard>
           <SectionLabel>Planning Inputs by Type</SectionLabel>
           <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={byType} layout="vertical" margin={{ top: 5, right: 20, bottom: 5, left: 90 }}>
-              <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" horizontal={false} />
+            <BarChart
+              data={byType}
+              layout="vertical"
+              margin={{ top: 5, right: 20, bottom: 5, left: 90 }}
+            >
+              <CartesianGrid
+                strokeDasharray="2 2"
+                stroke="#f3f4f6"
+                horizontal={false}
+              />
               <XAxis type="number" tick={{ fontSize: 9 }} />
-              <YAxis type="category" dataKey="name" tick={{ fontSize: 9 }} width={90} />
+              <YAxis
+                type="category"
+                dataKey="name"
+                tick={{ fontSize: 9 }}
+                width={90}
+              />
               <Tooltip contentStyle={{ fontSize: 10 }} />
-              <Bar dataKey="value" radius={[0,3,3,0]}>
-                {byType.map((_, i) => <Cell key={i} fill={DONUT_COLORS[i]} />)}
+              <Bar dataKey="value" radius={[0, 3, 3, 0]}>
+                {byType.map((_, i) => (
+                  <Cell key={i} fill={DONUT_COLORS[i]} />
+                ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -850,13 +1758,25 @@ function ReportDetail3() {
       <DetailCard>
         <SectionLabel>Planning Inputs by Owner</SectionLabel>
         <DetailTable
-          headers={["Owner", "Total Inputs", "Approved", "Pending", "Approval Rate"]}
-          rows={owners.map(r => [
+          headers={[
+            "Owner",
+            "Total Inputs",
+            "Approved",
+            "Pending",
+            "Approval Rate",
+          ]}
+          rows={owners.map((r) => [
             <span style={{ color: "#374151", fontWeight: 600 }}>{r.name}</span>,
             r.total,
-            <span style={{ color: COLORS.green, fontWeight: 600 }}>{r.approved}</span>,
-            <span style={{ color: COLORS.orange, fontWeight: 600 }}>{r.pending}</span>,
-            <span style={{ color: COLORS.blue, fontWeight: 700 }}>{r.rate}</span>,
+            <span style={{ color: COLORS.green, fontWeight: 600 }}>
+              {r.approved}
+            </span>,
+            <span style={{ color: COLORS.orange, fontWeight: 600 }}>
+              {r.pending}
+            </span>,
+            <span style={{ color: COLORS.blue, fontWeight: 700 }}>
+              {r.rate}
+            </span>,
           ])}
         />
       </DetailCard>
@@ -881,14 +1801,27 @@ function ReportDetail4() {
     { name: "Business Applications", fte: 630, pct: 8.9 },
   ];
   const allocationTrend = [
-    { month: "Dec 23", fte: 6200 }, { month: "Jan 24", fte: 6500 },
-    { month: "Feb 24", fte: 6700 }, { month: "Mar 24", fte: 6900 },
-    { month: "Apr 24", fte: 7000 }, { month: "May 24", fte: 7115 },
+    { month: "Dec 23", fte: 6200 },
+    { month: "Jan 24", fte: 6500 },
+    { month: "Feb 24", fte: 6700 },
+    { month: "Mar 24", fte: 6900 },
+    { month: "Apr 24", fte: 7000 },
+    { month: "May 24", fte: 7115 },
   ];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
-        <StatTile label="Total Allocated (FTE)" value="7,115" color={COLORS.blue} />
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3,1fr)",
+          gap: 10,
+        }}
+      >
+        <StatTile
+          label="Total Allocated (FTE)"
+          value="7,115"
+          color={COLORS.blue}
+        />
         <StatTile label="Active Projects" value="124" color={COLORS.teal} />
         <StatTile label="Avg Allocation %" value="81%" color={COLORS.purple} />
       </div>
@@ -896,24 +1829,81 @@ function ReportDetail4() {
         <DetailCard>
           <SectionLabel>Allocation by Project (Top 6)</SectionLabel>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{ position: "relative", width: 160, height: 160, flexShrink: 0 }}>
+            <div
+              style={{
+                position: "relative",
+                width: 160,
+                height: 160,
+                flexShrink: 0,
+              }}
+            >
               <PieChart width={160} height={160}>
-                <Pie data={donutData} cx={79} cy={79} innerRadius={48} outerRadius={72} dataKey="value" startAngle={90} endAngle={-270}>
-                  {donutData.map((_, i) => <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />)}
+                <Pie
+                  data={donutData}
+                  cx={79}
+                  cy={79}
+                  innerRadius={48}
+                  outerRadius={72}
+                  dataKey="value"
+                  startAngle={90}
+                  endAngle={-270}
+                >
+                  {donutData.map((_, i) => (
+                    <Cell
+                      key={i}
+                      fill={DONUT_COLORS[i % DONUT_COLORS.length]}
+                    />
+                  ))}
                 </Pie>
               </PieChart>
-              <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: "#111" }}>7,115</div>
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  pointerEvents: "none",
+                }}
+              >
+                <div style={{ fontSize: 13, fontWeight: 800, color: "#111" }}>
+                  7,115
+                </div>
                 <div style={{ fontSize: 9, color: "#6b7280" }}>Total FTE</div>
               </div>
             </div>
             <div>
               {donutData.map((d, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: 2, background: DONUT_COLORS[i], flexShrink: 0 }} />
-                  <span style={{ fontSize: 10, color: "#374151", flex: 1 }}>{d.name}</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: "#111" }}>{d.value}%</span>
-                  <span style={{ fontSize: 10, color: "#9ca3af" }}>{d.fte.toLocaleString()}</span>
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    marginBottom: 6,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 2,
+                      background: DONUT_COLORS[i],
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span style={{ fontSize: 10, color: "#374151", flex: 1 }}>
+                    {d.name}
+                  </span>
+                  <span
+                    style={{ fontSize: 10, fontWeight: 700, color: "#111" }}
+                  >
+                    {d.value}%
+                  </span>
+                  <span style={{ fontSize: 10, color: "#9ca3af" }}>
+                    {d.fte.toLocaleString()}
+                  </span>
                 </div>
               ))}
             </div>
@@ -923,9 +1913,23 @@ function ReportDetail4() {
           <SectionLabel>Allocation by Portfolio</SectionLabel>
           {byPortfolio.map((p, i) => (
             <div key={i} style={{ marginBottom: 11 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 4,
+                }}
+              >
                 <span style={{ fontSize: 10, color: "#374151" }}>{p.name}</span>
-                <span style={{ fontSize: 10, fontWeight: 700, color: DONUT_COLORS[i] }}>{p.fte.toLocaleString()} ({p.pct}%)</span>
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    color: DONUT_COLORS[i],
+                  }}
+                >
+                  {p.fte.toLocaleString()} ({p.pct}%)
+                </span>
               </div>
               <DetailMiniBar value={p.pct} max={35} color={DONUT_COLORS[i]} />
             </div>
@@ -935,12 +1939,25 @@ function ReportDetail4() {
       <DetailCard>
         <SectionLabel>Allocation Trend (Last 6 Months)</SectionLabel>
         <ResponsiveContainer width="100%" height={160}>
-          <LineChart data={allocationTrend} margin={{ top: 5, right: 20, bottom: 5, left: -10 }}>
+          <LineChart
+            data={allocationTrend}
+            margin={{ top: 5, right: 20, bottom: 5, left: -10 }}
+          >
             <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
             <XAxis dataKey="month" tick={{ fontSize: 9 }} />
             <YAxis tick={{ fontSize: 9 }} />
-            <Tooltip contentStyle={{ fontSize: 10 }} formatter={v=>`${v.toLocaleString()} FTE`} />
-            <Line type="monotone" dataKey="fte" stroke={COLORS.blue} strokeWidth={2} dot={{ r: 3, fill: COLORS.blue }} name="Allocated FTE" />
+            <Tooltip
+              contentStyle={{ fontSize: 10 }}
+              formatter={(v) => `${v.toLocaleString()} FTE`}
+            />
+            <Line
+              type="monotone"
+              dataKey="fte"
+              stroke={COLORS.blue}
+              strokeWidth={2}
+              dot={{ r: 3, fill: COLORS.blue }}
+              name="Allocated FTE"
+            />
           </LineChart>
         </ResponsiveContainer>
       </DetailCard>
@@ -962,29 +1979,65 @@ function ReportDetail5() {
     { name: "Maria Garcia", role: "Tester", alloc: 103, projects: 3 },
   ];
   const byRole = [
-    { role: "Developer", count: 198 }, { role: "Consultant", count: 42 },
-    { role: "Analyst", count: 18 }, { role: "Tester", count: 14 }, { role: "Architect", count: 10 },
+    { role: "Developer", count: 198 },
+    { role: "Consultant", count: 42 },
+    { role: "Analyst", count: 18 },
+    { role: "Tester", count: 14 },
+    { role: "Architect", count: 10 },
   ];
   const byProject = [
-    { name: "Cloud Migration", count: 45 }, { name: "Data Warehouse", count: 36 },
-    { name: "Mobile App Revamp", count: 32 }, { name: "AI Platform", count: 28 }, { name: "ERP Implementation", count: 20 },
+    { name: "Cloud Migration", count: 45 },
+    { name: "Data Warehouse", count: 36 },
+    { name: "Mobile App Revamp", count: 32 },
+    { name: "AI Platform", count: 28 },
+    { name: "ERP Implementation", count: 20 },
   ];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
-        <StatTile label="Over Allocated Resources" value="312 FTE" color={COLORS.red} />
-        <StatTile label="Over Allocation %" value="12.3%" color={COLORS.orange} />
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3,1fr)",
+          gap: 10,
+        }}
+      >
+        <StatTile
+          label="Over Allocated Resources"
+          value="312 FTE"
+          color={COLORS.red}
+        />
+        <StatTile
+          label="Over Allocation %"
+          value="12.3%"
+          color={COLORS.orange}
+        />
         <StatTile label="Projects Impacted" value="47" color={COLORS.amber} />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 12 }}>
+      <div
+        style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 12 }}
+      >
         <DetailCard>
           <SectionLabel>Over-Allocated Resources (Top 10)</SectionLabel>
           <DetailTable
             headers={["Resource", "Role", "Allocation %", "Projects"]}
-            rows={overList.map(r => [
-              <span style={{ color: "#374151", fontWeight: 600 }}>{r.name}</span>,
+            rows={overList.map((r) => [
+              <span style={{ color: "#374151", fontWeight: 600 }}>
+                {r.name}
+              </span>,
               <span style={{ color: "#6b7280" }}>{r.role}</span>,
-              <span style={{ fontWeight: 800, color: r.alloc >= 125 ? COLORS.red : r.alloc >= 115 ? COLORS.orange : COLORS.amber }}>{r.alloc}%</span>,
+              <span
+                style={{
+                  fontWeight: 800,
+                  color:
+                    r.alloc >= 125
+                      ? COLORS.red
+                      : r.alloc >= 115
+                        ? COLORS.orange
+                        : COLORS.amber,
+                }}
+              >
+                {r.alloc}%
+              </span>,
               r.projects,
             ])}
           />
@@ -993,22 +2046,59 @@ function ReportDetail5() {
           <DetailCard>
             <SectionLabel>Over Allocation by Role</SectionLabel>
             <ResponsiveContainer width="100%" height={150}>
-              <BarChart data={byRole} layout="vertical" margin={{ top: 5, right: 20, bottom: 5, left: 65 }}>
-                <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" horizontal={false} />
+              <BarChart
+                data={byRole}
+                layout="vertical"
+                margin={{ top: 5, right: 20, bottom: 5, left: 65 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="2 2"
+                  stroke="#f3f4f6"
+                  horizontal={false}
+                />
                 <XAxis type="number" tick={{ fontSize: 9 }} />
-                <YAxis type="category" dataKey="role" tick={{ fontSize: 9 }} width={65} />
+                <YAxis
+                  type="category"
+                  dataKey="role"
+                  tick={{ fontSize: 9 }}
+                  width={65}
+                />
                 <Tooltip contentStyle={{ fontSize: 10 }} />
-                <Bar dataKey="count" fill={COLORS.red} radius={[0,3,3,0]} name="Over-Allocated" />
+                <Bar
+                  dataKey="count"
+                  fill={COLORS.red}
+                  radius={[0, 3, 3, 0]}
+                  name="Over-Allocated"
+                />
               </BarChart>
             </ResponsiveContainer>
           </DetailCard>
           <DetailCard>
             <SectionLabel>Over Allocation by Project</SectionLabel>
             {byProject.map((p, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}>
-                <span style={{ fontSize: 10, color: "#374151", minWidth: 120 }}>{p.name}</span>
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  marginBottom: 5,
+                }}
+              >
+                <span style={{ fontSize: 10, color: "#374151", minWidth: 120 }}>
+                  {p.name}
+                </span>
                 <DetailMiniBar value={p.count} max={50} color={COLORS.red} />
-                <span style={{ fontSize: 10, fontWeight: 700, color: COLORS.red, minWidth: 22 }}>{p.count}</span>
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    color: COLORS.red,
+                    minWidth: 22,
+                  }}
+                >
+                  {p.count}
+                </span>
               </div>
             ))}
           </DetailCard>
@@ -1028,45 +2118,94 @@ function ReportDetail6() {
     { role: "Others", total: 112, avail: 7, pct: "24.1%" },
   ];
   const sharedProjects = [
-    { name: "Cloud Migration", shared: 245 }, { name: "Data Warehouse", shared: 198 },
-    { name: "Mobile App Revamp", shared: 176 }, { name: "ERP Implementation", shared: 164 },
-    { name: "DevOps Implementation", shared: 142 }, { name: "Analytics Dashboard", shared: 138 },
-    { name: "Customer Portal", shared: 116 }, { name: "Security Upgrade", shared: 98 },
+    { name: "Cloud Migration", shared: 245 },
+    { name: "Data Warehouse", shared: 198 },
+    { name: "Mobile App Revamp", shared: 176 },
+    { name: "ERP Implementation", shared: 164 },
+    { name: "DevOps Implementation", shared: 142 },
+    { name: "Analytics Dashboard", shared: 138 },
+    { name: "Customer Portal", shared: 116 },
+    { name: "Security Upgrade", shared: 98 },
     { name: "Automation Testing", shared: 66 },
   ];
   const availTrend = [
-    { month: "Dec 23", pct: 23.1 }, { month: "Jan 24", pct: 22.4 },
-    { month: "Feb 24", pct: 22.4 }, { month: "Mar 24", pct: 21.5 },
-    { month: "Apr 24", pct: 21.1 }, { month: "May 24", pct: 21.6 },
+    { month: "Dec 23", pct: 23.1 },
+    { month: "Jan 24", pct: 22.4 },
+    { month: "Feb 24", pct: 22.4 },
+    { month: "Mar 24", pct: 21.5 },
+    { month: "Apr 24", pct: 21.1 },
+    { month: "May 24", pct: 21.6 },
   ];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
-        <StatTile label="Total Resources (FTE)" value="8,532" color={COLORS.blue} />
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 10,
+        }}
+      >
+        <StatTile
+          label="Total Resources (FTE)"
+          value="8,532"
+          color={COLORS.blue}
+        />
         <StatTile label="Available (FTE)" value="1,842" color={COLORS.green} />
         <StatTile label="Shared Resources" value="2,315" color={COLORS.teal} />
-        <StatTile label="Bench Resources" value="1,842 (21.6%)" color={COLORS.gray} />
+        <StatTile
+          label="Bench Resources"
+          value="1,842 (21.6%)"
+          color={COLORS.gray}
+        />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <DetailCard>
           <SectionLabel>Availability by Role</SectionLabel>
           <DetailTable
-            headers={["Role", "Total (FTE)", "Available (FTE)", "Availability %"]}
-            rows={byRole.map(r => [
+            headers={[
+              "Role",
+              "Total (FTE)",
+              "Available (FTE)",
+              "Availability %",
+            ]}
+            rows={byRole.map((r) => [
               <span style={{ color: "#374151" }}>{r.role}</span>,
               r.total.toLocaleString(),
-              <span style={{ color: COLORS.green, fontWeight: 600 }}>{r.avail}</span>,
-              <span style={{ color: COLORS.teal, fontWeight: 700 }}>{r.pct}</span>,
+              <span style={{ color: COLORS.green, fontWeight: 600 }}>
+                {r.avail}
+              </span>,
+              <span style={{ color: COLORS.teal, fontWeight: 700 }}>
+                {r.pct}
+              </span>,
             ])}
           />
         </DetailCard>
         <DetailCard>
           <SectionLabel>Shared Resources by Project (Top 10)</SectionLabel>
           {sharedProjects.map((p, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
-              <span style={{ fontSize: 10, color: "#374151", minWidth: 150 }}>{p.name}</span>
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 5,
+              }}
+            >
+              <span style={{ fontSize: 10, color: "#374151", minWidth: 150 }}>
+                {p.name}
+              </span>
               <DetailMiniBar value={p.shared} max={250} color={COLORS.teal} />
-              <span style={{ fontSize: 10, fontWeight: 700, color: COLORS.teal, minWidth: 28 }}>{p.shared}</span>
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: COLORS.teal,
+                  minWidth: 28,
+                }}
+              >
+                {p.shared}
+              </span>
             </div>
           ))}
         </DetailCard>
@@ -1074,12 +2213,29 @@ function ReportDetail6() {
       <DetailCard>
         <SectionLabel>Availability Trend (Last 6 Months)</SectionLabel>
         <ResponsiveContainer width="100%" height={140}>
-          <AreaChart data={availTrend} margin={{ top: 5, right: 20, bottom: 5, left: -10 }}>
+          <AreaChart
+            data={availTrend}
+            margin={{ top: 5, right: 20, bottom: 5, left: -10 }}
+          >
             <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
             <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-            <YAxis domain={[18,26]} tick={{ fontSize: 9 }} tickFormatter={v=>`${v}%`} />
-            <Tooltip contentStyle={{ fontSize: 10 }} formatter={v=>`${v}%`} />
-            <Area type="monotone" dataKey="pct" stroke={COLORS.green} fill={COLORS.green+"33"} strokeWidth={2} name="Availability %" />
+            <YAxis
+              domain={[18, 26]}
+              tick={{ fontSize: 9 }}
+              tickFormatter={(v) => `${v}%`}
+            />
+            <Tooltip
+              contentStyle={{ fontSize: 10 }}
+              formatter={(v) => `${v}%`}
+            />
+            <Area
+              type="monotone"
+              dataKey="pct"
+              stroke={COLORS.green}
+              fill={COLORS.green + "33"}
+              strokeWidth={2}
+              name="Availability %"
+            />
           </AreaChart>
         </ResponsiveContainer>
       </DetailCard>
@@ -1096,9 +2252,12 @@ function ReportDetail7() {
     { label: "Skill Certification", value: 90, target: 85 },
   ];
   const compTrend = [
-    { month: "Dec 23", rate: 90 }, { month: "Jan 24", rate: 91 },
-    { month: "Feb 24", rate: 90 }, { month: "Mar 24", rate: 91 },
-    { month: "Apr 24", rate: 92 }, { month: "May 24", rate: 92 },
+    { month: "Dec 23", rate: 90 },
+    { month: "Jan 24", rate: 91 },
+    { month: "Feb 24", rate: 90 },
+    { month: "Mar 24", rate: 91 },
+    { month: "Apr 24", rate: 92 },
+    { month: "May 24", rate: 92 },
   ];
   const nonCompReasons = [
     { name: "Missing Timesheet", value: 36, color: COLORS.red },
@@ -1109,10 +2268,24 @@ function ReportDetail7() {
   ];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 10,
+        }}
+      >
         <StatTile label="Overall Compliance" value="92%" color={COLORS.green} />
-        <StatTile label="Timesheet Compliance" value="96%" color={COLORS.teal} />
-        <StatTile label="Allocation Adherence" value="91%" color={COLORS.blue} />
+        <StatTile
+          label="Timesheet Compliance"
+          value="96%"
+          color={COLORS.teal}
+        />
+        <StatTile
+          label="Allocation Adherence"
+          value="91%"
+          color={COLORS.blue}
+        />
         <StatTile label="Manager Approval" value="93%" color={COLORS.purple} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -1120,30 +2293,91 @@ function ReportDetail7() {
           <SectionLabel>Compliance by Area</SectionLabel>
           {items.map((r, i) => (
             <div key={i} style={{ marginBottom: 11 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                <span style={{ fontSize: 11, color: "#374151" }}>{r.label}</span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: r.value >= r.target ? COLORS.green : COLORS.red }}>{r.value}%</span>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 4,
+                }}
+              >
+                <span style={{ fontSize: 11, color: "#374151" }}>
+                  {r.label}
+                </span>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: r.value >= r.target ? COLORS.green : COLORS.red,
+                  }}
+                >
+                  {r.value}%
+                </span>
               </div>
-              <DetailMiniBar value={r.value} color={r.value >= r.target ? COLORS.green : COLORS.red} />
+              <DetailMiniBar
+                value={r.value}
+                color={r.value >= r.target ? COLORS.green : COLORS.red}
+              />
             </div>
           ))}
         </DetailCard>
         <DetailCard>
           <SectionLabel>Non-Compliance by Reason</SectionLabel>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{ position: "relative", width: 130, height: 130, flexShrink: 0 }}>
+            <div
+              style={{
+                position: "relative",
+                width: 130,
+                height: 130,
+                flexShrink: 0,
+              }}
+            >
               <PieChart width={130} height={130}>
-                <Pie data={nonCompReasons} cx={64} cy={64} innerRadius={38} outerRadius={60} dataKey="value">
-                  {nonCompReasons.map((d, i) => <Cell key={i} fill={d.color} />)}
+                <Pie
+                  data={nonCompReasons}
+                  cx={64}
+                  cy={64}
+                  innerRadius={38}
+                  outerRadius={60}
+                  dataKey="value"
+                >
+                  {nonCompReasons.map((d, i) => (
+                    <Cell key={i} fill={d.color} />
+                  ))}
                 </Pie>
               </PieChart>
             </div>
             <div>
               {nonCompReasons.map((d, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: 2, background: d.color }} />
-                  <span style={{ fontSize: 10, color: "#374151" }}>{d.name}</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: d.color, marginLeft: 4 }}>{d.value}%</span>
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    marginBottom: 6,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 2,
+                      background: d.color,
+                    }}
+                  />
+                  <span style={{ fontSize: 10, color: "#374151" }}>
+                    {d.name}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: d.color,
+                      marginLeft: 4,
+                    }}
+                  >
+                    {d.value}%
+                  </span>
                 </div>
               ))}
             </div>
@@ -1153,12 +2387,29 @@ function ReportDetail7() {
       <DetailCard>
         <SectionLabel>Compliance Trend (Last 6 Months)</SectionLabel>
         <ResponsiveContainer width="100%" height={140}>
-          <LineChart data={compTrend} margin={{ top: 5, right: 20, bottom: 5, left: -10 }}>
+          <LineChart
+            data={compTrend}
+            margin={{ top: 5, right: 20, bottom: 5, left: -10 }}
+          >
             <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
             <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-            <YAxis domain={[85,100]} tick={{ fontSize: 9 }} tickFormatter={v=>`${v}%`} />
-            <Tooltip contentStyle={{ fontSize: 10 }} formatter={v=>`${v}%`} />
-            <Line type="monotone" dataKey="rate" stroke={COLORS.green} strokeWidth={2} dot={{ r: 3, fill: COLORS.green }} name="Compliance %" />
+            <YAxis
+              domain={[85, 100]}
+              tick={{ fontSize: 9 }}
+              tickFormatter={(v) => `${v}%`}
+            />
+            <Tooltip
+              contentStyle={{ fontSize: 10 }}
+              formatter={(v) => `${v}%`}
+            />
+            <Line
+              type="monotone"
+              dataKey="rate"
+              stroke={COLORS.green}
+              strokeWidth={2}
+              dot={{ r: 3, fill: COLORS.green }}
+              name="Compliance %"
+            />
           </LineChart>
         </ResponsiveContainer>
       </DetailCard>
@@ -1176,31 +2427,85 @@ function ReportDetail8() {
     { month: "May 24", budget: 5.4, actual: 5.6, variance: -0.2 },
   ];
   const portfolioVar = [
-    { name: "Digital Transformation", budget: 7.2, actual: 5.96, variance: -1.2, pct: -16.7 },
-    { name: "Product Engineering", budget: 6.5, actual: 5.38, variance: -1.12, pct: -17.2 },
-    { name: "Cloud Services", budget: 5.8, actual: 4.85, variance: -0.95, pct: -16.4 },
-    { name: "Data & Analytics", budget: 3.5, actual: 2.77, variance: -0.73, pct: -20.9 },
-    { name: "Business Applications", budget: 1.8, actual: 1.38, variance: -0.42, pct: -23.3 },
+    {
+      name: "Digital Transformation",
+      budget: 7.2,
+      actual: 5.96,
+      variance: -1.2,
+      pct: -16.7,
+    },
+    {
+      name: "Product Engineering",
+      budget: 6.5,
+      actual: 5.38,
+      variance: -1.12,
+      pct: -17.2,
+    },
+    {
+      name: "Cloud Services",
+      budget: 5.8,
+      actual: 4.85,
+      variance: -0.95,
+      pct: -16.4,
+    },
+    {
+      name: "Data & Analytics",
+      budget: 3.5,
+      actual: 2.77,
+      variance: -0.73,
+      pct: -20.9,
+    },
+    {
+      name: "Business Applications",
+      budget: 1.8,
+      actual: 1.38,
+      variance: -0.42,
+      pct: -23.3,
+    },
   ];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 10,
+        }}
+      >
         <StatTile label="Total Budget" value="$24.80M" color={COLORS.blue} />
         <StatTile label="Total Actual" value="$20.36M" color={COLORS.teal} />
         <StatTile label="Variance" value="-$4.44M" color={COLORS.red} />
         <StatTile label="Variance %" value="-17.9%" color={COLORS.red} />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 12 }}>
+      <div
+        style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 12 }}
+      >
         <DetailCard>
           <SectionLabel>Budget vs Actual — Monthly</SectionLabel>
           <ResponsiveContainer width="100%" height={190}>
-            <BarChart data={budgetMonthly} margin={{ top: 5, right: 10, bottom: 5, left: -10 }}>
+            <BarChart
+              data={budgetMonthly}
+              margin={{ top: 5, right: 10, bottom: 5, left: -10 }}
+            >
               <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
               <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-              <YAxis tick={{ fontSize: 9 }} tickFormatter={v=>`$${v}M`} />
-              <Tooltip contentStyle={{ fontSize: 10 }} formatter={v=>`$${v}M`} />
-              <Bar dataKey="budget" fill={COLORS.blue} radius={[2,2,0,0]} name="Budget" />
-              <Bar dataKey="actual" fill={COLORS.orange} radius={[2,2,0,0]} name="Actual" />
+              <YAxis tick={{ fontSize: 9 }} tickFormatter={(v) => `$${v}M`} />
+              <Tooltip
+                contentStyle={{ fontSize: 10 }}
+                formatter={(v) => `$${v}M`}
+              />
+              <Bar
+                dataKey="budget"
+                fill={COLORS.blue}
+                radius={[2, 2, 0, 0]}
+                name="Budget"
+              />
+              <Bar
+                dataKey="actual"
+                fill={COLORS.orange}
+                radius={[2, 2, 0, 0]}
+                name="Actual"
+              />
               <Legend wrapperStyle={{ fontSize: 9 }} />
             </BarChart>
           </ResponsiveContainer>
@@ -1209,14 +2514,26 @@ function ReportDetail8() {
           <SectionLabel>Variance by Type</SectionLabel>
           <div style={{ position: "relative", width: 200, height: 160 }}>
             <PieChart width={200} height={160}>
-              <Pie data={[
-                { name: "Resource Cost", value: 58.5 },
-                { name: "Infrastructure", value: 25.1 },
-                { name: "Other Cost", value: 15.5 },
-              ]} cx={99} cy={79} innerRadius={45} outerRadius={70} dataKey="value">
-                {[COLORS.red, COLORS.orange, COLORS.amber].map((c, i) => <Cell key={i} fill={c} />)}
+              <Pie
+                data={[
+                  { name: "Resource Cost", value: 58.5 },
+                  { name: "Infrastructure", value: 25.1 },
+                  { name: "Other Cost", value: 15.5 },
+                ]}
+                cx={99}
+                cy={79}
+                innerRadius={45}
+                outerRadius={70}
+                dataKey="value"
+              >
+                {[COLORS.red, COLORS.orange, COLORS.amber].map((c, i) => (
+                  <Cell key={i} fill={c} />
+                ))}
               </Pie>
-              <Tooltip contentStyle={{ fontSize: 10 }} formatter={v=>`${v}%`} />
+              <Tooltip
+                contentStyle={{ fontSize: 10 }}
+                formatter={(v) => `${v}%`}
+              />
               <Legend wrapperStyle={{ fontSize: 9 }} />
             </PieChart>
           </div>
@@ -1225,13 +2542,23 @@ function ReportDetail8() {
       <DetailCard>
         <SectionLabel>Variance by Portfolio</SectionLabel>
         <DetailTable
-          headers={["Portfolio", "Budget ($M)", "Actual ($M)", "Variance ($M)", "Variance %"]}
-          rows={portfolioVar.map(r => [
+          headers={[
+            "Portfolio",
+            "Budget ($M)",
+            "Actual ($M)",
+            "Variance ($M)",
+            "Variance %",
+          ]}
+          rows={portfolioVar.map((r) => [
             <span style={{ color: "#374151" }}>{r.name}</span>,
             `$${r.budget}M`,
             `$${r.actual}M`,
-            <span style={{ color: COLORS.red, fontWeight: 700 }}>${r.variance}M</span>,
-            <span style={{ color: COLORS.red, fontWeight: 700 }}>{r.pct}%</span>,
+            <span style={{ color: COLORS.red, fontWeight: 700 }}>
+              ${r.variance}M
+            </span>,
+            <span style={{ color: COLORS.red, fontWeight: 700 }}>
+              {r.pct}%
+            </span>,
           ])}
         />
       </DetailCard>
@@ -1241,45 +2568,159 @@ function ReportDetail8() {
 
 function ReportDetail9() {
   const vendors = [
-    { name: "Tech Mahindra", spend: 3.21, pct: 15.3, score: 92, category: "Development", onTime: 94 },
-    { name: "Tata Consultancy Svcs", spend: 2.98, pct: 13.1, score: 88, category: "Consulting", onTime: 91 },
-    { name: "Infosys", spend: 2.25, pct: 10.7, score: 85, category: "Development", onTime: 89 },
-    { name: "Wipro", spend: 1.89, pct: 9.0, score: 80, category: "Support", onTime: 86 },
-    { name: "HCL Technologies", spend: 1.46, pct: 7.0, score: 78, category: "Development", onTime: 83 },
-    { name: "Accenture", spend: 1.02, pct: 4.9, score: 90, category: "Consulting", onTime: 92 },
-    { name: "Cognizant", spend: 0.98, pct: 4.7, score: 84, category: "Development", onTime: 87 },
-    { name: "LTI Mindtree", spend: 0.87, pct: 4.1, score: 81, category: "Support", onTime: 85 },
-    { name: "Capgemini", spend: 0.31, pct: 3.8, score: 82, category: "Consulting", onTime: 88 },
-    { name: "Others", spend: 1.71, pct: 21.4, score: 79, category: "Mixed", onTime: 84 },
+    {
+      name: "Tech Mahindra",
+      spend: 3.21,
+      pct: 15.3,
+      score: 92,
+      category: "Development",
+      onTime: 94,
+    },
+    {
+      name: "Tata Consultancy Svcs",
+      spend: 2.98,
+      pct: 13.1,
+      score: 88,
+      category: "Consulting",
+      onTime: 91,
+    },
+    {
+      name: "Infosys",
+      spend: 2.25,
+      pct: 10.7,
+      score: 85,
+      category: "Development",
+      onTime: 89,
+    },
+    {
+      name: "Wipro",
+      spend: 1.89,
+      pct: 9.0,
+      score: 80,
+      category: "Support",
+      onTime: 86,
+    },
+    {
+      name: "HCL Technologies",
+      spend: 1.46,
+      pct: 7.0,
+      score: 78,
+      category: "Development",
+      onTime: 83,
+    },
+    {
+      name: "Accenture",
+      spend: 1.02,
+      pct: 4.9,
+      score: 90,
+      category: "Consulting",
+      onTime: 92,
+    },
+    {
+      name: "Cognizant",
+      spend: 0.98,
+      pct: 4.7,
+      score: 84,
+      category: "Development",
+      onTime: 87,
+    },
+    {
+      name: "LTI Mindtree",
+      spend: 0.87,
+      pct: 4.1,
+      score: 81,
+      category: "Support",
+      onTime: 85,
+    },
+    {
+      name: "Capgemini",
+      spend: 0.31,
+      pct: 3.8,
+      score: 82,
+      category: "Consulting",
+      onTime: 88,
+    },
+    {
+      name: "Others",
+      spend: 1.71,
+      pct: 21.4,
+      score: 79,
+      category: "Mixed",
+      onTime: 84,
+    },
   ];
   const spendByCat = [
-    { name: "Development", value: 48 }, { name: "Consulting", value: 25 },
-    { name: "Support & Maintenance", value: 17 }, { name: "Infrastructure", value: 10 },
+    { name: "Development", value: 48 },
+    { name: "Consulting", value: 25 },
+    { name: "Support & Maintenance", value: 17 },
+    { name: "Infrastructure", value: 10 },
   ];
   const spendTrend = [
-    { month: "Dec 23", spend: 6.2 }, { month: "Jan 24", spend: 6.84 },
-    { month: "Feb 24", spend: 5.84 }, { month: "Mar 24", spend: 5.98 },
-    { month: "Apr 24", spend: 7.1 }, { month: "May 24", spend: 8.1 },
+    { month: "Dec 23", spend: 6.2 },
+    { month: "Jan 24", spend: 6.84 },
+    { month: "Feb 24", spend: 5.84 },
+    { month: "Mar 24", spend: 5.98 },
+    { month: "Apr 24", spend: 7.1 },
+    { month: "May 24", spend: 8.1 },
   ];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
-        <StatTile label="Total Vendor Spend" value="$8.12M" color={COLORS.blue} />
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 10,
+        }}
+      >
+        <StatTile
+          label="Total Vendor Spend"
+          value="$8.12M"
+          color={COLORS.blue}
+        />
         <StatTile label="Active Vendors" value="56" color={COLORS.teal} />
-        <StatTile label="Avg Performance Score" value="87%" color={COLORS.green} />
+        <StatTile
+          label="Avg Performance Score"
+          value="87%"
+          color={COLORS.green}
+        />
         <StatTile label="On-Time Delivery" value="92%" color={COLORS.purple} />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 12 }}>
+      <div
+        style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 12 }}
+      >
         <DetailCard>
           <SectionLabel>Vendor Ranking by Spend</SectionLabel>
           <DetailTable
-            headers={["#", "Vendor", "Spend ($M)", "% of Total", "Score", "On-Time"]}
+            headers={[
+              "#",
+              "Vendor",
+              "Spend ($M)",
+              "% of Total",
+              "Score",
+              "On-Time",
+            ]}
             rows={vendors.map((v, i) => [
-              <span style={{ fontWeight: 800, color: i < 3 ? COLORS.amber : "#9ca3af" }}>#{i+1}</span>,
-              <span style={{ color: "#374151", fontWeight: 600 }}>{v.name}</span>,
+              <span
+                style={{
+                  fontWeight: 800,
+                  color: i < 3 ? COLORS.amber : "#9ca3af",
+                }}
+              >
+                #{i + 1}
+              </span>,
+              <span style={{ color: "#374151", fontWeight: 600 }}>
+                {v.name}
+              </span>,
               `$${v.spend}M`,
               `${v.pct}%`,
-              <span style={{ fontWeight: 700, color: v.score >= 85 ? COLORS.green : COLORS.orange }}>{v.score}%</span>,
+              <span
+                style={{
+                  fontWeight: 700,
+                  color: v.score >= 85 ? COLORS.green : COLORS.orange,
+                }}
+              >
+                {v.score}%
+              </span>,
               `${v.onTime}%`,
             ])}
           />
@@ -1289,10 +2730,22 @@ function ReportDetail9() {
             <SectionLabel>Spend by Category</SectionLabel>
             <div style={{ position: "relative", width: 180, height: 150 }}>
               <PieChart width={180} height={150}>
-                <Pie data={spendByCat} cx={89} cy={74} innerRadius={40} outerRadius={65} dataKey="value">
-                  {spendByCat.map((_, i) => <Cell key={i} fill={DONUT_COLORS[i]} />)}
+                <Pie
+                  data={spendByCat}
+                  cx={89}
+                  cy={74}
+                  innerRadius={40}
+                  outerRadius={65}
+                  dataKey="value"
+                >
+                  {spendByCat.map((_, i) => (
+                    <Cell key={i} fill={DONUT_COLORS[i]} />
+                  ))}
                 </Pie>
-                <Tooltip contentStyle={{ fontSize: 10 }} formatter={v=>`${v}%`} />
+                <Tooltip
+                  contentStyle={{ fontSize: 10 }}
+                  formatter={(v) => `${v}%`}
+                />
                 <Legend wrapperStyle={{ fontSize: 9 }} />
               </PieChart>
             </div>
@@ -1300,12 +2753,25 @@ function ReportDetail9() {
           <DetailCard>
             <SectionLabel>Spend Trend</SectionLabel>
             <ResponsiveContainer width="100%" height={110}>
-              <LineChart data={spendTrend} margin={{ top: 5, right: 10, bottom: 5, left: -10 }}>
+              <LineChart
+                data={spendTrend}
+                margin={{ top: 5, right: 10, bottom: 5, left: -10 }}
+              >
                 <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
                 <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-                <YAxis tick={{ fontSize: 9 }} tickFormatter={v=>`$${v}M`} />
-                <Tooltip contentStyle={{ fontSize: 10 }} formatter={v=>`$${v}M`} />
-                <Line type="monotone" dataKey="spend" stroke={COLORS.amber} strokeWidth={2} dot={{ r: 3 }} name="Vendor Spend" />
+                <YAxis tick={{ fontSize: 9 }} tickFormatter={(v) => `$${v}M`} />
+                <Tooltip
+                  contentStyle={{ fontSize: 10 }}
+                  formatter={(v) => `$${v}M`}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="spend"
+                  stroke={COLORS.amber}
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                  name="Vendor Spend"
+                />
               </LineChart>
             </ResponsiveContainer>
           </DetailCard>
@@ -1328,12 +2794,21 @@ function ReportDetail10() {
     { range: ">40 Days", count: 61, pct: "14.8%", color: COLORS.red },
   ];
   const byRole = [
-    { role: "Developers", value: 156 }, { role: "Consultants", value: 92 },
-    { role: "Analysts", value: 108 }, { role: "Testers", value: 100 }, { role: "Architects", value: 28 },
+    { role: "Developers", value: 156 },
+    { role: "Consultants", value: 92 },
+    { role: "Analysts", value: 108 },
+    { role: "Testers", value: 100 },
+    { role: "Architects", value: 28 },
   ];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 10,
+        }}
+      >
         <StatTile label="Open Demands" value="412" color={COLORS.red} />
         <StatTile label="In Progress (FTE)" value="186" color={COLORS.orange} />
         <StatTile label="Fulfilled (FTE)" value="226" color={COLORS.green} />
@@ -1344,20 +2819,43 @@ function ReportDetail10() {
           <SectionLabel>Demands by Priority</SectionLabel>
           {demandByPriority.map((d, i) => (
             <div key={i} style={{ marginBottom: 12 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                <span style={{ fontSize: 11, color: "#374151", fontWeight: 600 }}>{d.label}</span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: d.color }}>{d.value} ({d.pct}%)</span>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 4,
+                }}
+              >
+                <span
+                  style={{ fontSize: 11, color: "#374151", fontWeight: 600 }}
+                >
+                  {d.label}
+                </span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: d.color }}>
+                  {d.value} ({d.pct}%)
+                </span>
               </div>
               <DetailMiniBar value={d.pct} color={d.color} />
             </div>
           ))}
           <SectionLabel>Demands Aging</SectionLabel>
           {aging.map((d, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "0.5px solid #f3f4f6" }}>
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "6px 0",
+                borderBottom: "0.5px solid #f3f4f6",
+              }}
+            >
               <span style={{ fontSize: 11, color: "#374151" }}>{d.range}</span>
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <span style={{ fontSize: 10, color: "#6b7280" }}>{d.pct}</span>
-                <span style={{ fontSize: 16, fontWeight: 800, color: d.color }}>{d.count}</span>
+                <span style={{ fontSize: 16, fontWeight: 800, color: d.color }}>
+                  {d.count}
+                </span>
               </div>
             </div>
           ))}
@@ -1365,12 +2863,30 @@ function ReportDetail10() {
         <DetailCard>
           <SectionLabel>Demands by Role (Top 5)</SectionLabel>
           <ResponsiveContainer width="100%" height={160}>
-            <BarChart data={byRole} layout="vertical" margin={{ top: 5, right: 20, bottom: 5, left: 65 }}>
-              <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" horizontal={false} />
+            <BarChart
+              data={byRole}
+              layout="vertical"
+              margin={{ top: 5, right: 20, bottom: 5, left: 65 }}
+            >
+              <CartesianGrid
+                strokeDasharray="2 2"
+                stroke="#f3f4f6"
+                horizontal={false}
+              />
               <XAxis type="number" tick={{ fontSize: 9 }} />
-              <YAxis type="category" dataKey="role" tick={{ fontSize: 9 }} width={65} />
+              <YAxis
+                type="category"
+                dataKey="role"
+                tick={{ fontSize: 9 }}
+                width={65}
+              />
               <Tooltip contentStyle={{ fontSize: 10 }} />
-              <Bar dataKey="value" fill={COLORS.blue} radius={[0,3,3,0]} name="Demands" />
+              <Bar
+                dataKey="value"
+                fill={COLORS.blue}
+                radius={[0, 3, 3, 0]}
+                name="Demands"
+              />
             </BarChart>
           </ResponsiveContainer>
           <SectionLabel>Demand Fulfillment Status</SectionLabel>
@@ -1382,7 +2898,9 @@ function ReportDetail10() {
               { label: "Staffing Gap", value: -18, color: COLORS.red },
             ].map((s, i) => (
               <div key={i} style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 20, fontWeight: 800, color: s.color }}>{s.value}</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: s.color }}>
+                  {s.value}
+                </div>
                 <div style={{ fontSize: 9, color: "#6b7280" }}>{s.label}</div>
               </div>
             ))}
@@ -1404,22 +2922,72 @@ function ReportDetail11() {
   ];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
-        <StatTile label="Forecast Capacity (Jun)" value="8.3K FTE" color={COLORS.blue} />
-        <StatTile label="Forecast Demand (Jun)" value="9.1K FTE" color={COLORS.orange} />
-        <StatTile label="Projected Gap (Jun)" value="-800 FTE" color={COLORS.red} />
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3,1fr)",
+          gap: 10,
+        }}
+      >
+        <StatTile
+          label="Forecast Capacity (Jun)"
+          value="8.3K FTE"
+          color={COLORS.blue}
+        />
+        <StatTile
+          label="Forecast Demand (Jun)"
+          value="9.1K FTE"
+          color={COLORS.orange}
+        />
+        <StatTile
+          label="Projected Gap (Jun)"
+          value="-800 FTE"
+          color={COLORS.red}
+        />
       </div>
       <DetailCard>
         <SectionLabel>6-Month Capacity vs Demand Forecast</SectionLabel>
         <ResponsiveContainer width="100%" height={220}>
-          <LineChart data={forecastData} margin={{ top: 5, right: 20, bottom: 5, left: -10 }}>
+          <LineChart
+            data={forecastData}
+            margin={{ top: 5, right: 20, bottom: 5, left: -10 }}
+          >
             <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
             <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-            <YAxis domain={[4,12]} tick={{ fontSize: 9 }} tickFormatter={v=>`${v}K`} />
-            <Tooltip contentStyle={{ fontSize: 10 }} formatter={v=>`${v}K FTE`} />
-            <Line type="monotone" dataKey="cap" stroke={COLORS.green} strokeWidth={2} dot={{ r: 4 }} name="Capacity" />
-            <Line type="monotone" dataKey="demand" stroke={COLORS.blue} strokeWidth={2} dot={{ r: 4 }} name="Demand" />
-            <Line type="monotone" dataKey="gap" stroke={COLORS.red} strokeWidth={2} strokeDasharray="4 4" dot={{ r: 3 }} name="Gap" />
+            <YAxis
+              domain={[4, 12]}
+              tick={{ fontSize: 9 }}
+              tickFormatter={(v) => `${v}K`}
+            />
+            <Tooltip
+              contentStyle={{ fontSize: 10 }}
+              formatter={(v) => `${v}K FTE`}
+            />
+            <Line
+              type="monotone"
+              dataKey="cap"
+              stroke={COLORS.green}
+              strokeWidth={2}
+              dot={{ r: 4 }}
+              name="Capacity"
+            />
+            <Line
+              type="monotone"
+              dataKey="demand"
+              stroke={COLORS.blue}
+              strokeWidth={2}
+              dot={{ r: 4 }}
+              name="Demand"
+            />
+            <Line
+              type="monotone"
+              dataKey="gap"
+              stroke={COLORS.red}
+              strokeWidth={2}
+              strokeDasharray="4 4"
+              dot={{ r: 3 }}
+              name="Gap"
+            />
             <Legend wrapperStyle={{ fontSize: 9 }} />
           </LineChart>
         </ResponsiveContainer>
@@ -1429,12 +2997,26 @@ function ReportDetail11() {
           <SectionLabel>Gap Analysis by Month</SectionLabel>
           <DetailTable
             headers={["Month", "Capacity (K)", "Demand (K)", "Gap (K)", "Risk"]}
-            rows={forecastData.map(r => [
-              <span style={{ fontWeight: 600, color: "#374151" }}>{r.month}</span>,
+            rows={forecastData.map((r) => [
+              <span style={{ fontWeight: 600, color: "#374151" }}>
+                {r.month}
+              </span>,
               r.cap,
               r.demand,
-              <span style={{ color: COLORS.red, fontWeight: 700 }}>{r.gap}</span>,
-              <span style={{ fontSize: 10, fontWeight: 700, color: r.gap < -1.5 ? COLORS.red : COLORS.orange, background: (r.gap < -1.5 ? COLORS.red : COLORS.orange)+"18", padding: "1px 6px", borderRadius: 4 }}>
+              <span style={{ color: COLORS.red, fontWeight: 700 }}>
+                {r.gap}
+              </span>,
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: r.gap < -1.5 ? COLORS.red : COLORS.orange,
+                  background:
+                    (r.gap < -1.5 ? COLORS.red : COLORS.orange) + "18",
+                  padding: "1px 6px",
+                  borderRadius: 4,
+                }}
+              >
                 {r.gap < -1.5 ? "Critical" : "High"}
               </span>,
             ])}
@@ -1443,15 +3025,57 @@ function ReportDetail11() {
         <DetailCard>
           <SectionLabel>Planning Recommendations</SectionLabel>
           {[
-            { action: "Hire 200 developers for Aug gap", priority: "Critical", color: COLORS.red },
-            { action: "Cross-train 150 analysts from other BUs", priority: "High", color: COLORS.orange },
-            { action: "Engage 2 new vendor partners for Q3", priority: "High", color: COLORS.orange },
-            { action: "Defer 3 low-priority projects to Q4", priority: "Medium", color: COLORS.amber },
-            { action: "Upskill bench resources — Data Engg.", priority: "Medium", color: COLORS.amber },
+            {
+              action: "Hire 200 developers for Aug gap",
+              priority: "Critical",
+              color: COLORS.red,
+            },
+            {
+              action: "Cross-train 150 analysts from other BUs",
+              priority: "High",
+              color: COLORS.orange,
+            },
+            {
+              action: "Engage 2 new vendor partners for Q3",
+              priority: "High",
+              color: COLORS.orange,
+            },
+            {
+              action: "Defer 3 low-priority projects to Q4",
+              priority: "Medium",
+              color: COLORS.amber,
+            },
+            {
+              action: "Upskill bench resources — Data Engg.",
+              priority: "Medium",
+              color: COLORS.amber,
+            },
           ].map((r, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 0", borderBottom: "0.5px solid #f3f4f6" }}>
-              <span style={{ fontSize: 11, color: "#374151", flex: 1 }}>{r.action}</span>
-              <span style={{ fontSize: 10, fontWeight: 700, color: r.color, background: r.color+"18", padding: "2px 8px", borderRadius: 4 }}>{r.priority}</span>
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "7px 0",
+                borderBottom: "0.5px solid #f3f4f6",
+              }}
+            >
+              <span style={{ fontSize: 11, color: "#374151", flex: 1 }}>
+                {r.action}
+              </span>
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: r.color,
+                  background: r.color + "18",
+                  padding: "2px 8px",
+                  borderRadius: 4,
+                }}
+              >
+                {r.priority}
+              </span>
             </div>
           ))}
         </DetailCard>
@@ -1477,7 +3101,13 @@ function ReportDetail12() {
   ];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3,1fr)",
+          gap: 10,
+        }}
+      >
         <StatTile label="Overall Utilization" value="83%" color={COLORS.teal} />
         <StatTile label="Target Utilization" value="85%" color={COLORS.blue} />
         <StatTile label="Gap to Target" value="-2pp" color={COLORS.orange} />
@@ -1487,25 +3117,83 @@ function ReportDetail12() {
           <SectionLabel>Utilization by Work Type</SectionLabel>
           {utilByType.map((r, i) => (
             <div key={i} style={{ marginBottom: 14 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                <span style={{ fontSize: 12, color: "#374151" }}>{r.label}</span>
-                <span style={{ fontSize: 13, fontWeight: 800, color: r.value >= 80 ? COLORS.green : r.value >= 70 ? COLORS.orange : COLORS.red }}>{r.value}%</span>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 4,
+                }}
+              >
+                <span style={{ fontSize: 12, color: "#374151" }}>
+                  {r.label}
+                </span>
+                <span
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 800,
+                    color:
+                      r.value >= 80
+                        ? COLORS.green
+                        : r.value >= 70
+                          ? COLORS.orange
+                          : COLORS.red,
+                  }}
+                >
+                  {r.value}%
+                </span>
               </div>
-              <DetailMiniBar value={r.value} color={r.value >= 80 ? COLORS.green : r.value >= 70 ? COLORS.orange : COLORS.red} />
+              <DetailMiniBar
+                value={r.value}
+                color={
+                  r.value >= 80
+                    ? COLORS.green
+                    : r.value >= 70
+                      ? COLORS.orange
+                      : COLORS.red
+                }
+              />
             </div>
           ))}
         </DetailCard>
         <DetailCard>
           <SectionLabel>Utilization Trend by BU</SectionLabel>
           <ResponsiveContainer width="100%" height={180}>
-            <LineChart data={utilByBU} margin={{ top: 5, right: 10, bottom: 5, left: -10 }}>
+            <LineChart
+              data={utilByBU}
+              margin={{ top: 5, right: 10, bottom: 5, left: -10 }}
+            >
               <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
               <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-              <YAxis domain={[60,100]} tick={{ fontSize: 9 }} tickFormatter={v=>`${v}%`} />
-              <Tooltip contentStyle={{ fontSize: 10 }} formatter={v=>`${v}%`} />
-              <Line type="monotone" dataKey="Engineering" stroke={COLORS.blue} strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="Consulting" stroke={COLORS.teal} strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="Data" stroke={COLORS.purple} strokeWidth={2} dot={false} />
+              <YAxis
+                domain={[60, 100]}
+                tick={{ fontSize: 9 }}
+                tickFormatter={(v) => `${v}%`}
+              />
+              <Tooltip
+                contentStyle={{ fontSize: 10 }}
+                formatter={(v) => `${v}%`}
+              />
+              <Line
+                type="monotone"
+                dataKey="Engineering"
+                stroke={COLORS.blue}
+                strokeWidth={2}
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="Consulting"
+                stroke={COLORS.teal}
+                strokeWidth={2}
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="Data"
+                stroke={COLORS.purple}
+                strokeWidth={2}
+                dot={false}
+              />
               <Legend wrapperStyle={{ fontSize: 9 }} />
             </LineChart>
           </ResponsiveContainer>
@@ -1513,17 +3201,55 @@ function ReportDetail12() {
       </div>
       <DetailCard>
         <SectionLabel>Utilization by Business Unit</SectionLabel>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4,1fr)",
+            gap: 10,
+          }}
+        >
           {[
             { name: "Engineering", util: 83, target: 85, color: COLORS.blue },
             { name: "Consulting", util: 85, target: 85, color: COLORS.teal },
-            { name: "Data & Analytics", util: 82, target: 85, color: COLORS.purple },
+            {
+              name: "Data & Analytics",
+              util: 82,
+              target: 85,
+              color: COLORS.purple,
+            },
             { name: "Products", util: 79, target: 85, color: COLORS.orange },
           ].map((b, i) => (
-            <div key={i} style={{ textAlign: "center", padding: "14px", background: "#f9fafb", borderRadius: 10 }}>
-              <div style={{ fontSize: 30, fontWeight: 900, color: b.util >= b.target ? COLORS.green : COLORS.orange }}>{b.util}%</div>
-              <div style={{ fontSize: 11, color: "#374151", marginTop: 4, fontWeight: 600 }}>{b.name}</div>
-              <div style={{ fontSize: 10, color: "#9ca3af" }}>Target: {b.target}%</div>
+            <div
+              key={i}
+              style={{
+                textAlign: "center",
+                padding: "14px",
+                background: "#f9fafb",
+                borderRadius: 10,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 30,
+                  fontWeight: 900,
+                  color: b.util >= b.target ? COLORS.green : COLORS.orange,
+                }}
+              >
+                {b.util}%
+              </div>
+              <div
+                style={{
+                  fontSize: 11,
+                  color: "#374151",
+                  marginTop: 4,
+                  fontWeight: 600,
+                }}
+              >
+                {b.name}
+              </div>
+              <div style={{ fontSize: 10, color: "#9ca3af" }}>
+                Target: {b.target}%
+              </div>
             </div>
           ))}
         </div>
@@ -1534,13 +3260,22 @@ function ReportDetail12() {
 
 function ReportDetail13() {
   const tsData = [
-    { month: "Dec 23", planned: 2600, actual: 2450 }, { month: "Jan 24", planned: 2650, actual: 2500 },
-    { month: "Feb 24", planned: 2700, actual: 2550 }, { month: "Mar 24", planned: 2750, actual: 2650 },
-    { month: "Apr 24", planned: 2800, actual: 2750 }, { month: "May 24", planned: 2850, actual: 2850 },
+    { month: "Dec 23", planned: 2600, actual: 2450 },
+    { month: "Jan 24", planned: 2650, actual: 2500 },
+    { month: "Feb 24", planned: 2700, actual: 2550 },
+    { month: "Mar 24", planned: 2750, actual: 2650 },
+    { month: "Apr 24", planned: 2800, actual: 2750 },
+    { month: "May 24", planned: 2850, actual: 2850 },
   ];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 10,
+        }}
+      >
         <StatTile label="TS Compliance" value="96%" color={COLORS.green} />
         <StatTile label="Actual FTE" value="2,850" color={COLORS.blue} />
         <StatTile label="Planned FTE" value="2,850" color={COLORS.teal} />
@@ -1550,47 +3285,138 @@ function ReportDetail13() {
         <DetailCard>
           <SectionLabel>Planned vs Actual Effort (FTE)</SectionLabel>
           <ResponsiveContainer width="100%" height={190}>
-            <BarChart data={tsData} margin={{ top: 5, right: 10, bottom: 5, left: -10 }}>
+            <BarChart
+              data={tsData}
+              margin={{ top: 5, right: 10, bottom: 5, left: -10 }}
+            >
               <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
               <XAxis dataKey="month" tick={{ fontSize: 9 }} />
               <YAxis tick={{ fontSize: 9 }} />
               <Tooltip contentStyle={{ fontSize: 10 }} />
-              <Bar dataKey="planned" fill={COLORS.blue} radius={[2,2,0,0]} name="Planned" />
-              <Bar dataKey="actual" fill={COLORS.green} radius={[2,2,0,0]} name="Actual" />
+              <Bar
+                dataKey="planned"
+                fill={COLORS.blue}
+                radius={[2, 2, 0, 0]}
+                name="Planned"
+              />
+              <Bar
+                dataKey="actual"
+                fill={COLORS.green}
+                radius={[2, 2, 0, 0]}
+                name="Actual"
+              />
               <Legend wrapperStyle={{ fontSize: 9 }} />
             </BarChart>
           </ResponsiveContainer>
         </DetailCard>
         <DetailCard>
           <SectionLabel>Timesheet Breakdown</SectionLabel>
-          <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 14 }}>
-            <div style={{ position: "relative", width: 120, height: 120, flexShrink: 0 }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 16,
+              alignItems: "center",
+              marginBottom: 14,
+            }}
+          >
+            <div
+              style={{
+                position: "relative",
+                width: 120,
+                height: 120,
+                flexShrink: 0,
+              }}
+            >
               <PieChart width={120} height={120}>
-                <Pie data={[{value:66},{value:20},{value:10},{value:4}]} cx={59} cy={59} innerRadius={34} outerRadius={54} dataKey="value" startAngle={90} endAngle={-270}>
-                  {[COLORS.green, COLORS.red, COLORS.orange, COLORS.gray].map((c,i) => <Cell key={i} fill={c} />)}
+                <Pie
+                  data={[
+                    { value: 66 },
+                    { value: 20 },
+                    { value: 10 },
+                    { value: 4 },
+                  ]}
+                  cx={59}
+                  cy={59}
+                  innerRadius={34}
+                  outerRadius={54}
+                  dataKey="value"
+                  startAngle={90}
+                  endAngle={-270}
+                >
+                  {[COLORS.green, COLORS.red, COLORS.orange, COLORS.gray].map(
+                    (c, i) => (
+                      <Cell key={i} fill={c} />
+                    ),
+                  )}
                 </Pie>
               </PieChart>
             </div>
             <div>
-              {[["On Track","66%",COLORS.green],["Over","20%",COLORS.red],["Under","10%",COLORS.orange],["Absent","4%",COLORS.gray]].map(([l,v,c]) => (
-                <div key={l} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: 2, background: c }} />
+              {[
+                ["On Track", "66%", COLORS.green],
+                ["Over", "20%", COLORS.red],
+                ["Under", "10%", COLORS.orange],
+                ["Absent", "4%", COLORS.gray],
+              ].map(([l, v, c]) => (
+                <div
+                  key={l}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    marginBottom: 6,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 2,
+                      background: c,
+                    }}
+                  />
                   <span style={{ fontSize: 11, color: "#374151" }}>{l}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: c }}>{v}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: c }}>
+                    {v}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
           <SectionLabel>Compliance by Department</SectionLabel>
           {[
-            { dept: "Engineering", v: 94 }, { dept: "Consulting", v: 97 },
-            { dept: "IT Services", v: 96 }, { dept: "Data & Analytics", v: 93 },
+            { dept: "Engineering", v: 94 },
+            { dept: "Consulting", v: 97 },
+            { dept: "IT Services", v: 96 },
+            { dept: "Data & Analytics", v: 93 },
             { dept: "Business Operations", v: 98 },
           ].map((d, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
-              <span style={{ fontSize: 10, color: "#374151", minWidth: 130 }}>{d.dept}</span>
-              <DetailMiniBar value={d.v} color={d.v >= 95 ? COLORS.green : COLORS.orange} />
-              <span style={{ fontSize: 10, fontWeight: 700, color: "#111", minWidth: 30 }}>{d.v}%</span>
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 5,
+              }}
+            >
+              <span style={{ fontSize: 10, color: "#374151", minWidth: 130 }}>
+                {d.dept}
+              </span>
+              <DetailMiniBar
+                value={d.v}
+                color={d.v >= 95 ? COLORS.green : COLORS.orange}
+              />
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: "#111",
+                  minWidth: 30,
+                }}
+              >
+                {d.v}%
+              </span>
             </div>
           ))}
         </DetailCard>
@@ -1602,11 +3428,25 @@ function ReportDetail13() {
 function ReportDetail14() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 10,
+        }}
+      >
         <StatTile label="Pending Approvals" value="27" color={COLORS.orange} />
         <StatTile label="Overdue Approvals" value="12" color={COLORS.red} />
-        <StatTile label="Approved (This Month)" value="186" color={COLORS.green} />
-        <StatTile label="Avg Approval Time" value="2.4 days" color={COLORS.teal} />
+        <StatTile
+          label="Approved (This Month)"
+          value="186"
+          color={COLORS.green}
+        />
+        <StatTile
+          label="Avg Approval Time"
+          value="2.4 days"
+          color={COLORS.teal}
+        />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <DetailCard>
@@ -1617,28 +3457,57 @@ function ReportDetail14() {
             { label: "Allocation Changes", value: 5, color: COLORS.purple },
             { label: "Time Off Requests", value: 3, color: COLORS.orange },
           ].map((r, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "0.5px solid #f3f4f6" }}>
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "10px 0",
+                borderBottom: "0.5px solid #f3f4f6",
+              }}
+            >
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ width: 9, height: 9, borderRadius: "50%", background: r.color }} />
-                <span style={{ fontSize: 12, color: "#374151" }}>{r.label}</span>
+                <div
+                  style={{
+                    width: 9,
+                    height: 9,
+                    borderRadius: "50%",
+                    background: r.color,
+                  }}
+                />
+                <span style={{ fontSize: 12, color: "#374151" }}>
+                  {r.label}
+                </span>
               </div>
-              <span style={{ fontSize: 20, fontWeight: 800, color: r.color }}>{r.value}</span>
+              <span style={{ fontSize: 20, fontWeight: 800, color: r.color }}>
+                {r.value}
+              </span>
             </div>
           ))}
         </DetailCard>
         <DetailCard>
           <SectionLabel>Approval Workflow Status</SectionLabel>
           <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={[
-              { stage: "Submitted", count: 186 }, { stage: "In Review", count: 27 },
-              { stage: "Approved", count: 160 }, { stage: "Rejected", count: 12 },
-            ]} margin={{ top: 5, right: 10, bottom: 5, left: -10 }}>
+            <BarChart
+              data={[
+                { stage: "Submitted", count: 186 },
+                { stage: "In Review", count: 27 },
+                { stage: "Approved", count: 160 },
+                { stage: "Rejected", count: 12 },
+              ]}
+              margin={{ top: 5, right: 10, bottom: 5, left: -10 }}
+            >
               <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
               <XAxis dataKey="stage" tick={{ fontSize: 9 }} />
               <YAxis tick={{ fontSize: 9 }} />
               <Tooltip contentStyle={{ fontSize: 10 }} />
-              <Bar dataKey="count" radius={[3,3,0,0]}>
-                {[COLORS.blue, COLORS.orange, COLORS.green, COLORS.red].map((c,i) => <Cell key={i} fill={c} />)}
+              <Bar dataKey="count" radius={[3, 3, 0, 0]}>
+                {[COLORS.blue, COLORS.orange, COLORS.green, COLORS.red].map(
+                  (c, i) => (
+                    <Cell key={i} fill={c} />
+                  ),
+                )}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -1647,18 +3516,78 @@ function ReportDetail14() {
       <DetailCard>
         <SectionLabel>Overdue Approvals Detail</SectionLabel>
         <DetailTable
-          headers={["Request ID", "Type", "Requestor", "Days Overdue", "Priority"]}
+          headers={[
+            "Request ID",
+            "Type",
+            "Requestor",
+            "Days Overdue",
+            "Priority",
+          ]}
           rows={[
-            { id: "REQ-2024-0892", type: "Resource Request", req: "Sarah Johnson", days: 14, pri: "Critical", col: COLORS.red },
-            { id: "REQ-2024-0885", type: "Project Request", req: "Michael Lee", days: 11, pri: "High", col: COLORS.orange },
-            { id: "REQ-2024-0878", type: "Allocation Change", req: "Emily Davis", days: 9, pri: "High", col: COLORS.orange },
-            { id: "REQ-2024-0861", type: "Resource Request", req: "David Brown", days: 7, pri: "Medium", col: COLORS.amber },
-          ].map(r => [
-            <span style={{ color: COLORS.blue, fontFamily: "monospace", fontSize: 10 }}>{r.id}</span>,
+            {
+              id: "REQ-2024-0892",
+              type: "Resource Request",
+              req: "Sarah Johnson",
+              days: 14,
+              pri: "Critical",
+              col: COLORS.red,
+            },
+            {
+              id: "REQ-2024-0885",
+              type: "Project Request",
+              req: "Michael Lee",
+              days: 11,
+              pri: "High",
+              col: COLORS.orange,
+            },
+            {
+              id: "REQ-2024-0878",
+              type: "Allocation Change",
+              req: "Emily Davis",
+              days: 9,
+              pri: "High",
+              col: COLORS.orange,
+            },
+            {
+              id: "REQ-2024-0861",
+              type: "Resource Request",
+              req: "David Brown",
+              days: 7,
+              pri: "Medium",
+              col: COLORS.amber,
+            },
+          ].map((r) => [
+            <span
+              style={{
+                color: COLORS.blue,
+                fontFamily: "monospace",
+                fontSize: 10,
+              }}
+            >
+              {r.id}
+            </span>,
             r.type,
             <span style={{ color: "#6b7280" }}>{r.req}</span>,
-            <span style={{ color: r.days >= 12 ? COLORS.red : COLORS.orange, fontWeight: 700 }}>{r.days} days</span>,
-            <span style={{ fontSize: 10, fontWeight: 700, color: r.col, background: r.col+"18", padding: "2px 8px", borderRadius: 4 }}>{r.pri}</span>,
+            <span
+              style={{
+                color: r.days >= 12 ? COLORS.red : COLORS.orange,
+                fontWeight: 700,
+              }}
+            >
+              {r.days} days
+            </span>,
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: r.col,
+                background: r.col + "18",
+                padding: "2px 8px",
+                borderRadius: 4,
+              }}
+            >
+              {r.pri}
+            </span>,
           ])}
         />
       </DetailCard>
@@ -1667,21 +3596,68 @@ function ReportDetail14() {
 }
 
 function ReportDetail15() {
-  const allReports = reportCards.filter(r => !r.hub);
+  const allReports = reportCards.filter((r) => !r.hub);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 10,
+        }}
+      >
         <StatTile label="Total Reports" value="14" color={COLORS.blue} />
         <StatTile label="Scheduled Reports" value="8" color={COLORS.teal} />
         <StatTile label="Favorites" value="5" color={COLORS.amber} />
         <StatTile label="Recently Viewed" value="7" color={COLORS.purple} />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
-        {["Executive", "Operational", "Planning", "Finance", "Compliance", "Allocation", "Governance", "All"].map((type, i) => (
-          <div key={i} style={{ background: "#fff", border: "0.5px solid #e5e7eb", borderRadius: 10, padding: "12px", textAlign: "center" }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: DONUT_COLORS[i % DONUT_COLORS.length] }}>{type}</div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: "#111", marginTop: 2 }}>
-              {type === "All" ? allReports.length : Math.floor(Math.random() * 3) + 1}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 8,
+        }}
+      >
+        {[
+          "Executive",
+          "Operational",
+          "Planning",
+          "Finance",
+          "Compliance",
+          "Allocation",
+          "Governance",
+          "All",
+        ].map((type, i) => (
+          <div
+            key={i}
+            style={{
+              background: "#fff",
+              border: "0.5px solid #e5e7eb",
+              borderRadius: 10,
+              padding: "12px",
+              textAlign: "center",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 700,
+                color: DONUT_COLORS[i % DONUT_COLORS.length],
+              }}
+            >
+              {type}
+            </div>
+            <div
+              style={{
+                fontSize: 20,
+                fontWeight: 900,
+                color: "#111",
+                marginTop: 2,
+              }}
+            >
+              {type === "All"
+                ? allReports.length
+                : Math.floor(Math.random() * 3) + 1}
             </div>
             <div style={{ fontSize: 10, color: "#9ca3af" }}>reports</div>
           </div>
@@ -1691,15 +3667,28 @@ function ReportDetail15() {
         <SectionLabel>All Reports</SectionLabel>
         <DetailTable
           headers={["#", "Report", "Description", "Last Run", "Status"]}
-          rows={allReports.map(r => [
+          rows={allReports.map((r) => [
             <span style={{ color: "#9ca3af", fontWeight: 600 }}>{r.num}</span>,
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ fontSize: 14 }}>{r.icon}</span>
-              <span style={{ color: "#374151", fontWeight: 600 }}>{r.title}</span>
+              <span style={{ color: "#374151", fontWeight: 600 }}>
+                {r.title}
+              </span>
             </div>,
             <span style={{ color: "#9ca3af" }}>{r.desc}</span>,
             <span style={{ color: "#6b7280" }}>May 15, 2024</span>,
-            <span style={{ fontSize: 10, fontWeight: 700, color: COLORS.green, background: COLORS.green+"18", padding: "2px 8px", borderRadius: 4 }}>Active</span>,
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: COLORS.green,
+                background: COLORS.green + "18",
+                padding: "2px 8px",
+                borderRadius: 4,
+              }}
+            >
+              Active
+            </span>,
           ])}
         />
       </DetailCard>
@@ -1708,65 +3697,176 @@ function ReportDetail15() {
 }
 
 const DETAIL_VIEWS = {
-  1: ReportDetail1, 2: ReportDetail2, 3: ReportDetail3, 4: ReportDetail4,
-  5: ReportDetail5, 6: ReportDetail6, 7: ReportDetail7, 8: ReportDetail8,
-  9: ReportDetail9, 10: ReportDetail10, 11: ReportDetail11, 12: ReportDetail12,
-  13: ReportDetail13, 14: ReportDetail14, 15: ReportDetail15,
+  1: ReportDetail1,
+  2: ReportDetail2,
+  3: ReportDetail3,
+  4: ReportDetail4,
+  5: ReportDetail5,
+  6: ReportDetail6,
+  7: ReportDetail7,
+  8: ReportDetail8,
+  9: ReportDetail9,
+  10: ReportDetail10,
+  11: ReportDetail11,
+  12: ReportDetail12,
+  13: ReportDetail13,
+  14: ReportDetail14,
+  15: ReportDetail15,
 };
 
 // ─── Main Component (original UI preserved exactly) ───────────────────────────
 
 export default function ResourceManagementOverview() {
   const [activeReport, setActiveReport] = useState(null);
-  const [filters, setFilters] = useState({ date: "May 2024", portfolio: "All", bu: "All", region: "All" });
+  const [filters, setFilters] = useState({
+    date: "May 2024",
+    portfolio: "All",
+    bu: "All",
+    region: "All",
+  });
 
   if (activeReport) {
     const DetailView = DETAIL_VIEWS[activeReport.num];
     return (
-      <div style={{ padding: "20px", fontFamily: "system-ui, sans-serif", background: "#f9fafb", minHeight: "100vh" }}>
+      <div
+        style={{
+          padding: "20px",
+          fontFamily: "system-ui, sans-serif",
+          background: "#f9fafb",
+          minHeight: "100vh",
+        }}
+      >
         {/* Header — same style as original back button area */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-          <button onClick={() => setActiveReport(null)} style={{
-            background: "#fff", border: "0.5px solid #e5e7eb", borderRadius: 8, padding: "6px 14px",
-            fontSize: 13, cursor: "pointer", color: "#374151", display: "flex", alignItems: "center", gap: 6,
-          }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            marginBottom: 20,
+          }}
+        >
+          <button
+            onClick={() => setActiveReport(null)}
+            style={{
+              background: "#fff",
+              border: "0.5px solid #e5e7eb",
+              borderRadius: 8,
+              padding: "6px 14px",
+              fontSize: 13,
+              cursor: "pointer",
+              color: "#374151",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
             ← Back
           </button>
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#111" }}>
+          <h2
+            style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#111" }}
+          >
             {activeReport.num}. {activeReport.title}
           </h2>
-          <span style={{
-            fontSize: 11, background: activeReport.color + "18", color: activeReport.color,
-            borderRadius: 6, padding: "3px 10px",
-          }}>{activeReport.desc}</span>
+          <span
+            style={{
+              fontSize: 11,
+              background: activeReport.color + "18",
+              color: activeReport.color,
+              borderRadius: 6,
+              padding: "3px 10px",
+            }}
+          >
+            {activeReport.desc}
+          </span>
         </div>
         {/* Filters row — same filters as overview */}
-        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 16 }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 8,
+            alignItems: "center",
+            marginBottom: 16,
+          }}
+        >
           {[
-            { label: "Date Range", key: "date", options: ["May 2024", "Apr 2024", "Q1 2024", "Q2 2024"] },
-            { label: "Portfolio", key: "portfolio", options: ["All", "Digital Transformation", "Cloud Services", "Data & Analytics"] },
-            { label: "Business Unit", key: "bu", options: ["All", "EMEA", "AMER", "APAC"] },
-            { label: "Region", key: "region", options: ["All", "North America", "Europe", "APAC"] },
+            {
+              label: "Date Range",
+              key: "date",
+              options: ["May 2024", "Apr 2024", "Q1 2024", "Q2 2024"],
+            },
+            {
+              label: "Portfolio",
+              key: "portfolio",
+              options: [
+                "All",
+                "Digital Transformation",
+                "Cloud Services",
+                "Data & Analytics",
+              ],
+            },
+            {
+              label: "Business Unit",
+              key: "bu",
+              options: ["All", "EMEA", "AMER", "APAC"],
+            },
+            {
+              label: "Region",
+              key: "region",
+              options: ["All", "North America", "Europe", "APAC"],
+            },
           ].map((f) => (
-            <div key={f.key} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <div
+              key={f.key}
+              style={{ display: "flex", flexDirection: "column", gap: 2 }}
+            >
               <label style={{ fontSize: 9, color: "#9ca3af" }}>{f.label}</label>
-              <select value={filters[f.key]} onChange={(e) => setFilters(p => ({ ...p, [f.key]: e.target.value }))} style={{
-                fontSize: 11, borderRadius: 6, border: "0.5px solid #d1d5db", padding: "4px 8px",
-                background: "#fff", color: "#374151", cursor: "pointer",
-              }}>
-                {f.options.map((o) => <option key={o}>{o}</option>)}
+              <select
+                value={filters[f.key]}
+                onChange={(e) =>
+                  setFilters((p) => ({ ...p, [f.key]: e.target.value }))
+                }
+                style={{
+                  fontSize: 11,
+                  borderRadius: 6,
+                  border: "0.5px solid #d1d5db",
+                  padding: "4px 8px",
+                  background: "#fff",
+                  color: "#374151",
+                  cursor: "pointer",
+                }}
+              >
+                {f.options.map((o) => (
+                  <option key={o}>{o}</option>
+                ))}
               </select>
             </div>
           ))}
           <div style={{ display: "flex", gap: 6, marginTop: 14 }}>
             {["Filters", "Refresh", "Export"].map((l) => (
-              <button key={l} style={{
-                background: "#fff", border: "0.5px solid #d1d5db", borderRadius: 6,
-                padding: "4px 10px", fontSize: 11, cursor: "pointer", color: "#374151",
-              }}>{l}</button>
+              <button
+                key={l}
+                style={{
+                  background: "#fff",
+                  border: "0.5px solid #d1d5db",
+                  borderRadius: 6,
+                  padding: "4px 10px",
+                  fontSize: 11,
+                  cursor: "pointer",
+                  color: "#374151",
+                }}
+              >
+                {l}
+              </button>
             ))}
           </div>
-          <div style={{ marginLeft: "auto", marginTop: 14, fontSize: 10, color: "#9ca3af" }}>
+          <div
+            style={{
+              marginLeft: "auto",
+              marginTop: 14,
+              fontSize: 10,
+              color: "#9ca3af",
+            }}
+          >
             Last Updated: May 15, 2024 10:30 AM
           </div>
         </div>
@@ -1777,171 +3877,571 @@ export default function ResourceManagementOverview() {
   }
 
   return (
-    <div style={{ fontFamily: "system-ui,-apple-system,sans-serif", background: "#f3f4f6", minHeight: "100vh", padding: "16px 20px" }}>
-      <h2 className="sr-only">Resource Management Overview — comprehensive insights across planning, allocation, utilization, finance and compliance</h2>
+    <div
+      style={{
+        fontFamily: "system-ui,-apple-system,sans-serif",
+        background: "#f3f4f6",
+        minHeight: "100vh",
+        padding: "16px 20px",
+      }}
+    >
+      <h2 className="sr-only">
+        Resource Management Overview — comprehensive insights across planning,
+        allocation, utilization, finance and compliance
+      </h2>
 
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          marginBottom: 14,
+        }}
+      >
         <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#111" }}>Resource Management Overview</div>
-          <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>Comprehensive insights across planning, allocation, utilization, finance & compliance</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#111" }}>
+            Resource Management Overview
+          </div>
+          <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
+            Comprehensive insights across planning, allocation, utilization,
+            finance & compliance
+          </div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {[
-            { label: "Date Range", key: "date", options: ["May 2024", "Apr 2024", "Q1 2024", "Q2 2024"] },
-            { label: "Portfolio", key: "portfolio", options: ["All", "Digital Transformation", "Cloud Services", "Data & Analytics"] },
-            { label: "Business Unit", key: "bu", options: ["All", "EMEA", "AMER", "APAC"] },
-            { label: "Region", key: "region", options: ["All", "North America", "Europe", "APAC"] },
+            {
+              label: "Date Range",
+              key: "date",
+              options: ["May 2024", "Apr 2024", "Q1 2024", "Q2 2024"],
+            },
+            {
+              label: "Portfolio",
+              key: "portfolio",
+              options: [
+                "All",
+                "Digital Transformation",
+                "Cloud Services",
+                "Data & Analytics",
+              ],
+            },
+            {
+              label: "Business Unit",
+              key: "bu",
+              options: ["All", "EMEA", "AMER", "APAC"],
+            },
+            {
+              label: "Region",
+              key: "region",
+              options: ["All", "North America", "Europe", "APAC"],
+            },
           ].map((f) => (
-            <div key={f.key} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <div
+              key={f.key}
+              style={{ display: "flex", flexDirection: "column", gap: 2 }}
+            >
               <label style={{ fontSize: 9, color: "#9ca3af" }}>{f.label}</label>
-              <select value={filters[f.key]} onChange={(e) => setFilters(p => ({ ...p, [f.key]: e.target.value }))} style={{
-                fontSize: 11, borderRadius: 6, border: "0.5px solid #d1d5db", padding: "4px 8px",
-                background: "#fff", color: "#374151", cursor: "pointer",
-              }}>
-                {f.options.map((o) => <option key={o}>{o}</option>)}
+              <select
+                value={filters[f.key]}
+                onChange={(e) =>
+                  setFilters((p) => ({ ...p, [f.key]: e.target.value }))
+                }
+                style={{
+                  fontSize: 11,
+                  borderRadius: 6,
+                  border: "0.5px solid #d1d5db",
+                  padding: "4px 8px",
+                  background: "#fff",
+                  color: "#374151",
+                  cursor: "pointer",
+                }}
+              >
+                {f.options.map((o) => (
+                  <option key={o}>{o}</option>
+                ))}
               </select>
             </div>
           ))}
           <div style={{ display: "flex", gap: 6, marginTop: 14 }}>
             {["Filters", "Refresh", "Export"].map((l) => (
-              <button key={l} style={{
-                background: "#fff", border: "0.5px solid #d1d5db", borderRadius: 6,
-                padding: "4px 10px", fontSize: 11, cursor: "pointer", color: "#374151",
-              }}>{l}</button>
+              <button
+                key={l}
+                style={{
+                  background: "#fff",
+                  border: "0.5px solid #d1d5db",
+                  borderRadius: 6,
+                  padding: "4px 10px",
+                  fontSize: 11,
+                  cursor: "pointer",
+                  color: "#374151",
+                }}
+              >
+                {l}
+              </button>
             ))}
           </div>
         </div>
       </div>
-      <div style={{ fontSize: 10, color: "#9ca3af", textAlign: "right", marginBottom: 12 }}>Last Updated: May 15, 2024 10:30 AM</div>
+      <div
+        style={{
+          fontSize: 10,
+          color: "#9ca3af",
+          textAlign: "right",
+          marginBottom: 12,
+        }}
+      >
+        Last Updated: May 15, 2024 10:30 AM
+      </div>
 
       {/* KPI row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(8, minmax(0, 1fr))", gap: 8, marginBottom: 14 }}>
-        {kpis.map((k, i) => <KpiCard key={i} kpi={k} />)}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(8, minmax(0, 1fr))",
+          gap: 8,
+          marginBottom: 14,
+        }}
+      >
+        {kpis.map((k, i) => (
+          <KpiCard key={i} kpi={k} />
+        ))}
       </div>
 
       {/* Charts row */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 0.7fr 0.65fr 0.65fr", gap: 10, marginBottom: 14 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 0.7fr 0.65fr 0.65fr",
+          gap: 10,
+          marginBottom: 14,
+        }}
+      >
         {/* Capacity vs Demand */}
-        <div style={{ background: "#fff", border: "0.5px solid #e5e7eb", borderRadius: 10, padding: "12px 14px" }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: "#374151", marginBottom: 8 }}>Capacity vs Demand Trend (FTE)</div>
+        <div
+          style={{
+            background: "#fff",
+            border: "0.5px solid #e5e7eb",
+            borderRadius: 10,
+            padding: "12px 14px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: "#374151",
+              marginBottom: 8,
+            }}
+          >
+            Capacity vs Demand Trend (FTE)
+          </div>
           <div style={{ height: 160 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={capacityDemandTrend} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
+              <BarChart
+                data={capacityDemandTrend}
+                margin={{ top: 5, right: 5, bottom: 5, left: -20 }}
+              >
                 <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
                 <XAxis dataKey="month" tick={{ fontSize: 9 }} />
                 <YAxis tick={{ fontSize: 9 }} />
-                <Tooltip contentStyle={{ fontSize: 10 }} formatter={(v) => v.toLocaleString()} />
-                <Bar dataKey="Capacity" fill={COLORS.blue} name="Total Capacity" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="Demand" fill={COLORS.teal} name="Total Demand" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="Gap" fill={COLORS.red} name="Gap" radius={[2, 2, 0, 0]} />
+                <Tooltip
+                  contentStyle={{ fontSize: 10 }}
+                  formatter={(v) => v.toLocaleString()}
+                />
+                <Bar
+                  dataKey="Capacity"
+                  fill={COLORS.blue}
+                  name="Total Capacity"
+                  radius={[2, 2, 0, 0]}
+                />
+                <Bar
+                  dataKey="Demand"
+                  fill={COLORS.teal}
+                  name="Total Demand"
+                  radius={[2, 2, 0, 0]}
+                />
+                <Bar
+                  dataKey="Gap"
+                  fill={COLORS.red}
+                  name="Gap"
+                  radius={[2, 2, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
           <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
-            {[["Total Capacity", COLORS.blue], ["Total Demand", COLORS.teal], ["Gap (FTE)", COLORS.red]].map(([l, c]) => (
-              <span key={l} style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 9, color: "#6b7280" }}>
-                <span style={{ width: 8, height: 8, borderRadius: 2, background: c }} />{l}
+            {[
+              ["Total Capacity", COLORS.blue],
+              ["Total Demand", COLORS.teal],
+              ["Gap (FTE)", COLORS.red],
+            ].map(([l, c]) => (
+              <span
+                key={l}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 3,
+                  fontSize: 9,
+                  color: "#6b7280",
+                }}
+              >
+                <span
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: 2,
+                    background: c,
+                  }}
+                />
+                {l}
               </span>
             ))}
           </div>
         </div>
 
         {/* Utilization Trend */}
-        <div style={{ background: "#fff", border: "0.5px solid #e5e7eb", borderRadius: 10, padding: "12px 14px" }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: "#374151", marginBottom: 8 }}>Utilization Trend (%)</div>
+        <div
+          style={{
+            background: "#fff",
+            border: "0.5px solid #e5e7eb",
+            borderRadius: 10,
+            padding: "12px 14px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: "#374151",
+              marginBottom: 8,
+            }}
+          >
+            Utilization Trend (%)
+          </div>
           <div style={{ height: 160 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={utilizationTrend} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
+              <AreaChart
+                data={utilizationTrend}
+                margin={{ top: 5, right: 5, bottom: 5, left: -20 }}
+              >
                 <defs>
                   <linearGradient id="utilGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={COLORS.purple} stopOpacity={0.4} />
-                    <stop offset="100%" stopColor={COLORS.purple} stopOpacity={0.05} />
+                    <stop
+                      offset="0%"
+                      stopColor={COLORS.purple}
+                      stopOpacity={0.4}
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor={COLORS.purple}
+                      stopOpacity={0.05}
+                    />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
                 <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-                <YAxis domain={[50, 100]} tick={{ fontSize: 9 }} tickFormatter={(v) => `${v}%`} />
-                <Tooltip contentStyle={{ fontSize: 10 }} formatter={(v) => `${v}%`} />
-                <Area type="monotone" dataKey="rate" stroke={COLORS.purple} strokeWidth={2} fill="url(#utilGrad)" name="Utilization" />
+                <YAxis
+                  domain={[50, 100]}
+                  tick={{ fontSize: 9 }}
+                  tickFormatter={(v) => `${v}%`}
+                />
+                <Tooltip
+                  contentStyle={{ fontSize: 10 }}
+                  formatter={(v) => `${v}%`}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="rate"
+                  stroke={COLORS.purple}
+                  strokeWidth={2}
+                  fill="url(#utilGrad)"
+                  name="Utilization"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Workforce Risks */}
-        <div style={{ background: "#fff", border: "0.5px solid #e5e7eb", borderRadius: 10, padding: "12px 14px" }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Workforce Risks</div>
+        <div
+          style={{
+            background: "#fff",
+            border: "0.5px solid #e5e7eb",
+            borderRadius: 10,
+            padding: "12px 14px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: "#374151",
+              marginBottom: 6,
+            }}
+          >
+            Workforce Risks
+          </div>
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <div style={{ position: "relative", width: 80, height: 80 }}>
               <PieChart width={80} height={80}>
-                <Pie data={workforceRisks} cx={39} cy={39} innerRadius={25} outerRadius={38} dataKey="value" startAngle={90} endAngle={-270}>
-                  {workforceRisks.map((r, i) => <Cell key={i} fill={r.color} />)}
+                <Pie
+                  data={workforceRisks}
+                  cx={39}
+                  cy={39}
+                  innerRadius={25}
+                  outerRadius={38}
+                  dataKey="value"
+                  startAngle={90}
+                  endAngle={-270}
+                >
+                  {workforceRisks.map((r, i) => (
+                    <Cell key={i} fill={r.color} />
+                  ))}
                 </Pie>
               </PieChart>
-              <div style={{
-                position: "absolute", inset: 0, display: "flex", flexDirection: "column",
-                alignItems: "center", justifyContent: "center",
-              }}>
-                <div style={{ fontSize: 14, fontWeight: 800, color: "#111" }}>24</div>
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <div style={{ fontSize: 14, fontWeight: 800, color: "#111" }}>
+                  24
+                </div>
                 <div style={{ fontSize: 7, color: "#6b7280" }}>Total Risks</div>
               </div>
             </div>
             <div style={{ flex: 1 }}>
               {workforceRisks.map((r, i) => (
-                <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 10, padding: "2px 0", color: "#374151" }}>
-                  <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                    <span style={{ width: 6, height: 6, borderRadius: 2, background: r.color }} />{r.name}
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: 10,
+                    padding: "2px 0",
+                    color: "#374151",
+                  }}
+                >
+                  <span
+                    style={{ display: "flex", alignItems: "center", gap: 4 }}
+                  >
+                    <span
+                      style={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: 2,
+                        background: r.color,
+                      }}
+                    />
+                    {r.name}
                   </span>
-                  <span style={{ fontWeight: 700, color: r.color }}>{r.value}</span>
+                  <span style={{ fontWeight: 700, color: r.color }}>
+                    {r.value}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
           <div style={{ marginTop: 8 }}>
-            <div style={{ fontSize: 10, fontWeight: 600, color: "#374151", marginBottom: 4 }}>Top Risks</div>
+            <div
+              style={{
+                fontSize: 10,
+                fontWeight: 600,
+                color: "#374151",
+                marginBottom: 4,
+              }}
+            >
+              Top Risks
+            </div>
             {riskTopItems.map((r, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 9, color: "#6b7280", padding: "1px 0" }}>
-                <span>{r.icon} {r.text}</span>
-                <span style={{ fontWeight: 700, color: r.color }}>{r.count}</span>
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: 9,
+                  color: "#6b7280",
+                  padding: "1px 0",
+                }}
+              >
+                <span>
+                  {r.icon} {r.text}
+                </span>
+                <span style={{ fontWeight: 700, color: r.color }}>
+                  {r.count}
+                </span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Portfolio Readiness */}
-        <div style={{ background: "#fff", border: "0.5px solid #e5e7eb", borderRadius: 10, padding: "12px 14px" }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Portfolio Readiness</div>
-          <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 8 }}>
+        <div
+          style={{
+            background: "#fff",
+            border: "0.5px solid #e5e7eb",
+            borderRadius: 10,
+            padding: "12px 14px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: "#374151",
+              marginBottom: 6,
+            }}
+          >
+            Portfolio Readiness
+          </div>
+          <div
+            style={{
+              display: "flex",
+              gap: 10,
+              alignItems: "center",
+              marginBottom: 8,
+            }}
+          >
             <div style={{ position: "relative", width: 70, height: 70 }}>
               <PieChart width={70} height={70}>
-                <Pie data={[{ value: 78 }, { value: 22 }]} cx={34} cy={34} innerRadius={22} outerRadius={33} dataKey="value" startAngle={90} endAngle={-270}>
+                <Pie
+                  data={[{ value: 78 }, { value: 22 }]}
+                  cx={34}
+                  cy={34}
+                  innerRadius={22}
+                  outerRadius={33}
+                  dataKey="value"
+                  startAngle={90}
+                  endAngle={-270}
+                >
                   <Cell fill={COLORS.green} />
                   <Cell fill="#e5e7eb" />
                 </Pie>
               </PieChart>
-              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontSize: 12, fontWeight: 800, color: COLORS.green }}>78%</span>
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <span
+                  style={{ fontSize: 12, fontWeight: 800, color: COLORS.green }}
+                >
+                  78%
+                </span>
               </div>
             </div>
             <div>
-              {[["On Track", "42%", COLORS.green], ["At Risk", "28%", COLORS.orange], ["Off Track", "18%", COLORS.red], ["Not Started", "12%", COLORS.gray]].map(([l, v, c]) => (
-                <div key={l} style={{ display: "flex", gap: 6, fontSize: 9, alignItems: "center", color: "#6b7280", marginBottom: 2 }}>
-                  <span style={{ width: 7, height: 7, borderRadius: 2, background: c }} />{l} <span style={{ color: c, fontWeight: 700 }}>{v}</span>
+              {[
+                ["On Track", "42%", COLORS.green],
+                ["At Risk", "28%", COLORS.orange],
+                ["Off Track", "18%", COLORS.red],
+                ["Not Started", "12%", COLORS.gray],
+              ].map(([l, v, c]) => (
+                <div
+                  key={l}
+                  style={{
+                    display: "flex",
+                    gap: 6,
+                    fontSize: 9,
+                    alignItems: "center",
+                    color: "#6b7280",
+                    marginBottom: 2,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 7,
+                      height: 7,
+                      borderRadius: 2,
+                      background: c,
+                    }}
+                  />
+                  {l} <span style={{ color: c, fontWeight: 700 }}>{v}</span>
                 </div>
               ))}
             </div>
           </div>
-          <div style={{ fontSize: 10, fontWeight: 600, color: "#374151", marginBottom: 3 }}>Readiness by Portfolio</div>
-          <div style={{ display: "grid", gridTemplateColumns: "auto auto auto auto auto", gap: "2px 6px", fontSize: 9, color: "#6b7280" }}>
-            <span style={{ fontWeight: 600 }}>Portfolio</span><span>On Track</span><span>At Risk</span><span>Off Track</span><span>Readiness%</span>
+          <div
+            style={{
+              fontSize: 10,
+              fontWeight: 600,
+              color: "#374151",
+              marginBottom: 3,
+            }}
+          >
+            Readiness by Portfolio
+          </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "auto auto auto auto auto",
+              gap: "2px 6px",
+              fontSize: 9,
+              color: "#6b7280",
+            }}
+          >
+            <span style={{ fontWeight: 600 }}>Portfolio</span>
+            <span>On Track</span>
+            <span>At Risk</span>
+            <span>Off Track</span>
+            <span>Readiness%</span>
             {portfolioReadiness.map((p) => (
               <>
-                <span key={p.portfolio + "n"} style={{ color: "#374151", fontSize: 8 }}>{p.portfolio}</span>
-                <span key={p.portfolio + "o"} style={{ color: COLORS.green, fontWeight: 700, textAlign: "center" }}>{p.onTrack}</span>
-                <span key={p.portfolio + "a"} style={{ color: COLORS.orange, fontWeight: 700, textAlign: "center" }}>{p.atRisk}</span>
-                <span key={p.portfolio + "f"} style={{ color: COLORS.red, fontWeight: 700, textAlign: "center" }}>{p.offTrack}</span>
-                <span key={p.portfolio + "r"} style={{ color: COLORS.blue, fontWeight: 700, textAlign: "center" }}>{p.readiness}</span>
+                <span
+                  key={p.portfolio + "n"}
+                  style={{ color: "#374151", fontSize: 8 }}
+                >
+                  {p.portfolio}
+                </span>
+                <span
+                  key={p.portfolio + "o"}
+                  style={{
+                    color: COLORS.green,
+                    fontWeight: 700,
+                    textAlign: "center",
+                  }}
+                >
+                  {p.onTrack}
+                </span>
+                <span
+                  key={p.portfolio + "a"}
+                  style={{
+                    color: COLORS.orange,
+                    fontWeight: 700,
+                    textAlign: "center",
+                  }}
+                >
+                  {p.atRisk}
+                </span>
+                <span
+                  key={p.portfolio + "f"}
+                  style={{
+                    color: COLORS.red,
+                    fontWeight: 700,
+                    textAlign: "center",
+                  }}
+                >
+                  {p.offTrack}
+                </span>
+                <span
+                  key={p.portfolio + "r"}
+                  style={{
+                    color: COLORS.blue,
+                    fontWeight: 700,
+                    textAlign: "center",
+                  }}
+                >
+                  {p.readiness}
+                </span>
               </>
             ))}
           </div>
@@ -1949,10 +4449,25 @@ export default function ResourceManagementOverview() {
       </div>
 
       {/* Section header */}
-      <div style={{ fontSize: 13, fontWeight: 700, color: "#111", marginBottom: 10 }}>Resource Management Reports</div>
+      <div
+        style={{
+          fontSize: 13,
+          fontWeight: 700,
+          color: "#111",
+          marginBottom: 10,
+        }}
+      >
+        Resource Management Reports
+      </div>
 
       {/* Report cards grid — 5 columns */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: 10 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+          gap: 10,
+        }}
+      >
         {reportCards.map((card) => (
           <ReportCard key={card.num} card={card} onView={setActiveReport} />
         ))}

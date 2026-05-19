@@ -381,7 +381,7 @@ export default function DemandSummary() {
     { key: "projectName", header: "Project Name" },
     {
       key: "projectRole",
-      header: "Required Skills",
+      header: "Required Role",
       render: (row) =>
         row.projectRole ? (
           <Badge variant="secondary" className="text-xs">
@@ -399,7 +399,7 @@ export default function DemandSummary() {
     },
     {
       key: "resourceName",
-      header: "No. of Resources",
+      header: "Resource Count",
       sortable: false,
       render: (row) => {
         const count = row.resourceName ? 2 : 0;
