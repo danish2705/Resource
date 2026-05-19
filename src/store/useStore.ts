@@ -116,8 +116,22 @@ interface AppState {
   resources: ResourceProfile[];
   forecasts: Forecast[];
   selectedProject: string;
-  addDemand: (d: Omit<Demand, 'id' | 'history' | 'createdBy' | 'createdDate' | 'updatedBy' | 'updatedDate'>) => void;
-  addDemands: (ds: Omit<Demand, 'id' | 'history' | 'createdBy' | 'createdDate' | 'updatedBy' | 'updatedDate'>[]) => void;
+  powerBiUrl: string;
+
+  addDemand: (
+    d: Omit<
+      Demand,
+      'id' | 'history' | 'createdBy' | 'createdDate' | 'updatedBy' | 'updatedDate'
+    >
+  ) => void;
+
+  addDemands: (
+    ds: Omit<
+      Demand,
+      'id' | 'history' | 'createdBy' | 'createdDate' | 'updatedBy' | 'updatedDate'
+    >[]
+  ) => void;
+
   updateDemand: (id: string, updates: Partial<Demand>) => void;
   deleteDemand: (id: string) => void;
   updateAllocation: (id: string, updates: Partial<Allocation>) => void;
@@ -125,7 +139,13 @@ interface AppState {
   rejectWorklistItem: (id: string) => void;
   setSelectedProject: (p: string) => void;
   updateResource: (id: string, updates: Partial<ResourceProfile>) => void;
-  addForecast: (f: Omit<Forecast, 'id' | 'createdBy' | 'createdDate' | 'status'> & { status?: Forecast['status'] }) => void;
+
+  addForecast: (
+    f: Omit<Forecast, 'id' | 'createdBy' | 'createdDate' | 'status'> & {
+      status?: Forecast['status'];
+    }
+  ) => void;
+
   updateForecast: (id: string, updates: Partial<Forecast>) => void;
   deleteForecast: (id: string) => void;
   convertForecastToDemand: (id: string) => void;
@@ -255,19 +275,27 @@ export const useStore = create<AppState>((set) => ({
   worklist: mockWorklist,
   resources: mockResources,
   forecasts: mockForecasts,
+
   selectedProject: 'Global',
 
-  addDemand: (d) => set((state) => ({
-    demands: [...state.demands, {
-      ...d,
-      id: `dem-${Date.now()}`,
-      history: [],
-      createdBy: 'current@user.com',
-      createdDate: new Date().toLocaleDateString(),
-      updatedBy: 'current@user.com',
-      updatedDate: new Date().toLocaleDateString(),
-    }],
-  })),
+  powerBiUrl:
+    'https://app.powerbi.com/reportEmbed?reportId=6fe8891f-cbe6-4462-98ec-5044e47b137d&autoAuth=true&ctid=1a264c83-db2d-4da1-8cc5-44b1b94837a8',
+
+  addDemand: (d) =>
+    set((state) => ({
+      demands: [
+        ...state.demands,
+        {
+          ...d,
+          id: `dem-${Date.now()}`,
+          history: [],
+          createdBy: '[REDACTED_EMAIL_ADDRESS_3]',
+          createdDate: new Date().toLocaleDateString(),
+          updatedBy: '[REDACTED_EMAIL_ADDRESS_3]',
+          updatedDate: new Date().toLocaleDateString(),
+        },
+      ],
+    })),
 
   addDemands: (ds) => set((state) => ({
     demands: [...state.demands, ...ds.map((d, i) => ({
