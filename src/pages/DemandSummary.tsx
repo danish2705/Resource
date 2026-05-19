@@ -54,7 +54,50 @@ type ImportSource =
   | "Jira"
   | "Planisware"
   | "Smartsheets"
+  | "Monday.com"
   | "Connected Source";
+
+// Add these fields to your Demand type in useStore.ts:
+// source?: "Manual" | "Jira" | "Planisware" | "Smartsheets" | "Monday.com" | "Connected Source";
+// isEdited?: boolean;
+
+// ─── Source config ────────────────────────────────────────────────────────────
+
+const SOURCE_CONFIG: Record<
+  string,
+  { label: string; className: string; dotClass: string }
+> = {
+  Manual: {
+    label: "Manual",
+    className: "bg-secondary text-secondary-foreground",
+    dotClass: "bg-muted-foreground",
+  },
+  Jira: {
+    label: "Jira",
+    className: "bg-blue-500/10 text-blue-600",
+    dotClass: "bg-blue-500",
+  },
+  Planisware: {
+    label: "Planisware",
+    className: "bg-violet-500/10 text-violet-600",
+    dotClass: "bg-violet-500",
+  },
+  Smartsheets: {
+    label: "Smartsheets",
+    className: "bg-green-500/10 text-green-600",
+    dotClass: "bg-green-500",
+  },
+  "Monday.com": {
+    label: "Monday.com",
+    className: "bg-orange-500/10 text-orange-600",
+    dotClass: "bg-orange-500",
+  },
+  "Connected Source": {
+    label: "API",
+    className: "bg-amber-500/10 text-amber-600",
+    dotClass: "bg-amber-500",
+  },
+};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -87,7 +130,10 @@ function parseCSV(text: string): Record<string, string>[] {
   });
 }
 
-function mapRowToDemand(row: Record<string, string>): DemandForm | null {
+function mapRowToDemand(
+  row: Record<string, string>,
+  source: ImportSource = "Excel",
+): DemandForm | null {
   const projectName =
     row["Project Name"] || row["Project"] || row["projectName"] || "";
   const pillar = row["Pillar"] || row["pillar"] || "";
@@ -115,6 +161,9 @@ function mapRowToDemand(row: Record<string, string>): DemandForm | null {
     country: row["Country"] || row["Location"] || "Sydney",
     allocation: { current: 0, y2027: 0, y2028: 0, y2029: 0, y2030: 0 },
     forecast: { current: 0, y2027: 0, y2028: 0, y2029: 0, y2030: 0 },
+    // ── New fields ──
+    source,
+    isEdited: false,
   };
 }
 
@@ -134,6 +183,7 @@ export default function DemandSummary() {
   const [fRole, setFRole] = useState("all");
   const [fPillar, setFPillar] = useState("all");
   const [fStatus, setFStatus] = useState("all");
+  const [fSource, setFSource] = useState("all");
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [historyData, setHistoryData] = useState<Demand["history"] | null>(
@@ -167,18 +217,26 @@ export default function DemandSummary() {
       const matchRole = fRole === "all" || d.projectRole === fRole;
       const matchPillar = fPillar === "all" || d.pillar === fPillar;
       const matchStatus = fStatus === "all" || d.status === fStatus;
+      const matchSource =
+        fSource === "all" || (d.source ?? "Manual") === fSource;
       return (
-        matchSearch && matchProject && matchRole && matchPillar && matchStatus
+        matchSearch &&
+        matchProject &&
+        matchRole &&
+        matchPillar &&
+        matchStatus &&
+        matchSource
       );
     });
-  }, [demands, fSearch, fProject, fRole, fPillar, fStatus]);
+  }, [demands, fSearch, fProject, fRole, fPillar, fStatus, fSource]);
 
   const hasActiveFilters =
     fSearch ||
     fProject !== "all" ||
     fRole !== "all" ||
     fPillar !== "all" ||
-    fStatus !== "all";
+    fStatus !== "all" ||
+    fSource !== "all";
 
   const clearFilters = () => {
     setFSearch("");
@@ -186,6 +244,7 @@ export default function DemandSummary() {
     setFRole("all");
     setFPillar("all");
     setFStatus("all");
+    setFSource("all");
   };
 
   const handleDelete = () => {
@@ -208,7 +267,7 @@ export default function DemandSummary() {
     reader.onload = (ev) => {
       try {
         const mapped = parseCSV(ev.target?.result as string)
-          .map(mapRowToDemand)
+          .map((row) => mapRowToDemand(row, "Excel"))
           .filter(Boolean) as DemandForm[];
         if (!mapped.length) {
           toast.error("No valid rows found");
@@ -234,6 +293,7 @@ export default function DemandSummary() {
       Jira: { count: 4, prefix: "JIRA" },
       Planisware: { count: 5, prefix: "PLNS" },
       Smartsheets: { count: 3, prefix: "SMRT" },
+      "Monday.com": { count: 4, prefix: "MON" },
       "Connected Source": { count: 6, prefix: "API" },
     };
     const { count, prefix } = cfg[source];
@@ -266,6 +326,9 @@ export default function DemandSummary() {
         y2029: 0,
         y2030: 0,
       },
+      // ── New fields ──
+      source,
+      isEdited: false,
     }));
     toast.info(`Fetching from ${source}...`);
     setTimeout(() => {
@@ -378,6 +441,38 @@ export default function DemandSummary() {
       render: (row) => (
         <Badge variant={statusColor(row.status)}>{row.status}</Badge>
       ),
+    },
+    // ── NEW: Source column ────────────────────────────────────────────────────
+    {
+      key: "source",
+      header: "Source",
+      sortable: false,
+      render: (row) => {
+        const src = row.source;
+        if (!src || src === "Manual") {
+          return <span className="text-muted-foreground text-xs">Manual</span>;
+        }
+        const cfg = SOURCE_CONFIG[src] ?? SOURCE_CONFIG["Manual"];
+        return (
+          <div className="flex items-center gap-1.5">
+            <span
+              className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${cfg.className}`}
+            >
+              <span className={`h-1.5 w-1.5 rounded-full ${cfg.dotClass}`} />
+              {cfg.label}
+            </span>
+            {/* Edited indicator — only shown on imported demands that were changed */}
+            {row.isEdited && (
+              <span
+                title="Edited after import"
+                className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-amber-400/20 text-amber-600"
+              >
+                <Pencil className="h-2.5 w-2.5" />
+              </span>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: "action",
@@ -496,6 +591,24 @@ export default function DemandSummary() {
               </SelectContent>
             </Select>
 
+            {/* Source filter — NEW */}
+            <Select value={fSource} onValueChange={setFSource}>
+              <SelectTrigger className="h-9 w-[150px] text-sm">
+                <SelectValue placeholder="All Sources" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Sources</SelectItem>
+                <SelectItem value="Manual">Manual</SelectItem>
+                <SelectItem value="Jira">Jira</SelectItem>
+                <SelectItem value="Planisware">Planisware</SelectItem>
+                <SelectItem value="Smartsheets">Smartsheets</SelectItem>
+                <SelectItem value="Monday.com">Monday.com</SelectItem>
+                <SelectItem value="Connected Source">
+                  Connected Source
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
             {/* Result count + clear */}
             <span className="text-sm text-muted-foreground whitespace-nowrap">
               {filtered.length} result{filtered.length !== 1 ? "s" : ""}
@@ -551,26 +664,33 @@ export default function DemandSummary() {
               </div>
             </button>
 
-            {(["Jira", "Planisware", "Smartsheets"] as const).map((src) => (
-              <button
-                key={src}
-                onClick={() => fetchFromExternal(src)}
-                className="border rounded-md p-4 text-left hover:bg-accent transition-colors"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="h-8 w-8 rounded bg-secondary text-secondary-foreground flex items-center justify-center font-bold text-xs">
-                    {src.slice(0, 2).toUpperCase()}
+            {(["Jira", "Planisware", "Smartsheets", "Monday.com"] as const).map(
+              (src) => (
+                <button
+                  key={src}
+                  onClick={() => fetchFromExternal(src)}
+                  className="border rounded-md p-4 text-left hover:bg-accent transition-colors"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <div
+                      className={`h-8 w-8 rounded flex items-center justify-center font-bold text-xs ${SOURCE_CONFIG[src]?.className ?? "bg-secondary text-secondary-foreground"}`}
+                    >
+                      {src.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div className="font-semibold text-sm">{src}</div>
                   </div>
-                  <div className="font-semibold text-sm">{src}</div>
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {src === "Jira" && "Fetch open epics & stories as demand"}
-                  {src === "Planisware" &&
-                    "Pull project plans & resource needs"}
-                  {src === "Smartsheets" && "Sync resource sheets into demand"}
-                </div>
-              </button>
-            ))}
+                  <div className="text-xs text-muted-foreground">
+                    {src === "Jira" && "Fetch open epics & stories as demand"}
+                    {src === "Planisware" &&
+                      "Pull project plans & resource needs"}
+                    {src === "Smartsheets" &&
+                      "Sync resource sheets into demand"}
+                    {src === "Monday.com" &&
+                      "Import boards & items as demand rows"}
+                  </div>
+                </button>
+              ),
+            )}
 
             <button
               onClick={() => fetchFromExternal("Connected Source")}
@@ -619,6 +739,7 @@ export default function DemandSummary() {
                     "Budget Code",
                     "Resource",
                     "Type",
+                    "Source",
                   ].map((h) => (
                     <th key={h} className="px-3 py-2 text-left">
                       {h}
@@ -627,16 +748,30 @@ export default function DemandSummary() {
                 </tr>
               </thead>
               <tbody>
-                {importPreview.map((r, i) => (
-                  <tr key={i} className="border-t">
-                    <td className="px-3 py-1.5">{r.projectName}</td>
-                    <td className="px-3 py-1.5">{r.projectRole}</td>
-                    <td className="px-3 py-1.5">{r.pillar}</td>
-                    <td className="px-3 py-1.5">{r.budgetCode}</td>
-                    <td className="px-3 py-1.5">{r.resourceName}</td>
-                    <td className="px-3 py-1.5">{r.type}</td>
-                  </tr>
-                ))}
+                {importPreview.map((r, i) => {
+                  const src = r.source ?? "Manual";
+                  const cfg = SOURCE_CONFIG[src] ?? SOURCE_CONFIG["Manual"];
+                  return (
+                    <tr key={i} className="border-t">
+                      <td className="px-3 py-1.5">{r.projectName}</td>
+                      <td className="px-3 py-1.5">{r.projectRole}</td>
+                      <td className="px-3 py-1.5">{r.pillar}</td>
+                      <td className="px-3 py-1.5">{r.budgetCode}</td>
+                      <td className="px-3 py-1.5">{r.resourceName}</td>
+                      <td className="px-3 py-1.5">{r.type}</td>
+                      <td className="px-3 py-1.5">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cfg.className}`}
+                        >
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full ${cfg.dotClass}`}
+                          />
+                          {cfg.label}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
