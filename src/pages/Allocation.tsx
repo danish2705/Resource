@@ -203,21 +203,7 @@ const columns: Column<AllocationRecord>[] = [
       <span className="text-sm text-muted-foreground">{r.role}</span>
     ),
   },
-  {
-    key: "billable",
-    header: "Billable",
-    render: (r) => {
-      const color =
-        r.billable === "Yes"
-          ? "bg-green-500/20 text-green-400 border border-green-500/30"
-          : "bg-gray-500/20 text-gray-300 border border-gray-500/30";
-      return (
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${color}`}>
-          {r.billable}
-        </span>
-      );
-    },
-  },
+
   {
     key: "allocationType",
     header: "Allocation Type",
@@ -267,24 +253,7 @@ const columns: Column<AllocationRecord>[] = [
       <span className="text-sm text-muted-foreground">{r.end}</span>
     ),
   },
-  {
-    key: "totalUtil",
-    header: "Total Util",
-    render: (r) => {
-      const colorMap = {
-        OK: "bg-green-500/20 text-green-400 border border-green-500/30",
-        Full: "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
-        Overallocated: "bg-red-500/20 text-red-400 border border-red-500/30",
-      };
-      return (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${colorMap[r.totalUtil]}`}
-        >
-          {r.totalUtil}
-        </span>
-      );
-    },
-  },
+  
 ];
 
 // Derive unique project IDs for dropdown
