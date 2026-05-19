@@ -11,6 +11,7 @@ import {
   PlusCircle,
   TrendingUp,
   Clock,
+  ShieldCheck, // ← NEW icon for Resource Review
 } from "lucide-react";
 
 import {
@@ -42,27 +43,15 @@ const mainItems = [
 ];
 
 const demandSubItems = [
-  {
-    title: "Create Demand",
-    url: "/demand/create",
-    icon: PlusCircle,
-  },
-  {
-    title: "Demand Status",
-    url: "/demand-status",
-    icon: TrendingUp,
-  },
-  {
-    title: "Demand Summary",
-    url: "/demand",
-    icon: ListChecks,
-    end: true,
-  },
+  { title: "Create Demand", url: "/demand/create", icon: PlusCircle },
+  { title: "Demand Status", url: "/demand-status", icon: TrendingUp },
+  { title: "Demand Summary", url: "/demand", icon: ListChecks, end: true },
 ];
 
 const lowerItems = [
   { title: "Allocation Details", url: "/allocation", icon: Users },
   { title: "Resource Information", url: "/resources", icon: UserCircle },
+  { title: "Resource Review", url: "/resource-review", icon: ShieldCheck }, // ← NEW
   { title: "Projects", url: "/projects", icon: ClipboardList },
   { title: "Timesheets & Actuals", url: "/timesheets-actuals", icon: Clock },
   { title: "Reporting Dashboard", url: "/reports", icon: BarChart3 },
@@ -123,7 +112,6 @@ export function AppSidebar() {
                       activeClassName={linkActive}
                     >
                       <item.icon className="h-4 w-4 shrink-0" />
-
                       {!collapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -142,11 +130,9 @@ export function AppSidebar() {
                       className={demandActive ? linkActive : linkInactive}
                     >
                       <ClipboardList className="h-4 w-4 shrink-0" />
-
                       {!collapsed && (
                         <>
                           <span>Demand Management</span>
-
                           <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
                         </>
                       )}
@@ -166,7 +152,6 @@ export function AppSidebar() {
                                 activeClassName={linkActive}
                               >
                                 <sub.icon className="h-3.5 w-3.5 shrink-0" />
-
                                 <span>{sub.title}</span>
                               </NavLink>
                             </SidebarMenuSubButton>
@@ -187,7 +172,6 @@ export function AppSidebar() {
                       activeClassName={linkActive}
                     >
                       <item.icon className="h-4 w-4 shrink-0" />
-
                       {!collapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
