@@ -1,4 +1,7 @@
+// src/components/DataTable.tsx
+
 import { useState, useMemo } from "react";
+
 import {
   Table,
   TableBody,
@@ -7,42 +10,62 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import { Button } from "@/components/ui/button";
+
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-type TableRowData = {
-  id?: string | number;
-};
+// ─────────────────────────────────────────────────────────────
+// Column Type
+// ─────────────────────────────────────────────────────────────
 
 export interface Column<T extends object> {
-  // FIX: allow custom UI columns like "action"
   key: keyof T | string;
+
   header: string;
+
   render?: (row: T, index: number) => React.ReactNode;
+
   sortable?: boolean;
 }
 
+// ─────────────────────────────────────────────────────────────
+// Props
+// ─────────────────────────────────────────────────────────────
+
 interface Props<T extends object> {
   data: T[];
+
   columns: Column<T>[];
+
   searchPlaceholder?: string;
+
   pageSize?: number;
 }
 
-export default function DataTable<T extends TableRowData>({
+// ─────────────────────────────────────────────────────────────
+// Component
+// ─────────────────────────────────────────────────────────────
+
+export default function DataTable<T extends object>({
   data,
   columns,
-  searchPlaceholder = "Search...",
   pageSize: defaultPageSize = 10,
 }: Props<T>) {
-  const [search, setSearch] = useState("");
+  const [search] = useState("");
+
   const [page, setPage] = useState(0);
+
   const [pageSize] = useState(defaultPageSize);
 
   const [sortKey, setSortKey] = useState<string | null>(null);
+
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
+  // ───────────────────────────────────────────────────────────
   // Search Filter
+  // ───────────────────────────────────────────────────────────
+
   const filtered = useMemo(() => {
     if (!search) return data;
 
@@ -50,8 +73,7 @@ export default function DataTable<T extends TableRowData>({
 
     return data.filter((row) =>
       columns.some((col) => {
-        // Ignore custom rendered columns like "action"
-        if (!(col.key in row)) return false;
+        if (!(col.key in (row as object))) return false;
 
         return String(row[col.key as keyof T] ?? "")
           .toLowerCase()
@@ -60,45 +82,57 @@ export default function DataTable<T extends TableRowData>({
     );
   }, [data, search, columns]);
 
+  // ───────────────────────────────────────────────────────────
   // Sorting
+  // ───────────────────────────────────────────────────────────
+
   const sorted = useMemo(() => {
     if (!sortKey) return filtered;
 
     return [...filtered].sort((a, b) => {
       const av = a[sortKey as keyof T];
+
       const bv = b[sortKey as keyof T];
 
-      const cmp = String(av ?? "").localeCompare(
-        String(bv ?? ""),
-        undefined,
-        { numeric: true },
-      );
+      const cmp = String(av ?? "").localeCompare(String(bv ?? ""), undefined, {
+        numeric: true,
+      });
 
       return sortDir === "asc" ? cmp : -cmp;
     });
   }, [filtered, sortKey, sortDir]);
 
+  // ───────────────────────────────────────────────────────────
+  // Pagination
+  // ───────────────────────────────────────────────────────────
+
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
 
-  const paged = sorted.slice(
-    page * pageSize,
-    (page + 1) * pageSize,
-  );
+  const paged = sorted.slice(page * pageSize, (page + 1) * pageSize);
+
+  // ───────────────────────────────────────────────────────────
+  // Sorting Handler
+  // ───────────────────────────────────────────────────────────
 
   const handleSort = (key: string) => {
-    // Don't sort UI-only columns like "action"
-    if (!data.length || !(key in data[0])) return;
+    if (!data.length || !(key in (data[0] as object))) return;
 
     if (sortKey === key) {
       setSortDir(sortDir === "asc" ? "desc" : "asc");
     } else {
       setSortKey(key);
+
       setSortDir("asc");
     }
   };
 
+  // ───────────────────────────────────────────────────────────
+  // Render
+  // ───────────────────────────────────────────────────────────
+
   return (
     <div className="space-y-3">
+      {/* Table */}
       <div className="border rounded-md overflow-auto">
         <Table>
           <TableHeader>
@@ -112,14 +146,12 @@ export default function DataTable<T extends TableRowData>({
                       : ""
                   }
                   onClick={() =>
-                    col.sortable !== false &&
-                    handleSort(String(col.key))
+                    col.sortable !== false && handleSort(String(col.key))
                   }
                 >
                   {col.header}
 
-                  {sortKey === col.key &&
-                    (sortDir === "asc" ? " ↑" : " ↓")}
+                  {sortKey === col.key && (sortDir === "asc" ? " ↑" : " ↓")}
                 </TableHead>
               ))}
             </TableRow>
@@ -137,17 +169,12 @@ export default function DataTable<T extends TableRowData>({
               </TableRow>
             ) : (
               paged.map((row, i) => (
-                <TableRow
-                  key={row.id ?? i}
-                  className="hover:bg-accent/30"
-                >
+                <TableRow key={i} className="hover:bg-accent/30">
                   {columns.map((col) => (
                     <TableCell key={String(col.key)}>
                       {col.render
                         ? col.render(row, page * pageSize + i)
-                        : String(
-                            row[col.key as keyof T] ?? ""
-                          )}
+                        : String(row[col.key as keyof T] ?? "")}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -160,16 +187,9 @@ export default function DataTable<T extends TableRowData>({
       {/* Pagination */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
-          Showing{" "}
-          {sorted.length === 0
-            ? 0
-            : page * pageSize + 1}{" "}
-          to{" "}
-          {Math.min(
-            (page + 1) * pageSize,
-            sorted.length,
-          )}{" "}
-          of {sorted.length} entries
+          Showing {sorted.length === 0 ? 0 : page * pageSize + 1} to{" "}
+          {Math.min((page + 1) * pageSize, sorted.length)} of {sorted.length}{" "}
+          entries
         </span>
 
         <div className="flex items-center gap-1">
@@ -183,24 +203,19 @@ export default function DataTable<T extends TableRowData>({
           </Button>
 
           {Array.from(
-            { length: Math.min(totalPages, 5) },
+            {
+              length: Math.min(totalPages, 5),
+            },
             (_, i) => {
               const p =
                 totalPages <= 5
                   ? i
-                  : Math.max(
-                      0,
-                      Math.min(page - 2, totalPages - 5),
-                    ) + i;
+                  : Math.max(0, Math.min(page - 2, totalPages - 5)) + i;
 
               return (
                 <Button
                   key={p}
-                  variant={
-                    p === page
-                      ? "default"
-                      : "outline"
-                  }
+                  variant={p === page ? "default" : "outline"}
                   size="sm"
                   className="w-8 h-8"
                   onClick={() => setPage(p)}

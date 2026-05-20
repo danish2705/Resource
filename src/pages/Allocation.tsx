@@ -239,7 +239,11 @@ export default function ResourceAllocation() {
           </div>
 
           {/* Table */}
-          <DataTable data={filteredData} columns={columns} pageSize={10} />
+          <DataTable
+            data={filteredData}
+            columns={columns}
+            pageSize={10}
+          ></DataTable>
         </CardContent>
       </Card>
     </div>

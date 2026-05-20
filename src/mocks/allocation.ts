@@ -3,6 +3,7 @@
 export interface AllocationRow {
   resourceId: string;
   projectId: string;
+
   resource: string;
   project: string;
   role: string;
@@ -31,8 +32,8 @@ export const allocations: AllocationRow[] = [
     allocationPercentage: 80,
     hoursPerWeek: 32,
 
-    startDate: "15 Jan",
-    endDate: "30 June",
+    startDate: "2026-01-15",
+    endDate: "2026-06-30",
 
     utilizationStatus: "high",
   },
@@ -49,8 +50,8 @@ export const allocations: AllocationRow[] = [
     allocationPercentage: 100,
     hoursPerWeek: 40,
 
-    startDate: "15 Jan",
-    endDate: "30 June",
+    startDate: "2026-01-15",
+    endDate: "2026-06-30",
 
     utilizationStatus: "high",
   },
@@ -67,8 +68,8 @@ export const allocations: AllocationRow[] = [
     allocationPercentage: 100,
     hoursPerWeek: 40,
 
-    startDate: "1 Feb",
-    endDate: "31 July",
+    startDate: "2026-02-01",
+    endDate: "2026-07-31",
 
     utilizationStatus: "high",
   },
@@ -85,8 +86,8 @@ export const allocations: AllocationRow[] = [
     allocationPercentage: 80,
     hoursPerWeek: 32,
 
-    startDate: "1 Mar",
-    endDate: "31 May",
+    startDate: "2026-03-01",
+    endDate: "2026-05-31",
 
     utilizationStatus: "high",
   },
@@ -103,8 +104,8 @@ export const allocations: AllocationRow[] = [
     allocationPercentage: 60,
     hoursPerWeek: 24,
 
-    startDate: "15 Jan",
-    endDate: "30 June",
+    startDate: "2026-01-15",
+    endDate: "2026-06-30",
 
     utilizationStatus: "medium",
   },
@@ -114,7 +115,6 @@ export const allocations: AllocationRow[] = [
     projectId: "PID-504",
     resource: "Meera Joshi",
     project: "Identity & Access Management",
-
     role: "Cloud Engineer",
 
     allocationType: "Client",
@@ -122,8 +122,8 @@ export const allocations: AllocationRow[] = [
     allocationPercentage: 100,
     hoursPerWeek: 40,
 
-    startDate: "15 Feb",
-    endDate: "15 Aug",
+    startDate: "2026-02-15",
+    endDate: "2026-08-15",
 
     utilizationStatus: "high",
   },
@@ -133,7 +133,6 @@ export const allocations: AllocationRow[] = [
     projectId: "PID-505",
     resource: "Kiran Patel",
     project: "Analytics Dashboard Suite",
-
     role: "UI Developer",
 
     allocationType: "Internal",
@@ -141,8 +140,8 @@ export const allocations: AllocationRow[] = [
     allocationPercentage: 20,
     hoursPerWeek: 8,
 
-    startDate: "20 Jan",
-    endDate: "30 Apr",
+    startDate: "2026-01-20",
+    endDate: "2026-04-30",
 
     utilizationStatus: "low",
   },
@@ -152,7 +151,6 @@ export const allocations: AllocationRow[] = [
     projectId: "PID-503",
     resource: "Dev Krishnan",
     project: "DevSecOps Pipeline Setup",
-
     role: "Security Reviewer",
 
     allocationType: "Internal",
@@ -160,8 +158,8 @@ export const allocations: AllocationRow[] = [
     allocationPercentage: 50,
     hoursPerWeek: 10,
 
-    startDate: "1 Mar",
-    endDate: "31 May",
+    startDate: "2026-03-01",
+    endDate: "2026-05-31",
 
     utilizationStatus: "medium",
   },
@@ -171,7 +169,6 @@ export const allocations: AllocationRow[] = [
     projectId: "PID-501",
     resource: "Vikram Singh",
     project: "Cloud Migration Phase 1",
-
     role: "Cloud Engineer",
 
     allocationType: "Client",
@@ -179,8 +176,8 @@ export const allocations: AllocationRow[] = [
     allocationPercentage: 100,
     hoursPerWeek: 40,
 
-    startDate: "15 Jan",
-    endDate: "30 June",
+    startDate: "2026-01-15",
+    endDate: "2026-06-30",
 
     utilizationStatus: "high",
   },
@@ -190,7 +187,6 @@ export const allocations: AllocationRow[] = [
     projectId: "PID-506",
     resource: "Rohit Nair",
     project: "ML Forecasting Engine",
-
     role: "ML Engineer",
 
     allocationType: "Client",
@@ -198,8 +194,8 @@ export const allocations: AllocationRow[] = [
     allocationPercentage: 80,
     hoursPerWeek: 32,
 
-    startDate: "1 May",
-    endDate: "30 Sept",
+    startDate: "2026-05-01",
+    endDate: "2026-09-30",
 
     utilizationStatus: "high",
   },
