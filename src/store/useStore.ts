@@ -23,7 +23,16 @@ export interface Demand {
   budgetCode: string;
   pillar: string;
   allocationPercent: number;
-  status: "Draft" | "Pending" | "Approved" | "Rejected" | "Awaiting Approval";
+  status:
+    | "Draft"
+    | "Pending"
+    | "Approved"
+    | "Rejected"
+    | "Awaiting Approval"
+    | "RM Approved"
+    | "RM Rejected"
+    | "PMO Approved"
+    | "PMO Rejected";
   comments: string;
   identified: boolean;
   estimatedRate: number;

@@ -222,7 +222,7 @@ const resourceData: Resource[] = [
     capacity: "40 hrs",
     location: "Sydney",
     status: "Allocated",
-    utilization: 50,
+    utilization: 100,
   },
   {
     id: "res-8",
@@ -260,9 +260,9 @@ const resourceData: Resource[] = [
     status: "Available",
     utilization: 80,
     unavailability: {
-      state: "unavailable",
-      from: "May 1 2026",
-      to: "Jun 15 2026",
+      state: "out-of-office",
+      from: "May 15 2026",
+      to: "May 30 2026",
     },
   },
 ];
@@ -347,19 +347,25 @@ const columns: Column<Resource>[] = [
     key: "status",
     header: "Status",
     render: (r) => {
-      const colorMap = {
+      const isUnavailable = isCurrentlyUnavailable(r);
+      const displayStatus = isUnavailable ? "Unavailable" : r.status;
+
+      const colorMap: Record<string, string> = {
         Allocated:
           "bg-blue-500/20 text-blue-700 border border-blue-500/30 dark:text-blue-300",
         Available:
           "bg-green-500/20 text-green-700 border border-green-500/30 dark:text-green-300",
         Overallocated:
           "bg-red-500/20 text-red-700 border border-red-500/30 dark:text-red-300",
+        Unavailable:
+          "bg-amber-500/20 text-amber-700 border border-amber-500/30 dark:text-amber-300",
       };
+
       return (
         <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${colorMap[r.status]}`}
+          className={`px-2 py-1 rounded-full text-xs font-medium ${colorMap[displayStatus]}`}
         >
-          {r.status}
+          {displayStatus}
         </span>
       );
     },

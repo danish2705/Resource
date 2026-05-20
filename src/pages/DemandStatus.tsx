@@ -33,7 +33,11 @@ type DemandStatusType =
   | "Submitted"
   | "Under Review"
   | "Approved"
-  | "Rejected";
+  | "Rejected"
+  | "RM Approved"
+  | "RM Rejected"
+  | "PMO Approved"
+  | "PMO Rejected";
 
 interface Demand {
   id: string;
@@ -325,6 +329,10 @@ const statusStyleMap: Record<DemandStatusType, string> = {
     "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
   Approved: "bg-green-500/20 text-green-400 border border-green-500/30",
   Rejected: "bg-red-500/20 text-red-400 border border-red-500/30",
+  "RM Approved": "bg-blue-500/20 text-blue-400 border border-blue-500/30",
+  "RM Rejected": "bg-red-500/20 text-red-400 border border-red-500/30",
+  "PMO Approved": "bg-green-500/20 text-green-400 border border-green-500/30",
+  "PMO Rejected": "bg-red-500/20 text-red-400 border border-red-500/30",
 };
 
 function formatCurrency(value: number) {

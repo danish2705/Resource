@@ -36,13 +36,32 @@ import {
   AlertCircle,
   CheckCheck,
   Filter,
+  ChevronRight,
+  Building2,
+  Briefcase,
 } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { toast } from "sonner";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
-type ReviewStatus = "Pending" | "Approved" | "Rejected" | "Awaiting Approval";
+type ReviewStatus =
+  | "Pending"
+  | "Awaiting Approval"
+  | "RM Approved"
+  | "RM Rejected"
+  | "PMO Approved"
+  | "PMO Rejected"
+  | "Approved"
+  | "Rejected";
+
+interface ApprovalRecord {
+  approver: string;
+  role: "Resource Manager" | "PMO";
+  decision: "Approved" | "Rejected";
+  comment: string;
+  decidedOn: string;
+}
 
 interface ReviewRequest {
   id: string;
@@ -63,13 +82,12 @@ interface ReviewRequest {
   currentYearForecast: number;
   country: string;
   status: ReviewStatus;
-  reviewedOn?: string;
-  reviewComment?: string;
+  approvalHistory: ApprovalRecord[];
   mailSubject: string;
   mailBody: string;
 }
 
-// ─── Mock email-triggered review requests ──────────────────────────────────
+// ─── Mock data ──────────────────────────────────────────────────────────────
 
 const mockReviewRequests: ReviewRequest[] = [
   {
@@ -91,6 +109,7 @@ const mockReviewRequests: ReviewRequest[] = [
     currentYearForecast: 270400,
     country: "Australia",
     status: "Pending",
+    approvalHistory: [],
     mailSubject:
       "Resource Review Required: Technical Lead – Data Modernization ASPAC",
     mailBody:
@@ -114,7 +133,16 @@ const mockReviewRequests: ReviewRequest[] = [
     estimatedRate: 95,
     currentYearForecast: 148200,
     country: "Germany",
-    status: "Pending",
+    status: "RM Approved",
+    approvalHistory: [
+      {
+        approver: "Sarah Mitchell",
+        role: "Resource Manager",
+        decision: "Approved",
+        comment: "Resource availability confirmed. Good fit for the role.",
+        decidedOn: "05/14/2027",
+      },
+    ],
     mailSubject: "Resource Review Required: QA Engineer – QE Automation",
     mailBody:
       "Hi Manager,\n\nA resource request has been submitted for your review and approval.\n\nProject: QE Automation\nRole: QA Engineer\nResource: Ian Lee (External – Hyqoo)\nAllocation: 75%\nPeriod: Mar 2027 – Dec 2027\nEstimated Rate: $95/hr\nForecast (Current Year): $148,200\n\nPlease review and take action.\n\nThank you,\nResource Management System",
@@ -137,7 +165,23 @@ const mockReviewRequests: ReviewRequest[] = [
     estimatedRate: 110,
     currentYearForecast: 114400,
     country: "Sydney",
-    status: "Awaiting Approval",
+    status: "PMO Approved",
+    approvalHistory: [
+      {
+        approver: "Sarah Mitchell",
+        role: "Resource Manager",
+        decision: "Approved",
+        comment: "Capacity confirmed for the allocation period.",
+        decidedOn: "05/15/2027",
+      },
+      {
+        approver: "James Thornton",
+        role: "PMO",
+        decision: "Approved",
+        comment: "Budget cleared. Approved for project onboarding.",
+        decidedOn: "05/16/2027",
+      },
+    ],
     mailSubject: "Resource Review Required: DevOps Engineer – Cloud Enablement",
     mailBody:
       "Hi Manager,\n\nA resource request has been submitted for your review and approval.\n\nProject: Cloud Enablement\nRole: DevOps Engineer\nResource: Rich Bowers\nAllocation: 50%\nPeriod: Feb 2027 – Jun 2028\nEstimated Rate: $110/hr\nForecast (Current Year): $114,400\n\nPlease review and take action.\n\nThank you,\nResource Management System",
@@ -161,8 +205,15 @@ const mockReviewRequests: ReviewRequest[] = [
     currentYearForecast: 176800,
     country: "Poland",
     status: "Approved",
-    reviewedOn: "05/11/2027",
-    reviewComment: "Resource approved. Fits project requirements well.",
+    approvalHistory: [
+      {
+        approver: "Sarah Mitchell",
+        role: "Resource Manager",
+        decision: "Approved",
+        comment: "Resource approved. Fits project requirements well.",
+        decidedOn: "05/11/2027",
+      },
+    ],
     mailSubject:
       "Resource Review Required: Business Analyst – Application Support",
     mailBody:
@@ -186,9 +237,16 @@ const mockReviewRequests: ReviewRequest[] = [
     estimatedRate: 120,
     currentYearForecast: 249600,
     country: "Sydney",
-    status: "Rejected",
-    reviewedOn: "05/10/2027",
-    reviewComment: "Budget constraints — please resubmit for Q3.",
+    status: "RM Rejected",
+    approvalHistory: [
+      {
+        approver: "Sarah Mitchell",
+        role: "Resource Manager",
+        decision: "Rejected",
+        comment: "Budget constraints — please resubmit for Q3.",
+        decidedOn: "05/10/2027",
+      },
+    ],
     mailSubject:
       "Resource Review Required: Project Manager – Data Modernization ASPAC",
     mailBody:
@@ -196,35 +254,82 @@ const mockReviewRequests: ReviewRequest[] = [
   },
 ];
 
-// ─── Helpers ───────────────────────────────────────────────────────────────
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
-const statusConfig: Record<
-  ReviewStatus,
-  {
-    label: string;
-    variant: "default" | "secondary" | "destructive" | "outline";
-    icon: React.ReactNode;
-  }
-> = {
+function getApprovalStage(status: ReviewStatus): "rm" | "pmo" | "done" {
+  if (status === "Pending" || status === "Awaiting Approval") return "rm";
+  if (status === "RM Approved") return "pmo";
+  return "done";
+}
+
+function isFinalApproved(status: ReviewStatus) {
+  return status === "PMO Approved" || status === "Approved";
+}
+
+type BadgeStyle = {
+  bg: string;
+  text: string;
+  border: string;
+  icon: React.ReactNode;
+  label: string;
+};
+
+const statusStyles: Record<ReviewStatus, BadgeStyle> = {
   Pending: {
-    label: "Pending",
-    variant: "secondary",
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+    border: "border-amber-200",
     icon: <Clock className="h-3 w-3" />,
+    label: "Pending RM",
   },
   "Awaiting Approval": {
-    label: "Awaiting Approval",
-    variant: "outline",
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+    border: "border-amber-200",
     icon: <AlertCircle className="h-3 w-3" />,
+    label: "Awaiting RM",
+  },
+  "RM Approved": {
+    bg: "bg-blue-50",
+    text: "text-blue-700",
+    border: "border-blue-200",
+    icon: <ChevronRight className="h-3 w-3" />,
+    label: "Pending PMO",
+  },
+  "RM Rejected": {
+    bg: "bg-red-50",
+    text: "text-red-600",
+    border: "border-red-200",
+    icon: <XCircle className="h-3 w-3" />,
+    label: "RM Rejected",
+  },
+  "PMO Approved": {
+    bg: "bg-green-50",
+    text: "text-green-700",
+    border: "border-green-200",
+    icon: <CheckCheck className="h-3 w-3" />,
+    label: "Fully Approved",
+  },
+  "PMO Rejected": {
+    bg: "bg-red-50",
+    text: "text-red-600",
+    border: "border-red-200",
+    icon: <XCircle className="h-3 w-3" />,
+    label: "PMO Rejected",
   },
   Approved: {
-    label: "Approved",
-    variant: "default",
+    bg: "bg-green-50",
+    text: "text-green-700",
+    border: "border-green-200",
     icon: <CheckCircle2 className="h-3 w-3" />,
+    label: "Approved",
   },
   Rejected: {
-    label: "Rejected",
-    variant: "destructive",
+    bg: "bg-red-50",
+    text: "text-red-600",
+    border: "border-red-200",
     icon: <XCircle className="h-3 w-3" />,
+    label: "Rejected",
   },
 };
 
@@ -235,7 +340,121 @@ const fmt = (n: number) =>
     maximumFractionDigits: 0,
   }).format(n);
 
-// ─── Summary card ──────────────────────────────────────────────────────────
+// ─── Approval Pipeline Stepper ───────────────────────────────────────────────
+
+function ApprovalStepper({ request }: { request: ReviewRequest }) {
+  const rmRecord = request.approvalHistory.find(
+    (a) => a.role === "Resource Manager",
+  );
+  const pmoRecord = request.approvalHistory.find((a) => a.role === "PMO");
+  const stage = getApprovalStage(request.status);
+
+  const steps = [
+    {
+      id: "rm",
+      label: "Resource Manager",
+      icon: <Users className="h-4 w-4" />,
+      record: rmRecord,
+      state:
+        rmRecord?.decision === "Rejected"
+          ? "rejected"
+          : rmRecord?.decision === "Approved"
+            ? "approved"
+            : stage === "rm"
+              ? "active"
+              : "waiting",
+    },
+    {
+      id: "pmo",
+      label: "PMO / Project",
+      icon: <Briefcase className="h-4 w-4" />,
+      record: pmoRecord,
+      state:
+        pmoRecord?.decision === "Rejected"
+          ? "rejected"
+          : pmoRecord?.decision === "Approved"
+            ? "approved"
+            : stage === "pmo"
+              ? "active"
+              : "waiting",
+    },
+  ] as const;
+
+  const stepColors = {
+    approved: {
+      ring: "border-green-500 bg-green-500",
+      text: "text-green-600",
+      iconColor: "text-white",
+    },
+    rejected: {
+      ring: "border-red-500 bg-red-50",
+      text: "text-red-600",
+      iconColor: "text-red-500",
+    },
+    active: {
+      ring: "border-blue-500 bg-blue-50",
+      text: "text-blue-700",
+      iconColor: "text-blue-600",
+    },
+    waiting: {
+      ring: "border-muted-foreground/30 bg-muted/40",
+      text: "text-muted-foreground",
+      iconColor: "text-muted-foreground/50",
+    },
+  };
+
+  return (
+    <div className="flex items-start gap-0">
+      {steps.map((step, i) => {
+        const colors = stepColors[step.state];
+        return (
+          <div key={step.id} className="flex items-start gap-0 flex-1">
+            <div className="flex flex-col items-center flex-1">
+              <div
+                className={`h-9 w-9 rounded-full border-2 flex items-center justify-center ${colors.ring}`}
+              >
+                <span className={colors.iconColor}>{step.icon}</span>
+              </div>
+              <p
+                className={`text-xs font-medium mt-1.5 text-center ${colors.text}`}
+              >
+                {step.label}
+              </p>
+              {step.record ? (
+                <div className="mt-1 text-center">
+                  <p className="text-xs font-semibold text-foreground">
+                    {step.record.approver}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {step.record.decidedOn}
+                  </p>
+                  <p
+                    className={`text-[10px] mt-0.5 ${step.state === "approved" ? "text-green-600" : "text-red-500"}`}
+                  >
+                    {step.record.decision}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {step.state === "active" ? "Awaiting action" : "Waiting"}
+                </p>
+              )}
+            </div>
+            {i < steps.length - 1 && (
+              <div className="flex items-center mt-4 flex-shrink-0 w-10">
+                <div
+                  className={`h-0.5 w-full ${steps[i].state === "approved" ? "bg-green-400" : "bg-muted"}`}
+                />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Summary card ────────────────────────────────────────────────────────────
 
 function SummaryCard({
   label,
@@ -265,34 +484,35 @@ function SummaryCard({
   );
 }
 
-// ─── Main Component ────────────────────────────────────────────────────────
+// ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function ResourceReview() {
   const { updateDemand } = useStore();
-
   const [requests, setRequests] = useState<ReviewRequest[]>(mockReviewRequests);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
-
-  // Detail / action dialog
   const [selected, setSelected] = useState<ReviewRequest | null>(null);
   const [dialogMode, setDialogMode] = useState<"view" | "approve" | "reject">(
     "view",
   );
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
-  // Mail preview dialog
   const [mailPreview, setMailPreview] = useState<ReviewRequest | null>(null);
 
   const counts = useMemo(
     () => ({
       total: requests.length,
-      pending: requests.filter(
+      pendingRM: requests.filter(
         (r) => r.status === "Pending" || r.status === "Awaiting Approval",
       ).length,
-      approved: requests.filter((r) => r.status === "Approved").length,
-      rejected: requests.filter((r) => r.status === "Rejected").length,
+      pendingPMO: requests.filter((r) => r.status === "RM Approved").length,
+      fullyApproved: requests.filter((r) => isFinalApproved(r.status)).length,
+      rejected: requests.filter(
+        (r) =>
+          r.status === "RM Rejected" ||
+          r.status === "PMO Rejected" ||
+          r.status === "Rejected",
+      ).length,
     }),
     [requests],
   );
@@ -305,7 +525,23 @@ export default function ResourceReview() {
         r.project.toLowerCase().includes(search.toLowerCase()) ||
         r.projectRole.toLowerCase().includes(search.toLowerCase()) ||
         r.requestedBy.toLowerCase().includes(search.toLowerCase());
-      const matchStatus = statusFilter === "All" || r.status === statusFilter;
+
+      let matchStatus = statusFilter === "All";
+      if (!matchStatus) {
+        if (statusFilter === "Pending RM")
+          matchStatus =
+            r.status === "Pending" || r.status === "Awaiting Approval";
+        else if (statusFilter === "Pending PMO")
+          matchStatus = r.status === "RM Approved";
+        else if (statusFilter === "Fully Approved")
+          matchStatus = isFinalApproved(r.status);
+        else if (statusFilter === "Rejected")
+          matchStatus =
+            r.status === "RM Rejected" ||
+            r.status === "PMO Rejected" ||
+            r.status === "Rejected";
+        else matchStatus = r.status === statusFilter;
+      }
       return matchSearch && matchStatus;
     });
   }, [requests, search, statusFilter]);
@@ -321,6 +557,7 @@ export default function ResourceReview() {
 
   const handleDecision = (decision: "Approved" | "Rejected") => {
     if (!selected) return;
+    const stage = getApprovalStage(selected.status);
     setSubmitting(true);
     setTimeout(() => {
       const now = new Date().toLocaleDateString("en-US", {
@@ -328,65 +565,104 @@ export default function ResourceReview() {
         day: "2-digit",
         year: "numeric",
       });
+      const newRecord: ApprovalRecord = {
+        approver: stage === "rm" ? "Sarah Mitchell" : "James Thornton",
+        role: stage === "rm" ? "Resource Manager" : "PMO",
+        decision,
+        comment:
+          comment || (decision === "Approved" ? "Approved." : "Declined."),
+        decidedOn: now,
+      };
+      let newStatus: ReviewStatus;
+      if (stage === "rm")
+        newStatus = decision === "Approved" ? "RM Approved" : "RM Rejected";
+      else
+        newStatus = decision === "Approved" ? "PMO Approved" : "PMO Rejected";
+
       setRequests((prev) =>
         prev.map((r) =>
           r.id === selected.id
             ? {
                 ...r,
-                status: decision,
-                reviewedOn: now,
-                reviewComment:
-                  comment ||
-                  (decision === "Approved" ? "Approved." : "Declined."),
+                status: newStatus,
+                approvalHistory: [...r.approvalHistory, newRecord],
               }
             : r,
         ),
       );
-      updateDemand(selected.demandId, {
-        status: decision,
-        comments:
-          comment ||
-          (decision === "Approved"
-            ? "Approved by manager."
-            : "Rejected by manager."),
-      });
+
+      if (newStatus === "PMO Approved") {
+        updateDemand(selected.demandId, {
+          status: "Approved",
+          comments: `PMO approved: ${newRecord.comment}`,
+        });
+      } else if (newStatus === "RM Rejected" || newStatus === "PMO Rejected") {
+        updateDemand(selected.demandId, {
+          status: "Rejected",
+          comments: `${newRecord.role} rejected: ${newRecord.comment}`,
+        });
+      }
+
+      const stageLabel = stage === "rm" ? "Resource Manager" : "PMO";
       toast.success(
-        `Request ${decision === "Approved" ? "approved" : "rejected"} successfully.`,
+        decision === "Approved"
+          ? `${stageLabel} approval recorded. ${stage === "rm" ? "Now awaiting PMO review." : "Request fully approved!"}`
+          : `Request declined by ${stageLabel}.`,
       );
       setSelected(null);
       setSubmitting(false);
     }, 600);
   };
 
+  const currentStage = selected ? getApprovalStage(selected.status) : null;
+  const stageLabel =
+    currentStage === "rm"
+      ? "Resource Manager"
+      : currentStage === "pmo"
+        ? "PMO / Project"
+        : "";
+
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">
           Resource Review
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Review and action resource requests sent to you for approval.
+          Dual-stage approval: Resource Manager → PMO / Project sign-off.
         </p>
       </div>
 
-      {/* Summary */}
+      <div className="flex items-center gap-3 px-4 py-3 rounded-lg border bg-muted/30 text-sm">
+        <div className="flex items-center gap-2 text-amber-600 font-medium">
+          <Users className="h-4 w-4" /> Stage 1: Resource Manager
+        </div>
+        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        <div className="flex items-center gap-2 text-blue-600 font-medium">
+          <Building2 className="h-4 w-4" /> Stage 2: PMO / Project
+        </div>
+        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        <div className="flex items-center gap-2 text-green-600 font-medium">
+          <CheckCheck className="h-4 w-4" /> Fully Approved
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <SummaryCard
-          label="Total Requests"
-          value={counts.total}
-          icon={<Users className="h-5 w-5 text-blue-600" />}
-          color="bg-blue-50"
-        />
-        <SummaryCard
-          label="Pending Review"
-          value={counts.pending}
-          icon={<Clock className="h-5 w-5 text-amber-600" />}
+          label="Pending RM Review"
+          value={counts.pendingRM}
+          icon={<Users className="h-5 w-5 text-amber-600" />}
           color="bg-amber-50"
         />
         <SummaryCard
-          label="Approved"
-          value={counts.approved}
+          label="Pending PMO Review"
+          value={counts.pendingPMO}
+          icon={<Building2 className="h-5 w-5 text-blue-600" />}
+          color="bg-blue-50"
+        />
+        <SummaryCard
+          label="Fully Approved"
+          value={counts.fullyApproved}
           icon={<CheckCheck className="h-5 w-5 text-green-600" />}
           color="bg-green-50"
         />
@@ -398,7 +674,6 @@ export default function ResourceReview() {
         />
       </div>
 
-      {/* Table card */}
       <Card>
         <CardHeader className="pb-3">
           <div className="flex flex-col md:flex-row md:items-center gap-3 justify-between">
@@ -414,17 +689,17 @@ export default function ResourceReview() {
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="h-9 w-44 gap-1">
+                <SelectTrigger className="h-9 w-48 gap-1">
                   <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-                  <SelectValue placeholder="Status" />
+                  <SelectValue placeholder="Stage / Status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="All">All Statuses</SelectItem>
-                  <SelectItem value="Pending">Pending</SelectItem>
-                  <SelectItem value="Awaiting Approval">
-                    Awaiting Approval
+                  <SelectItem value="Pending RM">Pending RM Review</SelectItem>
+                  <SelectItem value="Pending PMO">
+                    Pending PMO Review
                   </SelectItem>
-                  <SelectItem value="Approved">Approved</SelectItem>
+                  <SelectItem value="Fully Approved">Fully Approved</SelectItem>
                   <SelectItem value="Rejected">Rejected</SelectItem>
                 </SelectContent>
               </Select>
@@ -441,10 +716,9 @@ export default function ResourceReview() {
                   <TableHead>Project</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Requested By</TableHead>
-                  <TableHead>Requested On</TableHead>
                   <TableHead>Allocation</TableHead>
                   <TableHead>Forecast</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Approval Stage</TableHead>
                   <TableHead className="text-right pr-6">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -452,7 +726,7 @@ export default function ResourceReview() {
                 {filtered.length === 0 && (
                   <TableRow>
                     <TableCell
-                      colSpan={9}
+                      colSpan={8}
                       className="text-center py-10 text-muted-foreground"
                     >
                       No requests match your filters.
@@ -460,10 +734,9 @@ export default function ResourceReview() {
                   </TableRow>
                 )}
                 {filtered.map((req) => {
-                  const cfg = statusConfig[req.status];
-                  const isPending =
-                    req.status === "Pending" ||
-                    req.status === "Awaiting Approval";
+                  const style = statusStyles[req.status];
+                  const stage = getApprovalStage(req.status);
+                  const canAct = stage !== "done";
                   return (
                     <TableRow
                       key={req.id}
@@ -485,9 +758,6 @@ export default function ResourceReview() {
                       <TableCell className="text-sm">
                         {req.requestedBy}
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {req.requestedOn}
-                      </TableCell>
                       <TableCell className="text-sm">
                         {req.allocationPercent}%
                       </TableCell>
@@ -495,17 +765,28 @@ export default function ResourceReview() {
                         {fmt(req.currentYearForecast)}
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant={cfg.variant}
-                          className="flex items-center gap-1 w-fit text-xs"
-                        >
-                          {cfg.icon}
-                          {cfg.label}
-                        </Badge>
+                        <div className="flex flex-col gap-1">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border w-fit ${style.bg} ${style.text} ${style.border}`}
+                          >
+                            {style.icon}
+                            {style.label}
+                          </span>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <div
+                              className={`h-1.5 w-5 rounded-full ${req.approvalHistory.find((a) => a.role === "Resource Manager")?.decision === "Approved" ? "bg-green-500" : req.approvalHistory.find((a) => a.role === "Resource Manager")?.decision === "Rejected" ? "bg-red-400" : stage === "rm" ? "bg-amber-400" : "bg-muted"}`}
+                            />
+                            <div
+                              className={`h-0.5 w-2 ${req.approvalHistory.find((a) => a.role === "Resource Manager")?.decision === "Approved" ? "bg-green-300" : "bg-muted"}`}
+                            />
+                            <div
+                              className={`h-1.5 w-5 rounded-full ${req.approvalHistory.find((a) => a.role === "PMO")?.decision === "Approved" ? "bg-green-500" : req.approvalHistory.find((a) => a.role === "PMO")?.decision === "Rejected" ? "bg-red-400" : stage === "pmo" ? "bg-blue-400" : "bg-muted"}`}
+                            />
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell className="pr-6">
                         <div className="flex items-center justify-end gap-2">
-                          {/* Mail preview */}
                           <Button
                             size="sm"
                             variant="ghost"
@@ -515,8 +796,7 @@ export default function ResourceReview() {
                           >
                             <Eye className="h-3.5 w-3.5" />
                           </Button>
-
-                          {isPending && (
+                          {canAct && (
                             <>
                               <Button
                                 size="sm"
@@ -524,7 +804,7 @@ export default function ResourceReview() {
                                 className="h-8 px-3 text-xs text-green-700 border-green-300 hover:bg-green-50 hover:text-green-800"
                                 onClick={() => openAction(req, "approve")}
                               >
-                                <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+                                <CheckCircle2 className="h-3.5 w-3.5 mr-1" />{" "}
                                 Approve
                               </Button>
                               <Button
@@ -533,13 +813,11 @@ export default function ResourceReview() {
                                 className="h-8 px-3 text-xs text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
                                 onClick={() => openAction(req, "reject")}
                               >
-                                <XCircle className="h-3.5 w-3.5 mr-1" />
-                                Decline
+                                <XCircle className="h-3.5 w-3.5 mr-1" /> Decline
                               </Button>
                             </>
                           )}
-
-                          {!isPending && (
+                          {!canAct && (
                             <Button
                               size="sm"
                               variant="ghost"
@@ -560,20 +838,24 @@ export default function ResourceReview() {
         </CardContent>
       </Card>
 
-      {/* ─── Detail / Action Dialog ─────────────────────────────────────── */}
+      {/* Detail / Action Dialog */}
       <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>
-              {dialogMode === "approve" && "Approve Resource Request"}
-              {dialogMode === "reject" && "Decline Resource Request"}
+              {dialogMode === "approve" && `Approve — ${stageLabel}`}
+              {dialogMode === "reject" && `Decline — ${stageLabel}`}
               {dialogMode === "view" && "Request Details"}
             </DialogTitle>
           </DialogHeader>
-
           {selected && (
             <div className="space-y-5">
-              {/* Resource & project info */}
+              <div className="bg-muted/30 rounded-lg p-4 border">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                  Approval Pipeline
+                </p>
+                <ApprovalStepper request={selected} />
+              </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="space-y-3">
                   <DetailRow label="Resource" value={selected.resourceName} />
@@ -609,27 +891,38 @@ export default function ResourceReview() {
                   />
                 </div>
               </div>
-
               <div className="border-t pt-4 text-sm space-y-2">
                 <DetailRow label="Requested By" value={selected.requestedBy} />
                 <DetailRow label="Requested On" value={selected.requestedOn} />
-                {selected.reviewedOn && (
-                  <DetailRow label="Reviewed On" value={selected.reviewedOn} />
-                )}
-                {selected.reviewComment && (
-                  <DetailRow
-                    label="Review Comment"
-                    value={selected.reviewComment}
-                  />
-                )}
               </div>
-
-              {/* Comment box for approve / reject */}
+              {selected.approvalHistory.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Approval History
+                  </p>
+                  {selected.approvalHistory.map((rec, i) => (
+                    <div
+                      key={i}
+                      className={`text-sm rounded-md px-3 py-2 border ${rec.decision === "Approved" ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}
+                    >
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="font-medium">{rec.approver}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {rec.role} · {rec.decidedOn}
+                        </span>
+                      </div>
+                      <p className="text-muted-foreground text-xs">
+                        {rec.comment}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
               {(dialogMode === "approve" || dialogMode === "reject") && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
                     {dialogMode === "approve"
-                      ? "Approval comment (optional)"
+                      ? `${stageLabel} approval comment (optional)`
                       : "Reason for declining"}
                   </label>
                   <Textarea
@@ -647,7 +940,6 @@ export default function ResourceReview() {
               )}
             </div>
           )}
-
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setSelected(null)}>
               Cancel
@@ -658,7 +950,11 @@ export default function ResourceReview() {
                 disabled={submitting}
                 onClick={() => handleDecision("Approved")}
               >
-                {submitting ? "Approving…" : "Confirm Approval"}
+                {submitting
+                  ? "Approving…"
+                  : currentStage === "rm"
+                    ? "Confirm RM Approval"
+                    : "Confirm PMO Approval"}
               </Button>
             )}
             {dialogMode === "reject" && (
@@ -674,7 +970,7 @@ export default function ResourceReview() {
         </DialogContent>
       </Dialog>
 
-      {/* ─── Mail Preview Dialog ────────────────────────────────────────── */}
+      {/* Mail Preview Dialog */}
       <Dialog
         open={!!mailPreview}
         onOpenChange={(o) => !o && setMailPreview(null)}
@@ -708,8 +1004,8 @@ export default function ResourceReview() {
             <Button variant="outline" onClick={() => setMailPreview(null)}>
               Close
             </Button>
-            {(mailPreview?.status === "Pending" ||
-              mailPreview?.status === "Awaiting Approval") && (
+            {getApprovalStage(mailPreview?.status ?? "PMO Approved") !==
+              "done" && (
               <Button
                 onClick={() => {
                   const req = mailPreview!;
@@ -726,8 +1022,6 @@ export default function ResourceReview() {
     </div>
   );
 }
-
-// ─── Small helper ──────────────────────────────────────────────────────────
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
