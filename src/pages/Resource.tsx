@@ -162,7 +162,7 @@ const resourceData: Resource[] = [
     ratePerHr: 90,
     capacity: "40 hrs",
     location: "Sydney",
-    status: "Allocated",
+    status: "Available",
     utilization: 60,
   },
   {
