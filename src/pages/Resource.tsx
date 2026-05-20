@@ -258,7 +258,7 @@ const columns: Column<Resource>[] = [
   { key: "resourceId", header: "Resource ID" },
   {
     key: "name",
-    header: "Resource",
+    header: "Resource Name",
     render: (r) => (
       <div className="flex items-center gap-2">
         <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-semibold shrink-0">
