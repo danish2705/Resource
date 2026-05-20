@@ -316,9 +316,12 @@ const columns: Column<Resource>[] = [
     header: "Status",
     render: (r) => {
       const colorMap = {
-        Allocated: "bg-blue-500/20 text-blue-400 border border-blue-500/30",
-        Available: "bg-green-500/20 text-green-400 border border-green-500/30",
-        Overallocated: "bg-red-500/20 text-red-400 border border-red-500/30",
+        Allocated:
+          "bg-blue-500/20 text-blue-700 border border-blue-500/30 dark:text-blue-300",
+        Available:
+          "bg-green-500/20 text-green-700 border border-green-500/30 dark:text-green-300",
+        Overallocated:
+          "bg-red-500/20 text-red-700 border border-red-500/30 dark:text-red-300",
       };
       return (
         <span
@@ -390,11 +393,11 @@ function scoreResource(r: Resource, requiredSkills: string[]): number {
 function getStatusStyle(status: Resource["status"]) {
   switch (status) {
     case "Available":
-      return "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30";
+      return "bg-emerald-500/15 text-emerald-700 border border-emerald-500/30 dark:text-emerald-300";
     case "Allocated":
-      return "bg-blue-500/15 text-blue-400 border border-blue-500/30";
+      return "bg-blue-500/15 text-blue-700 border border-blue-500/30 dark:text-blue-300";
     case "Overallocated":
-      return "bg-red-500/15 text-red-400 border border-red-500/30";
+      return "bg-red-500/15 text-red-700 border border-red-500/30 dark:text-red-300";
   }
 }
 

@@ -39,7 +39,7 @@ const projectData: Project[] = [
     resources: [
       {
         resourceId: "RID-1001",
-        resourceName: "Priya Sharma",
+        resourceName: "Tracey Warren",
         designation: "Cloud Architect",
       },
       {
@@ -49,12 +49,12 @@ const projectData: Project[] = [
       },
       {
         resourceId: "RID-1005",
-        resourceName: "Ananya Rao",
+        resourceName: "Miranda Ford",
         designation: "Delivery Manager",
       },
       {
         resourceId: "RID-1009",
-        resourceName: "Vikram Singh",
+        resourceName: "Seth Green",
         designation: "Cloud Engineer",
       },
     ],
@@ -67,8 +67,8 @@ const projectData: Project[] = [
     priority: "High",
     budget: "$180k",
     budgetHrs: "2,000",
-    start: "1 Feb",
-    end: "31 July",
+    start: "1 Feb 2026",
+    end: "31 July 2026",
     teamSize: "1 resource",
     progress: 28,
     resources: [
@@ -87,8 +87,8 @@ const projectData: Project[] = [
     priority: "Medium",
     budget: "$95k",
     budgetHrs: "1,100",
-    start: "1 Mar",
-    end: "31 May",
+    start: "1 Mar 2025",
+    end: "31 May 2027",
     teamSize: "2 resources",
     progress: 65,
     resources: [
@@ -112,8 +112,8 @@ const projectData: Project[] = [
     priority: "Medium",
     budget: "$70k",
     budgetHrs: "800",
-    start: "20 Jan",
-    end: "30 Apr",
+    start: "20 Jan 2026",
+    end: "30 Apr 2026",
     teamSize: "1 resource",
     progress: 88,
     resources: [
@@ -132,8 +132,8 @@ const projectData: Project[] = [
     priority: "Low",
     budget: "$50k",
     budgetHrs: "600",
-    start: "1 Apr",
-    end: "15 June",
+    start: "1 Apr 2026",
+    end: "15 June 2026",
     teamSize: "0 resources",
     progress: 0,
     resources: [],
@@ -146,8 +146,8 @@ const projectData: Project[] = [
     priority: "High",
     budget: "$120k",
     budgetHrs: "1,400",
-    start: "15 Feb",
-    end: "15 Aug",
+    start: "15 Dec 2025",
+    end: "15 Aug 2026",
     teamSize: "1 resource",
     progress: 35,
     resources: [
@@ -166,8 +166,8 @@ const projectData: Project[] = [
     priority: "Medium",
     budget: "$90k",
     budgetHrs: "1,000",
-    start: "1 May",
-    end: "30 Sept",
+    start: "1 May 2026",
+    end: "30 Sept  2027",
     teamSize: "1 resource",
     progress: 0,
     resources: [
@@ -454,8 +454,8 @@ export default function ProjectsPage() {
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-medium border ${
                                 project.status === "Active"
-                                  ? "bg-green-500/20 text-green-400 border-green-500/30"
-                                  : "bg-orange-500/20 text-orange-400 border-orange-500/30"
+                                  ? "bg-green-500/20 text-green-700 border-green-500/40 dark:text-green-300"
+                                  : "bg-orange-500/20 text-orange-700 border-orange-500/40 dark:text-orange-300"
                               }`}
                             >
                               {project.status}
@@ -465,10 +465,10 @@ export default function ProjectsPage() {
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-medium border ${
                                 project.priority === "High"
-                                  ? "bg-red-500/20 text-red-400 border-red-500/30"
+                                  ? "bg-red-500/20 text-red-700 border-red-500/40 dark:text-red-300"
                                   : project.priority === "Medium"
-                                    ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
-                                    : "bg-green-500/20 text-green-400 border-green-500/30"
+                                    ? "bg-yellow-400/20 text-yellow-700 border-yellow-500/40 dark:text-yellow-300"
+                                    : "bg-green-500/20 text-green-700 border-green-500/40 dark:text-green-300"
                               }`}
                             >
                               {project.priority}
