@@ -286,7 +286,7 @@ const columns: Column<Resource>[] = [
   // { key: "availableAfter", header: "Start Date" },
   {
     key: "availableAfter",
-    header: "Start Date",
+    header: "Available Date",
     render: (r) => (
       <span className="whitespace-nowrap">{r.availableAfter}</span>
     ),
