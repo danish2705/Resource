@@ -253,7 +253,6 @@ const columns: Column<AllocationRecord>[] = [
       <span className="text-sm text-muted-foreground">{r.end}</span>
     ),
   },
-  
 ];
 
 // Derive unique project IDs for dropdown

@@ -12,9 +12,9 @@ import DemandStatus from "@/pages/DemandStatus";
 import ReportingDashboard from "@/pages/ReportingDashboard";
 import ResourceForecast from "@/pages/ResourceForecast";
 import ForecastActual from "@/pages/ForecastActual";
-import TimesheetsActuals from "@/pages/TimesheetsActuals";
 import ProjectsPage from "./pages/Projects";
-import ResourceReview from "@/pages/ResourceReview"; // ← NEW
+import ResourceReview from "@/pages/ResourceReview";
+import AuditLog from "@/pages/AuditLog"; // ← NEW
 
 const queryClient = new QueryClient();
 
@@ -34,13 +34,13 @@ const App = () => (
             <Route path="/forecast" element={<ResourceForecast />} />
             <Route path="/allocation" element={<ResourceAllocation />} />
             <Route path="/resources" element={<ResourceInformation />} />
-            {/* ── Resource Review (manager approval page) ── */}
-            <Route path="/resource-review" element={<ResourceReview />} />{" "}
-            {/* ← NEW */}
+            {/* Resource Review (manager approval page) */}
+            <Route path="/resource-review" element={<ResourceReview />} />
             <Route path="/reports" element={<ReportingDashboard />} />
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/forecast-actual" element={<ForecastActual />} />
-            <Route path="/timesheets-actuals" element={<TimesheetsActuals />} />
+            {/* Audit Log */}
+            <Route path="/audit-log" element={<AuditLog />} /> {/* ← NEW */}
           </Routes>
         </AppLayout>
       </BrowserRouter>

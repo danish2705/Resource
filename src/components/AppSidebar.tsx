@@ -11,7 +11,8 @@ import {
   PlusCircle,
   TrendingUp,
   Clock,
-  ShieldCheck, // ← NEW icon for Resource Review
+  ShieldCheck,
+  ScrollText, // ← NEW icon for Audit Log
 } from "lucide-react";
 
 import {
@@ -51,10 +52,10 @@ const demandSubItems = [
 const lowerItems = [
   { title: "Allocation Details", url: "/allocation", icon: Users },
   { title: "Resource Information", url: "/resources", icon: UserCircle },
-  { title: "Resource Review", url: "/resource-review", icon: ShieldCheck }, // ← NEW
+  { title: "Resource Review", url: "/resource-review", icon: ShieldCheck },
   { title: "Projects", url: "/projects", icon: ClipboardList },
-  { title: "Timesheets & Actuals", url: "/timesheets-actuals", icon: Clock },
   { title: "Reporting Dashboard", url: "/reports", icon: BarChart3 },
+  { title: "Audit Log", url: "/audit-log", icon: ScrollText }, // ← NEW
 ];
 
 export function AppSidebar() {

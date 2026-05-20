@@ -91,6 +91,8 @@ export interface ResourceProfile {
   allSkills: string[];
   yearsExperience: number;
   costPerHour: number;
+  // ── Audit history (NEW) ──
+  history: HistoryEntry[];
 }
 
 export interface Forecast {
@@ -107,6 +109,8 @@ export interface Forecast {
   status: "Draft" | "Approved" | "Flagged" | "Converted";
   createdBy: string;
   createdDate: string;
+  // ── Audit history (NEW) ──
+  history: HistoryEntry[];
 }
 
 export interface HistoryEntry {
@@ -115,6 +119,20 @@ export interface HistoryEntry {
   to: string;
   updatedOn: string;
   updatedBy: string;
+}
+
+// ── NEW: Flat audit log entry (aggregated across all entities) ──
+export interface AuditEntry {
+  id: string;
+  timestamp: string;
+  user: string;
+  entity: "Demand" | "Allocation" | "Resource" | "Forecast";
+  entityId: string;
+  entityLabel: string; // human-readable name e.g. project name or resource name
+  action: string; // e.g. "Field Updated", "Status Changed", "Created", "Deleted"
+  field: string; // which field changed (empty for create/delete)
+  oldValue: string;
+  newValue: string;
 }
 
 export interface WorklistItem {
@@ -133,6 +151,7 @@ interface AppState {
   worklist: WorklistItem[];
   resources: ResourceProfile[];
   forecasts: Forecast[];
+  auditLog: AuditEntry[]; // ── NEW
   selectedProject: string;
   powerBiUrl: string;
 
@@ -169,7 +188,10 @@ interface AppState {
   updateResource: (id: string, updates: Partial<ResourceProfile>) => void;
 
   addForecast: (
-    f: Omit<Forecast, "id" | "createdBy" | "createdDate" | "status"> & {
+    f: Omit<
+      Forecast,
+      "id" | "createdBy" | "createdDate" | "status" | "history"
+    > & {
       status?: Forecast["status"];
     },
   ) => void;
@@ -281,6 +303,7 @@ const mockResources: ResourceProfile[] = resourceNames.map((name, i) => {
     allSkills: all,
     yearsExperience: 3 + (i % 12),
     costPerHour: 75 + i * 8,
+    history: [], // ── NEW
   };
 });
 
@@ -314,9 +337,9 @@ const mockDemands: Demand[] = Array.from({ length: 47 }, (_, i) => ({
     y2029: 0,
     y2030: 0,
   },
-  createdBy: "admin@enterprise.com",
+  createdBy: "james.carter@ascendion.com",
   createdDate: "01/15/2027",
-  updatedBy: "admin@enterprise.com",
+  updatedBy: "james.carter@ascendion.com",
   updatedDate: "01/15/2027",
   history: [],
   source: sources[i % sources.length],
@@ -390,9 +413,133 @@ const mockForecasts: Forecast[] = Array.from({ length: 6 }, (_, i) => ({
   status: (["Draft", "Approved", "Flagged", "Draft"] as Forecast["status"][])[
     i % 4
   ],
-  createdBy: "planner@ascendion.com",
+  createdBy: "olivia.bennett@ascendion.com",
   createdDate: "02/01/2027",
+  history: [], // ── NEW
 }));
+
+// ── Seed audit log with representative historical entries ──
+const seedAuditLog: AuditEntry[] = [
+  {
+    id: "audit-seed-1",
+    timestamp: "01/15/2027, 09:12:00",
+    user: "james.carter@ascendion.com",
+    entity: "Demand",
+    entityId: "dem-1",
+    entityLabel: "Data Modernization - ASPAC",
+    action: "Created",
+    field: "",
+    oldValue: "",
+    newValue: "status: Pending",
+  },
+  {
+    id: "audit-seed-2",
+    timestamp: "01/16/2027, 10:45:00",
+    user: "james.carter@ascendion.com",
+    entity: "Demand",
+    entityId: "dem-2",
+    entityLabel: "QE Automation",
+    action: "Status Changed",
+    field: "status",
+    oldValue: "Pending",
+    newValue: "Approved",
+  },
+  {
+    id: "audit-seed-3",
+    timestamp: "01/17/2027, 14:30:00",
+    user: "olivia.bennett@ascendion.com",
+    entity: "Demand",
+    entityId: "dem-bulk-01",
+    entityLabel: "Cloud Enablement",
+    action: "Bulk Import",
+    field: "",
+    oldValue: "",
+    newValue: "status: Pending",
+  },
+  {
+    id: "audit-seed-4",
+    timestamp: "01/18/2027, 11:00:00",
+    user: "sarah.mitchell@ascendion.com",
+    entity: "Resource",
+    entityId: "res-0",
+    entityLabel: "James Carter",
+    action: "Field Updated",
+    field: "primarySkill",
+    oldValue: "React",
+    newValue: "Node.js",
+  },
+  {
+    id: "audit-seed-5",
+    timestamp: "01/19/2027, 16:20:00",
+    user: "james.carter@ascendion.com",
+    entity: "Demand",
+    entityId: "dem-3",
+    entityLabel: "Cloud Enablement",
+    action: "Field Updated",
+    field: "estimatedRate",
+    oldValue: "130",
+    newValue: "150",
+  },
+  {
+    id: "audit-seed-6",
+    timestamp: "01/20/2027, 08:55:00",
+    user: "sarah.mitchell@ascendion.com",
+    entity: "Resource",
+    entityId: "res-0",
+    entityLabel: "James Carter",
+    action: "Field Updated",
+    field: "primarySkill",
+    oldValue: "React",
+    newValue: "Kubernetes",
+  },
+  {
+    id: "audit-seed-7",
+    timestamp: "01/21/2027, 13:10:00",
+    user: "james.carter@ascendion.com",
+    entity: "Demand",
+    entityId: "dem-9",
+    entityLabel: "QE Automation",
+    action: "Deleted",
+    field: "",
+    oldValue: "status: Rejected",
+    newValue: "",
+  },
+  {
+    id: "audit-seed-8",
+    timestamp: "01/22/2027, 15:45:00",
+    user: "sarah.mitchell@ascendion.com",
+    entity: "Demand",
+    entityId: "dem-4",
+    entityLabel: "Application Support",
+    action: "Deleted",
+    field: "",
+    oldValue: "status: Rejected",
+    newValue: "",
+  },
+];
+
+// ── Helper: push entries into the flat audit log ──
+function makeAuditEntries(
+  entity: AuditEntry["entity"],
+  entityId: string,
+  entityLabel: string,
+  historyEntries: HistoryEntry[],
+  action?: string,
+): AuditEntry[] {
+  return historyEntries.map((h, i) => ({
+    id: `audit-${Date.now()}-${i}`,
+    timestamp: h.updatedOn,
+    user: h.updatedBy,
+    entity,
+    entityId,
+    entityLabel,
+    action:
+      action ?? (h.fieldName === "status" ? "Status Changed" : "Field Updated"),
+    field: h.fieldName,
+    oldValue: h.from,
+    newValue: h.to,
+  }));
+}
 
 export const useStore = create<AppState>((set) => ({
   demands: mockDemands,
@@ -400,166 +547,388 @@ export const useStore = create<AppState>((set) => ({
   worklist: mockWorklist,
   resources: mockResources,
   forecasts: mockForecasts,
+  auditLog: seedAuditLog, // ── NEW
 
   selectedProject: "Global",
 
   powerBiUrl:
     "https://app.powerbi.com/reportEmbed?reportId=6fe8891f-cbe6-4462-98ec-5044e47b137d&autoAuth=true&ctid=1a264c83-db2d-4da1-8cc5-44b1b94837a8",
 
+  // ── Demand: Create ──
   addDemand: (d) =>
-    set((state) => ({
-      demands: [
-        ...state.demands,
-        {
-          ...d,
-          id: `dem-${Date.now()}`,
-          history: [],
-          createdBy: "[REDACTED_EMAIL_ADDRESS_3]",
-          createdDate: new Date().toLocaleDateString(),
-          updatedBy: "[REDACTED_EMAIL_ADDRESS_3]",
-          updatedDate: new Date().toLocaleDateString(),
-        },
-      ],
-    })),
+    set((state) => {
+      const id = `dem-${Date.now()}`;
+      const now = new Date().toLocaleString();
+      const newEntry: AuditEntry = {
+        id: `audit-${Date.now()}`,
+        timestamp: now,
+        user: "sarah.mitchell@ascendion.com",
+        entity: "Demand",
+        entityId: id,
+        entityLabel: d.projectName,
+        action: "Created",
+        field: "",
+        oldValue: "",
+        newValue: `status: ${d.status}`,
+      };
+      return {
+        demands: [
+          ...state.demands,
+          {
+            ...d,
+            id,
+            history: [],
+            createdBy: "sarah.mitchell@ascendion.com",
+            createdDate: new Date().toLocaleDateString(),
+            updatedBy: "sarah.mitchell@ascendion.com",
+            updatedDate: new Date().toLocaleDateString(),
+          },
+        ],
+        auditLog: [newEntry, ...state.auditLog],
+      };
+    }),
 
+  // ── Demand: Bulk Create ──
   addDemands: (ds) =>
-    set((state) => ({
-      demands: [
-        ...state.demands,
-        ...ds.map((d, i) => ({
-          ...d,
-          id: `dem-${Date.now()}-${i}`,
-          history: [],
-          createdBy: "current@user.com",
-          createdDate: new Date().toLocaleDateString(),
-          updatedBy: "current@user.com",
-          updatedDate: new Date().toLocaleDateString(),
-        })),
-      ],
-    })),
+    set((state) => {
+      const now = new Date().toLocaleString();
+      const newDemands = ds.map((d, i) => ({
+        ...d,
+        id: `dem-${Date.now()}-${i}`,
+        history: [],
+        createdBy: "sarah.mitchell@ascendion.com",
+        createdDate: new Date().toLocaleDateString(),
+        updatedBy: "sarah.mitchell@ascendion.com",
+        updatedDate: new Date().toLocaleDateString(),
+      }));
+      const newAuditEntries: AuditEntry[] = newDemands.map((d) => ({
+        id: `audit-${Date.now()}-${d.id}`,
+        timestamp: now,
+        user: "sarah.mitchell@ascendion.com",
+        entity: "Demand",
+        entityId: d.id,
+        entityLabel: d.projectName,
+        action: "Bulk Import",
+        field: "",
+        oldValue: "",
+        newValue: `status: ${d.status}`,
+      }));
+      return {
+        demands: [...state.demands, ...newDemands],
+        auditLog: [...newAuditEntries, ...state.auditLog],
+      };
+    }),
 
+  // ── Demand: Update ──
   updateDemand: (id, updates) =>
-    set((state) => ({
-      demands: state.demands.map((d) => {
-        if (d.id !== id) return d;
-        const historyEntries: HistoryEntry[] = [];
+    set((state) => {
+      const demand = state.demands.find((d) => d.id === id);
+      const historyEntries: HistoryEntry[] = [];
+      if (demand) {
         for (const [key, val] of Object.entries(updates)) {
-          if (key !== "history" && (d as any)[key] !== val) {
+          if (key !== "history" && (demand as any)[key] !== val) {
             historyEntries.push({
               fieldName: key,
-              from: String((d as any)[key]),
+              from: String((demand as any)[key]),
               to: String(val),
               updatedOn: new Date().toLocaleString(),
-              updatedBy: "current@user.com",
+              updatedBy: "sarah.mitchell@ascendion.com",
             });
           }
         }
-        return {
-          ...d,
-          ...updates,
-          history: [...d.history, ...historyEntries],
-          updatedBy: "current@user.com",
-          updatedDate: new Date().toLocaleDateString(),
-        };
-      }),
-    })),
+      }
+      const newAuditEntries = demand
+        ? makeAuditEntries("Demand", id, demand.projectName, historyEntries)
+        : [];
+      return {
+        demands: state.demands.map((d) => {
+          if (d.id !== id) return d;
+          return {
+            ...d,
+            ...updates,
+            history: [...d.history, ...historyEntries],
+            updatedBy: "sarah.mitchell@ascendion.com",
+            updatedDate: new Date().toLocaleDateString(),
+          };
+        }),
+        auditLog: [...newAuditEntries, ...state.auditLog],
+      };
+    }),
 
+  // ── Demand: Delete ──
   deleteDemand: (id) =>
-    set((state) => ({ demands: state.demands.filter((d) => d.id !== id) })),
+    set((state) => {
+      const demand = state.demands.find((d) => d.id === id);
+      const newAuditEntry: AuditEntry | null = demand
+        ? {
+            id: `audit-${Date.now()}`,
+            timestamp: new Date().toLocaleString(),
+            user: "sarah.mitchell@ascendion.com",
+            entity: "Demand",
+            entityId: id,
+            entityLabel: demand.projectName,
+            action: "Deleted",
+            field: "",
+            oldValue: `status: ${demand.status}`,
+            newValue: "",
+          }
+        : null;
+      return {
+        demands: state.demands.filter((d) => d.id !== id),
+        auditLog: newAuditEntry
+          ? [newAuditEntry, ...state.auditLog]
+          : state.auditLog,
+      };
+    }),
 
+  // ── Allocation: Update ──
   updateAllocation: (id, updates) =>
-    set((state) => ({
-      allocations: state.allocations.map((a) => {
-        if (a.id !== id) return a;
-        const historyEntries: HistoryEntry[] = [];
+    set((state) => {
+      const alloc = state.allocations.find((a) => a.id === id);
+      const historyEntries: HistoryEntry[] = [];
+      if (alloc) {
         for (const [key, val] of Object.entries(updates)) {
-          if (key !== "history" && (a as any)[key] !== val) {
+          if (key !== "history" && (alloc as any)[key] !== val) {
             historyEntries.push({
               fieldName: key,
-              from: String((a as any)[key]),
+              from: String((alloc as any)[key]),
               to: String(val),
               updatedOn: new Date().toLocaleString(),
-              updatedBy: "current@user.com",
+              updatedBy: "sarah.mitchell@ascendion.com",
             });
           }
         }
-        const next: Allocation = {
-          ...a,
-          ...updates,
-          history: [...a.history, ...historyEntries],
-        };
-        if (updates.lifecycle === "Offboarding") next.status = "Cancelled";
-        return next;
-      }),
-    })),
+      }
+      const newAuditEntries = alloc
+        ? makeAuditEntries("Allocation", id, alloc.resourceName, historyEntries)
+        : [];
+      return {
+        allocations: state.allocations.map((a) => {
+          if (a.id !== id) return a;
+          const historyEntries2: HistoryEntry[] = [];
+          for (const [key, val] of Object.entries(updates)) {
+            if (key !== "history" && (a as any)[key] !== val) {
+              historyEntries2.push({
+                fieldName: key,
+                from: String((a as any)[key]),
+                to: String(val),
+                updatedOn: new Date().toLocaleString(),
+                updatedBy: "sarah.mitchell@ascendion.com",
+              });
+            }
+          }
+          const next: Allocation = {
+            ...a,
+            ...updates,
+            history: [...a.history, ...historyEntries2],
+          };
+          if (updates.lifecycle === "Offboarding") next.status = "Cancelled";
+          return next;
+        }),
+        auditLog: [...newAuditEntries, ...state.auditLog],
+      };
+    }),
 
+  // ── Worklist: Approve ──
   approveWorklistItem: (id) =>
-    set((state) => ({
-      worklist: state.worklist.map((w) =>
-        w.id === id ? { ...w, status: "Approved" as const } : w,
-      ),
-      demands: state.demands.map((d) => {
-        const item = state.worklist.find((w) => w.id === id);
-        if (item && d.id === item.demandId)
-          return { ...d, status: "Approved" as const };
-        return d;
-      }),
-    })),
+    set((state) => {
+      const item = state.worklist.find((w) => w.id === id);
+      const now = new Date().toLocaleString();
+      const newAuditEntry: AuditEntry | null = item
+        ? {
+            id: `audit-${Date.now()}`,
+            timestamp: now,
+            user: "sarah.mitchell@ascendion.com",
+            entity: "Demand",
+            entityId: item.demandId,
+            entityLabel: item.project,
+            action: "Status Changed",
+            field: "status",
+            oldValue: "Pending",
+            newValue: "Approved",
+          }
+        : null;
+      return {
+        worklist: state.worklist.map((w) =>
+          w.id === id ? { ...w, status: "Approved" as const } : w,
+        ),
+        demands: state.demands.map((d) => {
+          if (item && d.id === item.demandId)
+            return { ...d, status: "Approved" as const };
+          return d;
+        }),
+        auditLog: newAuditEntry
+          ? [newAuditEntry, ...state.auditLog]
+          : state.auditLog,
+      };
+    }),
 
+  // ── Worklist: Reject ──
   rejectWorklistItem: (id) =>
-    set((state) => ({
-      worklist: state.worklist.map((w) =>
-        w.id === id ? { ...w, status: "Rejected" as const } : w,
-      ),
-      demands: state.demands.map((d) => {
-        const item = state.worklist.find((w) => w.id === id);
-        if (item && d.id === item.demandId)
-          return { ...d, status: "Rejected" as const };
-        return d;
-      }),
-    })),
+    set((state) => {
+      const item = state.worklist.find((w) => w.id === id);
+      const now = new Date().toLocaleString();
+      const newAuditEntry: AuditEntry | null = item
+        ? {
+            id: `audit-${Date.now()}`,
+            timestamp: now,
+            user: "sarah.mitchell@ascendion.com",
+            entity: "Demand",
+            entityId: item.demandId,
+            entityLabel: item.project,
+            action: "Status Changed",
+            field: "status",
+            oldValue: "Pending",
+            newValue: "Rejected",
+          }
+        : null;
+      return {
+        worklist: state.worklist.map((w) =>
+          w.id === id ? { ...w, status: "Rejected" as const } : w,
+        ),
+        demands: state.demands.map((d) => {
+          if (item && d.id === item.demandId)
+            return { ...d, status: "Rejected" as const };
+          return d;
+        }),
+        auditLog: newAuditEntry
+          ? [newAuditEntry, ...state.auditLog]
+          : state.auditLog,
+      };
+    }),
 
   setSelectedProject: (p) => set({ selectedProject: p }),
 
+  // ── Resource: Update (now with history) ──
   updateResource: (id, updates) =>
-    set((state) => ({
-      resources: state.resources.map((r) =>
-        r.id === id ? { ...r, ...updates } : r,
-      ),
-    })),
+    set((state) => {
+      const resource = state.resources.find((r) => r.id === id);
+      const historyEntries: HistoryEntry[] = [];
+      if (resource) {
+        for (const [key, val] of Object.entries(updates)) {
+          if (key !== "history" && (resource as any)[key] !== val) {
+            historyEntries.push({
+              fieldName: key,
+              from: String((resource as any)[key]),
+              to: String(val),
+              updatedOn: new Date().toLocaleString(),
+              updatedBy: "sarah.mitchell@ascendion.com",
+            });
+          }
+        }
+      }
+      const newAuditEntries = resource
+        ? makeAuditEntries("Resource", id, resource.name, historyEntries)
+        : [];
+      return {
+        resources: state.resources.map((r) =>
+          r.id === id
+            ? { ...r, ...updates, history: [...r.history, ...historyEntries] }
+            : r,
+        ),
+        auditLog: [...newAuditEntries, ...state.auditLog],
+      };
+    }),
 
+  // ── Forecast: Create ──
   addForecast: (f) =>
-    set((state) => ({
-      forecasts: [
-        ...state.forecasts,
-        {
-          ...f,
-          id: `fc-${Date.now()}`,
-          status: f.status || "Draft",
-          createdBy: "current@user.com",
-          createdDate: new Date().toLocaleDateString(),
-        },
-      ],
-    })),
+    set((state) => {
+      const id = `fc-${Date.now()}`;
+      const now = new Date().toLocaleString();
+      const newEntry: AuditEntry = {
+        id: `audit-${Date.now()}`,
+        timestamp: now,
+        user: "sarah.mitchell@ascendion.com",
+        entity: "Forecast",
+        entityId: id,
+        entityLabel: f.projectName,
+        action: "Created",
+        field: "",
+        oldValue: "",
+        newValue: `status: ${f.status ?? "Draft"}`,
+      };
+      return {
+        forecasts: [
+          ...state.forecasts,
+          {
+            ...f,
+            id,
+            status: f.status || "Draft",
+            createdBy: "sarah.mitchell@ascendion.com",
+            createdDate: new Date().toLocaleDateString(),
+            history: [],
+          },
+        ],
+        auditLog: [newEntry, ...state.auditLog],
+      };
+    }),
 
+  // ── Forecast: Update ──
   updateForecast: (id, updates) =>
-    set((state) => ({
-      forecasts: state.forecasts.map((f) =>
-        f.id === id ? { ...f, ...updates } : f,
-      ),
-    })),
+    set((state) => {
+      const forecast = state.forecasts.find((f) => f.id === id);
+      const historyEntries: HistoryEntry[] = [];
+      if (forecast) {
+        for (const [key, val] of Object.entries(updates)) {
+          if (key !== "history" && (forecast as any)[key] !== val) {
+            historyEntries.push({
+              fieldName: key,
+              from: String((forecast as any)[key]),
+              to: String(val),
+              updatedOn: new Date().toLocaleString(),
+              updatedBy: "sarah.mitchell@ascendion.com",
+            });
+          }
+        }
+      }
+      const newAuditEntries = forecast
+        ? makeAuditEntries("Forecast", id, forecast.projectName, historyEntries)
+        : [];
+      return {
+        forecasts: state.forecasts.map((f) =>
+          f.id === id
+            ? { ...f, ...updates, history: [...f.history, ...historyEntries] }
+            : f,
+        ),
+        auditLog: [...newAuditEntries, ...state.auditLog],
+      };
+    }),
 
+  // ── Forecast: Delete ──
   deleteForecast: (id) =>
-    set((state) => ({
-      forecasts: state.forecasts.filter((f) => f.id !== id),
-    })),
+    set((state) => {
+      const forecast = state.forecasts.find((f) => f.id === id);
+      const newAuditEntry: AuditEntry | null = forecast
+        ? {
+            id: `audit-${Date.now()}`,
+            timestamp: new Date().toLocaleString(),
+            user: "sarah.mitchell@ascendion.com",
+            entity: "Forecast",
+            entityId: id,
+            entityLabel: forecast.projectName,
+            action: "Deleted",
+            field: "",
+            oldValue: `status: ${forecast.status}`,
+            newValue: "",
+          }
+        : null;
+      return {
+        forecasts: state.forecasts.filter((f) => f.id !== id),
+        auditLog: newAuditEntry
+          ? [newAuditEntry, ...state.auditLog]
+          : state.auditLog,
+      };
+    }),
 
+  // ── Forecast: Convert to Demand ──
   convertForecastToDemand: (id) =>
     set((state) => {
       const f = state.forecasts.find((x) => x.id === id);
       if (!f || f.status === "Converted") return state;
+      const newDemandId = `dem-${Date.now()}`;
+      const now = new Date().toLocaleString();
       const newDemand: Demand = {
-        id: `dem-${Date.now()}`,
+        id: newDemandId,
         portfolio: f.portfolio,
         program: f.program,
         projectName: f.projectName,
@@ -591,18 +960,58 @@ export const useStore = create<AppState>((set) => ({
           y2029: 0,
           y2030: 0,
         },
-        createdBy: "current@user.com",
+        createdBy: "sarah.mitchell@ascendion.com",
         createdDate: new Date().toLocaleDateString(),
-        updatedBy: "current@user.com",
+        updatedBy: "sarah.mitchell@ascendion.com",
         updatedDate: new Date().toLocaleDateString(),
         history: [],
         forecastSourceId: f.id,
       };
+      const auditForecast: AuditEntry = {
+        id: `audit-${Date.now()}-fc`,
+        timestamp: now,
+        user: "sarah.mitchell@ascendion.com",
+        entity: "Forecast",
+        entityId: id,
+        entityLabel: f.projectName,
+        action: "Converted to Demand",
+        field: "status",
+        oldValue: f.status,
+        newValue: "Converted",
+      };
+      const auditDemand: AuditEntry = {
+        id: `audit-${Date.now()}-dem`,
+        timestamp: now,
+        user: "sarah.mitchell@ascendion.com",
+        entity: "Demand",
+        entityId: newDemandId,
+        entityLabel: f.projectName,
+        action: "Created (from Forecast)",
+        field: "",
+        oldValue: "",
+        newValue: `status: Pending, source: ${f.id}`,
+      };
       return {
         demands: [...state.demands, newDemand],
         forecasts: state.forecasts.map((x) =>
-          x.id === id ? { ...x, status: "Converted" as const } : x,
+          x.id === id
+            ? {
+                ...x,
+                status: "Converted" as const,
+                history: [
+                  ...x.history,
+                  {
+                    fieldName: "status",
+                    from: x.status,
+                    to: "Converted",
+                    updatedOn: now,
+                    updatedBy: "sarah.mitchell@ascendion.com",
+                  },
+                ],
+              }
+            : x,
         ),
+        auditLog: [auditDemand, auditForecast, ...state.auditLog],
       };
     }),
 }));

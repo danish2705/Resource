@@ -65,6 +65,11 @@ interface Resource {
   location: string;
   status: "Allocated" | "Available" | "Overallocated";
   utilization: number;
+  unavailability?: {
+    state: "out-of-office" | "unavailable";
+    from: string;
+    to: string;
+  };
 }
 
 // ─── Resource Data ────────────────────────────────────────────────────────────
@@ -177,6 +182,11 @@ const resourceData: Resource[] = [
     location: "Melbourne",
     status: "Available",
     utilization: 80,
+    unavailability: {
+      state: "out-of-office",
+      from: "May 15 2026",
+      to: "May 30 2026",
+    },
   },
   {
     id: "res-6",
@@ -249,6 +259,11 @@ const resourceData: Resource[] = [
     location: "Melbourne",
     status: "Available",
     utilization: 80,
+    unavailability: {
+      state: "unavailable",
+      from: "May 1 2026",
+      to: "Jun 15 2026",
+    },
   },
 ];
 
@@ -267,6 +282,23 @@ const columns: Column<Resource>[] = [
         <div>
           <div className="font-medium text-foreground">{r.name}</div>
           <div className="text-xs text-muted-foreground">{r.role}</div>
+          {r.unavailability && isCurrentlyUnavailable(r) && (
+            <div
+              className={`inline-flex items-center gap-1 mt-0.5 px-1.5 py-0.5 rounded-full text-xs font-medium
+            ${
+              r.unavailability.state === "out-of-office"
+                ? "bg-amber-500/15 text-amber-700 border border-amber-500/30 dark:text-amber-300"
+                : "bg-red-500/15 text-red-700 border border-red-500/30 dark:text-red-300"
+            }`}
+            >
+              {r.unavailability.state === "out-of-office"
+                ? "🌴 Out of Office"
+                : "⛔ Unavailable"}
+              <span className="text-xs opacity-75">
+                · {r.unavailability.from} → {r.unavailability.to}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     ),
@@ -378,6 +410,7 @@ interface AssignedResource {
 
 function scoreResource(r: Resource, requiredSkills: string[]): number {
   if (r.status === "Overallocated") return 0;
+  if (isCurrentlyUnavailable(r)) return 0;
   const skillMatch = requiredSkills.length
     ? r.skills.filter((s) =>
         requiredSkills.some((req) =>
@@ -401,6 +434,13 @@ function getStatusStyle(status: Resource["status"]) {
   }
 }
 
+function isCurrentlyUnavailable(r: Resource): boolean {
+  if (!r.unavailability) return false;
+  const today = new Date();
+  const from = new Date(r.unavailability.from);
+  const to = new Date(r.unavailability.to);
+  return today >= from && today <= to;
+}
 // ─── AllocationModeChooser ────────────────────────────────────────────────────
 
 function AllocationModeChooser({
@@ -484,6 +524,12 @@ function ResourcePicker({
     if (mode === "auto") {
       list = list
         .filter((r) => r.status !== "Overallocated" && r.utilization < 100)
+        .filter(
+          (r) =>
+            r.status !== "Overallocated" &&
+            r.utilization < 100 &&
+            !isCurrentlyUnavailable(r),
+        )
         .sort(
           (a, b) =>
             scoreResource(b, requiredSkills) - scoreResource(a, requiredSkills),
