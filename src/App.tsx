@@ -2,10 +2,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+
 import AppLayout from "@/components/AppLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoutes";
+
 import LoginPage from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
+import MyDashboard from "@/pages/Mydashboard";
 import DemandSummary from "@/pages/DemandSummary";
 import CreateDemand from "@/pages/CreateDemand";
 import ResourceAllocation from "@/pages/Allocation";
@@ -17,31 +20,39 @@ import ForecastActual from "@/pages/ForecastActual";
 import ProjectsPage from "./pages/Projects";
 import ResourceReview from "@/pages/ResourceReview";
 import AuditLog from "@/pages/AuditLog";
+
 import { useAuth } from "@/auth/useAuth";
 
 const queryClient = new QueryClient();
 
 function AuthGate() {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />;
+
+  return isAuthenticated ? (
+    <Navigate to="/" replace />
+  ) : (
+    <LoginPage />
+  );
 }
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Sonner />
+
       <BrowserRouter>
         <Routes>
-          {/* Public */}
+          {/* Public Routes */}
           <Route path="/login" element={<AuthGate />} />
 
-          {/* Protected — all wrapped in AppLayout */}
+          {/* Protected Routes */}
           <Route
             path="/*"
             element={
               <ProtectedRoute>
                 <AppLayout>
                   <Routes>
+                    {/* Dashboard */}
                     <Route
                       path="/"
                       element={
@@ -50,6 +61,17 @@ const App = () => (
                         </ProtectedRoute>
                       }
                     />
+
+                    {/* My Dashboard */}
+                    <Route
+                      path="/my-dashboard"
+                      element={
+                        <ProtectedRoute permission="view_dashboard">
+                          <MyDashboard />
+                        </ProtectedRoute>
+                      }
+                    />
+
                     {/* Demand Management */}
                     <Route
                       path="/demand/create"
@@ -59,6 +81,7 @@ const App = () => (
                         </ProtectedRoute>
                       }
                     />
+
                     <Route
                       path="/demand-status"
                       element={
@@ -67,6 +90,7 @@ const App = () => (
                         </ProtectedRoute>
                       }
                     />
+
                     <Route
                       path="/demand"
                       element={
@@ -75,6 +99,7 @@ const App = () => (
                         </ProtectedRoute>
                       }
                     />
+
                     {/* Resource Management */}
                     <Route
                       path="/forecast"
@@ -84,6 +109,7 @@ const App = () => (
                         </ProtectedRoute>
                       }
                     />
+
                     <Route
                       path="/allocation"
                       element={
@@ -92,6 +118,7 @@ const App = () => (
                         </ProtectedRoute>
                       }
                     />
+
                     <Route
                       path="/resources"
                       element={
@@ -100,6 +127,7 @@ const App = () => (
                         </ProtectedRoute>
                       }
                     />
+
                     <Route
                       path="/resource-review"
                       element={
@@ -108,6 +136,7 @@ const App = () => (
                         </ProtectedRoute>
                       }
                     />
+
                     <Route
                       path="/reports"
                       element={
@@ -116,6 +145,7 @@ const App = () => (
                         </ProtectedRoute>
                       }
                     />
+
                     <Route
                       path="/projects"
                       element={
@@ -124,6 +154,7 @@ const App = () => (
                         </ProtectedRoute>
                       }
                     />
+
                     <Route
                       path="/forecast-actual"
                       element={
@@ -132,6 +163,7 @@ const App = () => (
                         </ProtectedRoute>
                       }
                     />
+
                     <Route
                       path="/audit-log"
                       element={
@@ -139,6 +171,12 @@ const App = () => (
                           <AuditLog />
                         </ProtectedRoute>
                       }
+                    />
+
+                    {/* Fallback Route */}
+                    <Route
+                      path="*"
+                      element={<Navigate to="/" replace />}
                     />
                   </Routes>
                 </AppLayout>

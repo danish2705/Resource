@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   ScrollText,
   Lock,
+  Home,
 } from "lucide-react";
 
 import {
@@ -64,6 +65,12 @@ const mainItems: NavItem[] = [
     end: true,
     permission: "view_dashboard",
   },
+  {
+    title: "Custom Dashboard",
+    url: "/my-dashboard",
+    icon: Home,
+    permission: "view_dashboard",
+  }
 ];
 
 const demandSubItems: NavItem[] = [
@@ -90,16 +97,16 @@ const demandSubItems: NavItem[] = [
 
 const lowerItems: NavItem[] = [
   {
-    title: "Allocation Details",
-    url: "/allocation",
-    icon: Users,
-    permission: "view_allocation",
-  },
-  {
     title: "Resource Information",
     url: "/resources",
     icon: UserCircle,
     permission: "view_resource_info",
+  },
+  {
+    title: "Allocation Details",
+    url: "/allocation",
+    icon: Users,
+    permission: "view_allocation",
   },
   {
     title: "Resource Review",
@@ -114,7 +121,7 @@ const lowerItems: NavItem[] = [
     permission: "view_projects",
   },
   {
-    title: "Reporting Dashboard",
+    title: "Reporting & Analytics",
     url: "/reports",
     icon: BarChart3,
     permission: "view_reporting",
@@ -149,10 +156,13 @@ export function AppSidebar() {
 
   const linkBase =
     "flex items-center gap-2 w-full transition-colors rounded-md";
+
   const linkInactive =
     "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
+
   const linkActive =
     "bg-sidebar-accent text-sidebar-accent-foreground font-medium";
+
   const linkDisabled =
     "opacity-60 cursor-not-allowed pointer-events-none select-none";
 
@@ -166,7 +176,7 @@ export function AppSidebar() {
             <NavLink
               to={item.url}
               end={item.end}
-              className={linkBase + " " + linkInactive}
+              className={`${linkBase} ${linkInactive}`}
               activeClassName={linkActive}
             >
               <item.icon className="h-4 w-4 shrink-0" />
@@ -182,12 +192,7 @@ export function AppSidebar() {
         <Tooltip>
           <TooltipTrigger asChild>
             <div
-              className={
-                linkBase +
-                " " +
-                linkDisabled +
-                " px-2 py-1.5 text-sm text-sidebar-foreground/60"
-              }
+              className={`${linkBase} ${linkDisabled} px-2 py-1.5 text-sm text-sidebar-foreground/60`}
             >
               <item.icon className="h-4 w-4 shrink-0" />
               {!collapsed && (
@@ -198,6 +203,7 @@ export function AppSidebar() {
               )}
             </div>
           </TooltipTrigger>
+
           <TooltipContent side="right" className="text-xs">
             You don't have access to {item.title}
           </TooltipContent>
@@ -216,7 +222,7 @@ export function AppSidebar() {
             <NavLink
               to={sub.url}
               end={sub.end}
-              className={linkBase + " " + linkInactive}
+              className={`${linkBase} ${linkInactive}`}
               activeClassName={linkActive}
             >
               <sub.icon className="h-3.5 w-3.5 shrink-0" />
@@ -232,18 +238,14 @@ export function AppSidebar() {
         <Tooltip>
           <TooltipTrigger asChild>
             <div
-              className={
-                linkBase +
-                " " +
-                linkDisabled +
-                " px-2 py-1 text-xs text-sidebar-foreground/60"
-              }
+              className={`${linkBase} ${linkDisabled} px-2 py-1 text-xs text-sidebar-foreground/60`}
             >
               <sub.icon className="h-3.5 w-3.5 shrink-0" />
               <span className="flex-1">{sub.title}</span>
               <Lock className="h-3 w-3 ml-auto opacity-60" />
             </div>
           </TooltipTrigger>
+
           <TooltipContent side="right" className="text-xs">
             You don't have access to {sub.title}
           </TooltipContent>
@@ -259,6 +261,7 @@ export function AppSidebar() {
           <div className="h-8 w-8 rounded-md bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shrink-0">
             RM
           </div>
+
           {!collapsed && (
             <div className="flex flex-col leading-tight">
               <span className="text-sm font-semibold text-sidebar-foreground">
@@ -272,12 +275,13 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Main</SidebarGroupLabel>
+
           <SidebarGroupContent>
             <SidebarMenu>
-              {/* Main items */}
+              {/* Main Items */}
               {mainItems.map(renderNavItem)}
 
-              {/* Demand Management — entirely disabled for resource role */}
+              {/* Demand Management */}
               {canSeeDemand ? (
                 <Collapsible
                   open={collapsed ? false : demandOpen}
@@ -288,12 +292,18 @@ export function AppSidebar() {
                     <CollapsibleTrigger asChild>
                       <SidebarMenuButton
                         tooltip="Demand Management"
-                        className={demandActive ? linkActive : linkInactive}
+                        className={
+                          demandActive
+                            ? linkActive
+                            : linkInactive
+                        }
                       >
                         <ClipboardList className="h-4 w-4 shrink-0" />
+
                         {!collapsed && (
                           <>
                             <span>Demand Management</span>
+
                             <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
                           </>
                         )}
@@ -310,35 +320,38 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 </Collapsible>
               ) : (
-                // Entire Demand Management group disabled
                 <SidebarMenuItem>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div
-                        className={
-                          linkBase +
-                          " " +
-                          linkDisabled +
-                          " px-2 py-1.5 text-sm text-sidebar-foreground/60"
-                        }
+                        className={`${linkBase} ${linkDisabled} px-2 py-1.5 text-sm text-sidebar-foreground/60`}
                       >
                         <ClipboardList className="h-4 w-4 shrink-0" />
+
                         {!collapsed && (
                           <>
-                            <span className="flex-1">Demand Management</span>
+                            <span className="flex-1">
+                              Demand Management
+                            </span>
+
                             <Lock className="h-3 w-3 ml-auto opacity-60" />
                           </>
                         )}
                       </div>
                     </TooltipTrigger>
-                    <TooltipContent side="right" className="text-xs">
-                      You don't have access to Demand Management
+
+                    <TooltipContent
+                      side="right"
+                      className="text-xs"
+                    >
+                      You don't have access to Demand
+                      Management
                     </TooltipContent>
                   </Tooltip>
                 </SidebarMenuItem>
               )}
 
-              {/* Lower items */}
+              {/* Lower Items */}
               {lowerItems.map(renderNavItem)}
             </SidebarMenu>
           </SidebarGroupContent>
