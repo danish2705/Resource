@@ -286,7 +286,7 @@ export default function ProjectsPage() {
                             </span>
                           </td>
                           <td className="p-4 text-sm font-medium">
-                            {`$${(Number(project.budget.replace(/[$k]/gi, "")) * 1000).toLocaleString()}`}
+                            {project.budget}
                           </td>
                           <td className="p-4 text-sm text-muted-foreground">
                             {project.budgetHrs}
