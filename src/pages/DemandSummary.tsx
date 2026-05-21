@@ -563,7 +563,7 @@ export default function DemandSummary() {
           {/* ── Search + Filters ── */}
           <div className="flex items-center gap-2 flex-wrap mb-4">
             {/* Search */}
-            <div className="relative flex-1 min-w-[200px]">
+            <div className="relative w-full sm:flex-1 sm:min-w-[160px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input
                 className="pl-9 h-9 text-sm"
