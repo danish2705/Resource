@@ -1,6 +1,8 @@
 import { useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "@/store/useStore";
+import { useAuth } from "@/auth/useAuth";
+import { hasPermission } from "@/auth/rbac";
 import { useActiveValues } from "@/store/useMasterData";
 import type { Demand } from "@/store/useStore";
 import { ResourceDialog } from "@/pages/Resource";
@@ -172,6 +174,8 @@ function mapRowToDemand(
 export default function DemandSummary() {
   const navigate = useNavigate();
   const { demands, addDemands, deleteDemand } = useStore();
+  const { user } = useAuth();
+  const canEditDelete = user ? hasPermission(user.role, "edit_demand") : false;
   const projects = useActiveValues("projects");
   const pillars = useActiveValues("pillars");
   const roles = useActiveValues("roles");
@@ -190,12 +194,25 @@ export default function DemandSummary() {
     null,
   );
 
+  // REPLACE WITH:
   const [resourceModal, setResourceModal] = useState<{
     open: boolean;
     demandId: string;
     projectName: string;
     projectSkills: string[];
-  }>({ open: false, demandId: "", projectName: "", projectSkills: [] });
+    initialResources: {
+      id: string;
+      name: string;
+      email: string;
+      domain: string;
+    }[];
+  }>({
+    open: false,
+    demandId: "",
+    projectName: "",
+    projectSkills: [],
+    initialResources: [],
+  });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importChooserOpen, setImportChooserOpen] = useState(false);
@@ -401,8 +418,25 @@ export default function DemandSummary() {
       key: "resourceName",
       header: "Resource Count",
       sortable: false,
+      // REPLACE WITH:
+
       render: (row) => {
-        const count = row.resourceName ? 2 : 0;
+        const assignedResources = row.resourceName
+          ? [
+              {
+                id: "r1",
+                name: row.resourceName,
+                email: `${row.resourceName.toLowerCase().replace(" ", ".")}@company.com`,
+                domain: row.pillar,
+              },
+              {
+                id: "r2",
+                name: "Bob Smith",
+                email: "bob.smith@company.com",
+                domain: "Data",
+              },
+            ]
+          : [];
         return (
           <button
             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors cursor-pointer"
@@ -412,11 +446,12 @@ export default function DemandSummary() {
                 demandId: row.id,
                 projectName: row.projectName,
                 projectSkills: row.projectRole ? [row.projectRole] : [],
+                initialResources: assignedResources,
               })
             }
           >
             <Users className="h-3 w-3" />
-            {count}
+            {assignedResources.length}
           </button>
         );
       },
@@ -485,18 +520,26 @@ export default function DemandSummary() {
             size="sm"
             className="h-7 w-7 p-0"
             onClick={() => navigate(`/demand/create?id=${row.id}`)}
-            title="Edit"
+            title={canEditDelete ? "Edit" : "You don't have permission to edit"}
+            disabled={!canEditDelete}
           >
-            <Pencil className="h-3.5 w-3.5" />
+            <Pencil
+              className={`h-3.5 w-3.5 ${!canEditDelete ? "opacity-50" : ""}`}
+            />
           </Button>
           <Button
             variant="ghost"
             size="sm"
             className="h-7 w-7 p-0 text-destructive"
             onClick={() => setDeleteId(row.id)}
-            title="Delete"
+            title={
+              canEditDelete ? "Delete" : "You don't have permission to delete"
+            }
+            disabled={!canEditDelete}
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2
+              className={`h-3.5 w-3.5 ${!canEditDelete ? "opacity-50" : ""}`}
+            />
           </Button>
         </div>
       ),
@@ -520,7 +563,7 @@ export default function DemandSummary() {
           {/* ── Search + Filters ── */}
           <div className="flex items-center gap-2 flex-wrap mb-4">
             {/* Search */}
-            <div className="relative flex-1 min-w-[200px]">
+            <div className="relative w-full sm:flex-1 sm:min-w-[160px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input
                 className="pl-9 h-9 text-sm"
@@ -629,16 +672,16 @@ export default function DemandSummary() {
           <DataTable data={filtered} columns={columns} pageSize={5} />
         </CardContent>
       </Card>
-
       {/* ── Resource Dialog ── */}
+
       <ResourceDialog
         open={resourceModal.open}
         onOpenChange={(v) => setResourceModal((s) => ({ ...s, open: v }))}
         demandId={resourceModal.demandId}
         projectName={resourceModal.projectName}
         projectSkills={resourceModal.projectSkills}
+        initialResources={resourceModal.initialResources} // ← add this line
       />
-
       {/* ── Import Source Chooser ── */}
       <Dialog open={importChooserOpen} onOpenChange={setImportChooserOpen}>
         <DialogContent className="max-w-2xl">
@@ -718,7 +761,6 @@ export default function DemandSummary() {
           />
         </DialogContent>
       </Dialog>
-
       {/* ── Import Preview ── */}
       <Dialog open={showImport} onOpenChange={setShowImport}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
@@ -783,7 +825,6 @@ export default function DemandSummary() {
           </div>
         </DialogContent>
       </Dialog>
-
       {/* ── Delete Confirmation ── */}
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
@@ -799,7 +840,6 @@ export default function DemandSummary() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
       <HistoryModal
         open={!!historyData}
         onOpenChange={() => setHistoryData(null)}

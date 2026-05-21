@@ -18,9 +18,8 @@ import {
 } from "@/components/ui/sidebar";
 
 import { AppSidebar } from "@/components/AppSidebar";
-
-import { useUser } from "@/store/useUser";
-
+import { useAuth } from "@/auth/useAuth";
+import { ROLE_LABELS } from "@/auth/rbac";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,8 +27,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 
 import { Badge } from "@/components/ui/badge";
@@ -88,16 +85,8 @@ export default function AppLayout({
   const location = useLocation();
 
   const navigate = useNavigate();
-
-  const title =
-    pageTitles[location.pathname] ??
-    "Resource Management";
-
-  const {
-    current,
-    users,
-    setUser,
-  } = useUser();
+  const title = pageTitles[location.pathname] ?? "Resource Management";
+  const { user, logout } = useAuth();
 
   const [darkMode, setDarkMode] =
     useState(() => {
@@ -141,21 +130,25 @@ export default function AppLayout({
     window.location.reload();
   };
 
-  const formatLastUpdated = (
-    date: Date,
-  ) => {
-    return date.toLocaleString(
-      "en-AU",
-      {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      },
-    );
+  const handleLogout = () => {
+    logout();
+    toast.success("Logged out successfully");
+    navigate("/login", { replace: true });
   };
+
+  const formatLastUpdated = (date: Date) => {
+    return date.toLocaleString("en-AU", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  };
+
+  const displayName = user ? ROLE_LABELS[user.role] : "";
+  const avatarText = user ? initials(ROLE_LABELS[user.role]) : "??";
 
   return (
     <SidebarProvider>
@@ -318,7 +311,6 @@ export default function AppLayout({
               </button>
 
               {/* USER MENU */}
-
               <DropdownMenu>
 
                 <DropdownMenuTrigger
@@ -331,62 +323,27 @@ export default function AppLayout({
                 >
 
                   <Avatar className="h-8 w-8 cursor-pointer">
-
-                    <AvatarFallback
-                      className="
-                        bg-primary
-                        text-primary-foreground
-                        text-xs
-                      "
-                    >
-                      {initials(
-                        current.name,
-                      )}
+                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                      {avatarText}
                     </AvatarFallback>
 
                   </Avatar>
 
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent
-                  align="end"
-                  className="w-72"
-                >
-
-                  {/* USER INFO */}
-
+                <DropdownMenuContent align="end" className="w-64">
                   <DropdownMenuLabel className="flex flex-col gap-1 py-2">
-
-                    <span className="font-semibold">
-                      {current.name}
-                    </span>
-
-                    <span
-                      className="
-                        text-xs
-                        text-muted-foreground
-                        font-normal
-                      "
-                    >
-                      {current.email}
+                    <span className="font-semibold">{displayName}</span>
+                    <span className="text-xs text-muted-foreground font-normal">
+                      @{user?.username}
                     </span>
 
                     <div className="flex items-center gap-2 mt-1">
-
-                      <Badge
-                        variant="secondary"
-                        className="text-xs"
-                      >
-                        {current.role}
+                      <Badge variant="secondary" className="text-xs">
+                        {displayName}
                       </Badge>
-
-                      <Badge
-                        variant="outline"
-                        className="text-xs"
-                      >
-                        Portfolio:
-                        {" "}
-                        {current.portfolio}
+                      <Badge variant="outline" className="text-xs">
+                        Portfolio: {user?.portfolio}
                       </Badge>
 
                     </div>
@@ -455,78 +412,13 @@ export default function AppLayout({
 
                   <DropdownMenuSeparator />
 
-                  {/* SWITCH USER */}
-
-                  <DropdownMenuLabel
-                    className="
-                      text-xs
-                      text-muted-foreground
-                    "
-                  >
-                    Switch user (demo)
-                  </DropdownMenuLabel>
-
-                  <DropdownMenuRadioGroup
-                    value={current.id}
-                    onValueChange={(
-                      id,
-                    ) => {
-                      setUser(id);
-
-                      toast.success(
-                        `Switched to ${
-                          users.find(
-                            (
-                              u,
-                            ) =>
-                              u.id ===
-                              id,
-                          )?.name
-                        }`,
-                      );
-                    }}
-                  >
-
-                    {users.map(
-                      (u) => (
-                        <DropdownMenuRadioItem
-                          key={u.id}
-                          value={u.id}
-                          className="text-sm"
-                        >
-                          {u.name}
-
-                          <span
-                            className="
-                              ml-auto
-                              text-xs
-                              text-muted-foreground
-                            "
-                          >
-                            {u.portfolio}
-                          </span>
-
-                        </DropdownMenuRadioItem>
-                      ),
-                    )}
-
-                  </DropdownMenuRadioGroup>
-
-                  <DropdownMenuSeparator />
-
                   {/* LOGOUT */}
 
                   <DropdownMenuItem
-                    onClick={() =>
-                      toast.info(
-                        "Logout simulated — session ended",
-                      )
-                    }
+                    onClick={handleLogout}
+                    className="text-red-500 font-medium focus:text-red-500 focus:bg-red-500/10 hover:text-red-500 hover:bg-red-500/10 cursor-pointer"
                   >
-                    <LogOut className="h-4 w-4 mr-2" />
-
-                    Logout
-
+                    <LogOut className="h-4 w-4 mr-2 text-red-500" /> Logout
                   </DropdownMenuItem>
 
                 </DropdownMenuContent>
@@ -537,22 +429,9 @@ export default function AppLayout({
 
           </header>
 
-          {/* MAIN CONTENT */}
-
-          <main
-            className="
-              flex-1
-              overflow-y-auto
-              overflow-x-hidden
-              p-6
-              transition-all
-              duration-200
-              ease-out
-            "
-          >
+          <main className="flex-1 p-6 overflow-y-auto overflow-x-hidden">
             {children}
           </main>
-
         </div>
 
       </div>

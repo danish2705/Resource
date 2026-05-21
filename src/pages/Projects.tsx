@@ -195,197 +195,213 @@ export default function ProjectsPage() {
           </div>
 
           {/* Table */}
-          <div className="border border-border rounded-xl overflow-hidden w-full">
-            <table className="w-full table-fixed">
-              <thead className="bg-card border-b border-border">
-                <tr className="text-left text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                  <th className="w-8 px-2 py-3"></th>
-                  <th className="px-4 py-3 font-medium normal-case">ID</th>
-                  <th className="w-[260px] px-4 py-3 font-medium normal-case">Project</th>
-                  <th className="px-4 py-3 font-medium normal-case">Status</th>
-                  <th className="px-4 py-3 font-medium normal-case">
-                    Priority
-                  </th>
-                  <th className="px-4 py-3 font-medium normal-case">Budget</th>
-                  <th className="px-4 py-3 font-medium normal-case">
-                    Budget Hours
-                  </th>
-                  <th className="px-4 py-3 font-medium normal-case">Start</th>
-                  <th className="px-4 py-3 font-medium normal-case">End</th>
-                  <th className="px-4 py-3 font-medium normal-case">
-                    Team Size
-                  </th>
-                  <th className="w-[180px] p-4 normal-case">Progress</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filtered.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={11}
-                      className="py-16 text-center text-sm text-muted-foreground"
-                    >
-                      No projects match the current filters.
-                    </td>
+          <div className="border border-border rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[900px]">
+                <thead className="bg-card border-b border-border">
+                  <tr className="text-left text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                    <th className="w-8 px-2 py-3"></th>
+                    <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                      ID
+                    </th>
+                    <th className="px-4 py-3 font-medium normal-case w-[25%]">
+                      Project
+                    </th>
+                    <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                      Priority
+                    </th>
+                    <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                      Budget
+                    </th>
+                    <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                      Budget Hours
+                    </th>
+                    <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                      Start
+                    </th>
+                    <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                      End
+                    </th>
+                    <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                      Team Size
+                    </th>
+                    <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                      Progress
+                    </th>
                   </tr>
-                ) : (
-                  filtered.map((project) => {
-                    const expanded = expandedRows.includes(project.id);
-                    return (
-                      <>
-                        <tr
-                          key={project.id}
-                          className="border-b border-border/50 hover:bg-accent/20 transition-colors"
-                        >
-                          <td className="px-2 w-8">
-                            <button
-                              onClick={() => toggleRow(project.id)}
-                              className="flex items-center justify-center text-muted-foreground hover:text-foreground"
-                            >
-                              {expanded ? (
-                                <ChevronDown className="h-4 w-4" />
-                              ) : (
-                                <ChevronRight className="h-4 w-4" />
-                              )}
-                            </button>
-                          </td>
-                          <td className="p-4 text-sm text-muted-foreground font-medium">
-                            {project.id}
-                          </td>
-                          <td className="p-4 w-[260px]">
-                            <div className="font-medium text-foreground">
-                              {project.project}
-                            </div>
-                            <div className="text-xs text-muted-foreground mt-0.5">
-                              {project.client}
-                            </div>
-                          </td>
-                          <td className="p-4">
-                            <span
-                              className={`px-2 py-1 rounded-full text-xs font-medium border ${
-                                project.status === "Active"
-                                  ? "bg-green-500/20 text-green-700 border-green-500/40 dark:text-green-300"
-                                  : "bg-orange-500/20 text-orange-700 border-orange-500/40 dark:text-orange-300"
-                              }`}
-                            >
-                              {project.status}
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            <span
-                              className={`px-2 py-1 rounded-full text-xs font-medium border ${
-                                project.priority === "High"
-                                  ? "bg-red-500/20 text-red-700 border-red-500/40 dark:text-red-300"
-                                  : project.priority === "Medium"
-                                    ? "bg-yellow-400/20 text-yellow-700 border-yellow-500/40 dark:text-yellow-300"
-                                    : "bg-green-500/20 text-green-700 border-green-500/40 dark:text-green-300"
-                              }`}
-                            >
-                              {project.priority}
-                            </span>
-                          </td>
-                          <td className="p-4 text-sm font-medium">
-                            {`$${(Number(project.budget.replace(/[$k]/gi, "")) * 1000).toLocaleString()}`}
-                          </td>
-                          <td className="p-4 text-sm text-muted-foreground">
-                            {project.budgetHrs}
-                          </td>
-                          <td className="p-4 text-sm text-muted-foreground whitespace-nowrap">
-                            {project.start}
-                          </td>
-                          <td className="p-4 text-sm text-muted-foreground whitespace-nowrap">
-                            {project.end}
-                          </td>
-                          <td className="p-4 text-sm text-muted-foreground whitespace-nowrap">
-                            {project.teamSize}
-                          </td>
-                          <td className="p-4 min-w-[150px]">
-                            <div className="flex items-center gap-2">
-                              <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
-                                <div
-                                  className={`h-full rounded-full ${
-                                    project.progress > 70
-                                      ? "bg-green-500"
-                                      : project.progress > 0
-                                        ? "bg-blue-500"
-                                        : "bg-muted-foreground/30"
-                                  }`}
-                                  style={{ width: `${project.progress}%` }}
-                                />
+                </thead>
+
+                <tbody>
+                  {filtered.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={11}
+                        className="py-16 text-center text-sm text-muted-foreground"
+                      >
+                        No projects match the current filters.
+                      </td>
+                    </tr>
+                  ) : (
+                    filtered.map((project) => {
+                      const expanded = expandedRows.includes(project.id);
+                      return (
+                        <>
+                          <tr
+                            key={project.id}
+                            className="border-b border-border/50 hover:bg-accent/20 transition-colors"
+                          >
+                            <td className="px-2 w-8">
+                              <button
+                                onClick={() => toggleRow(project.id)}
+                                className="flex items-center justify-center text-muted-foreground hover:text-foreground"
+                              >
+                                {expanded ? (
+                                  <ChevronDown className="h-4 w-4" />
+                                ) : (
+                                  <ChevronRight className="h-4 w-4" />
+                                )}
+                              </button>
+                            </td>
+                            <td className="p-4 text-sm text-muted-foreground font-medium">
+                              {project.id}
+                            </td>
+                            <td className="p-4">
+                              <div className="font-medium text-foreground">
+                                {project.project}
                               </div>
+                              <div className="text-xs text-muted-foreground mt-0.5">
+                                {project.client}
+                              </div>
+                            </td>
+                            <td className="p-4">
                               <span
-                                className={`text-xs font-medium ${
-                                  project.progress > 70
-                                    ? "text-green-400"
-                                    : "text-blue-400"
+                                className={`px-2 py-1 rounded-full text-xs font-medium border ${
+                                  project.status === "Active"
+                                    ? "bg-green-500/20 text-green-700 border-green-500/40 dark:text-green-300"
+                                    : "bg-orange-500/20 text-orange-700 border-orange-500/40 dark:text-orange-300"
                                 }`}
                               >
-                                {project.progress}%
+                                {project.status}
                               </span>
-                            </div>
-                          </td>
-                        </tr>
-
-                        {expanded && (
-                          <tr className="bg-muted/10 border-b border-border/50">
-                            <td></td>
-                            <td colSpan={10} className="p-4">
-                              <div className="rounded-lg border border-border/50 overflow-hidden">
-                                <table className="w-full">
-                                  <thead className="bg-muted/20">
-                                    <tr className="text-left">
-                                      <th className="p-3 text-xs font-medium text-muted-foreground">
-                                        Resource ID
-                                      </th>
-                                      <th className="p-3 text-xs font-medium text-muted-foreground">
-                                        Resource Name
-                                      </th>
-                                      <th className="p-3 text-xs font-medium text-muted-foreground">
-                                        Designation
-                                      </th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {project.resources.length === 0 ? (
-                                      <tr>
-                                        <td
-                                          colSpan={3}
-                                          className="p-3 text-sm text-muted-foreground italic"
-                                        >
-                                          No resources assigned
-                                        </td>
-                                      </tr>
-                                    ) : (
-                                      project.resources.map((resource) => (
-                                        <tr
-                                          key={resource.resourceId}
-                                          className="border-t border-border/50"
-                                        >
-                                          <td className="p-3 text-sm text-muted-foreground">
-                                            {resource.resourceId}
-                                          </td>
-                                          <td className="p-3 text-sm font-medium">
-                                            {resource.resourceName}
-                                          </td>
-                                          <td className="p-3 text-sm text-muted-foreground">
-                                            {resource.designation}
-                                          </td>
-                                        </tr>
-                                      ))
-                                    )}
-                                  </tbody>
-                                </table>
+                            </td>
+                            <td className="p-4">
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-medium border ${
+                                  project.priority === "High"
+                                    ? "bg-red-500/20 text-red-700 border-red-500/40 dark:text-red-300"
+                                    : project.priority === "Medium"
+                                      ? "bg-yellow-400/20 text-yellow-700 border-yellow-500/40 dark:text-yellow-300"
+                                      : "bg-green-500/20 text-green-700 border-green-500/40 dark:text-green-300"
+                                }`}
+                              >
+                                {project.priority}
+                              </span>
+                            </td>
+                            <td className="p-4 text-sm font-medium">
+                              {project.budget}
+                            </td>
+                            <td className="p-4 text-sm text-muted-foreground">
+                              {project.budgetHrs}
+                            </td>
+                            <td className="p-4 text-sm text-muted-foreground whitespace-nowrap">
+                              {project.start}
+                            </td>
+                            <td className="p-4 text-sm text-muted-foreground whitespace-nowrap">
+                              {project.end}
+                            </td>
+                            <td className="p-4 text-sm text-muted-foreground whitespace-nowrap">
+                              {project.teamSize}
+                            </td>
+                            <td className="p-4">
+                              <div className="flex items-center gap-2">
+                                <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
+                                  <div
+                                    className={`h-full rounded-full ${
+                                      project.progress > 70
+                                        ? "bg-green-500"
+                                        : project.progress > 0
+                                          ? "bg-blue-500"
+                                          : "bg-muted-foreground/30"
+                                    }`}
+                                    style={{ width: `${project.progress}%` }}
+                                  />
+                                </div>
+                                <span
+                                  className={`text-xs font-medium ${
+                                    project.progress > 70
+                                      ? "text-green-400"
+                                      : "text-blue-400"
+                                  }`}
+                                >
+                                  {project.progress}%
+                                </span>
                               </div>
                             </td>
                           </tr>
-                        )}
-                      </>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+
+                          {expanded && (
+                            <tr className="bg-muted/10 border-b border-border/50">
+                              <td></td>
+                              <td colSpan={10} className="p-4">
+                                <div className="rounded-lg border border-border/50 overflow-hidden">
+                                  <table className="w-full">
+                                    <thead className="bg-muted/20">
+                                      <tr className="text-left">
+                                        <th className="p-3 text-xs font-medium text-muted-foreground">
+                                          Resource ID
+                                        </th>
+                                        <th className="p-3 text-xs font-medium text-muted-foreground">
+                                          Resource Name
+                                        </th>
+                                        <th className="p-3 text-xs font-medium text-muted-foreground">
+                                          Designation
+                                        </th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {project.resources.length === 0 ? (
+                                        <tr>
+                                          <td
+                                            colSpan={3}
+                                            className="p-3 text-sm text-muted-foreground italic"
+                                          >
+                                            No resources assigned
+                                          </td>
+                                        </tr>
+                                      ) : (
+                                        project.resources.map((resource) => (
+                                          <tr
+                                            key={resource.resourceId}
+                                            className="border-t border-border/50"
+                                          >
+                                            <td className="p-3 text-sm text-muted-foreground">
+                                              {resource.resourceId}
+                                            </td>
+                                            <td className="p-3 text-sm font-medium">
+                                              {resource.resourceName}
+                                            </td>
+                                            <td className="p-3 text-sm text-muted-foreground">
+                                              {resource.designation}
+                                            </td>
+                                          </tr>
+                                        ))
+                                      )}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </CardContent>

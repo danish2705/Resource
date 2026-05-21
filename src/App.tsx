@@ -1,8 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import AppLayout from "@/components/AppLayout";
+import { ProtectedRoute } from "@/components/ProtectedRoutes";
+import LoginPage from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import DemandSummary from "@/pages/DemandSummary";
 import CreateDemand from "@/pages/CreateDemand";
@@ -14,35 +16,136 @@ import ResourceForecast from "@/pages/ResourceForecast";
 import ForecastActual from "@/pages/ForecastActual";
 import ProjectsPage from "./pages/Projects";
 import ResourceReview from "@/pages/ResourceReview";
-import AuditLog from "@/pages/AuditLog"; // ← NEW
+import AuditLog from "@/pages/AuditLog";
+import { useAuth } from "@/auth/useAuth";
 
 const queryClient = new QueryClient();
+
+function AuthGate() {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Sonner />
       <BrowserRouter>
-        <AppLayout>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            {/* Demand Management group */}
-            <Route path="/demand/create" element={<CreateDemand />} />
-            <Route path="/demand-status" element={<DemandStatus />} />
-            <Route path="/demand" element={<DemandSummary />} />
-            {/* Resource Management */}
-            <Route path="/forecast" element={<ResourceForecast />} />
-            <Route path="/allocation" element={<ResourceAllocation />} />
-            <Route path="/resources" element={<ResourceInformation />} />
-            {/* Resource Review (manager approval page) */}
-            <Route path="/resource-review" element={<ResourceReview />} />
-            <Route path="/reports" element={<ReportingDashboard />} />
-            <Route path="/projects" element={<ProjectsPage />} />
-            <Route path="/forecast-actual" element={<ForecastActual />} />
-            {/* Audit Log */}
-            <Route path="/audit-log" element={<AuditLog />} /> {/* ← NEW */}
-          </Routes>
-        </AppLayout>
+        <Routes>
+          {/* Public */}
+          <Route path="/login" element={<AuthGate />} />
+
+          {/* Protected — all wrapped in AppLayout */}
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Routes>
+                    <Route
+                      path="/"
+                      element={
+                        <ProtectedRoute permission="view_dashboard">
+                          <Dashboard />
+                        </ProtectedRoute>
+                      }
+                    />
+                    {/* Demand Management */}
+                    <Route
+                      path="/demand/create"
+                      element={
+                        <ProtectedRoute permission="create_demand">
+                          <CreateDemand />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/demand-status"
+                      element={
+                        <ProtectedRoute permission="view_dashboard">
+                          <DemandStatus />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/demand"
+                      element={
+                        <ProtectedRoute permission="view_dashboard">
+                          <DemandSummary />
+                        </ProtectedRoute>
+                      }
+                    />
+                    {/* Resource Management */}
+                    <Route
+                      path="/forecast"
+                      element={
+                        <ProtectedRoute permission="view_resource_info">
+                          <ResourceForecast />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/allocation"
+                      element={
+                        <ProtectedRoute permission="view_allocation">
+                          <ResourceAllocation />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/resources"
+                      element={
+                        <ProtectedRoute permission="view_resource_info">
+                          <ResourceInformation />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/resource-review"
+                      element={
+                        <ProtectedRoute permission="approve_demand">
+                          <ResourceReview />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/reports"
+                      element={
+                        <ProtectedRoute permission="view_reporting">
+                          <ReportingDashboard />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/projects"
+                      element={
+                        <ProtectedRoute permission="view_projects">
+                          <ProjectsPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/forecast-actual"
+                      element={
+                        <ProtectedRoute permission="view_resource_info">
+                          <ForecastActual />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/audit-log"
+                      element={
+                        <ProtectedRoute permission="view_audit_logs">
+                          <AuditLog />
+                        </ProtectedRoute>
+                      }
+                    />
+                  </Routes>
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
