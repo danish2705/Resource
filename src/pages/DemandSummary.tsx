@@ -1,6 +1,8 @@
 import { useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "@/store/useStore";
+import { useAuth } from "@/auth/useAuth";
+import { hasPermission } from "@/auth/rbac";
 import { useActiveValues } from "@/store/useMasterData";
 import type { Demand } from "@/store/useStore";
 import { ResourceDialog } from "@/pages/Resource";
@@ -172,6 +174,8 @@ function mapRowToDemand(
 export default function DemandSummary() {
   const navigate = useNavigate();
   const { demands, addDemands, deleteDemand } = useStore();
+  const { user } = useAuth();
+  const canEditDelete = user ? hasPermission(user.role, "edit_demand") : false;
   const projects = useActiveValues("projects");
   const pillars = useActiveValues("pillars");
   const roles = useActiveValues("roles");
@@ -515,18 +519,26 @@ export default function DemandSummary() {
             size="sm"
             className="h-7 w-7 p-0"
             onClick={() => navigate(`/demand/create?id=${row.id}`)}
-            title="Edit"
+            title={canEditDelete ? "Edit" : "You don't have permission to edit"}
+            disabled={!canEditDelete}
           >
-            <Pencil className="h-3.5 w-3.5" />
+            <Pencil
+              className={`h-3.5 w-3.5 ${!canEditDelete ? "opacity-50" : ""}`}
+            />
           </Button>
           <Button
             variant="ghost"
             size="sm"
             className="h-7 w-7 p-0 text-destructive"
             onClick={() => setDeleteId(row.id)}
-            title="Delete"
+            title={
+              canEditDelete ? "Delete" : "You don't have permission to delete"
+            }
+            disabled={!canEditDelete}
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2
+              className={`h-3.5 w-3.5 ${!canEditDelete ? "opacity-50" : ""}`}
+            />
           </Button>
         </div>
       ),
