@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
+
 import {
   LogOut,
   User as UserIcon,
@@ -8,10 +9,18 @@ import {
   Sun,
   Settings,
 } from "lucide-react";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+
+import {
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+
 import { AppSidebar } from "@/components/AppSidebar";
+
 import { useUser } from "@/store/useUser";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,20 +31,45 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
-import { useState, useEffect } from "react";
 
-const pageTitles: Record<string, string> = {
+import { Badge } from "@/components/ui/badge";
+
+import { toast } from "sonner";
+
+import {
+  useState,
+  useEffect,
+} from "react";
+
+const pageTitles: Record<
+  string,
+  string
+> = {
   "/": "Dashboard",
-  "/demand": "Demand Management",
-  "/allocation": "Resource Allocation",
-  "/resources": "Resource Information",
-  "/reports": "Reporting Dashboard",
-  "/forecast": "Resource Forecast",
-  "/data-management": "Data Management",
-  "/profile": "My Profile",
-  "/my-allocations": "My Allocations",
+
+  "/demand":
+    "Demand Management",
+
+  "/allocation":
+    "Resource Allocation",
+
+  "/resources":
+    "Resource Information",
+
+  "/reports":
+    "Reporting Dashboard",
+
+  "/forecast":
+    "Resource Forecast",
+
+  "/data-management":
+    "Data Management",
+
+  "/profile":
+    "My Profile",
+
+  "/my-allocations":
+    "My Allocations",
 };
 
 const initials = (n: string) =>
@@ -46,181 +80,483 @@ const initials = (n: string) =>
     .join("")
     .toUpperCase();
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default function AppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const location = useLocation();
+
   const navigate = useNavigate();
-  const title = pageTitles[location.pathname] ?? "Resource Management";
-  const { current, users, setUser } = useUser();
 
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem("theme") === "dark";
-  });
+  const title =
+    pageTitles[location.pathname] ??
+    "Resource Management";
 
-  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const {
+    current,
+    users,
+    setUser,
+  } = useUser();
+
+  const [darkMode, setDarkMode] =
+    useState(() => {
+      return (
+        localStorage.getItem(
+          "theme",
+        ) === "dark"
+      );
+    });
+
+  const [
+    lastUpdated,
+    setLastUpdated,
+  ] = useState<Date>(new Date());
 
   useEffect(() => {
     if (darkMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
+      document.documentElement.classList.add(
+        "dark",
+      );
+
+      localStorage.setItem(
+        "theme",
+        "dark",
+      );
     } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
+      document.documentElement.classList.remove(
+        "dark",
+      );
+
+      localStorage.setItem(
+        "theme",
+        "light",
+      );
     }
   }, [darkMode]);
 
   const handleRefresh = () => {
     setLastUpdated(new Date());
+
     window.location.reload();
   };
 
-  const formatLastUpdated = (date: Date) => {
-    return date.toLocaleString("en-AU", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
+  const formatLastUpdated = (
+    date: Date,
+  ) => {
+    return date.toLocaleString(
+      "en-AU",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      },
+    );
   };
 
   return (
     <SidebarProvider>
-      <div className="h-screen overflow-hidden flex w-full bg-background">
+
+      {/* ROOT */}
+
+      <div
+        className="
+          h-screen
+          w-full
+          overflow-hidden
+          flex
+          bg-background
+          transition-all
+          duration-200
+          ease-out
+        "
+      >
+
+        {/* SIDEBAR */}
+
         <AppSidebar />
-        <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
-          <header className="h-14 flex items-center justify-between border-b bg-card px-4 shadow-sm">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger />
-              <h1 className="text-base font-semibold text-foreground truncate">
+
+        {/* MAIN WRAPPER */}
+
+        <div
+          className="
+            flex-1
+            min-w-0
+            h-screen
+            overflow-hidden
+            flex
+            flex-col
+            transition-all
+            duration-200
+            ease-out
+          "
+        >
+
+          {/* HEADER */}
+
+          <header
+            className="
+              h-14
+              shrink-0
+              flex
+              items-center
+              justify-between
+              border-b
+              bg-card
+              px-4
+              shadow-sm
+              transition-all
+              duration-200
+              ease-out
+            "
+          >
+
+            {/* LEFT */}
+
+            <div
+              className="
+                flex
+                items-center
+                gap-2
+                transition-all
+                duration-200
+                ease-out
+              "
+            >
+
+              
+
+              <h1
+                className="
+                  text-base
+                  font-semibold
+                  text-foreground
+                  truncate
+                  transition-all
+                  duration-200
+                  ease-out
+                "
+              >
                 {title}
               </h1>
+
             </div>
 
-            <div className="flex items-center gap-2">
-              {/* REFRESH with last-updated tooltip */}
+            {/* RIGHT */}
+
+            <div
+              className="
+                flex
+                items-center
+                gap-2
+              "
+            >
+
+              {/* REFRESH */}
+
               <div className="relative group">
+
                 <button
-                  onClick={handleRefresh}
-                  className="p-2 rounded-md hover:bg-muted transition-colors"
+                  onClick={
+                    handleRefresh
+                  }
+                  className="
+                    p-2
+                    rounded-md
+                    hover:bg-muted
+                    transition-all
+                    duration-200
+                    ease-out
+                  "
                   aria-label="Refresh"
                 >
                   <RefreshCw className="h-5 w-5 text-muted-foreground" />
                 </button>
+
                 <div className="absolute right-0 top-full mt-1 z-50 hidden group-hover:block">
-                  <div className="bg-popover text-popover-foreground text-xs rounded-md shadow-md border px-3 py-2 whitespace-nowrap">
-                    Last updated: {formatLastUpdated(lastUpdated)}
+
+                  <div
+                    className="
+                      bg-popover
+                      text-popover-foreground
+                      text-xs
+                      rounded-md
+                      shadow-md
+                      border
+                      px-3
+                      py-2
+                      whitespace-nowrap
+                    "
+                  >
+                    Last updated:
+                    {" "}
+                    {formatLastUpdated(
+                      lastUpdated,
+                    )}
                   </div>
+
                 </div>
               </div>
+
+              {/* SETTINGS */}
+
               <button
-                className="p-2 rounded-md hover:bg-muted transition-colors"
+                className="
+                  p-2
+                  rounded-md
+                  hover:bg-muted
+                  transition-all
+                  duration-200
+                  ease-out
+                "
                 aria-label="Settings"
               >
                 <Settings className="h-5 w-5 text-muted-foreground" />
               </button>
-              {/* USER MENU — Dark Mode toggle inside */}
+
+              {/* USER MENU */}
+
               <DropdownMenu>
-                <DropdownMenuTrigger className="rounded-full focus:outline-none focus:ring-2 focus:ring-ring">
+
+                <DropdownMenuTrigger
+                  className="
+                    rounded-full
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-ring
+                  "
+                >
+
                   <Avatar className="h-8 w-8 cursor-pointer">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                      {initials(current.name)}
+
+                    <AvatarFallback
+                      className="
+                        bg-primary
+                        text-primary-foreground
+                        text-xs
+                      "
+                    >
+                      {initials(
+                        current.name,
+                      )}
                     </AvatarFallback>
+
                   </Avatar>
+
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="end" className="w-72">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-72"
+                >
+
+                  {/* USER INFO */}
+
                   <DropdownMenuLabel className="flex flex-col gap-1 py-2">
-                    <span className="font-semibold">{current.name}</span>
-                    <span className="text-xs text-muted-foreground font-normal">
+
+                    <span className="font-semibold">
+                      {current.name}
+                    </span>
+
+                    <span
+                      className="
+                        text-xs
+                        text-muted-foreground
+                        font-normal
+                      "
+                    >
                       {current.email}
                     </span>
+
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="secondary" className="text-xs">
+
+                      <Badge
+                        variant="secondary"
+                        className="text-xs"
+                      >
                         {current.role}
                       </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        Portfolio: {current.portfolio}
+
+                      <Badge
+                        variant="outline"
+                        className="text-xs"
+                      >
+                        Portfolio:
+                        {" "}
+                        {current.portfolio}
                       </Badge>
+
                     </div>
+
                   </DropdownMenuLabel>
 
                   <DropdownMenuSeparator />
 
-                  {/* DARK MODE TOGGLE */}
+                  {/* DARK MODE */}
+
                   <DropdownMenuItem
                     onClick={(e) => {
                       e.preventDefault();
-                      setDarkMode((prev) => !prev);
+
+                      setDarkMode(
+                        (prev) =>
+                          !prev,
+                      );
                     }}
                     className="cursor-pointer"
                   >
+
                     {darkMode ? (
                       <Sun className="h-4 w-4 mr-2" />
                     ) : (
                       <Moon className="h-4 w-4 mr-2" />
                     )}
-                    {darkMode ? "Light Mode" : "Dark Mode"}
+
+                    {darkMode
+                      ? "Light Mode"
+                      : "Dark Mode"}
+
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
 
-                  <DropdownMenuItem onClick={() => navigate("/profile")}>
-                    <UserIcon className="h-4 w-4 mr-2" /> My Profile
+                  {/* PROFILE */}
+
+                  <DropdownMenuItem
+                    onClick={() =>
+                      navigate(
+                        "/profile",
+                      )
+                    }
+                  >
+                    <UserIcon className="h-4 w-4 mr-2" />
+
+                    My Profile
+
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem onClick={() => navigate("/my-allocations")}>
-                    <ListChecks className="h-4 w-4 mr-2" /> My Allocations
+                  {/* ALLOCATIONS */}
+
+                  <DropdownMenuItem
+                    onClick={() =>
+                      navigate(
+                        "/my-allocations",
+                      )
+                    }
+                  >
+                    <ListChecks className="h-4 w-4 mr-2" />
+
+                    My Allocations
+
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
 
-                  <DropdownMenuLabel className="text-xs text-muted-foreground">
+                  {/* SWITCH USER */}
+
+                  <DropdownMenuLabel
+                    className="
+                      text-xs
+                      text-muted-foreground
+                    "
+                  >
                     Switch user (demo)
                   </DropdownMenuLabel>
 
                   <DropdownMenuRadioGroup
                     value={current.id}
-                    onValueChange={(id) => {
+                    onValueChange={(
+                      id,
+                    ) => {
                       setUser(id);
+
                       toast.success(
-                        `Switched to ${users.find((u) => u.id === id)?.name}`,
+                        `Switched to ${
+                          users.find(
+                            (
+                              u,
+                            ) =>
+                              u.id ===
+                              id,
+                          )?.name
+                        }`,
                       );
                     }}
                   >
-                    {users.map((u) => (
-                      <DropdownMenuRadioItem
-                        key={u.id}
-                        value={u.id}
-                        className="text-sm"
-                      >
-                        {u.name}
-                        <span className="ml-auto text-xs text-muted-foreground">
-                          {u.portfolio}
-                        </span>
-                      </DropdownMenuRadioItem>
-                    ))}
+
+                    {users.map(
+                      (u) => (
+                        <DropdownMenuRadioItem
+                          key={u.id}
+                          value={u.id}
+                          className="text-sm"
+                        >
+                          {u.name}
+
+                          <span
+                            className="
+                              ml-auto
+                              text-xs
+                              text-muted-foreground
+                            "
+                          >
+                            {u.portfolio}
+                          </span>
+
+                        </DropdownMenuRadioItem>
+                      ),
+                    )}
+
                   </DropdownMenuRadioGroup>
 
                   <DropdownMenuSeparator />
 
+                  {/* LOGOUT */}
+
                   <DropdownMenuItem
                     onClick={() =>
-                      toast.info("Logout simulated — session ended")
+                      toast.info(
+                        "Logout simulated — session ended",
+                      )
                     }
                   >
-                    <LogOut className="h-4 w-4 mr-2" /> Logout
+                    <LogOut className="h-4 w-4 mr-2" />
+
+                    Logout
+
                   </DropdownMenuItem>
+
                 </DropdownMenuContent>
+
               </DropdownMenu>
+
             </div>
+
           </header>
 
-          <main className="flex-1 p-6 overflow-y-auto overflow-x-hidden">
-  {children}
-</main>
+          {/* MAIN CONTENT */}
+
+          <main
+            className="
+              flex-1
+              overflow-y-auto
+              overflow-x-hidden
+              p-6
+              transition-all
+              duration-200
+              ease-out
+            "
+          >
+            {children}
+          </main>
+
         </div>
+
       </div>
+
     </SidebarProvider>
   );
 }

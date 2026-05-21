@@ -195,13 +195,13 @@ export default function ProjectsPage() {
           </div>
 
           {/* Table */}
-          <div className="border border-border rounded-xl overflow-x-auto">
-            <table className="w-full min-w-[1400px]">
+          <div className="border border-border rounded-xl overflow-hidden w-full">
+            <table className="w-full table-fixed">
               <thead className="bg-card border-b border-border">
                 <tr className="text-left text-xs font-medium tracking-wide text-muted-foreground uppercase">
                   <th className="w-8 px-2 py-3"></th>
                   <th className="px-4 py-3 font-medium normal-case">ID</th>
-                  <th className="px-4 py-3 font-medium normal-case">Project</th>
+                  <th className="w-[260px] px-4 py-3 font-medium normal-case">Project</th>
                   <th className="px-4 py-3 font-medium normal-case">Status</th>
                   <th className="px-4 py-3 font-medium normal-case">
                     Priority
@@ -215,7 +215,7 @@ export default function ProjectsPage() {
                   <th className="px-4 py-3 font-medium normal-case">
                     Team Size
                   </th>
-                  <th className="p-4 min-w-[160px] normal-case">Progress</th>
+                  <th className="w-[180px] p-4 normal-case">Progress</th>
                 </tr>
               </thead>
 
@@ -253,7 +253,7 @@ export default function ProjectsPage() {
                           <td className="p-4 text-sm text-muted-foreground font-medium">
                             {project.id}
                           </td>
-                          <td className="p-4 min-w-[240px]">
+                          <td className="p-4 w-[260px]">
                             <div className="font-medium text-foreground">
                               {project.project}
                             </div>
