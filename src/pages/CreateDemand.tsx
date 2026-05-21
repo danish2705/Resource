@@ -61,6 +61,14 @@ export type DemandForm = {
   country: string;
   allocation: { current: number; y2027: number; y2028: number; y2029: number; y2030: number };
   forecast:   { current: number; y2027: number; y2028: number; y2029: number; y2030: number };
+  source?:
+    | "Manual"
+    | "Jira"
+    | "Planisware"
+    | "Smartsheets"
+    | "Monday.com"
+    | "Connected Source";
+  isEdited?: boolean;
 };
 
 // ── Per-form submission status ────────────────────────────────────────────────

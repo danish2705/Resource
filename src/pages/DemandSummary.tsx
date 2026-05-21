@@ -164,7 +164,7 @@ function mapRowToDemand(
     allocation: { current: 0, y2027: 0, y2028: 0, y2029: 0, y2030: 0 },
     forecast: { current: 0, y2027: 0, y2028: 0, y2029: 0, y2030: 0 },
     // ── New fields ──
-    source,
+    source: source as Demand["source"],
     isEdited: false,
   };
 }
