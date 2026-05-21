@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { ChevronDown, ChevronRight, Search, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { usePillarFilter } from "@/hooks/usePillarFilter";
 import {
   type ProjectResource,
   type Project,
@@ -45,6 +46,8 @@ function FilterSelect({
 
 export default function ProjectsPage() {
   const [expandedRows, setExpandedRows] = useState<string[]>([]);
+  const { filterByPillar } = usePillarFilter();
+  const visibleProjects = filterByPillar(projectData);
   const [filters, setFilters] = useState<Filters>({
     search: "",
     status: "",
@@ -63,7 +66,7 @@ export default function ProjectsPage() {
     setFilters((prev) => ({ ...prev, [key]: value }));
 
   const uniqueClients = useMemo(
-    () => Array.from(new Set(projectData.map((p) => p.client))).sort(),
+    () => Array.from(new Set(visibleProjects.map((p) => p.client))).sort(),
     [],
   );
 
@@ -95,7 +98,7 @@ export default function ProjectsPage() {
   };
 
   const filtered = useMemo(() => {
-    return projectData.filter((p) => {
+    return visibleProjects.filter((p) => {
       const q = filters.search.toLowerCase();
       if (
         q &&

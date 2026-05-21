@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { usePillarFilter } from "@/hooks/usePillarFilter";
 import {
   Select,
   SelectContent,
@@ -174,6 +175,8 @@ function mapRowToDemand(
 export default function DemandSummary() {
   const navigate = useNavigate();
   const { demands, addDemands, deleteDemand } = useStore();
+  const { filterByPillar } = usePillarFilter();
+  const visibleDemands = filterByPillar(demands);
   const { user } = useAuth();
   const canEditDelete = user ? hasPermission(user.role, "edit_demand") : false;
   const projects = useActiveValues("projects");
@@ -223,7 +226,7 @@ export default function DemandSummary() {
   // ── Filtered data ──
   const filtered = useMemo(() => {
     const q = fSearch.toLowerCase();
-    return demands.filter((d) => {
+    return visibleDemands.filter((d) => {
       const matchSearch =
         !q ||
         d.projectName.toLowerCase().includes(q) ||
@@ -245,7 +248,7 @@ export default function DemandSummary() {
         matchSource
       );
     });
-  }, [demands, fSearch, fProject, fRole, fPillar, fStatus, fSource]);
+  }, [visibleDemands, fSearch, fProject, fRole, fPillar, fStatus, fSource]);
 
   const hasActiveFilters =
     fSearch ||
@@ -411,7 +414,7 @@ export default function DemandSummary() {
     { key: "budgetCode", header: "Budget Code" },
     {
       key: "pillar",
-      header: "Domain / Pillar",
+      header: "Pillar",
       render: (row) => <Badge variant="outline">{row.pillar}</Badge>,
     },
     {
@@ -554,7 +557,7 @@ export default function DemandSummary() {
           <div>
             <CardTitle className="text-base">Demand Summary</CardTitle>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {demands.length} demands
+              {visibleDemands.length} demands
             </p>
           </div>
         </CardHeader>

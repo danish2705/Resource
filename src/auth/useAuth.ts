@@ -7,6 +7,7 @@ export interface AuthUser {
   username: string;
   role: Role;
   portfolio: string;
+  pillar: string | null;
 }
 
 // ─── Credential Store ─────────────────────────────────────────────────────────
@@ -23,12 +24,19 @@ const CREDENTIALS: Array<{
       username: "super",
       role: "super_admin",
       portfolio: "Global",
+      pillar: null,
     },
   },
   {
     username: "pmo",
     password: "pmo",
-    user: { id: "auth-2", username: "pmo", role: "pmo", portfolio: "Hi-tech" },
+    user: {
+      id: "auth-2",
+      username: "pmo",
+      role: "pmo",
+      portfolio: "Hi-tech",
+      pillar: "Hi-tech",
+    },
   },
   {
     username: "resm",
@@ -38,6 +46,7 @@ const CREDENTIALS: Array<{
       username: "resm",
       role: "resource_manager",
       portfolio: "Banking",
+      pillar: "Banking",
     },
   },
   {
@@ -48,6 +57,7 @@ const CREDENTIALS: Array<{
       username: "reso",
       role: "resource",
       portfolio: "Healthcare",
+      pillar: "Healthcare",
     },
   },
 ];

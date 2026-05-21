@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-
+import { usePillarFilter } from "@/hooks/usePillarFilter";
 import {
   Select,
   SelectContent,
@@ -113,11 +113,13 @@ const columns: Column<AllocationRow>[] = [
   },
 ];
 
-const allProjects = Array.from(new Set(allocations.map((r) => r.projectId)));
-
 export default function ResourceAllocation() {
   const [search, setSearch] = useState("");
-
+  const { filterByPillar } = usePillarFilter();
+  const visibleAllocations = filterByPillar(allocations);
+  const allProjects = Array.from(
+    new Set(visibleAllocations.map((r) => r.projectId)),
+  );
   const [allocationTypeFilter, setAllocationTypeFilter] = useState("all");
 
   const [projectFilter, setProjectFilter] = useState("all");
@@ -127,7 +129,7 @@ export default function ResourceAllocation() {
   const filteredData = useMemo(() => {
     const q = search.toLowerCase();
 
-    return allocations.filter((r) => {
+    return visibleAllocations.filter((r) => {
       const matchSearch =
         !q ||
         r.resource.toLowerCase().includes(q) ||

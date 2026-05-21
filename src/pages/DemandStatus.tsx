@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { usePillarFilter } from "@/hooks/usePillarFilter";
 import {
   Select,
   SelectContent,
@@ -33,6 +34,8 @@ import {
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+
 
 function formatCurrency(value: number) {
   if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
@@ -182,7 +185,7 @@ function ViewDetailsModal({
               {/* Project Role */}
               <Field label="Project Role" value={demand.projectRole || "—"} />
               {/* Pillar */}
-              <Field label="Pillar" value={demand.domainPillar} />
+              <Field label="Pillar" value={demand.pillar} />
               {/* Budget Code */}
               <Field label="Budget Code" value={demand.budgetCode} />
               {/* Workstream */}
@@ -380,6 +383,8 @@ function YearField({
 // ─── DemandStatus Page ────────────────────────────────────────────────────────
 
 export default function DemandStatus() {
+  const { filterByPillar } = usePillarFilter(); 
+  const visibleDemands = filterByPillar(demandData);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterDomain, setFilterDomain] = useState("all");
@@ -389,7 +394,7 @@ export default function DemandStatus() {
 
   const filteredData = useMemo(() => {
     const q = search.toLowerCase();
-    return demandData.filter((d) => {
+    return visibleDemands.filter((d) => {
       const matchSearch =
         !q ||
         d.projectId.toLowerCase().includes(q) ||
@@ -398,7 +403,7 @@ export default function DemandStatus() {
         d.submittedBy.toLowerCase().includes(q);
       const matchStatus = filterStatus === "all" || d.status === filterStatus;
       const matchDomain =
-        filterDomain === "all" || d.domainPillar === filterDomain;
+        filterDomain === "all" || d.pillar === filterDomain;
       const matchAllocation =
         filterAllocation === "all" ||
         (filterAllocation === "full" &&
@@ -409,7 +414,7 @@ export default function DemandStatus() {
         (filterAllocation === "none" && d.allocatedResources === 0);
       return matchSearch && matchStatus && matchDomain && matchAllocation;
     });
-  }, [search, filterStatus, filterDomain, filterAllocation]);
+  }, [visibleDemands, search, filterStatus, filterDomain, filterAllocation]);
 
   const hasActiveFilters =
     search ||
@@ -424,7 +429,7 @@ export default function DemandStatus() {
     setFilterAllocation("all");
   };
 
-  const domains = [...new Set(demandData.map((d) => d.domainPillar))].sort();
+  const domains = [...new Set(visibleDemands.map((d) => d.pillar))].sort();
 
   return (
     <>
@@ -442,7 +447,7 @@ export default function DemandStatus() {
             <CardTitle className="text-base">Demand Status</CardTitle>
           </div>
           <p className="text-sm text-muted-foreground">
-            {demandData.length} demands · track allocation &amp; approval
+            {visibleDemands.length} demands · track allocation &amp; approval
             progress
           </p>
         </CardHeader>
@@ -575,7 +580,7 @@ export default function DemandStatus() {
                             {d.projectName}
                           </div>
                           <div className="text-xs text-muted-foreground mt-0.5">
-                            {d.domainPillar}
+                            {d.pillar}
                           </div>
                         </td>
                         <td className="px-3 py-3">
