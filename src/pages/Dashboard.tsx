@@ -1,922 +1,604 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
-  Users,
-  Gauge,
-  PieChart as PieChartIcon,
-  UserCheck,
-  UserX,
-  TrendingUp,
-  AlertTriangle,
-  ClipboardCheck,
+  Users, Gauge, PieChart as PieChartIcon, UserCheck, UserX,
+  TrendingUp, AlertTriangle, ClipboardCheck, ChevronRight,
+  Activity, Zap, ArrowUpRight, ArrowDownRight,
 } from 'lucide-react';
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-
 import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-  Legend,
+  ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis,
+  Tooltip, PieChart, Pie, Cell, BarChart, Bar, Legend,
 } from 'recharts';
+import type { TooltipProps } from 'recharts';
 
-const COLORS = {
-  blue: 'hsl(var(--kpi-blue))',
-  green: 'hsl(var(--kpi-green))',
-  orange: 'hsl(var(--kpi-orange))',
-  purple: 'hsl(var(--kpi-purple))',
-  red: 'hsl(var(--destructive))',
+/* ─────────────────────────── tokens ─────────────────────────── */
+const C = {
+  blue:   '#2563EB',
+  blueSoft: '#DBEAFE',
+  green:  '#16A34A',
+  greenSoft: '#DCFCE7',
+  orange: '#EA580C',
+  orangeSoft: '#FFEDD5',
+  purple: '#7C3AED',
+  purpleSoft: '#EDE9FE',
+  red:    '#DC2626',
+  redSoft:  '#FEE2E2',
+  amber:  '#D97706',
+  amberSoft: '#FEF3C7',
+  slate:  '#64748B',
+  border: '#E2E8F0',
+  bg:     '#F8FAFC',
+  surface: '#FFFFFF',
 };
 
+/* ─────────────────────────── data ─────────────────────────────── */
 const kpiCards = [
-  {
-    title: 'Total Active Resources',
-    value: '2,487',
-    change: 'vs last month +3.2%',
-    icon: Users,
-    color: COLORS.blue,
-    bg: 'bg-[hsl(var(--kpi-blue-bg))]',
-  },
-  {
-    title: 'Available Capacity',
-    value: '18.6%',
-    change: 'vs last month -2.1%',
-    icon: Gauge,
-    color: COLORS.green,
-    bg: 'bg-[hsl(var(--kpi-green-bg))]',
-  },
-  {
-    title: 'Utilization',
-    value: '78.4%',
-    change: 'QoQ +1.8%',
-    icon: PieChartIcon,
-    color: COLORS.purple,
-    bg: 'bg-[hsl(var(--kpi-purple-bg))]',
-  },
-  {
-    title: 'Allocated Resources',
-    value: '1,945',
-    change: 'vs last month +2.7%',
-    icon: UserCheck,
-    color: COLORS.orange,
-    bg: 'bg-[hsl(var(--kpi-orange-bg))]',
-  },
-  {
-    title: 'Bench Resources',
-    value: '335',
-    change: 'vs last month -5.6%',
-    icon: UserX,
-    color: COLORS.red,
-    bg: 'bg-red-100',
-  },
-  {
-    title: 'Forecasted Demand',
-    value: '2,721',
-    change: 'forecast growth +4.3%',
-    icon: TrendingUp,
-    color: COLORS.blue,
-    bg: 'bg-[hsl(var(--kpi-blue-bg))]',
-  },
-  {
-    title: 'Demand vs Capacity Gap',
-    value: '-234',
-    change: 'resource shortage',
-    icon: AlertTriangle,
-    color: COLORS.red,
-    bg: 'bg-red-100',
-  },
-  {
-    title: 'Timesheet Compliance',
-    value: '93.1%',
-    change: 'vs last month +2.5%',
-    icon: ClipboardCheck,
-    color: COLORS.green,
-    bg: 'bg-[hsl(var(--kpi-green-bg))]',
-  },
+  { title: 'Total Active Resources', value: '2,487', raw: 2487, change: '+3.2%', up: true,  icon: Users,         accent: C.blue,   soft: C.blueSoft  },
+  { title: 'Available Capacity',     value: '18.6%', raw: 18.6, change: '-2.1%', up: false, icon: Gauge,         accent: C.green,  soft: C.greenSoft },
+  { title: 'Utilization Rate',       value: '78.4%', raw: 78.4, change: '+1.8%', up: true,  icon: PieChartIcon,  accent: C.purple, soft: C.purpleSoft},
+  { title: 'Allocated Resources',    value: '1,945', raw: 1945, change: '+2.7%', up: true,  icon: UserCheck,     accent: C.orange, soft: C.orangeSoft},
+  { title: 'Bench Resources',        value: '335',   raw: 335,  change: '-5.6%', up: true,  icon: UserX,         accent: C.amber,  soft: C.amberSoft },
+  { title: 'Forecasted Demand',      value: '2,721', raw: 2721, change: '+4.3%', up: true,  icon: TrendingUp,    accent: C.blue,   soft: C.blueSoft  },
+  { title: 'Demand vs Capacity Gap', value: '-234',  raw: -234, change: 'shortage', up: false, icon: AlertTriangle, accent: C.red, soft: C.redSoft },
+  { title: 'Timesheet Compliance',   value: '93.1%', raw: 93.1, change: '+2.5%', up: true,  icon: ClipboardCheck,accent: C.green, soft: C.greenSoft },
 ];
 
 const trendData = [
-  {
-    month: 'Jan 26',
-    capacity: 2200,
-    allocated: 1500,
-    available: 700,
-  },
-  {
-    month: 'Feb 26',
-    capacity: 2400,
-    allocated: 1700,
-    available: 700,
-  },
-  {
-    month: 'Mar 26',
-    capacity: 2600,
-    allocated: 1750,
-    available: 850,
-  },
-  {
-    month: 'Apr 26',
-    capacity: 2500,
-    allocated: 1680,
-    available: 820,
-    forecast: 2400,
-  },
-  {
-    month: 'May 26',
-    capacity: 2580,
-    allocated: 1780,
-    available: 800,
-    forecast: 2500,
-  },
-  {
-    month: 'Jun 26',
-    capacity: 2520,
-    allocated: 1600,
-    available: 920,
-    forecast: 2721,
-  },
+  { month: 'Jan', capacity: 2200, allocated: 1500, available: 700 },
+  { month: 'Feb', capacity: 2400, allocated: 1700, available: 700 },
+  { month: 'Mar', capacity: 2600, allocated: 1750, available: 850 },
+  { month: 'Apr', capacity: 2500, allocated: 1680, available: 820, forecast: 2400 },
+  { month: 'May', capacity: 2580, allocated: 1780, available: 800, forecast: 2500 },
+  { month: 'Jun', capacity: 2520, allocated: 1600, available: 920, forecast: 2721 },
 ];
 
 const utilizationData = [
-  { name: 'Optimal', value: 54, color: COLORS.blue },
-  { name: 'High', value: 22, color: COLORS.orange },
-  { name: 'Underutilized', value: 16, color: COLORS.green },
-  { name: 'Overallocated', value: 8, color: COLORS.red },
+  { name: 'Optimal',      value: 54, color: C.blue   },
+  { name: 'High',         value: 22, color: C.orange  },
+  { name: 'Underutilized',value: 16, color: C.green   },
+  { name: 'Overallocated',value:  8, color: C.red     },
 ];
 
 const allocationData = [
-  { name: 'Engineering', allocated: 78, available: 14, bench: 8 },
-  { name: 'Product', allocated: 74, available: 16, bench: 10 },
-  { name: 'Architecture', allocated: 81, available: 11, bench: 8 },
-  { name: 'Data', allocated: 72, available: 17, bench: 11 },
-  { name: 'QA', allocated: 76, available: 14, bench: 10 },
-  { name: 'Operations', allocated: 68, available: 17, bench: 15 },
+  { name: 'Engineering',     allocated: 78, available: 14, bench: 8  },
+  { name: 'Product',         allocated: 74, available: 16, bench: 10 },
+  { name: 'Architecture',    allocated: 81, available: 11, bench: 8  },
+  { name: 'Data',            allocated: 72, available: 17, bench: 11 },
+  { name: 'QA',              allocated: 76, available: 14, bench: 10 },
+  { name: 'Operations',      allocated: 68, available: 17, bench: 15 },
   { name: 'Shared Services', allocated: 63, available: 22, bench: 15 },
 ];
 
 const forecastVsActuals = [
-  { month: 'Jan 26', planned: 115000, forecast: 100000, actual: 95000 },
-  { month: 'Feb 26', planned: 118000, forecast: 102000, actual: 98000 },
-  { month: 'Mar 26', planned: 120000, forecast: 108000, actual: 99000 },
-  { month: 'Apr 26', planned: 125000, forecast: 115000, actual: 104000 },
-  { month: 'May 26', planned: 126000, forecast: 112000, actual: 100000 },
-  { month: 'Jun 26', planned: 127000, forecast: 118000, actual: 98000 },
+  { month: 'Jan', planned: 115, forecast: 100, actual: 95  },
+  { month: 'Feb', planned: 118, forecast: 102, actual: 98  },
+  { month: 'Mar', planned: 120, forecast: 108, actual: 99  },
+  { month: 'Apr', planned: 125, forecast: 115, actual: 104 },
+  { month: 'May', planned: 126, forecast: 112, actual: 100 },
+  { month: 'Jun', planned: 127, forecast: 118, actual: 98  },
 ];
 
-const capacityHeatmap = [
-  {
-    skill: 'Cloud Engineering',
-    may: 'bg-green-500',
-    jun: 'bg-green-400',
-    jul: 'bg-yellow-400',
-  },
-  {
-    skill: 'Data Engineering',
-    may: 'bg-green-400',
-    jun: 'bg-yellow-400',
-    jul: 'bg-orange-500',
-  },
-  {
-    skill: 'Software Engineering',
-    may: 'bg-yellow-400',
-    jun: 'bg-orange-500',
-    jul: 'bg-red-500',
-  },
-  {
-    skill: 'QA Automation',
-    may: 'bg-yellow-400',
-    jun: 'bg-orange-400',
-    jul: 'bg-red-500',
-  },
-  {
-    skill: 'DevOps',
-    may: 'bg-orange-400',
-    jun: 'bg-red-500',
-    jul: 'bg-red-600',
-  },
+const heatmap = [
+  { skill: 'Cloud Engineering',    may: '#22C55E', jun: '#86EFAC', jul: '#FDE047' },
+  { skill: 'Data Engineering',     may: '#86EFAC', jun: '#FDE047', jul: '#F97316' },
+  { skill: 'Software Engineering', may: '#FDE047', jun: '#F97316', jul: '#EF4444' },
+  { skill: 'QA Automation',        may: '#FDE047', jun: '#FB923C', jul: '#EF4444' },
+  { skill: 'DevOps',               may: '#FB923C', jun: '#EF4444', jul: '#B91C1C' },
 ];
 
-const resourceCompleteness = [
-  { label: 'Skills', value: 95 },
-  { label: 'Allocation Data', value: 93 },
-  { label: 'Manager Assignment', value: 91 },
-  { label: 'Timesheet Data', value: 89 },
-  { label: 'Certifications', value: 85 },
+const completeness = [
+  { label: 'Skills',              value: 95 },
+  { label: 'Allocation Data',     value: 93 },
+  { label: 'Manager Assignment',  value: 91 },
+  { label: 'Timesheet Data',      value: 89 },
+  { label: 'Certifications',      value: 85 },
 ];
 
-export default function Dashboard() {
-  const overallCompleteness = useMemo(() => {
-    const total = resourceCompleteness.reduce(
-      (acc, item) => acc + item.value,
-      0,
-    );
+const alerts = [
+  { label: 'Overallocated Resources', count: 2, variant: 'red'    },
+  { label: 'Missing Timesheets',      count: 1, variant: 'orange' },
+  { label: 'Expiring Contracts',      count: 1, variant: 'amber'  },
+  { label: 'Critical Skill Shortage', count: 1, variant: 'red'    },
+];
 
-    return Math.round(
-      total / resourceCompleteness.length,
-    );
-  }, []);
+const staffing = [
+  { label: 'High Priority',   count: 12, color: C.red    },
+  { label: 'Medium Priority', count: 10, color: C.orange },
+  { label: 'Low Priority',    count:  5, color: C.green  },
+];
+
+/* ─────────────────────────── sub-components ─────────────────── */
+
+const alertColors = {
+  red:    { bg: '#FEE2E2', text: '#B91C1C', dot: '#EF4444' },
+  orange: { bg: '#FFEDD5', text: '#C2410C', dot: '#F97316' },
+  amber:  { bg: '#FEF3C7', text: '#B45309', dot: '#F59E0B' },
+};
+
+type PillProps = {
+  children: React.ReactNode;
+  color?: string;
+  bg?: string;
+};
+
+function Pill({
+  children,
+  color = C.blue,
+  bg,
+}: PillProps) {
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 5,
+        padding: '2px 10px',
+        borderRadius: 9999,
+        fontSize: 11,
+        fontWeight: 600,
+        background: bg || color + '18',
+        color,
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+type CustomTooltipProps = {
+  active?: boolean;
+  payload?: any[];
+  label?: string;
+};
+
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: CustomTooltipProps) => {
+  if (!active || !payload?.length) return null;
 
   return (
-    <div className="space-y-6">
+    <div
+      style={{
+        background: '#1E293B',
+        border: '1px solid #334155',
+        borderRadius: 10,
+        padding: '10px 14px',
+        fontSize: 12,
+        color: '#F1F5F9',
+        minWidth: 140,
+      }}
+    >
+      <div
+        style={{
+          fontWeight: 700,
+          marginBottom: 6,
+          color: '#94A3B8',
+        }}
+      >
+        {label}
+      </div>
 
-      {/* HEADER */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      {payload.map((p, index) => (
+        <div
+          key={index}
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            gap: 16,
+            marginBottom: 2,
+          }}
+        >
+          <span style={{ color: p.color }}>
+            {p.name}
+          </span>
 
+          <span style={{ fontWeight: 600 }}>
+            {p.value?.toLocaleString()}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+function SectionLabel({ children }) {
+  return (
+    <div style={{
+      fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
+      textTransform: 'uppercase', color: C.slate, marginBottom: 14,
+    }}>
+      {children}
+    </div>
+  );
+}
+
+/* ─────────────────────────── KPI card ─────────────────────────── */
+function KpiCard({ card }) {
+  const Icon = card.icon;
+  const isNegativeChange = !card.up;
+  return (
+    <div style={{
+      background: C.surface, borderRadius: 16, padding: '20px 20px 18px',
+      border: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column',
+      gap: 0, position: 'relative', overflow: 'hidden',
+      boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+      transition: 'box-shadow 0.2s, transform 0.2s',
+    }}
+      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.10)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+      onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+    >
+      {/* accent strip */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: card.accent, borderRadius: '16px 16px 0 0' }} />
+
+      {/* icon */}
+      <div style={{
+        width: 38, height: 38, borderRadius: 10, background: card.soft,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14,
+      }}>
+        <Icon size={18} color={card.accent} />
+      </div>
+
+      {/* value */}
+      <div style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', lineHeight: 1, letterSpacing: '-0.02em', marginBottom: 6 }}>
+        {card.value}
+      </div>
+
+      {/* title */}
+      <div style={{ fontSize: 12, color: C.slate, fontWeight: 500, marginBottom: 10, lineHeight: 1.4, minHeight: 32 }}>
+        {card.title}
+      </div>
+
+      {/* change */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700 }}>
+        {card.change === 'shortage' ? (
+          <span style={{ color: C.red }}>⚠ Resource shortage</span>
+        ) : (
+          <>
+            {isNegativeChange
+              ? <ArrowDownRight size={13} color={C.red} />
+              : <ArrowUpRight size={13} color={C.green} />}
+            <span style={{ color: isNegativeChange ? C.red : C.green }}>{card.change}</span>
+            <span style={{ color: '#00050b', fontWeight: 600 }}>vs Jan 2026</span>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────── MAIN ─────────────────────────────── */
+export default function Dashboard() {
+  const overall = useMemo(() => Math.round(completeness.reduce((s, i) => s + i.value, 0) / completeness.length), []);
+
+  return (
+    <div style={{ background: C.bg, minHeight: '100vh', padding: '28px 32px', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+
+      {/* ── HEADER ── */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 32 }}>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: C.green, boxShadow: `0 0 0 3px ${C.greenSoft}` }} />
+            <span style={{ fontSize: 11, fontWeight: 600, color: C.green, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Live</span>
+          </div>
+          <h1 style={{ fontSize: 30, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.03em' }}>
             Overview
           </h1>
-
-          <p className="text-muted-foreground text-sm mt-1">
-            High level view of capacity, utilization,
-            demand and resource health.
+          <p style={{ fontSize: 13, color: C.slate, marginTop: 4, fontWeight: 400 }}>
+            Capacity · Utilization · Demand · Resource Health
           </p>
         </div>
-
-        <div className="flex items-center gap-3">
-
-          <Badge
-            variant="outline"
-            className="px-3 py-1 text-xs"
-          >
-            Reporting Period: May 2026
-          </Badge>
-
-          <Badge
-            variant="outline"
-            className="px-3 py-1 text-xs"
-          >
-            Forecast Horizon: 90 Days
-          </Badge>
-
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
+          <div style={{
+            background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10,
+            padding: '7px 14px', fontSize: 12, fontWeight: 600, color: '#475569',
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}>
+            <Activity size={13} color={C.blue} />
+            May 2026
+          </div>
+          <div style={{
+            background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10,
+            padding: '7px 14px', fontSize: 12, fontWeight: 600, color: '#475569',
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}>
+            <Zap size={13} color={C.orange} />
+            90-day Horizon
+          </div>
         </div>
       </div>
 
-      {/* KPI SECTION */}
-<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-8 gap-4">
+      {/* ── KPI GRID ── */}
+      <SectionLabel>Key Performance Indicators</SectionLabel>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 12, marginBottom: 28 }}>
+        {kpiCards.map((c) => <KpiCard key={c.title} card={c} />)}
+      </div>
 
-  {kpiCards.map((card) => {
-    const Icon = card.icon;
+      {/* ── ROW 1: trend + utilization ── */}
+      <SectionLabel>Capacity & Utilization</SectionLabel>
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 16 }}>
 
-    return (
-      <Card
-        key={card.title}
-        className="shadow-sm border bg-card/95 backdrop-blur"
-      >
-        <CardContent className="p-5">
-
-          <div className="flex items-start justify-between mb-4">
-
-            <div
-              className={`h-12 w-12 rounded-2xl flex items-center justify-center shadow-sm ${card.bg}`}
-            >
-              <Icon
-                className="h-6 w-6"
-                style={{
-                  color: card.color,
-                }}
-              />
+        {/* Capacity trend */}
+        <div style={{ background: C.surface, borderRadius: 16, padding: '22px 24px', border: `1px solid ${C.border}`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A' }}>Capacity vs Demand Trend</div>
+              <div style={{ fontSize: 12, color: C.slate, marginTop: 2 }}>Jan – Jun 2026</div>
             </div>
-
+            <Pill color={C.blue}>FTE</Pill>
           </div>
-
-          <div className="text-4xl xl:text-[40px] font-semibold tracking-tight leading-none">
-            {card.value}
-          </div>
-
-          <div className="text-[15px] xl:text-base font-medium text-muted-foreground mt-3 min-h-[48px] leading-snug">
-            {card.title}
-          </div>
-
-          <div
-            className={`text-[15px] xl:text-base font-semibold mt-3 ${
-              card.change.includes('-') ||
-              card.change.includes('shortage')
-                ? 'text-red-500'
-                : 'text-green-600'
-            }`}
-          >
-            {card.change}
-          </div>
-
-        </CardContent>
-      </Card>
-    );
-  })}
-</div>
-
-      {/* ROW 1 */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-
-        {/* CAPACITY TREND */}
-        <Card className="xl:col-span-2">
-
-          <CardHeader>
-            <CardTitle>
-              Capacity vs Demand Trend
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="h-[360px]">
-
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-              <LineChart data={trendData}>
-
-                <CartesianGrid strokeDasharray="3 3" />
-
-                <XAxis dataKey="month" />
-
-                <YAxis />
-
-                <Tooltip />
-
-                <Legend />
-
-                <Line
-                  type="monotone"
-                  dataKey="capacity"
-                  stroke={COLORS.blue}
-                  strokeWidth={3}
-                  dot={{ r: 4 }}
-                  name="Total Capacity"
-                />
-
-                <Line
-                  type="monotone"
-                  dataKey="allocated"
-                  stroke={COLORS.green}
-                  strokeWidth={3}
-                  dot={{ r: 4 }}
-                  name="Allocated"
-                />
-
-                <Line
-                  type="monotone"
-                  dataKey="available"
-                  stroke={COLORS.orange}
-                  strokeWidth={3}
-                  dot={{ r: 4 }}
-                  name="Available"
-                />
-
-                <Line
-                  type="monotone"
-                  dataKey="forecast"
-                  stroke={COLORS.purple}
-                  strokeWidth={3}
-                  strokeDasharray="6 6"
-                  dot={{ r: 4 }}
-                  name="Forecast Demand"
-                />
-
+          <div style={{ height: 280 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={trendData} margin={{ top: 5, right: 10, bottom: 5, left: -10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: C.slate }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: C.slate }} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11, paddingTop: 12 }} />
+                <Line type="monotone" dataKey="capacity"  stroke={C.blue}   strokeWidth={2.5} dot={{ r: 4, fill: C.blue,   strokeWidth: 0 }} name="Total Capacity" />
+                <Line type="monotone" dataKey="allocated" stroke={C.green}  strokeWidth={2.5} dot={{ r: 4, fill: C.green,  strokeWidth: 0 }} name="Allocated" />
+                <Line type="monotone" dataKey="available" stroke={C.orange} strokeWidth={2.5} dot={{ r: 4, fill: C.orange, strokeWidth: 0 }} name="Available" />
+                <Line type="monotone" dataKey="forecast"  stroke={C.purple} strokeWidth={2}   dot={{ r: 4, fill: C.purple, strokeWidth: 0 }} strokeDasharray="6 4" name="Forecast Demand" />
               </LineChart>
             </ResponsiveContainer>
+          </div>
+        </div>
 
-          </CardContent>
-        </Card>
-
-        {/* UTILIZATION */}
-        <Card>
-
-          <CardHeader>
-            <CardTitle>
-              Utilization Distribution
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-
-            <div className="h-[240px]">
-
-              <ResponsiveContainer
-                width="100%"
-                height="100%"
-              >
-                <PieChart>
-
-                  <Pie
-                    data={utilizationData}
-                    innerRadius={70}
-                    outerRadius={100}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    {utilizationData.map(
-                      (entry, index) => (
-                        <Cell
-                          key={index}
-                          fill={entry.color}
-                        />
-                      ),
-                    )}
-                  </Pie>
-
-                  <Tooltip />
-
-                </PieChart>
-              </ResponsiveContainer>
-
+        {/* Utilization donut */}
+        <div style={{ background: C.surface, borderRadius: 16, padding: '22px 24px', border: `1px solid ${C.border}`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>Utilization Distribution</div>
+          <div style={{ fontSize: 12, color: C.slate, marginBottom: 16 }}>Current period breakdown</div>
+          <div style={{ position: 'relative', height: 210 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={utilizationData} innerRadius={68} outerRadius={95} paddingAngle={3} dataKey="value" startAngle={90} endAngle={-270}>
+                  {utilizationData.map((e, i) => <Cell key={i} fill={e.color} strokeWidth={0} />)}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div style={{
+              position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center', pointerEvents: 'none',
+            }}>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em' }}>78.4%</div>
+              <div style={{ fontSize: 11, color: C.slate, fontWeight: 500 }}>Utilization</div>
             </div>
-
-            <div className="text-center -mt-32 mb-16">
-
-              <div className="text-3xl font-bold">
-                78.4%
-              </div>
-
-              <div className="text-sm text-muted-foreground">
-                Utilization
-              </div>
-
-            </div>
-
-            <div className="space-y-2 mt-8">
-
-              {utilizationData.map((item) => (
-                <div
-                  key={item.name}
-                  className="flex items-center justify-between text-sm"
-                >
-
-                  <div className="flex items-center gap-2">
-
-                    <div
-                      className="h-3 w-3 rounded-full"
-                      style={{
-                        backgroundColor:
-                          item.color,
-                      }}
-                    />
-
-                    <span>{item.name}</span>
-
-                  </div>
-
-                  <span className="font-medium">
-                    {item.value}%
-                  </span>
-
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
+            {utilizationData.map((item) => (
+              <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: item.color }} />
+                  <span style={{ color: '#475569' }}>{item.name}</span>
                 </div>
-              ))}
-
-            </div>
-
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* ROW 2 */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-
-        {/* ALLOCATION */}
-        <Card>
-
-          <CardHeader>
-            <CardTitle>
-              Allocation by Function
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-
-            {allocationData.map((item) => (
-              <div
-                key={item.name}
-                className="space-y-1"
-              >
-
-                <div className="flex justify-between text-sm">
-
-                  <span>{item.name}</span>
-
-                  <span className="font-medium">
-                    {item.allocated}%
-                  </span>
-
-                </div>
-
-                <div className="flex h-3 overflow-hidden rounded-full bg-muted">
-
-                  <div
-                    className="bg-blue-500"
-                    style={{
-                      width: `${item.allocated}%`,
-                    }}
-                  />
-
-                  <div
-                    className="bg-green-500"
-                    style={{
-                      width: `${item.available}%`,
-                    }}
-                  />
-
-                  <div
-                    className="bg-orange-400"
-                    style={{
-                      width: `${item.bench}%`,
-                    }}
-                  />
-
-                </div>
-
+                <span style={{ fontWeight: 700, color: '#0F172A' }}>{item.value}%</span>
               </div>
             ))}
-
-            {/* LEGENDS */}
-
-            <div className="flex items-center gap-4 pt-4 text-xs text-muted-foreground flex-wrap">
-
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-blue-500" />
-                <span>Allocated</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-green-500" />
-                <span>Available</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-orange-400" />
-                <span>Bench</span>
-              </div>
-
-            </div>
-
-          </CardContent>
-        </Card>
-
-        {/* HEATMAP */}
-        <Card>
-
-          <CardHeader>
-            <CardTitle>
-              Demand vs Available Capacity
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-
-            <div className="space-y-4">
-
-              <div className="grid grid-cols-4 text-xs font-medium text-muted-foreground">
-
-                <div>Skill</div>
-
-                <div className="text-center">
-                  May
-                </div>
-
-                <div className="text-center">
-                  Jun
-                </div>
-
-                <div className="text-center">
-                  Jul
-                </div>
-
-              </div>
-
-              {capacityHeatmap.map((row) => (
-                <div
-                  key={row.skill}
-                  className="grid grid-cols-4 items-center gap-2"
-                >
-
-                  <div className="text-sm">
-                    {row.skill}
-                  </div>
-
-                  <div
-                    className={`h-8 rounded ${row.may}`}
-                  />
-
-                  <div
-                    className={`h-8 rounded ${row.jun}`}
-                  />
-
-                  <div
-                    className={`h-8 rounded ${row.jul}`}
-                  />
-
-                </div>
-              ))}
-
-            </div>
-
-            {/* HEATMAP LEGENDS */}
-
-            <div className="flex items-center gap-4 pt-5 text-xs text-muted-foreground flex-wrap">
-
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded bg-green-500" />
-                <span>Healthy Capacity</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded bg-yellow-400" />
-                <span>Moderate Risk</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded bg-orange-500" />
-                <span>High Risk</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded bg-red-500" />
-                <span>Critical Shortage</span>
-              </div>
-
-            </div>
-
-          </CardContent>
-        </Card>
-
-        {/* FORECAST VS ACTUALS */}
-        <Card>
-
-          <CardHeader>
-            <CardTitle>
-              Forecast vs Actuals
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="h-[320px]">
-
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-              <BarChart data={forecastVsActuals}>
-
-                <CartesianGrid strokeDasharray="3 3" />
-
-                <XAxis dataKey="month" />
-
-                <YAxis />
-
-                <Tooltip />
-
-                <Legend />
-
-                <Bar
-                  dataKey="planned"
-                  fill={COLORS.blue}
-                  name="Planned"
-                />
-
-                <Bar
-                  dataKey="forecast"
-                  fill={COLORS.green}
-                  name="Forecast"
-                />
-
-                <Bar
-                  dataKey="actual"
-                  fill={COLORS.purple}
-                  name="Actuals"
-                />
-
-              </BarChart>
-            </ResponsiveContainer>
-
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
-      {/* ROW 3 */}
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+      {/* ── ROW 2: allocation + heatmap + forecast ── */}
+      <SectionLabel>Allocation & Forecast</SectionLabel>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 16 }}>
 
-        {/* ALERTS */}
-        <Card>
-
-          <CardHeader>
-            <CardTitle>
-              High Level Risk Alerts
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-
-            <div className="flex items-center gap-4 mb-6">
-
-              <div className="h-14 w-14 rounded-full bg-red-100 flex items-center justify-center">
-
-                <AlertTriangle className="h-7 w-7 text-red-500" />
-
-              </div>
-
-              <div>
-
-                <div className="text-3xl font-bold">
-                  5
+        {/* Allocation by function */}
+        <div style={{ background: C.surface, borderRadius: 16, padding: '22px 24px', border: `1px solid ${C.border}`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>Allocation by Function</div>
+          <div style={{ fontSize: 12, color: C.slate, marginBottom: 20 }}>Breakdown across teams</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {allocationData.map((item) => (
+              <div key={item.name}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 5 }}>
+                  <span style={{ color: '#475569', fontWeight: 500 }}>{item.name}</span>
+                  <span style={{ fontWeight: 700, color: '#0F172A' }}>{item.allocated}%</span>
                 </div>
-
-                <div className="text-sm text-muted-foreground">
-                  Active Alerts
+                <div style={{ height: 8, borderRadius: 99, background: '#F1F5F9', overflow: 'hidden', display: 'flex' }}>
+                  <div style={{ width: `${item.allocated}%`, background: C.blue,   borderRadius: '99px 0 0 99px', transition: 'width 0.5s ease' }} />
+                  <div style={{ width: `${item.available}%`, background: C.green }} />
+                  <div style={{ width: `${item.bench}%`,    background: C.orange, borderRadius: '0 99px 99px 0' }} />
                 </div>
-
               </div>
-
-            </div>
-
-            <div className="space-y-3 text-sm">
-
-              <div className="flex justify-between">
-                <span>Overallocated Resources</span>
-                <Badge variant="destructive">
-                  2
-                </Badge>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 16, marginTop: 18, flexWrap: 'wrap' }}>
+            {[['Allocated', C.blue], ['Available', C.green], ['Bench', C.orange]].map(([l, c]) => (
+              <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: C.slate }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: c }} />{l}
               </div>
+            ))}
+          </div>
+        </div>
 
-              <div className="flex justify-between">
-                <span>Missing Timesheets</span>
-                <Badge className="bg-orange-500">
-                  1
-                </Badge>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Expiring Contracts</span>
-                <Badge className="bg-yellow-500">
-                  1
-                </Badge>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Critical Skill Shortage</span>
-                <Badge variant="destructive">
-                  1
-                </Badge>
-              </div>
-
-            </div>
-
-          </CardContent>
-        </Card>
-
-        {/* STAFFING */}
-        <Card>
-
-          <CardHeader>
-            <CardTitle>
-              Pending Staffing Requests
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-
-            <div className="flex items-center gap-4 mb-6">
-
-              <div className="h-14 w-14 rounded-full bg-blue-100 flex items-center justify-center">
-
-                <Users className="h-7 w-7 text-blue-500" />
-
-              </div>
-
-              <div>
-
-                <div className="text-3xl font-bold">
-                  27
-                </div>
-
-                <div className="text-sm text-muted-foreground">
-                  Open Requests
-                </div>
-
-              </div>
-
-            </div>
-
-            <div className="space-y-3 text-sm">
-
-              <div className="flex justify-between">
-                <span>High Priority</span>
-                <span className="font-semibold text-red-500">
-                  12
-                </span>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Medium Priority</span>
-                <span className="font-semibold text-orange-500">
-                  10
-                </span>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Low Priority</span>
-                <span className="font-semibold text-green-600">
-                  5
-                </span>
-              </div>
-
-            </div>
-
-          </CardContent>
-        </Card>
-
-        {/* DATA COMPLETENESS */}
-        <Card>
-
-          <CardHeader>
-            <CardTitle>
-              Resource Data Completeness
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-
-            <div className="flex items-center justify-center mb-6">
-
-              <div className="relative h-36 w-36 rounded-full border-[14px] border-green-500 flex items-center justify-center">
-
-                <div className="text-center">
-
-                  <div className="text-3xl font-bold">
-                    {overallCompleteness}%
-                  </div>
-
-                  <div className="text-xs text-muted-foreground">
-                    Overall
-                  </div>
-
-                </div>
-
-              </div>
-
-            </div>
-
-            <div className="space-y-3">
-
-              {resourceCompleteness.map((item) => (
-                <div key={item.label}>
-
-                  <div className="flex justify-between text-sm mb-1">
-
-                    <span>{item.label}</span>
-
-                    <span>{item.value}%</span>
-
-                  </div>
-
-                  <Progress
-                    value={item.value}
-                    className="h-2"
+        {/* Heatmap */}
+        <div style={{ background: C.surface, borderRadius: 16, padding: '22px 24px', border: `1px solid ${C.border}`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>Demand vs Capacity</div>
+          <div style={{ fontSize: 12, color: C.slate, marginBottom: 20 }}>Skill availability heatmap</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 60px 60px 60px', gap: 8, fontSize: 11, color: C.slate, fontWeight: 600, marginBottom: 8 }}>
+            <span>Skill</span>
+            {['May', 'Jun', 'Jul'].map(m => <span key={m} style={{ textAlign: 'center' }}>{m}</span>)}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {heatmap.map((row) => (
+              <div key={row.skill} style={{ display: 'grid', gridTemplateColumns: '1fr 60px 60px 60px', gap: 8, alignItems: 'center' }}>
+                <span style={{ fontSize: 12, color: '#475569', fontWeight: 500 }}>{row.skill}</span>
+                {['may', 'jun', 'jul'].map(m => (
+                  <div key={m} style={{
+                    height: 32, borderRadius: 8, background: row[m],
+                    opacity: 0.85, transition: 'opacity 0.2s',
+                  }}
+                    onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                    onMouseLeave={e => e.currentTarget.style.opacity = '0.85'}
                   />
+                ))}
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 18 }}>
+            {[['Healthy', '#22C55E'], ['Moderate Risk', '#FDE047'], ['High Risk', '#F97316'], ['Critical', '#EF4444']].map(([l, c]) => (
+              <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: C.slate }}>
+                <div style={{ width: 10, height: 10, borderRadius: 3, background: c }} />{l}
+              </div>
+            ))}
+          </div>
+        </div>
 
+        {/* Forecast vs Actuals */}
+        <div style={{ background: C.surface, borderRadius: 16, padding: '22px 24px', border: `1px solid ${C.border}`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>Forecast vs Actuals</div>
+          <div style={{ fontSize: 12, color: C.slate, marginBottom: 16 }}>Budget (K) comparison</div>
+          <div style={{ height: 270 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={forecastVsActuals} barSize={10} barCategoryGap="30%" margin={{ top: 5, right: 5, bottom: 5, left: -15 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: C.slate }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: C.slate }} axisLine={false} tickLine={false} tickFormatter={v => `${v}K`} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
+                <Bar dataKey="planned"  fill={C.blue}   radius={[4, 4, 0, 0]} name="Planned"   />
+                <Bar dataKey="forecast" fill={C.green}  radius={[4, 4, 0, 0]} name="Forecast"  />
+                <Bar dataKey="actual"   fill={C.purple} radius={[4, 4, 0, 0]} name="Actuals"   />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* ── ROW 3: alerts + staffing + completeness + accuracy ── */}
+      <SectionLabel>Risk & Data Health</SectionLabel>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 16 }}>
+
+        {/* Alerts */}
+        <div style={{ background: C.surface, borderRadius: 16, padding: '22px 24px', border: `1px solid ${C.border}`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A' }}>Risk Alerts</div>
+            <div style={{
+              width: 32, height: 32, borderRadius: 8, background: C.redSoft,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <AlertTriangle size={15} color={C.red} />
+            </div>
+          </div>
+          <div style={{ fontSize: 36, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', marginBottom: 2 }}>5</div>
+          <div style={{ fontSize: 12, color: C.slate, marginBottom: 20 }}>Active alerts requiring attention</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {alerts.map((a) => {
+              const col = alertColors[a.variant];
+              return (
+                <div key={a.label} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '9px 12px', borderRadius: 10, background: col.bg,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: col.text, fontWeight: 500 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: col.dot }} />
+                    {a.label}
+                  </div>
+                  <span style={{
+                    background: col.dot, color: '#fff', borderRadius: 99, padding: '1px 8px',
+                    fontSize: 11, fontWeight: 700, minWidth: 22, textAlign: 'center',
+                  }}>{a.count}</span>
                 </div>
-              ))}
+              );
+            })}
+          </div>
+        </div>
 
+        {/* Staffing */}
+        <div style={{ background: C.surface, borderRadius: 16, padding: '22px 24px', border: `1px solid ${C.border}`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A' }}>Pending Staffing</div>
+            <div style={{
+              width: 32, height: 32, borderRadius: 8, background: C.blueSoft,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Users size={15} color={C.blue} />
             </div>
+          </div>
+          <div style={{ fontSize: 36, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', marginBottom: 2 }}>27</div>
+          <div style={{ fontSize: 12, color: C.slate, marginBottom: 20 }}>Open staffing requests</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {staffing.map((s) => (
+              <div key={s.label}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 5 }}>
+                  <span style={{ color: '#475569', fontWeight: 500 }}>{s.label}</span>
+                  <span style={{ fontWeight: 700, color: s.color }}>{s.count}</span>
+                </div>
+                <div style={{ height: 6, borderRadius: 99, background: '#F1F5F9', overflow: 'hidden' }}>
+                  <div style={{ width: `${(s.count / 27) * 100}%`, height: '100%', background: s.color, borderRadius: 99, transition: 'width 0.5s ease' }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-          </CardContent>
-        </Card>
-
-        {/* FORECAST ACCURACY */}
-        <Card>
-
-          <CardHeader>
-            <CardTitle>
-              Forecast Accuracy
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="flex flex-col items-center justify-center h-full text-center">
-
-            <div className="h-28 w-28 rounded-full border-[12px] border-blue-500 flex items-center justify-center mb-5">
-
-              <span className="text-3xl font-bold">
-                74%
-              </span>
-
+        {/* Data Completeness */}
+        <div style={{ background: C.surface, borderRadius: 16, padding: '22px 24px', border: `1px solid ${C.border}`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>Data Completeness</div>
+          <div style={{ fontSize: 12, color: C.slate, marginBottom: 20 }}>Resource profile quality</div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+            <div style={{
+              width: 100, height: 100, borderRadius: '50%',
+              border: `10px solid ${C.green}`, display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center',
+              boxShadow: `0 0 0 4px ${C.greenSoft}`,
+            }}>
+              <span style={{ fontSize: 24, fontWeight: 800, color: '#0F172A' }}>{overall}%</span>
+              <span style={{ fontSize: 10, color: C.slate }}>Overall</span>
             </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {completeness.map((item) => (
+              <div key={item.label}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
+                  <span style={{ color: '#475569', fontWeight: 500 }}>{item.label}</span>
+                  <span style={{ fontWeight: 700, color: '#0F172A' }}>{item.value}%</span>
+                </div>
+                <div style={{ height: 5, borderRadius: 99, background: '#F1F5F9', overflow: 'hidden' }}>
+                  <div style={{
+                    width: `${item.value}%`, height: '100%', borderRadius: 99,
+                    background: item.value >= 90 ? C.green : item.value >= 85 ? C.amber : C.red,
+                    transition: 'width 0.5s ease',
+                  }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-            <div className="text-sm text-muted-foreground mb-2">
-              Forecast Accuracy Score
+        {/* Forecast Accuracy */}
+        <div style={{
+          background: C.surface, borderRadius: 16, padding: '22px 24px',
+          border: `1px solid ${C.border}`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+          display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+        }}>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>Forecast Accuracy</div>
+            <div style={{ fontSize: 12, color: C.slate, marginBottom: 24 }}>Model performance score</div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div style={{
+              width: 110, height: 110, borderRadius: '50%',
+              border: `10px solid ${C.blue}`, display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center',
+              boxShadow: `0 0 0 4px ${C.blueSoft}`,
+            }}>
+              <span style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em' }}>74%</span>
             </div>
-
-            <Badge className="bg-green-600 hover:bg-green-600">
-              +3.6% vs Last Month
-            </Badge>
-
-          </CardContent>
-        </Card>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, marginTop: 24 }}>
+            <span style={{ fontSize: 12, color: C.slate }}>Forecast Accuracy Score</span>
+            <div style={{
+              background: C.greenSoft, color: C.green, borderRadius: 99, padding: '4px 14px',
+              fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4,
+            }}>
+              <ArrowUpRight size={13} /> +3.6% vs Last Month
+            </div>
+          </div>
+        </div>
 
       </div>
     </div>
