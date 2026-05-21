@@ -46,34 +46,71 @@ import {
 import { toast } from "sonner";
 import DataTable, { type Column } from "@/components/DataTable";
 import { resources, type Resource } from "@/mocks/resources";
+import { useAuth } from "@/auth/useAuth";
 
 // ─── Table Columns ────────────────────────────────────────────────────────────
 
 const columns: Column<Resource>[] = [
-  { key: "resourceId", header: "Resource ID" },
+  {
+    key: "resourceId",
+    header: "Resource ID",
+    render: (r) => (
+      <span className="text-xs whitespace-nowrap text-muted-foreground font-mono">
+        {r.resourceId}
+      </span>
+    ),
+  },
   {
     key: "name",
     header: "Resource",
     render: (r) => (
-      <div className="flex items-center gap-2">
-        <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-semibold shrink-0">
+      <div className="flex items-center gap-1.5">
+        <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-semibold shrink-0">
           {r.initials}
         </div>
         <div>
-          <div className="font-medium text-foreground">{r.name}</div>
-          <div className="text-xs text-muted-foreground">{r.role}</div>
+          <div className="font-medium text-foreground text-xs whitespace-nowrap">
+            {r.name}
+          </div>
+          <div className="text-xs text-muted-foreground whitespace-nowrap">
+            {r.role}
+          </div>
+          {r.unavailability && (
+            <span
+              className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium whitespace-nowrap mt-0.5
+              ${
+                r.unavailability.state === "out-of-office"
+                  ? "bg-amber-500/15 text-amber-600 dark:text-amber-300"
+                  : "bg-red-500/15 text-red-600 dark:text-red-300"
+              }`}
+            >
+              {r.unavailability.state === "out-of-office"
+                ? "🏖 OOO"
+                : "⛔ Unavailable"}{" "}
+              {r.unavailability.from} – {r.unavailability.to}
+            </span>
+          )}
         </div>
       </div>
     ),
   },
   { key: "level", header: "Level" },
   { key: "team", header: "Team" },
-  { key: "reportingManager", header: "Reporting Manager" },
+  {
+    key: "reportingManager",
+    header: "Reporting Manager",
+    render: (r) => (
+      <span className="text-xs whitespace-nowrap">{r.reportingManager}</span>
+    ),
+  },
   {
     key: "employeeType",
     header: "Employee Type",
     render: (r) => (
-      <Badge variant={r.employeeType === "Full Time" ? "default" : "secondary"}>
+      <Badge
+        variant={r.employeeType === "Full Time" ? "default" : "secondary"}
+        className="text-xs whitespace-nowrap"
+      >
         {r.employeeType}
       </Badge>
     ),
@@ -82,14 +119,14 @@ const columns: Column<Resource>[] = [
     key: "availableAfter",
     header: "Available Date",
     render: (r) => (
-      <span className="whitespace-nowrap">{r.availableAfter}</span>
+      <span className="whitespace-nowrap text-xs">{r.availableAfter}</span>
     ),
   },
   {
     key: "skills",
     header: "Skills",
     render: (r) => (
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap gap-1 max-w-[120px]">
         {r.skills.map((s) => (
           <Badge key={s} variant="secondary" className="text-xs px-1.5 py-0">
             {s}
@@ -100,25 +137,42 @@ const columns: Column<Resource>[] = [
   },
   {
     key: "ratePerHr",
-    header: "Rate/Hours",
-    render: (r) => <span className="font-medium">${r.ratePerHr}</span>,
+    header: "Rate/Hrs",
+    render: (r) => (
+      <span className="font-medium text-xs whitespace-nowrap">
+        ${r.ratePerHr}
+      </span>
+    ),
   },
-  { key: "location", header: "Location" },
+  {
+    key: "location",
+    header: "Location",
+    render: (r) => (
+      <span className="text-xs whitespace-nowrap">{r.location}</span>
+    ),
+  },
   {
     key: "status",
     header: "Status",
     render: (r) => {
+      if (r.unavailability) {
+        return (
+          <span className="px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap bg-amber-500/15 text-amber-700 border border-amber-500/30 dark:text-amber-300">
+            Unavailable
+          </span>
+        );
+      }
       const colorMap = {
         Allocated:
-          "bg-blue-500/20 text-blue-700 border border-blue-500/30 dark:text-blue-300",
+          "bg-blue-500/15 text-blue-700 border border-blue-500/30 dark:text-blue-300",
         Available:
-          "bg-green-500/20 text-green-700 border border-green-500/30 dark:text-green-300",
+          "bg-green-500/15 text-green-700 border border-green-500/30 dark:text-green-300",
         Overallocated:
-          "bg-red-500/20 text-red-700 border border-red-500/30 dark:text-red-300",
+          "bg-red-500/15 text-red-700 border border-red-500/30 dark:text-red-300",
       };
       return (
         <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${colorMap[r.status]}`}
+          className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${colorMap[r.status]}`}
         >
           {r.status}
         </span>
@@ -127,29 +181,31 @@ const columns: Column<Resource>[] = [
   },
   {
     key: "utilization",
-    header: "Utilization",
+    header: "Util%",
     render: (r) => {
       const barColor =
         r.utilization > 100
           ? "bg-red-500"
           : r.utilization >= 80
-            ? "bg-yellow-500"
+            ? "bg-blue-500"
             : "bg-green-500";
       const textColor =
         r.utilization > 100
           ? "text-red-400"
           : r.utilization >= 80
-            ? "text-yellow-400"
+            ? "text-blue-400"
             : "text-green-400";
       return (
-        <div className="flex items-center gap-2">
-          <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
+        <div className="flex items-center gap-1.5">
+          <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full ${barColor}`}
               style={{ width: `${Math.min(r.utilization, 100)}%` }}
             />
           </div>
-          <span className={`text-xs font-medium ${textColor}`}>
+          <span
+            className={`text-xs font-medium whitespace-nowrap ${textColor}`}
+          >
             {r.utilization}%
           </span>
         </div>
@@ -519,6 +575,7 @@ export function ResourceDialog({
   projectName,
   projectSkills = [],
   initialResources = [],
+  userRole,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
@@ -526,6 +583,7 @@ export function ResourceDialog({
   projectName: string;
   projectSkills?: string[];
   initialResources?: AssignedResource[];
+  userRole?: string;
 }) {
   const empty: Omit<AssignedResource, "id"> = {
     name: "",
@@ -548,6 +606,7 @@ export function ResourceDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
+  const role = userRole;
 
   // ADD this after all your useState declarations:
   useEffect(() => {
@@ -579,10 +638,29 @@ export function ResourceDialog({
     setTimeout(() => {
       setIsSubmitting(false);
       setHasPendingChanges(false);
-      toast.success("Allocation submitted for approval", {
-        description: `An email has been sent to the Resource Manager and PMO for ${pickedResources.length} resource${pickedResources.length !== 1 ? "s" : ""} on ${projectName}.`,
-        duration: 6000,
-      });
+
+      // Use pickedResources count on confirm step, fall back to assigned resources on list step
+      const count =
+        pickedResources.length > 0 ? pickedResources.length : resources.length;
+      const resourceWord = `${count} resource${count !== 1 ? "s" : ""}`;
+
+      if (role === "resource_manager") {
+        toast.success("Allocation submitted for approval", {
+          description: `An email has been sent to PMO for approval of ${resourceWord} on ${projectName}.`,
+          duration: 6000,
+        });
+      } else if (role === "pmo") {
+        toast.success("Allocation submitted for approval", {
+          description: `An email has been sent to Resource Manager for approval of ${resourceWord} on ${projectName}.`,
+          duration: 6000,
+        });
+      } else {
+        toast.success("Allocation submitted for approval", {
+          description: `An email has been sent to Resource Manager and PMO for ${resourceWord} on ${projectName}.`,
+          duration: 6000,
+        });
+      }
+
       handleClose();
       navigate("/demand-status");
     }, 800);
@@ -997,17 +1075,38 @@ export function ResourceDialog({
                     On submit, an email will be sent to:
                   </div>
                   <ul className="mt-1 space-y-0.5 text-muted-foreground text-xs">
-                    <li>
-                      •{" "}
-                      <span className="font-medium text-foreground">
-                        Resource Manager
-                      </span>{" "}
-                      — to approve the allocation request
-                    </li>
-                    <li>
-                      • <span className="font-medium text-foreground">PMO</span>{" "}
-                      — for capacity planning and tracking
-                    </li>
+                    {role === "resource_manager" ? (
+                      <li>
+                        •{" "}
+                        <span className="font-medium text-foreground">PMO</span>{" "}
+                        — for approval of this allocation request
+                      </li>
+                    ) : role === "pmo" ? (
+                      <li>
+                        •{" "}
+                        <span className="font-medium text-foreground">
+                          Resource Manager
+                        </span>{" "}
+                        — for approval of this allocation request
+                      </li>
+                    ) : (
+                      <>
+                        <li>
+                          •{" "}
+                          <span className="font-medium text-foreground">
+                            Resource Manager
+                          </span>{" "}
+                          — to approve the allocation request
+                        </li>
+                        <li>
+                          •{" "}
+                          <span className="font-medium text-foreground">
+                            PMO
+                          </span>{" "}
+                          — for capacity planning and tracking
+                        </li>
+                      </>
+                    )}
                   </ul>
                 </div>
               </div>
@@ -1195,7 +1294,9 @@ export default function ResourceInformation() {
             </Button>
           )}
         </div>
-        <DataTable data={filteredData} columns={columns} pageSize={10} />
+        <div className="overflow-x-auto">
+          <DataTable data={filteredData} columns={columns} pageSize={10} />
+        </div>
       </CardContent>
     </Card>
   );
