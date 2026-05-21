@@ -190,12 +190,25 @@ export default function DemandSummary() {
     null,
   );
 
+  // REPLACE WITH:
   const [resourceModal, setResourceModal] = useState<{
     open: boolean;
     demandId: string;
     projectName: string;
     projectSkills: string[];
-  }>({ open: false, demandId: "", projectName: "", projectSkills: [] });
+    initialResources: {
+      id: string;
+      name: string;
+      email: string;
+      domain: string;
+    }[];
+  }>({
+    open: false,
+    demandId: "",
+    projectName: "",
+    projectSkills: [],
+    initialResources: [],
+  });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importChooserOpen, setImportChooserOpen] = useState(false);
@@ -401,8 +414,24 @@ export default function DemandSummary() {
       key: "resourceName",
       header: "Resource Count",
       sortable: false,
+      // REPLACE WITH:
       render: (row) => {
-        const count = row.resourceName ? 2 : 0;
+        const assignedResources = row.resourceName
+          ? [
+              {
+                id: "r1",
+                name: row.resourceName,
+                email: `${row.resourceName.toLowerCase().replace(" ", ".")}@company.com`,
+                domain: row.pillar,
+              },
+              {
+                id: "r2",
+                name: "Bob Smith",
+                email: "bob.smith@company.com",
+                domain: "Data",
+              },
+            ]
+          : [];
         return (
           <button
             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors cursor-pointer"
@@ -412,11 +441,12 @@ export default function DemandSummary() {
                 demandId: row.id,
                 projectName: row.projectName,
                 projectSkills: row.projectRole ? [row.projectRole] : [],
+                initialResources: assignedResources,
               })
             }
           >
             <Users className="h-3 w-3" />
-            {count}
+            {assignedResources.length}
           </button>
         );
       },
@@ -629,16 +659,16 @@ export default function DemandSummary() {
           <DataTable data={filtered} columns={columns} pageSize={5} />
         </CardContent>
       </Card>
-
       {/* ── Resource Dialog ── */}
+      // REPLACE WITH:
       <ResourceDialog
         open={resourceModal.open}
         onOpenChange={(v) => setResourceModal((s) => ({ ...s, open: v }))}
         demandId={resourceModal.demandId}
         projectName={resourceModal.projectName}
         projectSkills={resourceModal.projectSkills}
+        initialResources={resourceModal.initialResources} // ← add this line
       />
-
       {/* ── Import Source Chooser ── */}
       <Dialog open={importChooserOpen} onOpenChange={setImportChooserOpen}>
         <DialogContent className="max-w-2xl">
@@ -718,7 +748,6 @@ export default function DemandSummary() {
           />
         </DialogContent>
       </Dialog>
-
       {/* ── Import Preview ── */}
       <Dialog open={showImport} onOpenChange={setShowImport}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
@@ -783,7 +812,6 @@ export default function DemandSummary() {
           </div>
         </DialogContent>
       </Dialog>
-
       {/* ── Delete Confirmation ── */}
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
@@ -799,7 +827,6 @@ export default function DemandSummary() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
       <HistoryModal
         open={!!historyData}
         onOpenChange={() => setHistoryData(null)}
