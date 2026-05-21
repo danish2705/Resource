@@ -419,6 +419,7 @@ export default function DemandSummary() {
       header: "Resource Count",
       sortable: false,
       // REPLACE WITH:
+
       render: (row) => {
         const assignedResources = row.resourceName
           ? [
@@ -672,7 +673,7 @@ export default function DemandSummary() {
         </CardContent>
       </Card>
       {/* ── Resource Dialog ── */}
-      // REPLACE WITH:
+
       <ResourceDialog
         open={resourceModal.open}
         onOpenChange={(v) => setResourceModal((s) => ({ ...s, open: v }))}
