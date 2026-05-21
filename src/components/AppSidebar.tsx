@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   ScrollText,
   Lock,
+  PanelLeft,
 } from "lucide-react";
 
 import {
@@ -21,7 +22,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -52,7 +52,9 @@ import { hasPermission, type Permission } from "@/auth/rbac";
 interface NavItem {
   title: string;
   url: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{
+    className?: string;
+  }>;
   end?: boolean;
   permission?: Permission;
 }
@@ -74,12 +76,14 @@ const demandSubItems: NavItem[] = [
     icon: PlusCircle,
     permission: "create_demand",
   },
+
   {
     title: "Demand Status",
     url: "/demand-status",
     icon: TrendingUp,
     permission: "view_dashboard",
   },
+
   {
     title: "Demand Summary",
     url: "/demand",
@@ -96,30 +100,35 @@ const lowerItems: NavItem[] = [
     icon: Users,
     permission: "view_allocation",
   },
+
   {
     title: "Resource Information",
     url: "/resources",
     icon: UserCircle,
     permission: "view_resource_info",
   },
+
   {
     title: "Resource Review",
     url: "/resource-review",
     icon: ShieldCheck,
     permission: "approve_demand",
   },
+
   {
     title: "Projects",
     url: "/projects",
     icon: ClipboardList,
     permission: "view_projects",
   },
+
   {
     title: "Reporting Dashboard",
     url: "/reports",
     icon: BarChart3,
     permission: "view_reporting",
   },
+
   {
     title: "Audit Log",
     url: "/audit-log",
@@ -129,18 +138,31 @@ const lowerItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
-  const { state } = useSidebar();
-  const collapsed = state === "collapsed";
+  const { state, toggleSidebar } =
+    useSidebar();
+
+  const collapsed =
+    state === "collapsed";
+
   const location = useLocation();
+
   const { user } = useAuth();
 
-  const can = (permission?: Permission) => {
+  const can = (
+    permission?: Permission,
+  ) => {
     if (!permission) return true;
+
     if (!user) return false;
-    return hasPermission(user.role, permission);
+
+    return hasPermission(
+      user.role,
+      permission,
+    );
   };
 
-  const canSeeDemand = can("view_demand");
+  const canSeeDemand =
+    can("view_demand");
 
   const demandActive =
     location.pathname.startsWith(
@@ -154,29 +176,52 @@ export function AppSidebar() {
     useState(demandActive);
 
   const linkBase =
-    "flex items-center gap-2 w-full transition-colors rounded-md";
+    "flex items-center gap-2 w-full rounded-md transition-all duration-200 ease-out";
+
   const linkInactive =
     "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
+
   const linkActive =
     "bg-sidebar-accent text-sidebar-accent-foreground font-medium";
+
   const linkDisabled =
     "opacity-60 cursor-not-allowed pointer-events-none select-none";
 
-  const renderNavItem = (item: NavItem) => {
-    const allowed = can(item.permission);
+  const renderNavItem = (
+    item: NavItem,
+  ) => {
+    const allowed = can(
+      item.permission,
+    );
 
     if (allowed) {
       return (
-        <SidebarMenuItem key={item.title}>
-          <SidebarMenuButton asChild tooltip={item.title}>
+        <SidebarMenuItem
+          key={item.title}
+        >
+          <SidebarMenuButton
+            asChild
+            tooltip={item.title}
+          >
             <NavLink
               to={item.url}
               end={item.end}
-              className={linkBase + " " + linkInactive}
-              activeClassName={linkActive}
+              className={
+                linkBase +
+                " " +
+                linkInactive
+              }
+              activeClassName={
+                linkActive
+              }
             >
               <item.icon className="h-4 w-4 shrink-0" />
-              {!collapsed && <span>{item.title}</span>}
+
+              {!collapsed && (
+                <span>
+                  {item.title}
+                </span>
+              )}
             </NavLink>
           </SidebarMenuButton>
         </SidebarMenuItem>
@@ -184,9 +229,12 @@ export function AppSidebar() {
     }
 
     return (
-      <SidebarMenuItem key={item.title}>
+      <SidebarMenuItem
+        key={item.title}
+      >
         <Tooltip>
           <TooltipTrigger asChild>
+
             <div
               className={
                 linkBase +
@@ -196,47 +244,79 @@ export function AppSidebar() {
               }
             >
               <item.icon className="h-4 w-4 shrink-0" />
+
               {!collapsed && (
                 <>
-                  <span className="flex-1">{item.title}</span>
+                  <span className="flex-1">
+                    {item.title}
+                  </span>
+
                   <Lock className="h-3 w-3 ml-auto opacity-60" />
                 </>
               )}
             </div>
+
           </TooltipTrigger>
-          <TooltipContent side="right" className="text-xs">
-            You don't have access to {item.title}
+
+          <TooltipContent
+            side="right"
+            className="text-xs"
+          >
+            You don't have access to{" "}
+            {item.title}
           </TooltipContent>
+
         </Tooltip>
       </SidebarMenuItem>
     );
   };
 
-  const renderSubItem = (sub: NavItem) => {
-    const allowed = can(sub.permission);
+  const renderSubItem = (
+    sub: NavItem,
+  ) => {
+    const allowed = can(
+      sub.permission,
+    );
 
     if (allowed) {
       return (
-        <SidebarMenuSubItem key={sub.title}>
+        <SidebarMenuSubItem
+          key={sub.title}
+        >
           <SidebarMenuSubButton asChild>
+
             <NavLink
               to={sub.url}
               end={sub.end}
-              className={linkBase + " " + linkInactive}
-              activeClassName={linkActive}
+              className={
+                linkBase +
+                " " +
+                linkInactive
+              }
+              activeClassName={
+                linkActive
+              }
             >
               <sub.icon className="h-3.5 w-3.5 shrink-0" />
-              <span>{sub.title}</span>
+
+              <span>
+                {sub.title}
+              </span>
+
             </NavLink>
+
           </SidebarMenuSubButton>
         </SidebarMenuSubItem>
       );
     }
 
     return (
-      <SidebarMenuSubItem key={sub.title}>
+      <SidebarMenuSubItem
+        key={sub.title}
+      >
         <Tooltip>
           <TooltipTrigger asChild>
+
             <div
               className={
                 linkBase +
@@ -246,13 +326,24 @@ export function AppSidebar() {
               }
             >
               <sub.icon className="h-3.5 w-3.5 shrink-0" />
-              <span className="flex-1">{sub.title}</span>
+
+              <span className="flex-1">
+                {sub.title}
+              </span>
+
               <Lock className="h-3 w-3 ml-auto opacity-60" />
             </div>
+
           </TooltipTrigger>
-          <TooltipContent side="right" className="text-xs">
-            You don't have access to {sub.title}
+
+          <TooltipContent
+            side="right"
+            className="text-xs"
+          >
+            You don't have access to{" "}
+            {sub.title}
           </TooltipContent>
+
         </Tooltip>
       </SidebarMenuSubItem>
     );
@@ -268,14 +359,36 @@ export function AppSidebar() {
         border-r
       "
     >
+
       {/* HEADER */}
 
       <SidebarHeader className="h-14 border-b border-sidebar-border flex justify-center">
 
         <div className="flex items-center gap-2 px-2 py-2">
-          <div className="h-8 w-8 rounded-md bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shrink-0">
-            RM
-          </div>
+
+          {/* HAMBURGER */}
+
+          <button
+            onClick={toggleSidebar}
+            className="
+              h-8
+              w-8
+              shrink-0
+              rounded-md
+              flex
+              items-center
+              justify-center
+              hover:bg-sidebar-accent
+              transition-all
+              duration-200
+              ease-out
+            "
+          >
+            <PanelLeft className="h-4 w-4" />
+          </button>
+
+          {/* TITLE */}
+
           {!collapsed && (
             <div
               className="
@@ -292,6 +405,7 @@ export function AppSidebar() {
               </span>
             </div>
           )}
+
         </div>
 
       </SidebarHeader>
@@ -305,51 +419,96 @@ export function AppSidebar() {
           ease-out
         "
       >
+
         <SidebarGroup>
-          <SidebarGroupLabel>Main</SidebarGroupLabel>
+
           <SidebarGroupContent>
 
             <SidebarMenu>
-              {/* Main items */}
-              {mainItems.map(renderNavItem)}
 
-              {/* Demand Management — entirely disabled for resource role */}
+              {/* MAIN */}
+
+              {mainItems.map(
+                renderNavItem,
+              )}
+
+              {/* DEMAND */}
+
               {canSeeDemand ? (
                 <Collapsible
-                  open={collapsed ? false : demandOpen}
-                  onOpenChange={setDemandOpen}
+                  open={
+                    collapsed
+                      ? false
+                      : demandOpen
+                  }
+                  onOpenChange={
+                    setDemandOpen
+                  }
                   className="group/collapsible"
                 >
+
                   <SidebarMenuItem>
+
                     <CollapsibleTrigger asChild>
+
                       <SidebarMenuButton
                         tooltip="Demand Management"
-                        className={demandActive ? linkActive : linkInactive}
+                        className={
+                          demandActive
+                            ? linkActive
+                            : linkInactive
+                        }
                       >
                         <ClipboardList className="h-4 w-4 shrink-0" />
+
                         {!collapsed && (
                           <>
-                            <span>Demand Management</span>
-                            <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                            <span>
+                              Demand Management
+                            </span>
+
+                            <ChevronDown
+                              className="
+                                ml-auto
+                                h-4
+                                w-4
+                                transition-transform
+                                duration-200
+                                ease-out
+                                group-data-[state=open]/collapsible:rotate-180
+                              "
+                            />
                           </>
                         )}
+
                       </SidebarMenuButton>
+
                     </CollapsibleTrigger>
 
                     {!collapsed && (
                       <CollapsibleContent>
+
                         <SidebarMenuSub>
-                          {demandSubItems.map(renderSubItem)}
+
+                          {demandSubItems.map(
+                            renderSubItem,
+                          )}
+
                         </SidebarMenuSub>
+
                       </CollapsibleContent>
                     )}
+
                   </SidebarMenuItem>
+
                 </Collapsible>
               ) : (
-                // Entire Demand Management group disabled
                 <SidebarMenuItem>
+
                   <Tooltip>
+
                     <TooltipTrigger asChild>
+
                       <div
                         className={
                           linkBase +
@@ -359,23 +518,40 @@ export function AppSidebar() {
                         }
                       >
                         <ClipboardList className="h-4 w-4 shrink-0" />
+
                         {!collapsed && (
                           <>
-                            <span className="flex-1">Demand Management</span>
+                            <span className="flex-1">
+                              Demand Management
+                            </span>
+
                             <Lock className="h-3 w-3 ml-auto opacity-60" />
                           </>
                         )}
+
                       </div>
+
                     </TooltipTrigger>
-                    <TooltipContent side="right" className="text-xs">
-                      You don't have access to Demand Management
+
+                    <TooltipContent
+                      side="right"
+                      className="text-xs"
+                    >
+                      You don't have access
+                      to Demand Management
                     </TooltipContent>
+
                   </Tooltip>
+
                 </SidebarMenuItem>
               )}
 
-              {/* Lower items */}
-              {lowerItems.map(renderNavItem)}
+              {/* LOWER */}
+
+              {lowerItems.map(
+                renderNavItem,
+              )}
+
             </SidebarMenu>
 
           </SidebarGroupContent>
@@ -383,6 +559,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
       </SidebarContent>
+
     </Sidebar>
   );
 }

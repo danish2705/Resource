@@ -12,14 +12,14 @@ import {
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-import {
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 import { AppSidebar } from "@/components/AppSidebar";
+
 import { useAuth } from "@/auth/useAuth";
+
 import { ROLE_LABELS } from "@/auth/rbac";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -85,8 +85,13 @@ export default function AppLayout({
   const location = useLocation();
 
   const navigate = useNavigate();
-  const title = pageTitles[location.pathname] ?? "Resource Management";
-  const { user, logout } = useAuth();
+
+  const title =
+    pageTitles[location.pathname] ??
+    "Resource Management";
+
+  const { user, logout } =
+    useAuth();
 
   const [darkMode, setDarkMode] =
     useState(() => {
@@ -100,7 +105,9 @@ export default function AppLayout({
   const [
     lastUpdated,
     setLastUpdated,
-  ] = useState<Date>(new Date());
+  ] = useState<Date>(
+    new Date(),
+  );
 
   useEffect(() => {
     if (darkMode) {
@@ -132,39 +139,54 @@ export default function AppLayout({
 
   const handleLogout = () => {
     logout();
-    toast.success("Logged out successfully");
-    navigate("/login", { replace: true });
-  };
 
-  const formatLastUpdated = (date: Date) => {
-    return date.toLocaleString("en-AU", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
+    toast.success(
+      "Logged out successfully",
+    );
+
+    navigate("/login", {
+      replace: true,
     });
   };
 
-  const displayName = user ? ROLE_LABELS[user.role] : "";
-  const avatarText = user ? initials(ROLE_LABELS[user.role]) : "??";
+  const formatLastUpdated = (
+    date: Date,
+  ) => {
+    return date.toLocaleString(
+      "en-AU",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      },
+    );
+  };
+
+  const displayName = user
+    ? ROLE_LABELS[user.role]
+    : "";
+
+  const avatarText = user
+    ? initials(
+        ROLE_LABELS[user.role],
+      )
+    : "??";
 
   return (
     <SidebarProvider>
 
-      {/* ROOT */}
+      {/* ROOT LAYOUT */}
 
       <div
         className="
+          flex
           h-screen
           w-full
           overflow-hidden
-          flex
           bg-background
-          transition-all
-          duration-200
-          ease-out
         "
       >
 
@@ -172,29 +194,29 @@ export default function AppLayout({
 
         <AppSidebar />
 
-        {/* MAIN WRAPPER */}
+        {/* MAIN AREA */}
 
         <div
           className="
+            flex
             flex-1
             min-w-0
-            h-screen
-            overflow-hidden
-            flex
             flex-col
+            overflow-hidden
             transition-all
-            duration-200
+            duration-150
             ease-out
+            will-change-[width]
           "
         >
 
-          {/* HEADER */}
+          {/* TOP HEADER */}
 
           <header
             className="
+              flex
               h-14
               shrink-0
-              flex
               items-center
               justify-between
               border-b
@@ -202,35 +224,28 @@ export default function AppLayout({
               px-4
               shadow-sm
               transition-all
-              duration-200
+              duration-150
               ease-out
             "
           >
 
-            {/* LEFT */}
+            {/* PAGE TITLE */}
 
             <div
               className="
                 flex
                 items-center
                 gap-2
-                transition-all
-                duration-200
-                ease-out
+                min-w-0
               "
             >
 
-              
-
               <h1
                 className="
+                  truncate
                   text-base
                   font-semibold
                   text-foreground
-                  truncate
-                  transition-all
-                  duration-200
-                  ease-out
                 "
               >
                 {title}
@@ -238,7 +253,7 @@ export default function AppLayout({
 
             </div>
 
-            {/* RIGHT */}
+            {/* RIGHT ACTIONS */}
 
             <div
               className="
@@ -257,31 +272,31 @@ export default function AppLayout({
                     handleRefresh
                   }
                   className="
-                    p-2
                     rounded-md
-                    hover:bg-muted
+                    p-2
                     transition-all
-                    duration-200
+                    duration-150
                     ease-out
+                    hover:bg-muted
                   "
                   aria-label="Refresh"
                 >
                   <RefreshCw className="h-5 w-5 text-muted-foreground" />
                 </button>
 
-                <div className="absolute right-0 top-full mt-1 z-50 hidden group-hover:block">
+                <div className="absolute right-0 top-full z-50 mt-1 hidden group-hover:block">
 
                   <div
                     className="
-                      bg-popover
-                      text-popover-foreground
-                      text-xs
+                      whitespace-nowrap
                       rounded-md
-                      shadow-md
                       border
+                      bg-popover
                       px-3
                       py-2
-                      whitespace-nowrap
+                      text-xs
+                      text-popover-foreground
+                      shadow-md
                     "
                   >
                     Last updated:
@@ -292,18 +307,19 @@ export default function AppLayout({
                   </div>
 
                 </div>
+
               </div>
 
               {/* SETTINGS */}
 
               <button
                 className="
-                  p-2
                   rounded-md
-                  hover:bg-muted
+                  p-2
                   transition-all
-                  duration-200
+                  duration-150
                   ease-out
+                  hover:bg-muted
                 "
                 aria-label="Settings"
               >
@@ -311,11 +327,15 @@ export default function AppLayout({
               </button>
 
               {/* USER MENU */}
+
               <DropdownMenu>
 
                 <DropdownMenuTrigger
                   className="
                     rounded-full
+                    transition-all
+                    duration-150
+                    ease-out
                     focus:outline-none
                     focus:ring-2
                     focus:ring-ring
@@ -323,7 +343,14 @@ export default function AppLayout({
                 >
 
                   <Avatar className="h-8 w-8 cursor-pointer">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+
+                    <AvatarFallback
+                      className="
+                        bg-primary
+                        text-xs
+                        text-primary-foreground
+                      "
+                    >
                       {avatarText}
                     </AvatarFallback>
 
@@ -331,19 +358,43 @@ export default function AppLayout({
 
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-64"
+                >
+
                   <DropdownMenuLabel className="flex flex-col gap-1 py-2">
-                    <span className="font-semibold">{displayName}</span>
-                    <span className="text-xs text-muted-foreground font-normal">
+
+                    <span className="font-semibold">
+                      {displayName}
+                    </span>
+
+                    <span
+                      className="
+                        text-xs
+                        font-normal
+                        text-muted-foreground
+                      "
+                    >
                       @{user?.username}
                     </span>
 
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="secondary" className="text-xs">
+                    <div className="mt-1 flex items-center gap-2">
+
+                      <Badge
+                        variant="secondary"
+                        className="text-xs"
+                      >
                         {displayName}
                       </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        Portfolio: {user?.portfolio}
+
+                      <Badge
+                        variant="outline"
+                        className="text-xs"
+                      >
+                        Portfolio:
+                        {" "}
+                        {user?.portfolio}
                       </Badge>
 
                     </div>
@@ -352,24 +403,25 @@ export default function AppLayout({
 
                   <DropdownMenuSeparator />
 
-                  {/* DARK MODE */}
+                  {/* THEME */}
 
                   <DropdownMenuItem
                     onClick={(e) => {
                       e.preventDefault();
 
                       setDarkMode(
-                        (prev) =>
-                          !prev,
+                        (
+                          prev,
+                        ) => !prev,
                       );
                     }}
                     className="cursor-pointer"
                   >
 
                     {darkMode ? (
-                      <Sun className="h-4 w-4 mr-2" />
+                      <Sun className="mr-2 h-4 w-4" />
                     ) : (
-                      <Moon className="h-4 w-4 mr-2" />
+                      <Moon className="mr-2 h-4 w-4" />
                     )}
 
                     {darkMode
@@ -389,7 +441,7 @@ export default function AppLayout({
                       )
                     }
                   >
-                    <UserIcon className="h-4 w-4 mr-2" />
+                    <UserIcon className="mr-2 h-4 w-4" />
 
                     My Profile
 
@@ -404,7 +456,7 @@ export default function AppLayout({
                       )
                     }
                   >
-                    <ListChecks className="h-4 w-4 mr-2" />
+                    <ListChecks className="mr-2 h-4 w-4" />
 
                     My Allocations
 
@@ -415,10 +467,23 @@ export default function AppLayout({
                   {/* LOGOUT */}
 
                   <DropdownMenuItem
-                    onClick={handleLogout}
-                    className="text-red-500 font-medium focus:text-red-500 focus:bg-red-500/10 hover:text-red-500 hover:bg-red-500/10 cursor-pointer"
+                    onClick={
+                      handleLogout
+                    }
+                    className="
+                      cursor-pointer
+                      font-medium
+                      text-red-500
+                      hover:bg-red-500/10
+                      hover:text-red-500
+                      focus:bg-red-500/10
+                      focus:text-red-500
+                    "
                   >
-                    <LogOut className="h-4 w-4 mr-2 text-red-500" /> Logout
+                    <LogOut className="mr-2 h-4 w-4 text-red-500" />
+
+                    Logout
+
                   </DropdownMenuItem>
 
                 </DropdownMenuContent>
@@ -429,9 +494,23 @@ export default function AppLayout({
 
           </header>
 
-          <main className="flex-1 p-6 overflow-y-auto overflow-x-hidden">
+          {/* PAGE CONTENT */}
+
+          <main
+            className="
+              flex-1
+              overflow-x-hidden
+              overflow-y-auto
+              p-6
+              transition-all
+              duration-150
+              ease-out
+              will-change-[width]
+            "
+          >
             {children}
           </main>
+
         </div>
 
       </div>

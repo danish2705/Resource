@@ -77,26 +77,36 @@
   .dark {
     --background: 210 30% 8%;
     --foreground: 210 20% 95%;
+
     --card: 210 30% 12%;
     --card-foreground: 210 20% 95%;
+
     --popover: 210 30% 12%;
     --popover-foreground: 210 20% 95%;
+
     --primary: 195 80% 45%;
     --primary-foreground: 0 0% 100%;
+
     --secondary: 210 30% 18%;
     --secondary-foreground: 210 20% 90%;
+
     --muted: 210 25% 18%;
     --muted-foreground: 210 15% 60%;
+
     --accent: 210 30% 20%;
     --accent-foreground: 210 20% 90%;
+
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
+
     --border: 210 25% 20%;
     --input: 210 25% 20%;
     --ring: 195 80% 45%;
+
     --nav-bg: 210 30% 10%;
     --nav-foreground: 0 0% 95%;
     --nav-active: 195 80% 45%;
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -111,8 +121,91 @@
 @layer base {
   * {
     @apply border-border;
+
+    box-sizing: border-box;
   }
+
+  html {
+    scroll-behavior: smooth;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    text-rendering: optimizeLegibility;
+  }
+
   body {
     @apply bg-background text-foreground;
+
+    overflow: hidden;
+
+    -webkit-tap-highlight-color: transparent;
+
+    backface-visibility: hidden;
+    transform: translateZ(0);
+
+    will-change: auto;
+  }
+
+  #root {
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+
+    isolation: isolate;
+  }
+
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    transition:
+      background-color 150ms ease-out,
+      border-color 150ms ease-out,
+      color 150ms ease-out,
+      opacity 150ms ease-out,
+      transform 150ms ease-out;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 999px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* GLOBAL SMOOTHNESS */
+
+@layer utilities {
+  .gpu-render {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000;
+  }
+
+  .smooth-transition {
+    transition:
+      all 150ms ease-out;
+  }
+
+  .smooth-width {
+    transition:
+      width 150ms ease-out,
+      min-width 150ms ease-out,
+      max-width 150ms ease-out;
+  }
+
+  .smooth-transform {
+    transition:
+      transform 150ms ease-out;
   }
 }
