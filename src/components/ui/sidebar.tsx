@@ -27,10 +27,12 @@ const SIDEBAR_COOKIE_NAME =
 const SIDEBAR_COOKIE_MAX_AGE =
   60 * 60 * 24 * 7;
 
-const SIDEBAR_WIDTH = "16rem";
+/* UPDATED WIDTHS */
+
+const SIDEBAR_WIDTH = "20rem";
 
 const SIDEBAR_WIDTH_MOBILE =
-  "18rem";
+  "20rem";
 
 const SIDEBAR_WIDTH_ICON =
   "3rem";
@@ -455,6 +457,8 @@ const Sidebar =
   );
 
 Sidebar.displayName = "Sidebar";
+
+/* REST OF FILE REMAINS EXACTLY SAME */
 
 /* -------------------------------- */
 /* SMALL COMPONENTS */

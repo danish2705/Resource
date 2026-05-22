@@ -12,7 +12,9 @@ import {
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-import { SidebarProvider } from "@/components/ui/sidebar";
+import {
+  SidebarProvider,
+} from "@/components/ui/sidebar";
 
 import { AppSidebar } from "@/components/AppSidebar";
 
@@ -77,7 +79,7 @@ const initials = (n: string) =>
     .join("")
     .toUpperCase();
 
-export default function AppLayout({
+function LayoutContent({
   children,
 }: {
   children: React.ReactNode;
@@ -176,143 +178,85 @@ export default function AppLayout({
     : "??";
 
   return (
-    <SidebarProvider>
+    <div
+      className="
+        flex
+        h-screen
+        w-full
+        overflow-hidden
+        bg-background
+      "
+    >
+      {/* SIDEBAR */}
 
-      {/* ROOT LAYOUT */}
+      <AppSidebar />
+
+      {/* MAIN AREA */}
 
       <div
         className="
           flex
-          h-screen
-          w-full
+          flex-1
+          min-w-0
+          flex-col
           overflow-hidden
-          bg-background
+          transition-all
+          duration-200
+          ease-out
         "
       >
+        {/* TOP HEADER */}
 
-        {/* SIDEBAR */}
-
-        <AppSidebar />
-
-        {/* MAIN AREA */}
-
-        <div
+        <header
           className="
             flex
-            flex-1
-            min-w-0
-            flex-col
-            overflow-hidden
-            transition-all
-            duration-150
-            ease-out
-            will-change-[width]
+            h-14
+            shrink-0
+            items-center
+            justify-between
+            border-b
+            bg-card
+            px-4
+            shadow-sm
           "
         >
+          {/* PAGE TITLE */}
 
-          {/* TOP HEADER */}
-
-          <header
+          <div
             className="
               flex
-              h-14
-              shrink-0
               items-center
-              justify-between
-              border-b
-              bg-card
-              px-4
-              shadow-sm
-              transition-all
-              duration-150
-              ease-out
+              min-w-0
             "
           >
-
-            {/* PAGE TITLE */}
-
-            <div
+            <h1
               className="
-                flex
-                items-center
-                gap-2
-                min-w-0
+                truncate
+                text-base
+                font-semibold
+                text-foreground
               "
             >
+              {title}
+            </h1>
+          </div>
 
-              <h1
-                className="
-                  truncate
-                  text-base
-                  font-semibold
-                  text-foreground
-                "
-              >
-                {title}
-              </h1>
+          {/* RIGHT ACTIONS */}
 
-            </div>
+          <div
+            className="
+              flex
+              items-center
+              gap-2
+            "
+          >
+            {/* REFRESH */}
 
-            {/* RIGHT ACTIONS */}
-
-            <div
-              className="
-                flex
-                items-center
-                gap-2
-              "
-            >
-
-              {/* REFRESH */}
-
-              <div className="relative group">
-
-                <button
-                  onClick={
-                    handleRefresh
-                  }
-                  className="
-                    rounded-md
-                    p-2
-                    transition-all
-                    duration-150
-                    ease-out
-                    hover:bg-muted
-                  "
-                  aria-label="Refresh"
-                >
-                  <RefreshCw className="h-5 w-5 text-muted-foreground" />
-                </button>
-
-                <div className="absolute right-0 top-full z-50 mt-1 hidden group-hover:block">
-
-                  <div
-                    className="
-                      whitespace-nowrap
-                      rounded-md
-                      border
-                      bg-popover
-                      px-3
-                      py-2
-                      text-xs
-                      text-popover-foreground
-                      shadow-md
-                    "
-                  >
-                    Last updated:
-                    {" "}
-                    {formatLastUpdated(
-                      lastUpdated,
-                    )}
-                  </div>
-
-                </div>
-
-              </div>
-
-              {/* SETTINGS */}
-
+            <div className="relative group">
               <button
+                onClick={
+                  handleRefresh
+                }
                 className="
                   rounded-md
                   p-2
@@ -321,200 +265,229 @@ export default function AppLayout({
                   ease-out
                   hover:bg-muted
                 "
-                aria-label="Settings"
+                aria-label="Refresh"
               >
-                <Settings className="h-5 w-5 text-muted-foreground" />
+                <RefreshCw className="h-5 w-5 text-muted-foreground" />
               </button>
 
-              {/* USER MENU */}
-
-              <DropdownMenu>
-
-                <DropdownMenuTrigger
+              <div className="absolute right-0 top-full z-50 mt-1 hidden group-hover:block">
+                <div
                   className="
-                    rounded-full
-                    transition-all
-                    duration-150
-                    ease-out
-                    focus:outline-none
-                    focus:ring-2
-                    focus:ring-ring
+                    whitespace-nowrap
+                    rounded-md
+                    border
+                    bg-popover
+                    px-3
+                    py-2
+                    text-xs
+                    text-popover-foreground
+                    shadow-md
                   "
                 >
-
-                  <Avatar className="h-8 w-8 cursor-pointer">
-
-                    <AvatarFallback
-                      className="
-                        bg-primary
-                        text-xs
-                        text-primary-foreground
-                      "
-                    >
-                      {avatarText}
-                    </AvatarFallback>
-
-                  </Avatar>
-
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent
-                  align="end"
-                  className="w-64"
-                >
-
-                  <DropdownMenuLabel className="flex flex-col gap-1 py-2">
-
-                    <span className="font-semibold">
-                      {displayName}
-                    </span>
-
-                    <span
-                      className="
-                        text-xs
-                        font-normal
-                        text-muted-foreground
-                      "
-                    >
-                      @{user?.username}
-                    </span>
-
-                    <div className="mt-1 flex items-center gap-2">
-
-                      <Badge
-                        variant="secondary"
-                        className="text-xs"
-                      >
-                        {displayName}
-                      </Badge>
-
-                      <Badge
-                        variant="outline"
-                        className="text-xs"
-                      >
-                        Portfolio:
-                        {" "}
-                        {user?.portfolio}
-                      </Badge>
-
-                    </div>
-
-                  </DropdownMenuLabel>
-
-                  <DropdownMenuSeparator />
-
-                  {/* THEME */}
-
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.preventDefault();
-
-                      setDarkMode(
-                        (
-                          prev,
-                        ) => !prev,
-                      );
-                    }}
-                    className="cursor-pointer"
-                  >
-
-                    {darkMode ? (
-                      <Sun className="mr-2 h-4 w-4" />
-                    ) : (
-                      <Moon className="mr-2 h-4 w-4" />
-                    )}
-
-                    {darkMode
-                      ? "Light Mode"
-                      : "Dark Mode"}
-
-                  </DropdownMenuItem>
-
-                  <DropdownMenuSeparator />
-
-                  {/* PROFILE */}
-
-                  <DropdownMenuItem
-                    onClick={() =>
-                      navigate(
-                        "/profile",
-                      )
-                    }
-                  >
-                    <UserIcon className="mr-2 h-4 w-4" />
-
-                    My Profile
-
-                  </DropdownMenuItem>
-
-                  {/* ALLOCATIONS */}
-
-                  <DropdownMenuItem
-                    onClick={() =>
-                      navigate(
-                        "/my-allocations",
-                      )
-                    }
-                  >
-                    <ListChecks className="mr-2 h-4 w-4" />
-
-                    My Allocations
-
-                  </DropdownMenuItem>
-
-                  <DropdownMenuSeparator />
-
-                  {/* LOGOUT */}
-
-                  <DropdownMenuItem
-                    onClick={
-                      handleLogout
-                    }
-                    className="
-                      cursor-pointer
-                      font-medium
-                      text-red-500
-                      hover:bg-red-500/10
-                      hover:text-red-500
-                      focus:bg-red-500/10
-                      focus:text-red-500
-                    "
-                  >
-                    <LogOut className="mr-2 h-4 w-4 text-red-500" />
-
-                    Logout
-
-                  </DropdownMenuItem>
-
-                </DropdownMenuContent>
-
-              </DropdownMenu>
-
+                  Last updated:
+                  {" "}
+                  {formatLastUpdated(
+                    lastUpdated,
+                  )}
+                </div>
+              </div>
             </div>
 
-          </header>
+            {/* SETTINGS */}
 
-          {/* PAGE CONTENT */}
+            <button
+              className="
+                rounded-md
+                p-2
+                transition-all
+                duration-150
+                ease-out
+                hover:bg-muted
+              "
+              aria-label="Settings"
+            >
+              <Settings className="h-5 w-5 text-muted-foreground" />
+            </button>
 
-          <main
-            className="
-              flex-1
-              overflow-x-hidden
-              overflow-y-auto
-              p-6
-              transition-all
-              duration-150
-              ease-out
-              will-change-[width]
-            "
-          >
-            {children}
-          </main>
+            {/* USER MENU */}
 
-        </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className="
+                  rounded-full
+                  transition-all
+                  duration-150
+                  ease-out
+                  focus:outline-none
+                  focus:ring-2
+                  focus:ring-ring
+                "
+              >
+                <Avatar className="h-8 w-8 cursor-pointer">
+                  <AvatarFallback
+                    className="
+                      bg-primary
+                      text-xs
+                      text-primary-foreground
+                    "
+                  >
+                    {avatarText}
+                  </AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
 
+              <DropdownMenuContent
+                align="end"
+                className="w-64"
+              >
+                <DropdownMenuLabel className="flex flex-col gap-1 py-2">
+                  <span className="font-semibold">
+                    {displayName}
+                  </span>
+
+                  <span
+                    className="
+                      text-xs
+                      font-normal
+                      text-muted-foreground
+                    "
+                  >
+                    @{user?.username}
+                  </span>
+
+                  <div className="mt-1 flex items-center gap-2">
+                    <Badge
+                      variant="secondary"
+                      className="text-xs"
+                    >
+                      {displayName}
+                    </Badge>
+
+                    <Badge
+                      variant="outline"
+                      className="text-xs"
+                    >
+                      Portfolio:
+                      {" "}
+                      {user?.portfolio}
+                    </Badge>
+                  </div>
+                </DropdownMenuLabel>
+
+                <DropdownMenuSeparator />
+
+                {/* THEME */}
+
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.preventDefault();
+
+                    setDarkMode(
+                      (
+                        prev,
+                      ) => !prev,
+                    );
+                  }}
+                  className="cursor-pointer"
+                >
+                  {darkMode ? (
+                    <Sun className="mr-2 h-4 w-4" />
+                  ) : (
+                    <Moon className="mr-2 h-4 w-4" />
+                  )}
+
+                  {darkMode
+                    ? "Light Mode"
+                    : "Dark Mode"}
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                {/* PROFILE */}
+
+                <DropdownMenuItem
+                  onClick={() =>
+                    navigate(
+                      "/profile",
+                    )
+                  }
+                >
+                  <UserIcon className="mr-2 h-4 w-4" />
+
+                  My Profile
+                </DropdownMenuItem>
+
+                {/* ALLOCATIONS */}
+
+                <DropdownMenuItem
+                  onClick={() =>
+                    navigate(
+                      "/my-allocations",
+                    )
+                  }
+                >
+                  <ListChecks className="mr-2 h-4 w-4" />
+
+                  My Allocations
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                {/* LOGOUT */}
+
+                <DropdownMenuItem
+                  onClick={
+                    handleLogout
+                  }
+                  className="
+                    cursor-pointer
+                    font-medium
+                    text-red-500
+                    hover:bg-red-500/10
+                    hover:text-red-500
+                    focus:bg-red-500/10
+                    focus:text-red-500
+                  "
+                >
+                  <LogOut className="mr-2 h-4 w-4 text-red-500" />
+
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </header>
+
+        {/* PAGE CONTENT */}
+
+        <main
+          className="
+            flex-1
+            overflow-x-hidden
+            overflow-y-auto
+            p-6
+            transition-all
+            duration-200
+            ease-out
+          "
+        >
+          {children}
+        </main>
       </div>
+    </div>
+  );
+}
 
+export default function AppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <SidebarProvider>
+      <LayoutContent>
+        {children}
+      </LayoutContent>
     </SidebarProvider>
   );
 }

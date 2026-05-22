@@ -15,7 +15,6 @@ import {
   ScrollText,
   Lock,
   PanelLeft,
-  Home,
 } from "lucide-react";
 
 import {
@@ -71,9 +70,9 @@ const mainItems: NavItem[] = [
   {
     title: "Custom Dashboard",
     url: "/my-dashboard",
-    icon: Home,
+    icon: LayoutDashboard,
     permission: "view_dashboard",
-  }
+  },
 ];
 
 const demandSubItems: NavItem[] = [
@@ -290,6 +289,7 @@ export function AppSidebar() {
             </NavLink>
 
           </SidebarMenuSubButton>
+
         </SidebarMenuSubItem>
       );
     }
@@ -337,26 +337,45 @@ export function AppSidebar() {
 
       {/* HEADER */}
 
-      <SidebarHeader className="h-14 border-b border-sidebar-border flex justify-center">
+      <SidebarHeader className="h-14 border-b border-sidebar-border px-2">
 
-        <div className="flex items-center gap-2 px-2 py-2">
-          <div className="h-8 w-8 rounded-md bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shrink-0">
-            RM
-          </div>
+        <div className="flex items-center justify-between h-full">
+
+          {/* SIDEBAR TOGGLE */}
+
+          <button
+            onClick={toggleSidebar}
+            className="
+              flex
+              h-8
+              w-8
+              items-center
+              justify-center
+              rounded-md
+              transition-all
+              duration-200
+              hover:bg-sidebar-accent
+              hover:text-sidebar-accent-foreground
+            "
+            aria-label="Toggle Sidebar"
+          >
+            <PanelLeft className="h-5 w-5" />
+          </button>
+
+          {/* TITLE */}
 
           {!collapsed && (
             <div
               className="
                 flex
-                flex-col
-                leading-tight
-                transition-all
-                duration-200
-                ease-out
+                flex-1
+                items-center
+                pl-2
+                overflow-hidden
               "
             >
-              <span className="text-sm font-semibold text-sidebar-foreground">
-                Resource Management
+              <span className="truncate text-sm font-semibold text-sidebar-foreground">
+                Enterprise Resource Management
               </span>
             </div>
           )}
@@ -376,15 +395,17 @@ export function AppSidebar() {
       >
 
         <SidebarGroup>
-          <SidebarGroupLabel>Main</SidebarGroupLabel>
 
           <SidebarGroupContent>
 
             <SidebarMenu>
+
               {/* Main Items */}
+
               {mainItems.map(renderNavItem)}
 
               {/* Demand Management */}
+
               {canSeeDemand ? (
                 <Collapsible
                   open={
@@ -481,7 +502,9 @@ export function AppSidebar() {
               )}
 
               {/* Lower Items */}
+
               {lowerItems.map(renderNavItem)}
+
             </SidebarMenu>
 
           </SidebarGroupContent>
