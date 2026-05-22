@@ -13,7 +13,8 @@ export type Permission =
   | "view_resource_info"
   | "view_projects"
   | "view_reporting"
-  | "view_audit_logs";
+  | "view_audit_logs"
+  | "manage_users";
 
 // ─── Permission Matrix ────────────────────────────────────────────────────────
 export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
@@ -29,6 +30,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "view_projects",
     "view_reporting",
     "view_audit_logs",
+    "manage_users",
   ],
   pmo: [
     "view_dashboard",

@@ -15,6 +15,7 @@ import {
   ScrollText,
   Lock,
   PanelLeft,
+  UserCog,
 } from "lucide-react";
 
 import {
@@ -139,45 +140,38 @@ const lowerItems: NavItem[] = [
     icon: ScrollText,
     permission: "view_audit_logs",
   },
+  {
+    title: "User Management",
+    url: "/user-management",
+    icon: UserCog,
+    permission: "manage_users",
+  },
 ];
 
 export function AppSidebar() {
-  const { state, toggleSidebar } =
-    useSidebar();
+  const { state, toggleSidebar } = useSidebar();
 
-  const collapsed =
-    state === "collapsed";
+  const collapsed = state === "collapsed";
 
   const location = useLocation();
 
   const { user } = useAuth();
 
-  const can = (
-    permission?: Permission,
-  ) => {
+  const can = (permission?: Permission) => {
     if (!permission) return true;
 
     if (!user) return false;
 
-    return hasPermission(
-      user.role,
-      permission,
-    );
+    return hasPermission(user.role, permission);
   };
 
-  const canSeeDemand =
-    can("view_demand");
+  const canSeeDemand = can("view_demand");
 
   const demandActive =
-    location.pathname.startsWith(
-      "/demand",
-    ) ||
-    location.pathname.startsWith(
-      "/demand-status",
-    );
+    location.pathname.startsWith("/demand") ||
+    location.pathname.startsWith("/demand-status");
 
-  const [demandOpen, setDemandOpen] =
-    useState(demandActive);
+  const [demandOpen, setDemandOpen] = useState(demandActive);
 
   const linkBase =
     "flex items-center gap-2 w-full transition-colors rounded-md";
@@ -191,22 +185,13 @@ export function AppSidebar() {
   const linkDisabled =
     "opacity-60 cursor-not-allowed pointer-events-none select-none";
 
-  const renderNavItem = (
-    item: NavItem,
-  ) => {
-    const allowed = can(
-      item.permission,
-    );
+  const renderNavItem = (item: NavItem) => {
+    const allowed = can(item.permission);
 
     if (allowed) {
       return (
-        <SidebarMenuItem
-          key={item.title}
-        >
-          <SidebarMenuButton
-            asChild
-            tooltip={item.title}
-          >
+        <SidebarMenuItem key={item.title}>
+          <SidebarMenuButton asChild tooltip={item.title}>
             <NavLink
               to={item.url}
               end={item.end}
@@ -215,11 +200,7 @@ export function AppSidebar() {
             >
               <item.icon className="h-4 w-4 shrink-0" />
 
-              {!collapsed && (
-                <span>
-                  {item.title}
-                </span>
-              )}
+              {!collapsed && <span>{item.title}</span>}
             </NavLink>
           </SidebarMenuButton>
         </SidebarMenuItem>
@@ -227,12 +208,9 @@ export function AppSidebar() {
     }
 
     return (
-      <SidebarMenuItem
-        key={item.title}
-      >
+      <SidebarMenuItem key={item.title}>
         <Tooltip>
           <TooltipTrigger asChild>
-
             <div
               className={`${linkBase} ${linkDisabled} px-2 py-1.5 text-sm text-sidebar-foreground/60`}
             >
@@ -240,40 +218,29 @@ export function AppSidebar() {
 
               {!collapsed && (
                 <>
-                  <span className="flex-1">
-                    {item.title}
-                  </span>
+                  <span className="flex-1">{item.title}</span>
 
                   <Lock className="h-3 w-3 ml-auto opacity-60" />
                 </>
               )}
             </div>
-
           </TooltipTrigger>
 
           <TooltipContent side="right" className="text-xs">
             You don't have access to {item.title}
           </TooltipContent>
-
         </Tooltip>
       </SidebarMenuItem>
     );
   };
 
-  const renderSubItem = (
-    sub: NavItem,
-  ) => {
-    const allowed = can(
-      sub.permission,
-    );
+  const renderSubItem = (sub: NavItem) => {
+    const allowed = can(sub.permission);
 
     if (allowed) {
       return (
-        <SidebarMenuSubItem
-          key={sub.title}
-        >
+        <SidebarMenuSubItem key={sub.title}>
           <SidebarMenuSubButton asChild>
-
             <NavLink
               to={sub.url}
               end={sub.end}
@@ -282,43 +249,31 @@ export function AppSidebar() {
             >
               <sub.icon className="h-3.5 w-3.5 shrink-0" />
 
-              <span>
-                {sub.title}
-              </span>
-
+              <span>{sub.title}</span>
             </NavLink>
-
           </SidebarMenuSubButton>
-
         </SidebarMenuSubItem>
       );
     }
 
     return (
-      <SidebarMenuSubItem
-        key={sub.title}
-      >
+      <SidebarMenuSubItem key={sub.title}>
         <Tooltip>
           <TooltipTrigger asChild>
-
             <div
               className={`${linkBase} ${linkDisabled} px-2 py-1 text-xs text-sidebar-foreground/60`}
             >
               <sub.icon className="h-3.5 w-3.5 shrink-0" />
 
-              <span className="flex-1">
-                {sub.title}
-              </span>
+              <span className="flex-1">{sub.title}</span>
 
               <Lock className="h-3 w-3 ml-auto opacity-60" />
             </div>
-
           </TooltipTrigger>
 
           <TooltipContent side="right" className="text-xs">
             You don't have access to {sub.title}
           </TooltipContent>
-
         </Tooltip>
       </SidebarMenuSubItem>
     );
@@ -334,13 +289,10 @@ export function AppSidebar() {
         border-r
       "
     >
-
       {/* HEADER */}
 
       <SidebarHeader className="h-14 border-b border-sidebar-border px-2">
-
         <div className="flex items-center justify-between h-full">
-
           {/* SIDEBAR TOGGLE */}
 
           <button
@@ -379,9 +331,7 @@ export function AppSidebar() {
               </span>
             </div>
           )}
-
         </div>
-
       </SidebarHeader>
 
       {/* CONTENT */}
@@ -393,13 +343,9 @@ export function AppSidebar() {
           ease-out
         "
       >
-
         <SidebarGroup>
-
           <SidebarGroupContent>
-
             <SidebarMenu>
-
               {/* Main Items */}
 
               {mainItems.map(renderNavItem)}
@@ -408,28 +354,15 @@ export function AppSidebar() {
 
               {canSeeDemand ? (
                 <Collapsible
-                  open={
-                    collapsed
-                      ? false
-                      : demandOpen
-                  }
-                  onOpenChange={
-                    setDemandOpen
-                  }
+                  open={collapsed ? false : demandOpen}
+                  onOpenChange={setDemandOpen}
                   className="group/collapsible"
                 >
-
                   <SidebarMenuItem>
-
                     <CollapsibleTrigger asChild>
-
                       <SidebarMenuButton
                         tooltip="Demand Management"
-                        className={
-                          demandActive
-                            ? linkActive
-                            : linkInactive
-                        }
+                        className={demandActive ? linkActive : linkInactive}
                       >
                         <ClipboardList className="h-4 w-4 shrink-0" />
 
@@ -440,35 +373,22 @@ export function AppSidebar() {
                             <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
                           </>
                         )}
-
                       </SidebarMenuButton>
-
                     </CollapsibleTrigger>
 
                     {!collapsed && (
                       <CollapsibleContent>
-
                         <SidebarMenuSub>
-
-                          {demandSubItems.map(
-                            renderSubItem,
-                          )}
-
+                          {demandSubItems.map(renderSubItem)}
                         </SidebarMenuSub>
-
                       </CollapsibleContent>
                     )}
-
                   </SidebarMenuItem>
-
                 </Collapsible>
               ) : (
                 <SidebarMenuItem>
-
                   <Tooltip>
-
                     <TooltipTrigger asChild>
-
                       <div
                         className={`${linkBase} ${linkDisabled} px-2 py-1.5 text-sm text-sidebar-foreground/60`}
                       >
@@ -476,43 +396,28 @@ export function AppSidebar() {
 
                         {!collapsed && (
                           <>
-                            <span className="flex-1">
-                              Demand Management
-                            </span>
+                            <span className="flex-1">Demand Management</span>
 
                             <Lock className="h-3 w-3 ml-auto opacity-60" />
                           </>
                         )}
-
                       </div>
-
                     </TooltipTrigger>
 
-                    <TooltipContent
-                      side="right"
-                      className="text-xs"
-                    >
-                      You don't have access to Demand
-                      Management
+                    <TooltipContent side="right" className="text-xs">
+                      You don't have access to Demand Management
                     </TooltipContent>
-
                   </Tooltip>
-
                 </SidebarMenuItem>
               )}
 
               {/* Lower Items */}
 
               {lowerItems.map(renderNavItem)}
-
             </SidebarMenu>
-
           </SidebarGroupContent>
-
         </SidebarGroup>
-
       </SidebarContent>
-
     </Sidebar>
   );
 }

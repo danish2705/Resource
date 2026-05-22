@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import UserManagement from "@/pages/UserManagement";
 
 import AppLayout from "@/components/AppLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoutes";
@@ -28,11 +29,7 @@ const queryClient = new QueryClient();
 function AuthGate() {
   const { isAuthenticated } = useAuth();
 
-  return isAuthenticated ? (
-    <Navigate to="/" replace />
-  ) : (
-    <LoginPage />
-  );
+  return isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />;
 }
 
 const App = () => (
@@ -172,12 +169,16 @@ const App = () => (
                         </ProtectedRoute>
                       }
                     />
-
-                    {/* Fallback Route */}
                     <Route
-                      path="*"
-                      element={<Navigate to="/" replace />}
+                      path="/user-management"
+                      element={
+                        <ProtectedRoute permission="manage_users">
+                          <UserManagement />
+                        </ProtectedRoute>
+                      }
                     />
+                    {/* Fallback Route */}
+                    <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </AppLayout>
               </ProtectedRoute>

@@ -11,6 +11,8 @@ export interface Resource {
   role: string;
   level: "Junior" | "Mid" | "Senior";
 
+  pillar: "Hi-tech" | "Retail" | "Banking" | "Healthcare" | "Life Sciences";
+
   team: string;
 
   reportingManager: string;
@@ -29,6 +31,7 @@ export interface Resource {
 
   status: "Allocated" | "Available" | "Overallocated";
 
+  systemRole: "PMO" | "Resource Manager" | "Resource";
   utilization: number;
 
   unavailability?: {
@@ -44,13 +47,14 @@ export const resources: Resource[] = [
 
     resourceId: "RID-1001",
 
-    name: "Priya Sharma",
-    initials: "PS",
-
+    name: "Rachel Morgan",
+    initials: "RM",
+    systemRole: "Resource Manager",
     role: "Cloud Architect",
     level: "Senior",
 
-    team: "Cloud Eng",
+    pillar: "Hi-tech",
+    team: "Cloud Platform",
 
     reportingManager: "Emma Wilson",
 
@@ -76,15 +80,17 @@ export const resources: Resource[] = [
 
     resourceId: "RID-1002",
 
-    name: "Liam Anderson",
-    initials: "LA",
+    name: "Daniel Foster",
+    initials: "DF",
 
     role: "Data Engineer",
     level: "Mid",
+    systemRole: "Resource",
 
-    team: "Data Eng",
+    pillar: "Banking",
+    team: "Data Platform",
 
-    reportingManager: "Ananya Rao",
+    reportingManager: "Anna Hughes",
 
     employeeType: "Contractor",
 
@@ -108,13 +114,14 @@ export const resources: Resource[] = [
 
     resourceId: "RID-1003",
 
-    name: "Sneha Iyer",
-    initials: "SI",
+    name: "Claire Simmons",
+    initials: "CS",
 
     role: "DevSecOps Engineer",
     level: "Senior",
-
-    team: "DevSecOps",
+    systemRole: "Resource Manager",
+    pillar: "Healthcare",
+    team: "Security & Ops",
 
     reportingManager: "Daniel Carter",
 
@@ -139,16 +146,18 @@ export const resources: Resource[] = [
     id: "res-3",
 
     resourceId: "RID-1004",
+    systemRole: "Resource",
 
-    name: "Kiran Patel",
-    initials: "KP",
+    name: "Nathan Brooks",
+    initials: "NB",
 
     role: "Full Stack Developer",
     level: "Mid",
 
-    team: "Cloud Eng",
+    pillar: "Retail",
+    team: "Digital Commerce",
 
-    reportingManager: "Priya Sharma",
+    reportingManager: "Rachel Morgan",
 
     employeeType: "Contractor",
 
@@ -172,13 +181,15 @@ export const resources: Resource[] = [
 
     resourceId: "RID-1005",
 
-    name: "Olivia Bennett",
-    initials: "OB",
+    name: "Laura Mitchell",
+    initials: "LM",
+    systemRole: "PMO",
 
     role: "Delivery Manager",
     level: "Senior",
 
-    team: "Delivery",
+    pillar: "Life Sciences",
+    team: "Program Delivery",
 
     reportingManager: "Executive Board",
 
@@ -204,15 +215,16 @@ export const resources: Resource[] = [
 
     resourceId: "RID-1006",
 
-    name: "Rohit Nair",
-    initials: "RN",
+    name: "Tyler Harrison",
+    initials: "TH",
 
     role: "Data Scientist",
     level: "Mid",
 
-    team: "Data Eng",
+    pillar: "Healthcare",
+    team: "Clinical Analytics",
 
-    reportingManager: "Olivia Bennett",
+    reportingManager: "Laura Mitchell",
 
     employeeType: "Full Time",
 
@@ -225,6 +237,7 @@ export const resources: Resource[] = [
     capacity: "40 hrs",
 
     location: "Melbourne",
+    systemRole: "Resource",
 
     status: "Available",
 
@@ -242,15 +255,16 @@ export const resources: Resource[] = [
 
     resourceId: "RID-1007",
 
-    name: "Sophia Miller",
-    initials: "SM",
+    name: "Emily Clarke",
+    initials: "EC",
 
     role: "Cloud Engineer",
     level: "Junior",
+    systemRole: "Resource",
+    pillar: "Hi-tech",
+    team: "Cloud Platform",
 
-    team: "Cloud Eng",
-
-    reportingManager: "Priya Sharma",
+    reportingManager: "Rachel Morgan",
 
     employeeType: "Full Time",
 
@@ -274,13 +288,14 @@ export const resources: Resource[] = [
 
     resourceId: "RID-1008",
 
-    name: "Dev Krishnan",
-    initials: "DK",
-
+    name: "Adam Fletcher",
+    initials: "AF",
+    systemRole: "Resource",
     role: "Security Engineer",
     level: "Senior",
 
-    team: "DevSecOps",
+    pillar: "Banking",
+    team: "Cyber Security",
 
     reportingManager: "Emma Wilson",
 
@@ -306,15 +321,16 @@ export const resources: Resource[] = [
 
     resourceId: "RID-1009",
 
-    name: "Ethan Brooks",
-    initials: "EB",
-
+    name: "Jessica Palmer",
+    initials: "JP",
+    systemRole: "Resource",
     role: "Cloud Engineer",
     level: "Mid",
 
-    team: "Cloud Eng",
+    pillar: "Retail",
+    team: "Infrastructure",
 
-    reportingManager: "Priya Sharma",
+    reportingManager: "Rachel Morgan",
 
     employeeType: "Contractor",
 
@@ -338,15 +354,16 @@ export const resources: Resource[] = [
 
     resourceId: "RID-1010",
 
-    name: "Lalitha Krishnan",
-    initials: "LK",
-
+    name: "Owen Taylor",
+    initials: "OT",
+    systemRole: "Resource",
     role: "ML Engineer",
     level: "Mid",
 
-    team: "Data Eng",
+    pillar: "Life Sciences",
+    team: "Research & AI",
 
-    reportingManager: "Rohit Nair",
+    reportingManager: "Tyler Harrison",
 
     employeeType: "Full Time",
 
@@ -373,96 +390,166 @@ export const resources: Resource[] = [
 
   {
     id: "res-10",
+
     resourceId: "RID-1011",
-    name: "Anika Mehta",
-    initials: "AM",
+
+    name: "Hannah Scott",
+    initials: "HS",
+
     role: "Business Analyst",
     level: "Senior",
-    team: "Delivery",
-    reportingManager: "Olivia Bennett",
+    systemRole: "PMO",
+    pillar: "Banking",
+    team: "Business Transformation",
+
+    reportingManager: "Laura Mitchell",
+
     employeeType: "Full Time",
+
     availableAfter: "2026-06-01",
+
     skills: ["Business Analysis", "Agile", "Requirements"],
+
     ratePerHr: 85,
+
     capacity: "40 hrs",
+
     location: "Sydney",
+
     status: "Available",
+
     utilization: 55,
   },
 
   {
     id: "res-11",
+
     resourceId: "RID-1012",
-    name: "James Thornton",
-    initials: "JT",
+
+    name: "George Lawson",
+    initials: "GL",
+    systemRole: "Resource Manager",
     role: "Technical Lead",
     level: "Senior",
-    team: "Cloud Eng",
-    reportingManager: "Priya Sharma",
+
+    pillar: "Hi-tech",
+    team: "Engineering Excellence",
+
+    reportingManager: "Rachel Morgan",
+
     employeeType: "Full Time",
+
     availableAfter: "2026-07-01",
+
     skills: ["Architecture", "Java", "Microservices"],
+
     ratePerHr: 110,
+
     capacity: "40 hrs",
+
     location: "Melbourne",
+
     status: "Allocated",
+
     utilization: 70,
   },
 
   {
     id: "res-12",
+
     resourceId: "RID-1013",
-    name: "Sara Nguyen",
-    initials: "SN",
+
+    name: "Megan Turner",
+    initials: "MT",
+
     role: "QA Engineer",
     level: "Mid",
-    team: "DevSecOps",
+    systemRole: "Resource",
+    pillar: "Healthcare",
+    team: "Quality Assurance",
+
     reportingManager: "Daniel Carter",
+
     employeeType: "Contractor",
+
     availableAfter: "2026-06-15",
+
     skills: ["Selenium", "Test Automation", "JIRA"],
+
     ratePerHr: 70,
+
     capacity: "40 hrs",
+
     location: "Brisbane",
+
     status: "Available",
+
     utilization: 40,
   },
 
   {
     id: "res-13",
+
     resourceId: "RID-1014",
-    name: "Marcus Reid",
-    initials: "MR",
+
+    name: "Christopher Ward",
+    initials: "CW",
+    systemRole: "PMO",
     role: "Project Manager",
     level: "Senior",
-    team: "Delivery",
-    reportingManager: "Olivia Bennett",
+
+    pillar: "Life Sciences",
+    team: "Program Delivery",
+
+    reportingManager: "Laura Mitchell",
+
     employeeType: "Full Time",
+
     availableAfter: "2026-05-28",
+
     skills: ["PMO", "Stakeholder Mgmt", "Risk Management"],
+
     ratePerHr: 95,
+
     capacity: "40 hrs",
+
     location: "Sydney",
+
     status: "Available",
+
     utilization: 50,
   },
 
   {
     id: "res-14",
+
     resourceId: "RID-1015",
-    name: "Divya Reddy",
-    initials: "DR",
+
+    name: "Natalie Hughes",
+    initials: "NH",
+    systemRole: "Resource",
     role: "DevOps Engineer",
     level: "Mid",
-    team: "DevSecOps",
-    reportingManager: "Sneha Iyer",
+
+    pillar: "Retail",
+    team: "Platform Engineering",
+
+    reportingManager: "Claire Simmons",
+
     employeeType: "Full Time",
+
     availableAfter: "2026-06-10",
+
     skills: ["CI/CD", "Jenkins", "Kubernetes"],
+
     ratePerHr: 80,
+
     capacity: "40 hrs",
+
     location: "Perth",
+
     status: "Available",
+
     utilization: 60,
   },
 ];
