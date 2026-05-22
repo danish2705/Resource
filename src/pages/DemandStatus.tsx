@@ -654,17 +654,6 @@ export default function DemandStatus() {
                                 <Pencil className="h-3.5 w-3.5" />
                                 Edit Allocation
                               </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="gap-2 text-xs"
-                                disabled={
-                                  d.status === "Approved" ||
-                                  d.status === "Submitted" ||
-                                  d.status === "Under Review"
-                                }
-                              >
-                                <SendHorizonal className="h-3.5 w-3.5" />
-                                Re-submit
-                              </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </td>

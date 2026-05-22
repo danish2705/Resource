@@ -174,16 +174,16 @@ interface AppState {
   powerBiUrl: string;
 
   addDemand: (
-    d: Omit<
-      Demand,
-      | "id"
-      | "history"
-      | "createdBy"
-      | "createdDate"
-      | "updatedBy"
-      | "updatedDate"
-    >,
-  ) => void;
+  d: Omit<
+    Demand,
+    | "id"
+    | "history"
+    | "createdBy"
+    | "createdDate"
+    | "updatedBy"
+    | "updatedDate"
+  >,
+  ) => string; // ← now returns the new demand ID
 
   addDemands: (
     ds: Omit<
@@ -245,7 +245,7 @@ function makeAuditEntries(
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
-export const useStore = create<AppState>((set) => ({
+export const useStore = create<AppState>((set, get) => ({
   demands: mockDemands,
   allocations: mockAllocations,
   worklist: mockWorklist,
@@ -256,43 +256,41 @@ export const useStore = create<AppState>((set) => ({
   selectedProject: "Global",
 
   powerBiUrl:
-    "https://app.powerbi.com/reportEmbed?reportId=6fe8891f-cbe6-4462-98ec-5044e47b137d&autoAuth=true&ctid=1a264c83-db2d-4da1-8cc5-44b1b94837a8",
+    "https://app.powerbi.com/reportEmbed?reportId=2ab54997-497c-4dcc-af21-74a90b01f79c&autoAuth=true&ctid=5b062343-db15-4905-9f00-236a9938ed0a",
 
-  // ── Demand: Create ──
-  addDemand: (d) =>
-    set((state) => {
-      const id = `dem-${Date.now()}`;
-      const now = new Date().toLocaleString();
-      const newEntry: AuditEntry = {
-        id: `audit-${Date.now()}`,
-        timestamp: now,
-        user: "sarah.mitchell@ascendion.com",
-        entity: "Demand",
-        entityId: id,
-        entityLabel: d.projectName,
-        action: "Created",
-        field: "",
-        oldValue: "",
-        newValue: `status: ${d.status}`,
-      };
-      return {
-        demands: [
-          ...state.demands,
-          {
-            ...d,
-            id,
-            history: [],
-            createdBy: "sarah.mitchell@ascendion.com",
-            createdDate: new Date().toLocaleDateString(),
-            updatedBy: "sarah.mitchell@ascendion.com",
-            updatedDate: new Date().toLocaleDateString(),
-          },
-        ],
-        auditLog: [newEntry, ...state.auditLog],
-      };
-    }),
+  // ── Demand: Create ── (prepends + returns new ID)
+  addDemand: (d) => {
+    const id = `dem-${Date.now()}`;
+    const now = new Date().toLocaleString();
+    const newDemand: Demand = {
+      ...d,
+      id,
+      history: [],
+      createdBy: "admin@company.com",
+      createdDate: new Date().toLocaleDateString(),
+      updatedBy: "admin@company.com",
+      updatedDate: new Date().toLocaleDateString(),
+    };
+    const newEntry: AuditEntry = {
+      id: `audit-${Date.now()}`,
+      timestamp: now,
+      user: "admin@company.com",
+      entity: "Demand",
+      entityId: id,
+      entityLabel: d.projectName,
+      action: "Created",
+      field: "",
+      oldValue: "",
+      newValue: `status: ${d.status}`,
+    };
+    set((state) => ({
+      demands: [newDemand, ...state.demands], // ← prepend
+      auditLog: [newEntry, ...state.auditLog],
+    }));
+    return id; // ← return so callers can navigate with it
+  },
 
-  // ── Demand: Bulk Create ──
+  // ── Demand: Bulk Create ── (prepends)
   addDemands: (ds) =>
     set((state) => {
       const now = new Date().toLocaleString();
@@ -300,15 +298,15 @@ export const useStore = create<AppState>((set) => ({
         ...d,
         id: `dem-${Date.now()}-${i}`,
         history: [],
-        createdBy: "sarah.mitchell@ascendion.com",
+        createdBy: "admin@company.com",
         createdDate: new Date().toLocaleDateString(),
-        updatedBy: "sarah.mitchell@ascendion.com",
+        updatedBy: "admin@company.com",
         updatedDate: new Date().toLocaleDateString(),
       }));
       const newAuditEntries: AuditEntry[] = newDemands.map((d) => ({
         id: `audit-${Date.now()}-${d.id}`,
         timestamp: now,
-        user: "sarah.mitchell@ascendion.com",
+        user: "admin@company.com",
         entity: "Demand",
         entityId: d.id,
         entityLabel: d.projectName,
@@ -318,7 +316,7 @@ export const useStore = create<AppState>((set) => ({
         newValue: `status: ${d.status}`,
       }));
       return {
-        demands: [...state.demands, ...newDemands],
+        demands: [...newDemands, ...state.demands], // ← prepend bulk
         auditLog: [...newAuditEntries, ...state.auditLog],
       };
     }),
@@ -336,7 +334,7 @@ export const useStore = create<AppState>((set) => ({
               from: String((demand as any)[key]),
               to: String(val),
               updatedOn: new Date().toLocaleString(),
-              updatedBy: "sarah.mitchell@ascendion.com",
+              updatedBy: "admin@company.com",
             });
           }
         }
@@ -351,7 +349,7 @@ export const useStore = create<AppState>((set) => ({
             ...d,
             ...updates,
             history: [...d.history, ...historyEntries],
-            updatedBy: "sarah.mitchell@ascendion.com",
+            updatedBy: "admin@company.com",
             updatedDate: new Date().toLocaleDateString(),
           };
         }),
@@ -367,7 +365,7 @@ export const useStore = create<AppState>((set) => ({
         ? {
             id: `audit-${Date.now()}`,
             timestamp: new Date().toLocaleString(),
-            user: "sarah.mitchell@ascendion.com",
+            user: "admin@company.com",
             entity: "Demand",
             entityId: id,
             entityLabel: demand.projectName,
@@ -398,7 +396,7 @@ export const useStore = create<AppState>((set) => ({
               from: String((alloc as any)[key]),
               to: String(val),
               updatedOn: new Date().toLocaleString(),
-              updatedBy: "sarah.mitchell@ascendion.com",
+              updatedBy: "admin@company.com",
             });
           }
         }
@@ -417,7 +415,7 @@ export const useStore = create<AppState>((set) => ({
                 from: String((a as any)[key]),
                 to: String(val),
                 updatedOn: new Date().toLocaleString(),
-                updatedBy: "sarah.mitchell@ascendion.com",
+                updatedBy: "admin@company.com",
               });
             }
           }
@@ -442,7 +440,7 @@ export const useStore = create<AppState>((set) => ({
         ? {
             id: `audit-${Date.now()}`,
             timestamp: now,
-            user: "sarah.mitchell@ascendion.com",
+            user: "admin@company.com",
             entity: "Demand",
             entityId: item.demandId,
             entityLabel: item.project,
@@ -476,7 +474,7 @@ export const useStore = create<AppState>((set) => ({
         ? {
             id: `audit-${Date.now()}`,
             timestamp: now,
-            user: "sarah.mitchell@ascendion.com",
+            user: "admin@company.com",
             entity: "Demand",
             entityId: item.demandId,
             entityLabel: item.project,
@@ -516,7 +514,7 @@ export const useStore = create<AppState>((set) => ({
               from: String((resource as any)[key]),
               to: String(val),
               updatedOn: new Date().toLocaleString(),
-              updatedBy: "sarah.mitchell@ascendion.com",
+              updatedBy: "admin@company.com",
             });
           }
         }
@@ -542,7 +540,7 @@ export const useStore = create<AppState>((set) => ({
       const newEntry: AuditEntry = {
         id: `audit-${Date.now()}`,
         timestamp: now,
-        user: "sarah.mitchell@ascendion.com",
+        user: "admin@company.com",
         entity: "Forecast",
         entityId: id,
         entityLabel: f.projectName,
@@ -558,7 +556,7 @@ export const useStore = create<AppState>((set) => ({
             ...f,
             id,
             status: f.status || "Draft",
-            createdBy: "sarah.mitchell@ascendion.com",
+            createdBy: "admin@company.com",
             createdDate: new Date().toLocaleDateString(),
             history: [],
           },
@@ -580,7 +578,7 @@ export const useStore = create<AppState>((set) => ({
               from: String((forecast as any)[key]),
               to: String(val),
               updatedOn: new Date().toLocaleString(),
-              updatedBy: "sarah.mitchell@ascendion.com",
+              updatedBy: "admin@company.com",
             });
           }
         }
@@ -606,7 +604,7 @@ export const useStore = create<AppState>((set) => ({
         ? {
             id: `audit-${Date.now()}`,
             timestamp: new Date().toLocaleString(),
-            user: "sarah.mitchell@ascendion.com",
+            user: "admin@company.com",
             entity: "Forecast",
             entityId: id,
             entityLabel: forecast.projectName,
@@ -624,7 +622,7 @@ export const useStore = create<AppState>((set) => ({
       };
     }),
 
-  // ── Forecast: Convert to Demand ──
+  // ── Forecast: Convert to Demand ── (prepends)
   convertForecastToDemand: (id) =>
     set((state) => {
       const f = state.forecasts.find((x) => x.id === id);
@@ -664,9 +662,9 @@ export const useStore = create<AppState>((set) => ({
           y2029: 0,
           y2030: 0,
         },
-        createdBy: "sarah.mitchell@ascendion.com",
+        createdBy: "admin@company.com",
         createdDate: new Date().toLocaleDateString(),
-        updatedBy: "sarah.mitchell@ascendion.com",
+        updatedBy: "admin@company.com",
         updatedDate: new Date().toLocaleDateString(),
         history: [],
         forecastSourceId: f.id,
@@ -674,7 +672,7 @@ export const useStore = create<AppState>((set) => ({
       const auditForecast: AuditEntry = {
         id: `audit-${Date.now()}-fc`,
         timestamp: now,
-        user: "sarah.mitchell@ascendion.com",
+        user: "admin@company.com",
         entity: "Forecast",
         entityId: id,
         entityLabel: f.projectName,
@@ -686,7 +684,7 @@ export const useStore = create<AppState>((set) => ({
       const auditDemand: AuditEntry = {
         id: `audit-${Date.now()}-dem`,
         timestamp: now,
-        user: "sarah.mitchell@ascendion.com",
+        user: "admin@company.com",
         entity: "Demand",
         entityId: newDemandId,
         entityLabel: f.projectName,
@@ -696,7 +694,7 @@ export const useStore = create<AppState>((set) => ({
         newValue: `status: Pending, source: ${f.id}`,
       };
       return {
-        demands: [...state.demands, newDemand],
+        demands: [newDemand, ...state.demands], // ← prepend
         forecasts: state.forecasts.map((x) =>
           x.id === id
             ? {
@@ -709,7 +707,7 @@ export const useStore = create<AppState>((set) => ({
                     from: x.status,
                     to: "Converted",
                     updatedOn: now,
-                    updatedBy: "sarah.mitchell@ascendion.com",
+                    updatedBy: "admin@company.com",
                   },
                 ],
               }
@@ -720,7 +718,7 @@ export const useStore = create<AppState>((set) => ({
     }),
 }));
 
-// ─── Re-exports (for consumers that import lookup arrays from here) ────────────
+// ─── Re-exports ───────────────────────────────────────────────────────────────
 export {
   projects,
   pillars,

@@ -1,5 +1,5 @@
-import { useState, useMemo, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useStore } from "@/store/useStore";
 import { useAuth } from "@/auth/useAuth";
 import { hasPermission } from "@/auth/rbac";
@@ -59,10 +59,6 @@ type ImportSource =
   | "Smartsheets"
   | "Monday.com"
   | "Connected Source";
-
-// Add these fields to your Demand type in useStore.ts:
-// source?: "Manual" | "Jira" | "Planisware" | "Smartsheets" | "Monday.com" | "Connected Source";
-// isEdited?: boolean;
 
 // ─── Source config ────────────────────────────────────────────────────────────
 
@@ -164,7 +160,6 @@ function mapRowToDemand(
     country: row["Country"] || row["Location"] || "Sydney",
     allocation: { current: 0, y2027: 0, y2028: 0, y2029: 0, y2030: 0 },
     forecast: { current: 0, y2027: 0, y2028: 0, y2029: 0, y2030: 0 },
-    // ── New fields ──
     source: source as Demand["source"],
     isEdited: false,
   };
@@ -174,6 +169,9 @@ function mapRowToDemand(
 
 export default function DemandSummary() {
   const navigate = useNavigate();
+  // ── CHANGE 1: read ?allocate=<id> query param ─────────────────────────────
+  const [searchParams] = useSearchParams();
+
   const { demands, addDemands, deleteDemand } = useStore();
   const { filterByPillar } = usePillarFilter();
   const visibleDemands = filterByPillar(demands);
@@ -197,7 +195,6 @@ export default function DemandSummary() {
     null,
   );
 
-  // REPLACE WITH:
   const [resourceModal, setResourceModal] = useState<{
     open: boolean;
     demandId: string;
@@ -222,6 +219,54 @@ export default function DemandSummary() {
   const [showImport, setShowImport] = useState(false);
   const [importPreview, setImportPreview] = useState<DemandForm[]>([]);
   const [importSource, setImportSource] = useState<ImportSource>("Excel");
+
+  // ── CHANGE 2: centralised allocation opener ───────────────────────────────
+  // Single function used by both the Action column button AND the auto-open
+  // effect below. No logic is duplicated anywhere else.
+  const openAllocation = (row: Demand) => {
+    const assignedResources = row.resourceName
+      ? [
+          {
+            id: "r1",
+            name: row.resourceName,
+            email: `${row.resourceName.toLowerCase().replace(" ", ".")}@company.com`,
+            domain: row.pillar,
+          },
+          {
+            id: "r2",
+            name: "Bob Smith",
+            email: "bob.smith@company.com",
+            domain: "Data",
+          },
+        ]
+      : [];
+    setResourceModal({
+      open: true,
+      demandId: row.id,
+      projectName: row.projectName,
+      projectSkills: row.projectRole ? [row.projectRole] : [],
+      initialResources: assignedResources,
+    });
+  };
+
+  // ── CHANGE 3: auto-open allocation after submit ───────────────────────────
+  // Fires once when the component mounts with ?allocate=<id> in the URL
+  // (set by CreateDemand after a successful single-form submission).
+  // Strips the param immediately so a refresh / back-nav doesn't re-trigger.
+  useEffect(() => {
+    const allocateId = searchParams.get("allocate");
+    if (!allocateId) return;
+
+    const target = demands.find((d) => d.id === allocateId);
+    if (!target) return;
+
+    openAllocation(target);
+    window.history.replaceState({}, "", window.location.pathname);
+    // openAllocation is stable (defined above, no deps that change);
+    // demands is intentionally in the dep array so we retry if the store
+    // hasn't hydrated yet on the very first render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, demands]);
 
   // ── Filtered data ──
   const filtered = useMemo(() => {
@@ -346,7 +391,6 @@ export default function DemandSummary() {
         y2029: 0,
         y2030: 0,
       },
-      // ── New fields ──
       source,
       isEdited: false,
     }));
@@ -417,45 +461,18 @@ export default function DemandSummary() {
       header: "Pillar",
       render: (row) => <Badge variant="outline">{row.pillar}</Badge>,
     },
+    // ── CHANGE 4: Resource Count — plain display only, no click ──────────────
     {
       key: "resourceName",
       header: "Resource Count",
       sortable: false,
-      // REPLACE WITH:
-
       render: (row) => {
-        const assignedResources = row.resourceName
-          ? [
-              {
-                id: "r1",
-                name: row.resourceName,
-                email: `${row.resourceName.toLowerCase().replace(" ", ".")}@company.com`,
-                domain: row.pillar,
-              },
-              {
-                id: "r2",
-                name: "Bob Smith",
-                email: "bob.smith@company.com",
-                domain: "Data",
-              },
-            ]
-          : [];
+        const count = row.resourceName ? 2 : 0;
         return (
-          <button
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors cursor-pointer"
-            onClick={() =>
-              setResourceModal({
-                open: true,
-                demandId: row.id,
-                projectName: row.projectName,
-                projectSkills: row.projectRole ? [row.projectRole] : [],
-                initialResources: assignedResources,
-              })
-            }
-          >
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold select-none">
             <Users className="h-3 w-3" />
-            {assignedResources.length}
-          </button>
+            {count}
+          </span>
         );
       },
     },
@@ -480,7 +497,6 @@ export default function DemandSummary() {
         <Badge variant={statusColor(row.status)}>{row.status}</Badge>
       ),
     },
-    // ── NEW: Source column ────────────────────────────────────────────────────
     {
       key: "source",
       header: "Source",
@@ -499,7 +515,6 @@ export default function DemandSummary() {
               <span className={`h-1.5 w-1.5 rounded-full ${cfg.dotClass}`} />
               {cfg.label}
             </span>
-            {/* Edited indicator — only shown on imported demands that were changed */}
             {row.isEdited && (
               <span
                 title="Edited after import"
@@ -512,12 +527,25 @@ export default function DemandSummary() {
         );
       },
     },
+    // ── CHANGE 5: Action column — Allocate button + Edit + Delete ─────────────
+    // "Allocate Resource" calls openAllocation(row) — the same function used
+    // by the auto-open effect, so there is zero logic duplication.
     {
       key: "action",
       header: "Action",
       sortable: false,
       render: (row) => (
-        <div className="flex gap-1">
+        <div className="flex items-center gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 px-2 text-xs gap-1.5"
+            onClick={() => openAllocation(row)}
+            title="Allocate Resource"
+          >
+            <Users className="h-3 w-3" />
+            Allocate
+          </Button>
           <Button
             variant="ghost"
             size="sm"
@@ -637,7 +665,7 @@ export default function DemandSummary() {
               </SelectContent>
             </Select>
 
-            {/* Source filter — NEW */}
+            {/* Source filter */}
             <Select value={fSource} onValueChange={setFSource}>
               <SelectTrigger className="h-9 w-[150px] text-sm">
                 <SelectValue placeholder="All Sources" />
@@ -675,8 +703,8 @@ export default function DemandSummary() {
           <DataTable data={filtered} columns={columns} pageSize={5} />
         </CardContent>
       </Card>
-      {/* ── Resource Dialog ── */}
 
+      {/* ── Resource Dialog ── */}
       <ResourceDialog
         open={resourceModal.open}
         onOpenChange={(v) => setResourceModal((s) => ({ ...s, open: v }))}
@@ -686,6 +714,7 @@ export default function DemandSummary() {
         initialResources={resourceModal.initialResources}
         userRole={user?.role}
       />
+
       {/* ── Import Source Chooser ── */}
       <Dialog open={importChooserOpen} onOpenChange={setImportChooserOpen}>
         <DialogContent className="max-w-2xl">
@@ -765,6 +794,7 @@ export default function DemandSummary() {
           />
         </DialogContent>
       </Dialog>
+
       {/* ── Import Preview ── */}
       <Dialog open={showImport} onOpenChange={setShowImport}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
@@ -829,6 +859,7 @@ export default function DemandSummary() {
           </div>
         </DialogContent>
       </Dialog>
+
       {/* ── Delete Confirmation ── */}
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
@@ -844,6 +875,7 @@ export default function DemandSummary() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
       <HistoryModal
         open={!!historyData}
         onOpenChange={() => setHistoryData(null)}

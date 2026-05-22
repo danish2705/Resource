@@ -376,7 +376,7 @@ function ImportDemandModal({
   );
 }
 
-// ── LockedFormOverlay — shown instead of form fields when a form is actioned ──
+// ── LockedFormOverlay ─────────────────────────────────────────────────────────
 
 function LockedFormOverlay({
   formStatus,
@@ -415,7 +415,7 @@ function LockedFormOverlay({
   );
 }
 
-// ── DemandFormPanel — renders one demand form ─────────────────────────────────
+// ── DemandFormPanel ───────────────────────────────────────────────────────────
 
 function DemandFormPanel({
   form,
@@ -462,7 +462,6 @@ function DemandFormPanel({
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
               Project Details
             </CardTitle>
-
             {(isMulti || formStatus !== "pending") && <FormStatusBadge status={formStatus} />}
           </div>
         </CardHeader>
@@ -537,7 +536,7 @@ function DemandFormPanel({
         </CardContent>
       </Card>
 
-      {/* ── Allocation — hidden when form is locked ── */}
+      {/* ── Allocation ── */}
       {!isLocked && (
         <Card>
           <CardHeader className="pb-3">
@@ -555,7 +554,7 @@ function DemandFormPanel({
         </Card>
       )}
 
-      {/* ── Forecast — hidden when form is locked ── */}
+      {/* ── Forecast ── */}
       {!isLocked && (
         <Card>
           <CardHeader className="pb-3">
@@ -573,7 +572,7 @@ function DemandFormPanel({
         </Card>
       )}
 
-      {/* ── Per-form action bar — below ALL sections, only in multi-form mode when pending ── */}
+      {/* ── Per-form action bar ── */}
       {isMulti && !isLocked && (
         <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-4 py-3">
           <p className="text-xs text-muted-foreground flex items-center gap-1.5">
@@ -609,11 +608,7 @@ function DemandFormPanel({
 
 // ── Bulk-action summary bar ───────────────────────────────────────────────────
 
-function BulkStatusBar({
-  formStatuses,
-}: {
-  formStatuses: FormStatus[];
-}) {
+function BulkStatusBar({ formStatuses }: { formStatuses: FormStatus[] }) {
   const pending   = formStatuses.filter((s) => s === "pending").length;
   const drafted   = formStatuses.filter((s) => s === "draft").length;
   const submitted = formStatuses.filter((s) => s === "submitted").length;
@@ -654,7 +649,6 @@ export default function CreateDemand() {
   const portfolios = useActiveValues("portfolios");
   const programs   = useActiveValues("programs");
 
-  // ── Multi-form state ────────────────────────────────────────────────────────
   const [forms, setForms]               = useState<DemandForm[]>([emptyDemand]);
   const [formStatuses, setFormStatuses] = useState<FormStatus[]>(["pending"]);
   const [activeIndex, setActiveIndex]   = useState(0);
@@ -662,7 +656,7 @@ export default function CreateDemand() {
   const [isSavingDraft, setIsSavingDraft]   = useState(false);
   const [isSubmitting,  setIsSubmitting]    = useState(false);
 
-  // Pre-fill when editing (single form)
+  // Pre-fill when editing
   useEffect(() => {
     if (!editId) return;
     const demand = demands.find((d) => d.id === editId);
@@ -696,7 +690,6 @@ export default function CreateDemand() {
     setActiveIndex((prev) => Math.min(prev, forms.length - 2));
   };
 
-  // Advance to the next pending form after an action, if one exists
   const advanceToNextPending = (fromIndex: number, updatedStatuses: FormStatus[]) => {
     const next = updatedStatuses.findIndex((s, i) => i > fromIndex && s === "pending");
     if (next !== -1) { setActiveIndex(next); return; }
@@ -754,12 +747,14 @@ export default function CreateDemand() {
   };
 
   // ── Per-form: Submit ──────────────────────────────────────────────────────────
-  const handleSubmitSingle = async (index: number) => {
-    if (!validateForm(index)) return;
+  // Returns the new demand ID so the caller can navigate with it.
+  const handleSubmitSingle = async (index: number): Promise<string | null> => {
+    if (!validateForm(index)) return null;
     setIsSubmitting(true);
     await new Promise((r) => setTimeout(r, 600));
 
-    addDemand({ ...forms[index], status: "Pending" });
+    // addDemand now returns the new ID
+    const newId = addDemand({ ...forms[index], status: "Pending" });
 
     const updated = formStatuses.map((s, i) => (i === index ? "submitted" : s)) as FormStatus[];
     setFormStatuses(updated);
@@ -770,12 +765,20 @@ export default function CreateDemand() {
       duration: 4000,
     });
     setIsSubmitting(false);
+    return newId;
   };
 
   // ── Per-form: Revert to Pending ───────────────────────────────────────────────
   const handleRevertSingle = (index: number) => {
     setFormStatuses((prev) => prev.map((s, i) => (i === index ? "pending" : s)) as FormStatus[]);
     toast.info(`Form ${index + 1} reverted to pending.`);
+  };
+
+  // ── Per-form: Submit (called from the per-form action bar) ────────────────────
+  // In multi-form mode the per-form submit bar calls this; we don't auto-navigate.
+  const handleSubmitSingleFromBar = async (index: number) => {
+    await handleSubmitSingle(index);
+    // Don't navigate — user is still working on other forms.
   };
 
   // ── Bulk: Save remaining pending as Draft ─────────────────────────────────────
@@ -812,7 +815,7 @@ export default function CreateDemand() {
           ? pendingIndices.map((i) => forms[i].projectName || `Form ${i + 1}`).join(" · ")
           : `"${forms[pendingIndices[0]].projectName}" has been saved as a draft.`,
         duration: 5000,
-      }
+      },
     );
     setIsSavingDraft(false);
     navigate("/demand");
@@ -820,12 +823,16 @@ export default function CreateDemand() {
 
   // ── Bulk: Submit remaining pending ───────────────────────────────────────────
   const handleSubmit = async () => {
+    // Edit mode (single form)
     if (editId && forms.length === 1) {
       if (!validateForm(0)) return;
       setIsSubmitting(true);
       await new Promise((r) => setTimeout(r, 900));
       updateDemand(editId, { ...forms[0], status: "Pending" });
-      toast.success("Demand submitted", { description: `"${forms[0].projectName}" sent for approval.`, duration: 5000 });
+      toast.success("Demand submitted", {
+        description: `"${forms[0].projectName}" sent for approval.`,
+        duration: 5000,
+      });
       setIsSubmitting(false);
       navigate("/demand");
       return;
@@ -833,7 +840,10 @@ export default function CreateDemand() {
 
     if (!validateAllPending()) return;
 
-    const pendingIndices = formStatuses.map((s, i) => (s === "pending" ? i : -1)).filter((i) => i !== -1);
+    const pendingIndices = formStatuses
+      .map((s, i) => (s === "pending" ? i : -1))
+      .filter((i) => i !== -1);
+
     if (pendingIndices.length === 0) {
       toast.info("No pending forms to submit.");
       return;
@@ -842,22 +852,36 @@ export default function CreateDemand() {
     setIsSubmitting(true);
     await new Promise((r) => setTimeout(r, 900));
 
-    pendingIndices.forEach((i) => addDemand({ ...forms[i], status: "Pending" }));
-    setFormStatuses((prev) => prev.map((s) => (s === "pending" ? "submitted" : s)) as FormStatus[]);
+    // Collect IDs as we add them
+    const newIds: string[] = pendingIndices.map((i) =>
+      addDemand({ ...forms[i], status: "Pending" }),
+    );
+
+    setFormStatuses(
+      (prev) => prev.map((s) => (s === "pending" ? "submitted" : s)) as FormStatus[],
+    );
 
     toast.success(
       pendingIndices.length > 1
         ? `${pendingIndices.length} demands submitted for approval`
         : "Demand submitted",
       {
-        description: pendingIndices.length > 1
-          ? pendingIndices.map((i) => forms[i].projectName || `Form ${i + 1}`).join(" · ")
-          : `"${forms[pendingIndices[0]].projectName}" is pending approval.`,
+        description:
+          pendingIndices.length > 1
+            ? pendingIndices.map((i) => forms[i].projectName || `Form ${i + 1}`).join(" · ")
+            : `"${forms[pendingIndices[0]].projectName}" is pending approval.`,
         duration: 5000,
-      }
+      },
     );
     setIsSubmitting(false);
-    navigate("/demand");
+
+    // Navigate with the first new demand's ID so DemandSummary can auto-open allocation.
+    // For bulk (>1), just navigate without auto-open since there are multiple new demands.
+    if (newIds.length === 1 && newIds[0]) {
+      navigate(`/demand?allocate=${newIds[0]}`);
+    } else {
+      navigate("/demand");
+    }
   };
 
   // ── Import confirm ────────────────────────────────────────────────────────────
@@ -886,10 +910,10 @@ export default function CreateDemand() {
     );
   };
 
-  const isBusy         = isSavingDraft || isSubmitting;
-  const isMulti        = forms.length > 1;
-  const pendingCount   = formStatuses.filter((s) => s === "pending").length;
-  const allActioned    = pendingCount === 0 && isMulti;
+  const isBusy       = isSavingDraft || isSubmitting;
+  const isMulti      = forms.length > 1;
+  const pendingCount = formStatuses.filter((s) => s === "pending").length;
+  const allActioned  = pendingCount === 0 && isMulti;
 
   return (
     <div className="space-y-4 p-6">
@@ -912,7 +936,7 @@ export default function CreateDemand() {
         </Button>
       </div>
 
-      {/* ── Tabs — only shown when multiple forms ── */}
+      {/* ── Tabs ── */}
       {isMulti && (
         <div className="flex items-center gap-1 overflow-x-auto pb-1">
           <Button
@@ -1000,7 +1024,7 @@ export default function CreateDemand() {
         portfolios={portfolios}
         programs={programs}
         onChange={(patch) => updateForm(activeIndex, patch)}
-        onSubmitSingle={() => handleSubmitSingle(activeIndex)}
+        onSubmitSingle={() => handleSubmitSingleFromBar(activeIndex)}
         onDraftSingle={() => handleDraftSingle(activeIndex)}
         onRevertSingle={() => handleRevertSingle(activeIndex)}
         isBusy={isBusy}
@@ -1008,8 +1032,6 @@ export default function CreateDemand() {
 
       {/* ── Footer ── */}
       <div className="flex items-center justify-between pb-6 pt-2 flex-wrap gap-3">
-
-        {/* Left side — multi-form navigation + bulk status */}
         {isMulti ? (
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
@@ -1030,7 +1052,6 @@ export default function CreateDemand() {
           <div />
         )}
 
-        {/* Right side — bulk actions */}
         <div className="flex gap-3 flex-wrap">
           <Button variant="outline" onClick={() => navigate("/demand")} disabled={isBusy}>
             Cancel
