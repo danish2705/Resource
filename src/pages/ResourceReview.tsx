@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { usePillarFilter } from "@/hooks/usePillarFilter";
 import {
   type ReviewStatus,
   type ApprovalRecord,
@@ -282,8 +283,27 @@ function SummaryCard({
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function ResourceReview() {
-  const { updateDemand } = useStore();
-  const [requests, setRequests] = useState<ReviewRequest[]>(mockReviewRequests);
+  const { updateDemand, demands } = useStore();
+  const { filterByPillar } = usePillarFilter();
+
+  const baseRequests = useMemo(
+    () => filterByPillar(mockReviewRequests),
+    [filterByPillar],
+  );
+
+  type OverridesMap = Record<
+    string,
+    { status: ReviewStatus; approvalHistory: ApprovalRecord[] }
+  >;
+  const [overrides, setOverrides] = useState<OverridesMap>({});
+
+  const requests = useMemo(
+    () =>
+      baseRequests.map((r) =>
+        overrides[r.id] ? { ...r, ...overrides[r.id] } : r,
+      ),
+    [baseRequests, overrides],
+  );
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [selected, setSelected] = useState<ReviewRequest | null>(null);
@@ -374,17 +394,16 @@ export default function ResourceReview() {
       else
         newStatus = decision === "Approved" ? "PMO Approved" : "PMO Rejected";
 
-      setRequests((prev) =>
-        prev.map((r) =>
-          r.id === selected.id
-            ? {
-                ...r,
-                status: newStatus,
-                approvalHistory: [...r.approvalHistory, newRecord],
-              }
-            : r,
-        ),
-      );
+      setOverrides((prev) => ({
+        ...prev,
+        [selected.id]: {
+          status: newStatus,
+          approvalHistory: [
+            ...(prev[selected.id]?.approvalHistory ?? selected.approvalHistory),
+            newRecord,
+          ],
+        },
+      }));
 
       if (newStatus === "PMO Approved") {
         updateDemand(selected.demandId, {

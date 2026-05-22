@@ -8,6 +8,7 @@ export interface Project {
   id: string;
   project: string;
   client: string;
+  pillar: "Hi-tech" | "Retail" | "Banking" | "Healthcare" | "Life Sciences"; // ADD THIS
   status: "Active" | "Planning";
   priority: "High" | "Medium" | "Low";
   budget: string;
@@ -33,6 +34,7 @@ export const projectData: Project[] = [
     id: "P-001",
     project: "Cloud Migration Phase 2",
     client: "TechCorp AU",
+    pillar: "Hi-tech",
     status: "Active",
     priority: "High",
     budget: "$250,000",
@@ -68,6 +70,7 @@ export const projectData: Project[] = [
     id: "P-002",
     project: "Data Platform Modernisation",
     client: "FinServe Ltd",
+    pillar: "Banking",
     status: "Active",
     priority: "High",
     budget: "$180,000",
@@ -88,6 +91,7 @@ export const projectData: Project[] = [
     id: "P-003",
     project: "DevSecOps Pipeline Setup",
     client: "GovDept NSW",
+    pillar: "Hi-tech",
     status: "Active",
     priority: "Medium",
     budget: "$95,000",
@@ -113,6 +117,7 @@ export const projectData: Project[] = [
     id: "P-004",
     project: "Analytics Dashboard Suite",
     client: "RetailCo",
+    pillar: "Retail",
     status: "Active",
     priority: "Medium",
     budget: "$70,000",
@@ -133,6 +138,7 @@ export const projectData: Project[] = [
     id: "P-005",
     project: "API Integration Gateway",
     client: "InsureTech",
+    pillar: "Banking",
     status: "Planning",
     priority: "Low",
     budget: "$50,000",
@@ -147,6 +153,7 @@ export const projectData: Project[] = [
     id: "P-006",
     project: "Identity & Access Management",
     client: "HealthGroup",
+    pillar: "Healthcare",
     status: "Active",
     priority: "High",
     budget: "$120,000",
@@ -167,6 +174,7 @@ export const projectData: Project[] = [
     id: "P-007",
     project: "ML Forecasting Engine",
     client: "RetailCo",
+    pillar: "Life Sciences",
     status: "Planning",
     priority: "Medium",
     budget: "$90,000",

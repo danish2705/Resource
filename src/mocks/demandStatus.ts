@@ -17,7 +17,7 @@ export interface DemandStatusRecord {
   projectName: string;
   requiredSkills: string[];
   budgetCode: string;
-  domainPillar: string;
+  pillar: "Hi-tech" | "Retail" | "Banking" | "Healthcare" | "Life Sciences"; // renamed from domainPillar
   noOfResources: number;
   allocatedResources: number;
   estimatedRate: number;
@@ -72,7 +72,7 @@ export const demandData: DemandStatusRecord[] = [
     projectName: "Cloud Migration Phase 1",
     requiredSkills: ["AWS", "Terraform", "Kubernetes"],
     budgetCode: "BC-4421",
-    domainPillar: "Cloud Eng",
+    pillar: "Hi-tech", // was "Cloud Eng"
     noOfResources: 4,
     allocatedResources: 3,
     estimatedRate: 85,
@@ -102,7 +102,7 @@ export const demandData: DemandStatusRecord[] = [
     projectName: "Data Lake Modernisation",
     requiredSkills: ["Python", "Spark", "SQL"],
     budgetCode: "BC-4422",
-    domainPillar: "Data Eng",
+    pillar: "Banking", // was "Data Eng"
     noOfResources: 3,
     allocatedResources: 2,
     estimatedRate: 78,
@@ -132,7 +132,7 @@ export const demandData: DemandStatusRecord[] = [
     projectName: "DevSecOps Pipeline Setup",
     requiredSkills: ["Docker", "CI/CD", "Security"],
     budgetCode: "BC-4423",
-    domainPillar: "DevSecOps",
+    pillar: "Hi-tech", // was "DevSecOps"
     noOfResources: 2,
     allocatedResources: 2,
     estimatedRate: 87,
@@ -162,7 +162,7 @@ export const demandData: DemandStatusRecord[] = [
     projectName: "Customer Portal Rebuild",
     requiredSkills: ["React", "Node.js", "APIs"],
     budgetCode: "BC-4424",
-    domainPillar: "Cloud Eng",
+    pillar: "Retail", // was "Cloud Eng"
     noOfResources: 5,
     allocatedResources: 1,
     estimatedRate: 72,
@@ -192,7 +192,7 @@ export const demandData: DemandStatusRecord[] = [
     projectName: "ML Model Deployment",
     requiredSkills: ["ML", "Python", "TensorFlow"],
     budgetCode: "BC-4425",
-    domainPillar: "Data Eng",
+    pillar: "Life Sciences", // was "Data Eng"
     noOfResources: 3,
     allocatedResources: 3,
     estimatedRate: 80,
@@ -223,7 +223,7 @@ export const demandData: DemandStatusRecord[] = [
     projectName: "Azure Networking Overhaul",
     requiredSkills: ["Azure", "ARM Templates", "Networking"],
     budgetCode: "BC-4426",
-    domainPillar: "Cloud Eng",
+    pillar: "Hi-tech", // was "Cloud Eng"
     noOfResources: 2,
     allocatedResources: 0,
     estimatedRate: 65,
@@ -248,7 +248,7 @@ export const demandData: DemandStatusRecord[] = [
     projectName: "IAM & SIEM Integration",
     requiredSkills: ["Pen Testing", "SIEM", "IAM"],
     budgetCode: "BC-4427",
-    domainPillar: "DevSecOps",
+    pillar: "Healthcare", // was "DevSecOps"
     noOfResources: 2,
     allocatedResources: 1,
     estimatedRate: 90,
@@ -279,7 +279,7 @@ export const demandData: DemandStatusRecord[] = [
     projectName: "Lambda Serverless Migration",
     requiredSkills: ["AWS", "CloudFormation", "Lambda"],
     budgetCode: "BC-4428",
-    domainPillar: "Cloud Eng",
+    pillar: "Banking", // was "Cloud Eng"
     noOfResources: 3,
     allocatedResources: 2,
     estimatedRate: 75,
