@@ -35,14 +35,14 @@ interface FormData {
   name: string;
   team: string;
   systemRole: SystemRole;
-  resourceId: string;
+  email: string;
 }
 
 const EMPTY_FORM: FormData = {
   name: "",
   team: "",
   systemRole: "Resource",
-  resourceId: "",
+  email: "",
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -192,18 +192,17 @@ function UserModal({
         <div className="px-6 py-5 space-y-4">
           <div>
             <label className="block text-xs font-medium text-foreground mb-1">
-              Resource ID <span className="text-destructive">*</span>
+              Email <span className="text-destructive">*</span>
             </label>
             <input
-              className={inputCls(errors.resourceId)}
-              placeholder="e.g. RID-1050"
-              value={form.resourceId}
-              onChange={(e) => set("resourceId", e.target.value)}
+              type="email"
+              className={inputCls(errors.email)}
+              placeholder="e.g. priya@company.com"
+              value={form.email}
+              onChange={(e) => set("email", e.target.value)}
             />
-            {errors.resourceId && (
-              <p className="text-xs text-destructive mt-0.5">
-                {errors.resourceId}
-              </p>
+            {errors.email && (
+              <p className="text-xs text-destructive mt-0.5">{errors.email}</p>
             )}
           </div>
           {/* Name */}
@@ -326,7 +325,7 @@ function DeleteConfirm({
         <p className="text-sm text-muted-foreground mb-6">
           Are you sure you want to remove{" "}
           <span className="font-semibold text-foreground">{resource.name}</span>{" "}
-          ({resource.resourceId}) from the system?
+          ({resource.email}) from the system?
         </p>
         <div className="flex justify-end gap-3">
           <button
@@ -386,7 +385,7 @@ export default function UserManagement() {
       items = items.filter(
         (r) =>
           r.name.toLowerCase().includes(q) ||
-          r.resourceId.toLowerCase().includes(q) ||
+          (r.email ?? "").toLowerCase().includes(q) ||
           r.pillar.toLowerCase().includes(q) ||
           (r.systemRole ?? "").toLowerCase().includes(q),
       );
@@ -423,7 +422,7 @@ export default function UserManagement() {
     if (!f.name.trim()) e.name = "Name is required";
     if (!f.team) e.team = "Pillar is required";
     if (!f.systemRole) e.systemRole = "System role is required";
-    if (!f.resourceId.trim()) e.resourceId = "Resource ID is required";
+    if (!f.email.trim()) e.email = "Email is required";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -439,6 +438,7 @@ export default function UserManagement() {
       name: r.name,
       team: r.team,
       systemRole: (r.systemRole as SystemRole) ?? "Resource",
+      email: r.email ?? "",
     });
     setErrors({});
     setModalMode("edit");
@@ -449,7 +449,7 @@ export default function UserManagement() {
     if (modalMode === "add") {
       const newRes: Resource = {
         id: nextId(list),
-        resourceId: form.resourceId.trim(),
+        email: form.email.trim(),
         name: form.name.trim(),
         initials: makeInitials(form.name),
         role: "",
@@ -593,7 +593,7 @@ export default function UserManagement() {
               <table className="w-full text-sm">
                 <thead className="bg-card border-b border-border">
                   <tr className="text-left text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                    <th className="px-4 py-3 w-28">ID</th>
+                    <th className="px-4 py-3">Email</th>
                     <th className="px-4 py-3">
                       <button
                         onClick={() => toggleSort("name")}
@@ -639,7 +639,7 @@ export default function UserManagement() {
                         className="border-b border-border/50 hover:bg-accent/20 transition-colors"
                       >
                         <td className="px-4 py-3 text-xs font-mono font-medium text-muted-foreground">
-                          {r.resourceId}
+                          {r.email ?? "—"}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2.5">

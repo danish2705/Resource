@@ -4,7 +4,7 @@ export interface Resource {
   id: string;
 
   resourceId: string;
-
+  email: string;
   name: string;
   initials: string;
 
@@ -52,7 +52,7 @@ export const resources: Resource[] = [
     systemRole: "Resource Manager",
     role: "Cloud Architect",
     level: "Senior",
-
+    email: "rachel.morgan@acmecorp.com",
     pillar: "Hi-tech",
     team: "Cloud Platform",
 
@@ -82,7 +82,7 @@ export const resources: Resource[] = [
 
     name: "Daniel Foster",
     initials: "DF",
-
+    email: "daniel.foster@acmecorp.com",
     role: "Data Engineer",
     level: "Mid",
     systemRole: "Resource",
@@ -116,7 +116,7 @@ export const resources: Resource[] = [
 
     name: "Claire Simmons",
     initials: "CS",
-
+    email: "claire.simmons@acmecorp.com",
     role: "DevSecOps Engineer",
     level: "Senior",
     systemRole: "Resource Manager",
@@ -149,6 +149,7 @@ export const resources: Resource[] = [
     systemRole: "Resource",
 
     name: "Nathan Brooks",
+    email: "nathan.brooks@acmecorp.com",
     initials: "NB",
 
     role: "Full Stack Developer",
@@ -180,7 +181,7 @@ export const resources: Resource[] = [
     id: "res-4",
 
     resourceId: "RID-1005",
-
+    email: "laura.mitchell@acmecorp.com",
     name: "Laura Mitchell",
     initials: "LM",
     systemRole: "PMO",
@@ -217,7 +218,7 @@ export const resources: Resource[] = [
 
     name: "Tyler Harrison",
     initials: "TH",
-
+    email: "tyler.harrison@acmecorp.com",
     role: "Data Scientist",
     level: "Mid",
 
@@ -257,7 +258,7 @@ export const resources: Resource[] = [
 
     name: "Emily Clarke",
     initials: "EC",
-
+    email: "emily.clarke@acmecorp.com",
     role: "Cloud Engineer",
     level: "Junior",
     systemRole: "Resource",
@@ -290,6 +291,7 @@ export const resources: Resource[] = [
 
     name: "Adam Fletcher",
     initials: "AF",
+    email: "adam.fletcher@acmecorp.com",
     systemRole: "Resource",
     role: "Security Engineer",
     level: "Senior",
@@ -322,6 +324,7 @@ export const resources: Resource[] = [
     resourceId: "RID-1009",
 
     name: "Jessica Palmer",
+    email: "jessica.palmer@acmecorp.com",
     initials: "JP",
     systemRole: "Resource",
     role: "Cloud Engineer",
@@ -355,6 +358,7 @@ export const resources: Resource[] = [
     resourceId: "RID-1010",
 
     name: "Owen Taylor",
+    email: "owen.taylor@acmecorp.com",
     initials: "OT",
     systemRole: "Resource",
     role: "ML Engineer",
@@ -395,7 +399,7 @@ export const resources: Resource[] = [
 
     name: "Hannah Scott",
     initials: "HS",
-
+    email: "hannah.scott@acmecorp.com",
     role: "Business Analyst",
     level: "Senior",
     systemRole: "PMO",
@@ -427,6 +431,7 @@ export const resources: Resource[] = [
     resourceId: "RID-1012",
 
     name: "George Lawson",
+    email: "george.lawson@acmecorp.com",
     initials: "GL",
     systemRole: "Resource Manager",
     role: "Technical Lead",
@@ -458,7 +463,7 @@ export const resources: Resource[] = [
     id: "res-12",
 
     resourceId: "RID-1013",
-
+    email: "megan.turner@acmecorp.com",
     name: "Megan Turner",
     initials: "MT",
 
@@ -491,8 +496,8 @@ export const resources: Resource[] = [
     id: "res-13",
 
     resourceId: "RID-1014",
-
     name: "Christopher Ward",
+    email: "christopher.ward@acmecorp.com",
     initials: "CW",
     systemRole: "PMO",
     role: "Project Manager",
@@ -530,7 +535,7 @@ export const resources: Resource[] = [
     systemRole: "Resource",
     role: "DevOps Engineer",
     level: "Mid",
-
+    email: "natalie.hughes@acmecorp.com",
     pillar: "Retail",
     team: "Platform Engineering",
 
