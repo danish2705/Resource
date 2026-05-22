@@ -47,7 +47,16 @@ const pageTitles: Record<
   "/": "Dashboard",
 
   "/demand":
-    "Demand Management",
+    "Demand & Allocation",
+  
+  "/create-demand":
+    "Demand & Allocation",
+
+  "/demand summary":
+    "Demand & Allocation",
+
+  "/demand-status":
+    "Demand & Allocation",
 
   "/allocation":
     "Resource Allocation",
@@ -56,13 +65,10 @@ const pageTitles: Record<
     "Resource Information",
 
   "/reports":
-    "Reporting Dashboard",
-
-  "/forecast":
-    "Resource Forecast",
-
-  "/data-management":
-    "Data Management",
+    "Reporting & Analytics",
+  
+  "/projects":
+  "Projects",
 
   "/profile":
     "My Profile",

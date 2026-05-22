@@ -74,39 +74,43 @@ const mainItems: NavItem[] = [
     icon: LayoutDashboard,
     permission: "view_dashboard",
   },
-];
-
-const demandSubItems: NavItem[] = [
-  {
-    title: "Create Demand",
-    url: "/demand/create",
-    icon: PlusCircle,
-    permission: "create_demand",
-  },
-
-  {
-    title: "Demand Status",
-    url: "/demand-status",
-    icon: TrendingUp,
-    permission: "view_dashboard",
-  },
-
-  {
-    title: "Demand Summary",
-    url: "/demand",
-    icon: ListChecks,
-    end: true,
-    permission: "view_dashboard",
-  },
-];
-
-const lowerItems: NavItem[] = [
   {
     title: "Resource Information",
     url: "/resources",
     icon: UserCircle,
     permission: "view_resource_info",
   },
+];
+
+const demandSubItems: NavItem[] = [
+  {
+    title: "Create/Import Demand",
+    url: "/demand/create",
+    icon: PlusCircle,
+    permission: "create_demand",
+  },
+  {
+    title: "Demand Summary & Allocation",
+    url: "/demand",
+    icon: ListChecks,
+    end: true,
+    permission: "view_dashboard",
+  },
+  {
+    title: "Demand Status",
+    url: "/demand-status",
+    icon: TrendingUp,
+    permission: "view_dashboard",
+  },
+  {
+    title: "Allocation Review & Approval",
+    url: "/resource-review",
+    icon: ShieldCheck,
+    permission: "approve_demand",
+  },
+];
+
+const lowerItems: NavItem[] = [
   {
     title: "Allocation Details",
     url: "/allocation",
@@ -114,26 +118,17 @@ const lowerItems: NavItem[] = [
     permission: "view_allocation",
   },
   {
-    title: "Resource Review",
-    url: "/resource-review",
-    icon: ShieldCheck,
-    permission: "approve_demand",
-  },
-
-  {
     title: "Projects",
     url: "/projects",
     icon: ClipboardList,
     permission: "view_projects",
   },
-
   {
     title: "Reporting & Analytics",
     url: "/reports",
     icon: BarChart3,
     permission: "view_reporting",
   },
-
   {
     title: "Audit Log",
     url: "/audit-log",
@@ -368,7 +363,7 @@ export function AppSidebar() {
 
                         {!collapsed && (
                           <>
-                            <span>Demand Management</span>
+                            <span>Demand & Allocation</span>
 
                             <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
                           </>
