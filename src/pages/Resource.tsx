@@ -250,60 +250,6 @@ function getStatusStyle(status: Resource["status"]) {
   }
 }
 
-// ─── AllocationModeChooser ────────────────────────────────────────────────────
-
-function AllocationModeChooser({
-  onSelect,
-  onCancel,
-}: {
-  onSelect: (mode: "auto" | "manual") => void;
-  onCancel: () => void;
-}) {
-  return (
-    <div className="py-2">
-      <p className="text-sm text-muted-foreground mb-5 text-center">
-        How would you like to allocate a resource to this demand?
-      </p>
-      <div className="grid grid-cols-2 gap-4">
-        <button
-          onClick={() => onSelect("auto")}
-          className="group relative flex flex-col items-center gap-3 rounded-xl border-2 border-dashed border-border p-6 text-center transition-all duration-200 hover:border-primary hover:bg-primary/5 focus:outline-none"
-        >
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <Wand2 className="h-7 w-7" />
-          </div>
-          <div>
-            <div className="font-semibold text-foreground mb-1">
-              Auto Allocate
-            </div>
-            <div className="text-xs text-muted-foreground leading-relaxed py-3">
-              We'll match resources based on required skills & current
-              availability score
-            </div>
-          </div>
-        </button>
-
-        <button
-          onClick={() => onSelect("manual")}
-          className="group relative flex flex-col items-center gap-3 rounded-xl border-2 border-dashed border-border p-6 text-center transition-all duration-200 hover:border-primary hover:bg-primary/5 focus:outline-none"
-        >
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <ClipboardList className="h-7 w-7" />
-          </div>
-          <div>
-            <div className="font-semibold text-foreground mb-1">
-              Manual Allocate
-            </div>
-            <div className="text-xs text-muted-foreground leading-relaxed py-3">
-              Browse the full resource catalogue and hand-pick whoever you need
-            </div>
-          </div>
-        </button>
-      </div>
-    </div>
-  );
-}
-
 // ─── ResourcePicker ───────────────────────────────────────────────────────────
 
 function ResourcePicker({
@@ -937,8 +883,7 @@ export function ResourceDialog({
                           colSpan={4}
                           className="px-3 py-8 text-center text-muted-foreground text-sm"
                         >
-                          No resources assigned yet. Click{" "}
-                          <strong>Add Resource</strong> to allocate one.
+                          No resources assigned yet. 
                         </td>
                       </tr>
                     )}
@@ -947,22 +892,45 @@ export function ResourceDialog({
               </div>
 
               <div className="flex justify-between items-center mt-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setStep("chooseMode")}
-                  disabled={showAddRow}
-                >
-                  <Plus className="h-3.5 w-3.5 mr-1" />
-                  Add Resource
-                </Button>
+                {/* Allocation buttons */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setPickerMode("manual");
+                      setStep("picker");
+                    }}
+                    disabled={showAddRow}
+                    className="gap-1.5"
+                  >
+                    <ClipboardList className="h-3.5 w-3.5" />
+                    Manual Allocate
+                  </Button>
 
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setPickerMode("auto");
+                      setStep("picker");
+                    }}
+                    disabled={showAddRow}
+                    className="gap-1.5"
+                  >
+                    <Wand2 className="h-3.5 w-3.5" />
+                    Auto Allocate
+                  </Button>
+                </div>
+
+                {/* Save actions */}
                 {hasPendingChanges && (
                   <div className="flex items-center gap-2">
                     <p className="text-xs text-amber-400 flex items-center gap-1">
                       <span className="h-1.5 w-1.5 rounded-full bg-amber-400 inline-block" />
                       Unsaved changes
                     </p>
+
                     <Button
                       size="sm"
                       variant="outline"
@@ -973,6 +941,7 @@ export function ResourceDialog({
                       <Save className="h-3.5 w-3.5" />
                       {isSaving ? "Saving…" : "Save"}
                     </Button>
+
                     <Button
                       size="sm"
                       className="gap-1.5"
@@ -988,22 +957,12 @@ export function ResourceDialog({
             </>
           )}
 
-          {step === "chooseMode" && (
-            <AllocationModeChooser
-              onSelect={(mode) => {
-                setPickerMode(mode);
-                setStep("picker");
-              }}
-              onCancel={() => setStep("list")}
-            />
-          )}
-
           {step === "picker" && (
             <ResourcePicker
               mode={pickerMode}
               requiredSkills={projectSkills}
               onSubmit={handlePickerSubmit}
-              onBack={() => setStep("chooseMode")}
+              onBack={() => setStep("list")}
             />
           )}
 
