@@ -63,6 +63,7 @@ export interface Demand {
   updatedDate: string;
   history: HistoryEntry[];
   forecastSourceId?: string;
+  resourceCount: number;
   source?:
     | "Manual"
     | "Jira"
@@ -652,6 +653,7 @@ export const useStore = create<AppState>((set, get) => ({
         startDate: f.startDate,
         endDate: f.endDate,
         type: "Internal",
+        resourceCount: f.headcount || 0,
         vendorName: "",
         country: "Sydney",
         allocation: { current: 1, y2027: 1, y2028: 0, y2029: 0, y2030: 0 },

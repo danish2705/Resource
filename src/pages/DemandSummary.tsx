@@ -108,6 +108,8 @@ const statusColor = (s: string) => {
       return "outline";
     case "Rejected":
       return "destructive";
+    case "Awaiting Approval":
+      return "secondary";
     default:
       return "secondary";
   }
@@ -155,6 +157,7 @@ function mapRowToDemand(
     subTeam: row["Sub Team"] || "",
     startDate: row["Start Date"] || "",
     endDate: row["End Date"] || "",
+    resourceCount: row["Resource Count"] ? parseInt(row["Resource Count"]) || 0 : 0,
     type: (row["Type"] || "Internal") as "Internal" | "External",
     vendorName: row["Vendor Name"] || "",
     country: row["Country"] || row["Location"] || "Sydney",
@@ -380,6 +383,7 @@ export default function DemandSummary() {
       subTeam: "",
       startDate: "2027-04-01",
       endDate: "2027-12-31",
+      resourceCount: 3,
       type: "Internal" as const,
       vendorName: "",
       country: safeLocations[i % safeLocations.length],
@@ -463,11 +467,12 @@ export default function DemandSummary() {
     },
     // ── CHANGE 4: Resource Count — plain display only, no click ──────────────
     {
-      key: "resourceName",
+      key: "resourceCount",
       header: "Resource Count",
       sortable: false,
       render: (row) => {
-        const count = row.resourceName ? 2 : 0;
+        const count = row.resourceCount ?? 0;
+
         return (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold select-none">
             <Users className="h-3 w-3" />

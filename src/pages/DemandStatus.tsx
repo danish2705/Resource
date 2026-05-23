@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { usePillarFilter } from "@/hooks/usePillarFilter";
+import { ResourceDialog } from "@/pages/Resource";
 import {
   Select,
   SelectContent,
@@ -18,17 +19,9 @@ import {
   demandData,
 } from "@/mocks/demandStatus";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Search,
   X,
-  MoreHorizontal,
   Pencil,
-  SendHorizonal,
   Eye,
   ClipboardList,
 } from "lucide-react";
@@ -101,6 +94,7 @@ function ViewDetailsModal({
   onClose: () => void;
 }) {
   const years = ["Current Year", "2027", "2028", "2029", "2030"];
+
   const allocationValues = demand.allocation
     ? [
         demand.allocation.currentYear,
@@ -110,6 +104,7 @@ function ViewDetailsModal({
         demand.allocation.y2030,
       ]
     : [0, 0, 0, 0, 0];
+
   const forecastValues = demand.forecast
     ? [
         demand.forecast.currentYear,
@@ -121,94 +116,90 @@ function ViewDetailsModal({
     : [0, 0, 0, 0, 0];
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{
-        backgroundColor: "rgba(0,0,0,0.7)",
-        backdropFilter: "blur(4px)",
-      }}
-    >
-      <div
-        className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-xl border"
-        style={{
-          background: "#0f1117",
-          borderColor: "#1e2130",
-          boxShadow: "0 25px 60px rgba(0,0,0,0.6)",
-        }}
-      >
-        {/* Modal Header */}
-        <div
-          className="flex items-center justify-between px-6 py-4 border-b sticky top-0 z-10"
-          style={{ background: "#0f1117", borderColor: "#1e2130" }}
-        >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-background shadow-2xl">
+        
+        {/* Header */}
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background px-6 py-4">
           <div>
-            <p className="text-xs font-mono" style={{ color: "#5a6070" }}>
+            <p className="text-xs font-mono text-muted-foreground">
               {demand.projectId}
             </p>
-            <h2 className="text-base font-semibold text-white mt-0.5">
+
+            <h2 className="text-xl font-semibold text-foreground mt-1">
               {demand.projectName}
             </h2>
           </div>
+
           <div className="flex items-center gap-3">
             <span
-              className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusStyleMap[demand.status]}`}
+              className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyleMap[demand.status]}`}
             >
               {demand.status}
             </span>
+
             <button
               onClick={onClose}
-              className="rounded-lg p-1.5 transition-colors hover:bg-white/10"
-              style={{ color: "#5a6070" }}
+              className="rounded-md p-2 text-muted-foreground hover:bg-muted transition"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
         </div>
 
-        <div className="px-6 py-5 space-y-6">
-          {/* ── PROJECT DETAILS ── */}
+        <div className="space-y-6 p-6">
+          {/* Project Details */}
           <section>
-            <p
-              className="text-[10px] font-bold tracking-widest mb-4 uppercase"
-              style={{ color: "#5a6070", letterSpacing: "0.15em" }}
-            >
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               Project Details
-            </p>
+            </h3>
 
-            <div className="grid grid-cols-3 gap-4">
-              {/* Portfolio */}
-              <Field label="Portfolio" value={demand.portfolio || "Global"} />
-              {/* Program */}
-              <Field label="Program" value={demand.program || "Enterprise"} />
-              {/* Project Name */}
-              <Field label="Project Name" value={demand.projectName} />
-              {/* Project Role */}
-              <Field label="Project Role" value={demand.projectRole || "—"} />
-              {/* Pillar */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Field
+                label="Portfolio"
+                value={demand.portfolio || "Global"}
+              />
+              <Field
+                label="Program"
+                value={demand.program || "Enterprise"}
+              />
+              <Field
+                label="Project Name"
+                value={demand.projectName}
+              />
+              <Field
+                label="Project Role"
+                value={demand.projectRole || "—"}
+              />
               <Field label="Pillar" value={demand.pillar} />
-              {/* Budget Code */}
-              <Field label="Budget Code" value={demand.budgetCode} />
-              {/* Workstream */}
-              <Field label="Workstream" value={demand.workstream || "—"} />
-              {/* Start Date */}
-              <Field label="Start Date" value={formatDate(demand.startDate)} />
-              {/* End Date */}
-              <Field label="End Date" value={formatDate(demand.endDate)} />
+              <Field
+                label="Budget Code"
+                value={demand.budgetCode}
+              />
+              <Field
+                label="Workstream"
+                value={demand.workstream || "—"}
+              />
+              <Field
+                label="Start Date"
+                value={formatDate(demand.startDate)}
+              />
+              <Field
+                label="End Date"
+                value={formatDate(demand.endDate)}
+              />
             </div>
 
             {/* Skills */}
-            <div className="mt-4">
-              <p className="text-xs mb-1.5" style={{ color: "#5a6070" }}>
+            <div className="mt-5">
+              <p className="text-sm text-muted-foreground mb-2">
                 Required Skills
               </p>
-              <div className="flex flex-wrap gap-1.5">
-                {demand.requiredSkills.map((s) => (
-                  <Badge
-                    key={s}
-                    variant="secondary"
-                    className="text-xs px-2 py-0.5"
-                  >
-                    {s}
+
+              <div className="flex flex-wrap gap-2">
+                {demand.requiredSkills.map((skill) => (
+                  <Badge key={skill} variant="secondary">
+                    {skill}
                   </Badge>
                 ))}
               </div>
@@ -216,99 +207,79 @@ function ViewDetailsModal({
 
             {/* Comments */}
             {demand.comments && (
-              <div className="mt-4">
-                <p className="text-xs mb-1.5" style={{ color: "#5a6070" }}>
+              <div className="mt-5">
+                <p className="text-sm text-muted-foreground mb-2">
                   Comments
                 </p>
-                <div
-                  className="text-sm rounded-lg px-3 py-2.5"
-                  style={{
-                    background: "#161820",
-                    color: "#a0a8b8",
-                    border: "1px solid #1e2130",
-                  }}
-                >
+
+                <div className="rounded-lg border border-border bg-muted/50 p-4 text-sm text-foreground">
                   {demand.comments}
                 </div>
               </div>
             )}
           </section>
 
-          {/* ── ALLOCATION ── */}
-          <section>
-            <div
-              className="rounded-xl px-5 py-4"
-              style={{ background: "#0c1420", border: "1px solid #0e2040" }}
-            >
-              <p
-                className="text-[10px] font-bold tracking-widest mb-4 uppercase"
-                style={{ color: "#38bdf8", letterSpacing: "0.15em" }}
-              >
-                Allocation (%)
-              </p>
-              <div className="grid grid-cols-5 gap-3">
-                {years.map((yr, i) => (
-                  <YearField
-                    key={yr}
-                    label={yr}
-                    value={allocationValues[i]}
-                    suffix="%"
-                    accent="#38bdf8"
-                  />
-                ))}
-              </div>
+          {/* Allocation */}
+          <section className="rounded-xl border border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950/30 p-5">
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-sky-700 dark:text-sky-400">
+              Allocation (%)
+            </h3>
+
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {years.map((yr, i) => (
+                <YearField
+                  key={yr}
+                  label={yr}
+                  value={allocationValues[i]}
+                  suffix="%"
+                  accent="text-sky-600 dark:text-sky-400"
+                />
+              ))}
             </div>
           </section>
 
-          {/* ── FORECAST ── */}
-          <section>
-            <div
-              className="rounded-xl px-5 py-4"
-              style={{ background: "#150c0c", border: "1px solid #3a1010" }}
-            >
-              <p
-                className="text-[10px] font-bold tracking-widest mb-4 uppercase"
-                style={{ color: "#f87171", letterSpacing: "0.15em" }}
-              >
-                Forecast
-              </p>
-              <div className="grid grid-cols-5 gap-3">
-                {years.map((yr, i) => (
-                  <YearField
-                    key={yr}
-                    label={yr}
-                    value={forecastValues[i] === 0 ? 0 : forecastValues[i]}
-                    prefix="$"
-                    formatK
-                    accent="#f87171"
-                  />
-                ))}
-              </div>
+          {/* Forecast */}
+          <section className="rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/20 p-5">
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-rose-700 dark:text-rose-400">
+              Forecast
+            </h3>
+
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {years.map((yr, i) => (
+                <YearField
+                  key={yr}
+                  label={yr}
+                  value={forecastValues[i]}
+                  prefix="$"
+                  formatK
+                  accent="text-rose-600 dark:text-rose-400"
+                />
+              ))}
             </div>
           </section>
 
-          {/* ── Meta row ── */}
-          <div className="flex items-center justify-between pt-1 pb-2">
-            <div className="flex gap-6 text-xs" style={{ color: "#5a6070" }}>
-              <span>
-                Submitted by:{" "}
-                <span className="text-white font-medium">
-                  {demand.submittedBy}
-                </span>
+          {/* Footer Meta */}
+          <div className="flex flex-wrap gap-6 border-t border-border pt-4 text-sm text-muted-foreground">
+            <span>
+              Submitted by:{" "}
+              <span className="font-medium text-foreground">
+                {demand.submittedBy}
               </span>
-              <span>
-                Delivery Manager:{" "}
-                <span className="text-white font-medium">
-                  {demand.deliveryManager}
-                </span>
+            </span>
+
+            <span>
+              Delivery Manager:{" "}
+              <span className="font-medium text-foreground">
+                {demand.deliveryManager}
               </span>
-              <span>
-                Est. Rate:{" "}
-                <span className="text-white font-medium">
-                  ${demand.estimatedRate}/hr
-                </span>
+            </span>
+
+            <span>
+              Est. Rate:{" "}
+              <span className="font-medium text-foreground">
+                ${demand.estimatedRate}/hr
               </span>
-            </div>
+            </span>
           </div>
         </div>
       </div>
@@ -316,20 +287,17 @@ function ViewDetailsModal({
   );
 }
 
-function Field({ label, value }: { label: string; value: string }) {
+function Field({ label, value, }: {
+  label: string;
+  value: string;
+}) {
   return (
     <div>
-      <p className="text-xs mb-1" style={{ color: "#5a6070" }}>
+      <p className="mb-1 text-sm text-muted-foreground">
         {label}
       </p>
-      <div
-        className="text-sm font-medium rounded-lg px-3 py-2"
-        style={{
-          background: "#161820",
-          color: "#d0d8e8",
-          border: "1px solid #1e2130",
-        }}
-      >
+
+      <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm text-foreground">
         {value}
       </div>
     </div>
@@ -355,22 +323,18 @@ function YearField({
     ? value === 0
       ? "0"
       : value >= 1000
-        ? `${(value / 1000).toFixed(0)}K`
-        : `${value}`
+      ? `${(value / 1000).toFixed(0)}K`
+      : `${value}`
     : `${value}`;
 
   return (
     <div>
-      <p className="text-xs mb-1.5" style={{ color: "#5a6070" }}>
+      <p className="mb-1 text-xs text-muted-foreground">
         {label}
       </p>
+
       <div
-        className="text-sm font-medium rounded-lg px-3 py-2.5"
-        style={{
-          background: "#0a0a12",
-          color: value > 0 ? accent : "#3a4050",
-          border: "1px solid #1a1f2e",
-        }}
+        className={`rounded-lg border border-border bg-background px-3 py-3 text-sm font-semibold ${accent}`}
       >
         {prefix}
         {display}
@@ -379,7 +343,6 @@ function YearField({
     </div>
   );
 }
-
 // ─── DemandStatus Page ────────────────────────────────────────────────────────
 
 export default function DemandStatus() {
@@ -430,6 +393,21 @@ export default function DemandStatus() {
   };
 
   const domains = [...new Set(visibleDemands.map((d) => d.pillar))].sort();
+
+  const [allocationDialog, setAllocationDialog] = useState<{
+  open: boolean;
+  demand: DemandStatusRecord | null;}>
+  ({
+    open: false,
+    demand: null,
+  });
+
+  const handleEditAllocation = (demand: DemandStatusRecord) => {
+    setAllocationDialog({
+      open: true,
+      demand,
+    });
+  };
 
   return (
     <>
@@ -629,33 +607,34 @@ export default function DemandStatus() {
                           </div>
                         </td>
                         <td className="px-3 py-3">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0"
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-40">
-                              <DropdownMenuItem
-                                className="gap-2 text-xs"
-                                onClick={() => setSelectedDemand(d)}
-                              >
-                                <Eye className="h-3.5 w-3.5" />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="gap-2 text-xs"
-                                disabled={d.status === "Approved"}
-                              >
-                                <Pencil className="h-3.5 w-3.5" />
-                                Edit Allocation
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          <div className="flex items-center gap-1">
+                            {/* View Details */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              title="View Details"
+                              onClick={() => setSelectedDemand(d)}
+                            >
+                              <Eye className="h-4 w-4 text-blue-500" />
+                            </Button>
+
+                            {/* Edit Allocation */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              disabled={d.status === "Approved"}
+                              onClick={() => handleEditAllocation(d)}
+                              title={
+                                d.status === "Approved"
+                                  ? "Approved demand cannot be edited"
+                                  : "Edit Allocation"
+                              }
+                            >
+                              <Pencil className="h-4 w-4 text-blue-500" />
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -710,6 +689,20 @@ export default function DemandStatus() {
           </div>
         </CardContent>
       </Card>
+      <ResourceDialog
+      open={allocationDialog.open}
+      onOpenChange={(open) =>
+        setAllocationDialog((prev) => ({
+          ...prev,
+          open,
+        }))
+      }
+      demandId={allocationDialog.demand?.id || ""}
+      projectName={allocationDialog.demand?.projectName || ""}
+      projectSkills={allocationDialog.demand?.requiredSkills || []}
+      initialResources={[]}
+      userRole="Resource Manager"
+    />
     </>
   );
 }

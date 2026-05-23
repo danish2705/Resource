@@ -97,7 +97,7 @@ const demandSubItems: NavItem[] = [
     permission: "view_dashboard",
   },
   {
-    title: "Demand Status",
+    title: "Allocation Status",
     url: "/demand-status",
     icon: TrendingUp,
     permission: "view_dashboard",

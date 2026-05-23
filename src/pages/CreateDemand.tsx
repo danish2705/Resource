@@ -56,6 +56,7 @@ export type DemandForm = {
   subTeam: string;
   startDate: string;
   endDate: string;
+  resourceCount: number;
   type: Demand["type"];
   vendorName: string;
   country: string;
@@ -80,6 +81,7 @@ export const emptyDemand: DemandForm = {
   comments: "", identified: false, estimatedRate: 0, currentYearForecast: 0,
   resourceName: "", workstream: "", subTeam: "", startDate: "", endDate: "",
   type: "Internal", vendorName: "", country: "Sydney",
+  resourceCount: 0,
   allocation: { current: 0, y2027: 0, y2028: 0, y2029: 0, y2030: 0 },
   forecast:   { current: 0, y2027: 0, y2028: 0, y2029: 0, y2030: 0 },
 };
@@ -102,7 +104,7 @@ type ImportSource = {
 
 type PreviewRecord = {
   projectName: string;
-  role: string;
+  projectRole: string;
   pillar: string;
   budgetCode: string;
   resource: string;
@@ -113,26 +115,26 @@ type PreviewRecord = {
 
 const SIMULATED_PREVIEWS: Record<Exclude<ImportSourceId, "excel">, PreviewRecord[]> = {
   planisware: [
-    { projectName: "Data Modernization - ASPAC", role: "Business Analyst",  pillar: "Hi-tech",       budgetCode: "PLNS-1000", resource: "",             type: "Internal" },
-    { projectName: "QE Automation",              role: "Technical Lead",    pillar: "Retail",        budgetCode: "PLNS-1001", resource: "",             type: "Internal" },
-    { projectName: "Cloud Enablement",           role: "QA Engineer",       pillar: "Banking",       budgetCode: "PLNS-1002", resource: "",             type: "Internal" },
-    { projectName: "Application Support",        role: "Project Manager",   pillar: "Healthcare",    budgetCode: "PLNS-1003", resource: "",             type: "Internal" },
-    { projectName: "Data Modernization - ASPAC", role: "DevOps Engineer",   pillar: "Life Sciences", budgetCode: "PLNS-1004", resource: "",             type: "Internal" },
+    { projectName: "Data Modernization - ASPAC", projectRole: "Business Analyst",  pillar: "Hi-tech",       budgetCode: "PLNS-1000", resource: "",             type: "Internal" },
+    { projectName: "QE Automation",              projectRole: "Technical Lead",    pillar: "Retail",        budgetCode: "PLNS-1001", resource: "",             type: "Internal" },
+    { projectName: "Cloud Enablement",           projectRole: "QA Engineer",       pillar: "Banking",       budgetCode: "PLNS-1002", resource: "",             type: "Internal" },
+    { projectName: "Application Support",        projectRole: "Project Manager",   pillar: "Healthcare",    budgetCode: "PLNS-1003", resource: "",             type: "Internal" },
+    { projectName: "Data Modernization - ASPAC", projectRole: "DevOps Engineer",   pillar: "Life Sciences", budgetCode: "PLNS-1004", resource: "",             type: "Internal" },
   ],
   jira: [
-    { projectName: "Platform Rewrite",           role: "Backend Engineer",  pillar: "Fintech",       budgetCode: "JIRA-2001", resource: "",             type: "Internal" },
-    { projectName: "Mobile App v3",              role: "iOS Developer",     pillar: "Retail",        budgetCode: "JIRA-2002", resource: "",             type: "Internal" },
-    { projectName: "Analytics Dashboard",        role: "Data Analyst",      pillar: "Hi-tech",       budgetCode: "JIRA-2003", resource: "",             type: "External" },
+    { projectName: "Platform Rewrite",           projectRole: "Backend Engineer",  pillar: "Fintech",       budgetCode: "JIRA-2001", resource: "",             type: "Internal" },
+    { projectName: "Mobile App v3",              projectRole: "iOS Developer",     pillar: "Retail",        budgetCode: "JIRA-2002", resource: "",             type: "Internal" },
+    { projectName: "Analytics Dashboard",        projectRole: "Data Analyst",      pillar: "Hi-tech",       budgetCode: "JIRA-2003", resource: "",             type: "External" },
   ],
   smartsheets: [
-    { projectName: "Resource Planning H2",       role: "Scrum Master",      pillar: "Banking",       budgetCode: "SS-3001",   resource: "Priya Sharma", type: "Internal" },
-    { projectName: "Infrastructure Uplift",      role: "Cloud Architect",   pillar: "Hi-tech",       budgetCode: "SS-3002",   resource: "Arjun Mehta",  type: "Internal" },
-    { projectName: "Compliance Audit 2025",      role: "Security Analyst",  pillar: "Healthcare",    budgetCode: "SS-3003",   resource: "",             type: "External" },
-    { projectName: "Data Governance",            role: "Data Steward",      pillar: "Life Sciences", budgetCode: "SS-3004",   resource: "Sneha Iyer",   type: "Internal" },
+    { projectName: "Resource Planning H2",       projectRole: "Scrum Master",      pillar: "Banking",       budgetCode: "SS-3001",   resource: "Priya Sharma", type: "Internal" },
+    { projectName: "Infrastructure Uplift",      projectRole: "Cloud Architect",   pillar: "Hi-tech",       budgetCode: "SS-3002",   resource: "Arjun Mehta",  type: "Internal" },
+    { projectName: "Compliance Audit 2025",      projectRole: "Security Analyst",  pillar: "Healthcare",    budgetCode: "SS-3003",   resource: "",             type: "External" },
+    { projectName: "Data Governance",            projectRole: "Data Steward",      pillar: "Life Sciences", budgetCode: "SS-3004",   resource: "Sneha Iyer",   type: "Internal" },
   ],
   api: [
-    { projectName: "Enterprise Integration",     role: "Integration Lead",  pillar: "Fintech",       budgetCode: "API-4001",  resource: "",             type: "Internal" },
-    { projectName: "Customer 360",               role: "CRM Developer",     pillar: "Retail",        budgetCode: "API-4002",  resource: "",             type: "External" },
+    { projectName: "Enterprise Integration",     projectRole: "Integration Lead",  pillar: "Fintech",       budgetCode: "API-4001",  resource: "",             type: "Internal" },
+    { projectName: "Customer 360",               projectRole: "CRM Developer",     pillar: "Retail",        budgetCode: "API-4002",  resource: "",             type: "External" },
   ],
 };
 
@@ -219,9 +221,9 @@ function ImportDemandModal({
     if (!file) return;
     const source = IMPORT_SOURCES.find((s) => s.id === "excel")!;
     const mockRows: PreviewRecord[] = [
-      { projectName: file.name.replace(/\.[^.]+$/, ""), role: "Business Analyst", pillar: "Hi-tech",  budgetCode: "XLS-0001", resource: "",           type: "Internal" },
-      { projectName: "Cloud Migration",                  role: "Cloud Engineer",   pillar: "Banking",  budgetCode: "XLS-0002", resource: "",           type: "External" },
-      { projectName: "Data Pipeline",                    role: "Data Engineer",    pillar: "Retail",   budgetCode: "XLS-0003", resource: "",           type: "Internal" },
+      { projectName: file.name.replace(/\.[^.]+$/, ""), projectRole: "Business Analyst", pillar: "Hi-tech",  budgetCode: "XLS-0001", resource: "",           type: "Internal" },
+      { projectName: "Cloud Migration",                  projectRole: "Cloud Engineer",   pillar: "Banking",  budgetCode: "XLS-0002", resource: "",           type: "External" },
+      { projectName: "Data Pipeline",                    projectRole: "Data Engineer",    pillar: "Retail",   budgetCode: "XLS-0003", resource: "",           type: "Internal" },
     ];
     simulateFetch(source, mockRows);
     e.target.value = "";
@@ -324,7 +326,7 @@ function ImportDemandModal({
                           )}
                         </div>
                       </th>
-                      {["Project Name", "Role", "Pillar", "Budget Code", "Resource", "Type"].map((h) => (
+                      {["Project Name", "Project Role", "Pillar", "Budget Code", "Resource", "Type"].map((h) => (
                         <th key={h} className="px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
@@ -345,7 +347,7 @@ function ImportDemandModal({
                             </div>
                           </td>
                           <td className="px-3 py-2.5 font-medium">{row.projectName}</td>
-                          <td className="px-3 py-2.5 text-muted-foreground">{row.role}</td>
+                          <td className="px-3 py-2.5 text-muted-foreground">{row.projectRole}</td>
                           <td className="px-3 py-2.5 text-muted-foreground">{row.pillar}</td>
                           <td className="px-3 py-2.5 font-mono text-xs text-muted-foreground">{row.budgetCode}</td>
                           <td className="px-3 py-2.5 text-muted-foreground">{row.resource || "—"}</td>
@@ -491,6 +493,13 @@ function DemandFormPanel({
                 </Select>
               </div>
               <div>
+                <Label>Pillar *</Label>
+                <Select value={form.pillar} onValueChange={(v) => set({ pillar: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select Pillar" /></SelectTrigger>
+                  <SelectContent>{pillars.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div>
                 <Label>Project Name *</Label>
                 <Select value={form.projectName} onValueChange={(v) => set({ projectName: v })}>
                   <SelectTrigger><SelectValue placeholder="Select Project" /></SelectTrigger>
@@ -502,13 +511,6 @@ function DemandFormPanel({
                 <Select value={form.projectRole} onValueChange={(v) => set({ projectRole: v })}>
                   <SelectTrigger><SelectValue placeholder="Select Role" /></SelectTrigger>
                   <SelectContent>{roles.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Pillar *</Label>
-                <Select value={form.pillar} onValueChange={(v) => set({ pillar: v })}>
-                  <SelectTrigger><SelectValue placeholder="Select Pillar" /></SelectTrigger>
-                  <SelectContent>{pillars.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div>
@@ -526,6 +528,10 @@ function DemandFormPanel({
               <div>
                 <Label>End Date *</Label>
                 <Input type="date" value={form.endDate} onChange={(e) => set({ endDate: e.target.value })} />
+              </div>
+              <div>
+                <Label>Resource Count</Label>
+                <Input type="number" value={form.resourceCount} onChange={(e) => set({ resourceCount: parseInt(e.target.value) || 0 })} />
               </div>
               <div className="col-span-2 md:col-span-3">
                 <Label>Comments</Label>
@@ -671,6 +677,7 @@ export default function CreateDemand() {
       currentYearForecast: demand.currentYearForecast,
       resourceName: demand.resourceName, workstream: demand.workstream,
       subTeam: demand.subTeam, startDate: demand.startDate, endDate: demand.endDate,
+      resourceCount: demand.resourceCount || 0,
       type: demand.type as "Internal" | "External",
       vendorName: demand.vendorName, country: demand.country,
       allocation: { ...demand.allocation }, forecast: { ...demand.forecast },
@@ -887,26 +894,96 @@ export default function CreateDemand() {
   // ── Import confirm ────────────────────────────────────────────────────────────
   const handleImportConfirm = (records: PreviewRecord[]) => {
     if (!records.length) return;
-    const newForms: DemandForm[] = records.map((r) => ({
-      ...emptyDemand,
-      projectName:  r.projectName,
-      projectRole:  r.role,
-      pillar:       r.pillar,
-      budgetCode:   r.budgetCode,
-      type:         r.type as Demand["type"],
-      resourceName: r.resource,
-    }));
+
+    const getMatchedValue = (
+      value: string,
+      list: string[]
+    ): string => {
+      if (!value) return "";
+
+      const match = list.find(
+        (item) => item.toLowerCase().trim() === value.toLowerCase().trim()
+      );
+
+      return match || "";
+    };
+
+    const newForms: DemandForm[] = records.map((r) => {
+      return {
+        ...emptyDemand,
+
+        // Match dropdown fields with master data
+        projectName: getMatchedValue(r.projectName, projects),
+        projectRole: getMatchedValue(r.projectRole, roles),
+        pillar: getMatchedValue(r.pillar, pillars),
+
+        // Populate remaining fields
+        budgetCode: r.budgetCode || "",
+        resourceName: r.resource || "",
+        type: (r.type as Demand["type"]) || "Internal",
+
+        // Auto default values
+        portfolio: portfolios[0] || "",
+        program: programs[0] || "",
+
+        // Optional defaults
+        status: "Pending",
+        comments: "",
+        identified: false,
+        estimatedRate: 0,
+        currentYearForecast: 0,
+        allocationPercent: 0,
+
+        workstream: "",
+        subTeam: "",
+        startDate: "",
+        endDate: "",
+
+        vendorName: "",
+        country: "Sydney",
+
+        allocation: {
+          current: 0,
+          y2027: 0,
+          y2028: 0,
+          y2029: 0,
+          y2030: 0,
+        },
+
+        forecast: {
+          current: 0,
+          y2027: 0,
+          y2028: 0,
+          y2029: 0,
+          y2030: 0,
+        },
+
+        source:
+          r.budgetCode?.startsWith("JIRA")
+            ? "Jira"
+            : r.budgetCode?.startsWith("PLNS")
+            ? "Planisware"
+            : r.budgetCode?.startsWith("SS")
+            ? "Smartsheets"
+            : "Manual",
+      };
+    });
+
     setForms(newForms);
     setFormStatuses(newForms.map(() => "pending"));
     setActiveIndex(0);
+
     toast.success(
-      `${records.length} demand form${records.length > 1 ? "s" : ""} created from import`,
+      `${records.length} demand form${
+        records.length > 1 ? "s" : ""
+      } created from import`,
       {
-        description: records.length > 1
-          ? "Use the tabs to review each form. You can submit or draft them individually."
-          : "Review the pre-filled form and submit when ready.",
+        description:
+          records.length > 1
+            ? "Imported demand data mapped into the correct form fields."
+            : "Imported demand data mapped successfully.",
         duration: 5000,
-      },
+      }
     );
   };
 
