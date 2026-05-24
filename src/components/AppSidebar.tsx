@@ -69,12 +69,6 @@ const mainItems: NavItem[] = [
     permission: "view_dashboard",
   },
   {
-    title: "Custom Dashboard",
-    url: "/my-dashboard",
-    icon: LayoutDashboard,
-    permission: "view_dashboard",
-  },
-  {
     title: "Resource Information",
     url: "/resources",
     icon: UserCircle,
@@ -110,19 +104,31 @@ const demandSubItems: NavItem[] = [
   },
 ];
 
-const lowerItems: NavItem[] = [
+const allocationItems: NavItem[] = [
   {
     title: "Allocation Details",
     url: "/allocation",
     icon: Users,
     permission: "view_allocation",
   },
+];
+
+const projectSubItems: NavItem[] = [
   {
-    title: "Projects",
+    title: "Projects & Assign Task",
     url: "/projects",
     icon: ClipboardList,
     permission: "view_projects",
   },
+  {
+    title: "Task Review & Approval",
+    url: "/task-review-approval",
+    icon: ShieldCheck,
+    permission: "approve_demand", // change permission if needed
+  },
+];
+
+const lowerItems: NavItem[] = [
   {
     title: "Reporting & Analytics",
     url: "/reports",
@@ -167,6 +173,12 @@ export function AppSidebar() {
     location.pathname.startsWith("/demand-status");
 
   const [demandOpen, setDemandOpen] = useState(demandActive);
+
+  const projectActive =
+    location.pathname.startsWith("/projects") ||
+    location.pathname.startsWith("/task-review-approval");
+
+  const [projectOpen, setProjectOpen] = useState(projectActive);
 
   const linkBase =
     "flex items-center gap-2 w-full transition-colors rounded-md";
@@ -244,6 +256,50 @@ export function AppSidebar() {
             >
               <sub.icon className="h-3.5 w-3.5 shrink-0" />
 
+              <span>{sub.title}</span>
+            </NavLink>
+          </SidebarMenuSubButton>
+        </SidebarMenuSubItem>
+      );
+    }
+
+    return (
+      <SidebarMenuSubItem key={sub.title}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div
+              className={`${linkBase} ${linkDisabled} px-2 py-1 text-xs text-sidebar-foreground/60`}
+            >
+              <sub.icon className="h-3.5 w-3.5 shrink-0" />
+
+              <span className="flex-1">{sub.title}</span>
+
+              <Lock className="h-3 w-3 ml-auto opacity-60" />
+            </div>
+          </TooltipTrigger>
+
+          <TooltipContent side="right" className="text-xs">
+            You don't have access to {sub.title}
+          </TooltipContent>
+        </Tooltip>
+      </SidebarMenuSubItem>
+    );
+  };
+
+  const renderProjectSubItem = (sub: NavItem) => {
+    const allowed = can(sub.permission);
+
+    if (allowed) {
+      return (
+        <SidebarMenuSubItem key={sub.title}>
+          <SidebarMenuSubButton asChild>
+            <NavLink
+              to={sub.url}
+              end={sub.end}
+              className={`${linkBase} ${linkInactive}`}
+              activeClassName={linkActive}
+            >
+              <sub.icon className="h-3.5 w-3.5 shrink-0" />
               <span>{sub.title}</span>
             </NavLink>
           </SidebarMenuSubButton>
@@ -406,7 +462,81 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               )}
 
-              {/* Lower Items */}
+              {/* Allocation Details */}
+              
+              {allocationItems.map(renderNavItem)}
+
+              {/* Projects */}
+
+              {can("view_projects") ? (
+                <Collapsible
+                  open={collapsed ? false : projectOpen}
+                  onOpenChange={setProjectOpen}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton
+                        tooltip="Projects"
+                        className={
+                          projectActive ? linkActive : linkInactive
+                        }
+                      >
+                        <ClipboardList className="h-4 w-4 shrink-0" />
+
+                        {!collapsed && (
+                          <>
+                            <span>Projects</span>
+
+                            <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                          </>
+                        )}
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+
+                    {!collapsed && (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {projectSubItems.map(
+                            renderProjectSubItem
+                          )}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    )}
+                  </SidebarMenuItem>
+                </Collapsible>
+              ) : (
+                <SidebarMenuItem>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div
+                        className={`${linkBase} ${linkDisabled} px-2 py-1.5 text-sm text-sidebar-foreground/60`}
+                      >
+                        <ClipboardList className="h-4 w-4 shrink-0" />
+
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1">
+                              Projects
+                            </span>
+
+                            <Lock className="h-3 w-3 ml-auto opacity-60" />
+                          </>
+                        )}
+                      </div>
+                    </TooltipTrigger>
+
+                    <TooltipContent
+                      side="right"
+                      className="text-xs"
+                    >
+                      You don't have access to Projects
+                    </TooltipContent>
+                  </Tooltip>
+                </SidebarMenuItem>
+              )}
+
+              {/* Remaining Lower Items */}
 
               {lowerItems.map(renderNavItem)}
             </SidebarMenu>

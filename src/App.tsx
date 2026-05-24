@@ -21,6 +21,7 @@ import ForecastActual from "@/pages/ForecastActual";
 import ProjectsPage from "./pages/Projects";
 import ResourceReview from "@/pages/ResourceReview";
 import AuditLog from "@/pages/AuditLog";
+import TaskReviewApproval from "@/pages/TaskReviewApproval";
 
 import { useAuth } from "@/auth/useAuth";
 
@@ -148,6 +149,15 @@ const App = () => (
                       element={
                         <ProtectedRoute permission="view_projects">
                           <ProjectsPage />
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    <Route
+                      path="/task-review-approval"
+                      element={
+                        <ProtectedRoute permission="view_projects">
+                          <TaskReviewApproval />
                         </ProtectedRoute>
                       }
                     />

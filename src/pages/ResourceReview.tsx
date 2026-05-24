@@ -627,7 +627,7 @@ export default function ResourceReview() {
                                 className="h-8 px-3 text-xs text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
                                 onClick={() => openAction(req, "reject")}
                               >
-                                <XCircle className="h-3.5 w-3.5 mr-1" /> Decline
+                                <XCircle className="h-3.5 w-3.5 mr-1" /> Reject
                               </Button>
                             </>
                           )}
