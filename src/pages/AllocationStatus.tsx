@@ -17,17 +17,9 @@ import {
   statusStyleMap,
   demandData,
 } from "@/mocks/demandStatus";
-import {
-  Search,
-  X,
-  Pencil,
-  Eye,
-  ClipboardList,
-} from "lucide-react";
+import { Search, X, Pencil, Eye, ClipboardList } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-
-
 
 function formatCurrency(value: number) {
   if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
@@ -155,24 +147,12 @@ function ViewDetailsModal({
               <Field label="Portfolio" value={demand.portfolio || "Global"} />
               <Field label="Program" value={demand.program || "Enterprise"} />
               <Field label="Project Name" value={demand.projectName} />
-              <Field
-                label="Project Role"
-                value={demand.projectRole || "—"}
-              />
+              <Field label="Project Role" value={demand.projectRole || "—"} />
               <Field label="Pillar" value={demand.pillar} />
               <Field label="Budget Code" value={demand.budgetCode} />
-              <Field
-                label="Workstream"
-                value={demand.workstream || "—"}
-              />
-              <Field
-                label="Start Date"
-                value={formatDate(demand.startDate)}
-              />
-              <Field
-                label="End Date"
-                value={formatDate(demand.endDate)}
-              />
+              <Field label="Workstream" value={demand.workstream || "—"} />
+              <Field label="Start Date" value={formatDate(demand.startDate)} />
+              <Field label="End Date" value={formatDate(demand.endDate)} />
             </div>
 
             <div className="mt-5">
@@ -191,9 +171,7 @@ function ViewDetailsModal({
 
             {demand.comments && (
               <div className="mt-5">
-                <p className="text-sm text-muted-foreground mb-2">
-                  Comments
-                </p>
+                <p className="text-sm text-muted-foreground mb-2">Comments</p>
 
                 <div className="rounded-lg border border-border bg-muted/50 p-4 text-sm text-foreground">
                   {demand.comments}
@@ -267,18 +245,10 @@ function ViewDetailsModal({
   );
 }
 
-function Field({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="mb-1 text-sm text-muted-foreground">
-        {label}
-      </p>
+      <p className="mb-1 text-sm text-muted-foreground">{label}</p>
 
       <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm text-foreground">
         {value}
@@ -312,9 +282,7 @@ function YearField({
 
   return (
     <div>
-      <p className="mb-1 text-xs text-muted-foreground">
-        {label}
-      </p>
+      <p className="mb-1 text-xs text-muted-foreground">{label}</p>
 
       <div
         className={`rounded-lg border border-border bg-background px-3 py-3 text-sm font-semibold ${accent}`}
@@ -328,7 +296,7 @@ function YearField({
 }
 
 export default function AllocationStatus() {
-  const { filterByPillar } = usePillarFilter(); 
+  const { filterByPillar } = usePillarFilter();
   const visibleDemands = filterByPillar(demandData);
 
   const [search, setSearch] = useState("");
@@ -350,8 +318,7 @@ export default function AllocationStatus() {
         d.requiredSkills.some((s) => s.toLowerCase().includes(q)) ||
         d.submittedBy.toLowerCase().includes(q);
       const matchStatus = filterStatus === "all" || d.status === filterStatus;
-      const matchDomain =
-        filterDomain === "all" || d.pillar === filterDomain;
+      const matchDomain = filterDomain === "all" || d.pillar === filterDomain;
       const matchAllocation =
         filterAllocation === "all" ||
         (filterAllocation === "full" &&
@@ -359,23 +326,11 @@ export default function AllocationStatus() {
         (filterAllocation === "partial" &&
           d.allocatedResources > 0 &&
           d.allocatedResources < d.noOfResources) ||
-        (filterAllocation === "none" &&
-          d.allocatedResources === 0);
+        (filterAllocation === "none" && d.allocatedResources === 0);
 
-      return (
-        matchSearch &&
-        matchStatus &&
-        matchDomain &&
-        matchAllocation
-      );
+      return matchSearch && matchStatus && matchDomain && matchAllocation;
     });
-  }, [
-    visibleDemands,
-    search,
-    filterStatus,
-    filterDomain,
-    filterAllocation,
-  ]);
+  }, [visibleDemands, search, filterStatus, filterDomain, filterAllocation]);
 
   const hasActiveFilters =
     search ||
@@ -420,14 +375,12 @@ export default function AllocationStatus() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <ClipboardList className="h-4 w-4 text-muted-foreground" />
-            <CardTitle className="text-base">
-              Allocation Status
-            </CardTitle>
+            <CardTitle className="text-base">Allocation Status</CardTitle>
           </div>
 
           <p className="text-sm text-muted-foreground">
-            {visibleDemands.length} demands · track allocation &amp;
-            approval progress
+            {visibleDemands.length} demands · track allocation &amp; approval
+            progress
           </p>
         </CardHeader>
 
@@ -453,9 +406,7 @@ export default function AllocationStatus() {
                 <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="Draft">Draft</SelectItem>
                 <SelectItem value="Submitted">Submitted</SelectItem>
-                <SelectItem value="Under Review">
-                  Under Review
-                </SelectItem>
+                <SelectItem value="Under Review">Under Review</SelectItem>
                 <SelectItem value="Approved">Approved</SelectItem>
                 <SelectItem value="Rejected">Rejected</SelectItem>
               </SelectContent>
@@ -486,21 +437,13 @@ export default function AllocationStatus() {
               </SelectTrigger>
 
               <SelectContent>
-                <SelectItem value="all">
-                  All Allocations
-                </SelectItem>
+                <SelectItem value="all">All Allocations</SelectItem>
 
-                <SelectItem value="full">
-                  Fully Allocated
-                </SelectItem>
+                <SelectItem value="full">Fully Allocated</SelectItem>
 
-                <SelectItem value="partial">
-                  Partially Allocated
-                </SelectItem>
+                <SelectItem value="partial">Partially Allocated</SelectItem>
 
-                <SelectItem value="none">
-                  Not Allocated
-                </SelectItem>
+                <SelectItem value="none">Not Allocated</SelectItem>
               </SelectContent>
             </Select>
 
@@ -621,10 +564,10 @@ export default function AllocationStatus() {
                         </td>
 
                         <td className="px-3 py-3 font-medium whitespace-nowrap text-center">
-                           ${d.estimatedRate}
+                          ${d.estimatedRate}
                         </td>
                         <td className="px-3 py-3 font-medium whitespace-nowrap">
-                          {formatCurrency(d.currentYearForecast)}
+                          ${d.currentYearForecast.toLocaleString()}
                         </td>
 
                         <td className="px-3 py-3">
@@ -692,11 +635,7 @@ export default function AllocationStatus() {
               <span>
                 Approved:{" "}
                 <span className="font-medium text-green-400">
-                  {
-                    filteredData.filter(
-                      (d) => d.status === "Approved",
-                    ).length
-                  }
+                  {filteredData.filter((d) => d.status === "Approved").length}
                 </span>
               </span>
 
@@ -706,8 +645,7 @@ export default function AllocationStatus() {
                   {
                     filteredData.filter(
                       (d) =>
-                        d.status === "Submitted" ||
-                        d.status === "Under Review",
+                        d.status === "Submitted" || d.status === "Under Review",
                     ).length
                   }
                 </span>
@@ -718,9 +656,7 @@ export default function AllocationStatus() {
                 <span className="font-medium text-muted-foreground">
                   {
                     filteredData.filter(
-                      (d) =>
-                        d.status === "Draft" ||
-                        d.status === "Rejected",
+                      (d) => d.status === "Draft" || d.status === "Rejected",
                     ).length
                   }
                 </span>
