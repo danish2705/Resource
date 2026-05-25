@@ -17,19 +17,18 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// ─── CSS Variable helpers ─────────────────────────────────────────────────────
+// ─── CSS Variable helpers (replaces hardcoded hex) ────────────────────────────
+// These mirror the same tokens used in UserManagement.tsx
 
 const CV = {
-  // Backgrounds
-  bgPrimary: "var(--color-background-primary)", // white / near-black — card surface
-  bgSecondary: "var(--color-background-secondary)", // slightly off — inner surfaces
-  bgTertiary: "var(--color-background-tertiary)", // page body / outermost bg
+  bgPrimary: "var(--color-background-primary)",
+  bgSecondary: "var(--color-background-secondary)",
+  bgTertiary: "var(--color-background-tertiary)",
   bgInfo: "var(--color-background-info)",
   bgDanger: "var(--color-background-danger)",
   bgSuccess: "var(--color-background-success)",
   bgWarning: "var(--color-background-warning)",
 
-  // Text
   textPrimary: "var(--color-text-primary)",
   textSecondary: "var(--color-text-secondary)",
   textTertiary: "var(--color-text-tertiary)",
@@ -38,7 +37,6 @@ const CV = {
   textSuccess: "var(--color-text-success)",
   textWarning: "var(--color-text-warning)",
 
-  // Borders
   borderTertiary: "var(--color-border-tertiary)",
   borderSecondary: "var(--color-border-secondary)",
   borderPrimary: "var(--color-border-primary)",
@@ -51,91 +49,28 @@ const CV = {
   radiusLg: "var(--border-radius-lg)",
 };
 
-// ─── Semantic chart colors — all CSS variables, no hardcoded hex ──────────────
-// These inherit from the design system and adapt automatically in dark/light mode.
+// Semantic chart colors mapped to CSS variable equivalents
 const COLORS = {
   blue: "var(--color-text-info)",
   green: "var(--color-text-success)",
   red: "var(--color-text-danger)",
   orange: "var(--color-text-warning)",
-  // Accent colors: resolved at render time via a CSS custom property bridge.
-  // We define them as CSS variables on :root so Recharts (which needs real hex)
-  // can resolve them. For everything else (inline styles) we use the var() form.
-  teal: "var(--chart-color-teal)",
-  purple: "var(--chart-color-purple)",
-  gray: "var(--color-text-tertiary)",
-  amber: "var(--chart-color-amber)",
-};
-
-// Donut palette — maps to the same ramp values but through CSS vars
-const DONUT_COLORS_VARS = [
-  "var(--chart-color-blue)",
-  "var(--chart-color-teal)",
-  "var(--chart-color-purple)",
-  "var(--chart-color-amber)",
-  "var(--chart-color-coral)",
-  "var(--chart-color-pink)",
-  "var(--color-text-tertiary)",
-];
-
-// Recharts cells need resolved color strings. We provide fallback hex that work
-// for both modes (mid-ramp values that are legible on both backgrounds).
-// The actual adaptive values are set via injectChartVars() below.
-const CHART_COLORS = {
-  blue: "#378ADD",
   teal: "#1D9E75",
   purple: "#7F77DD",
+  gray: "var(--color-text-tertiary)",
   amber: "#BA7517",
-  coral: "#D85A30",
-  pink: "#D4537E",
-  gray: "#888780",
-  green: "#639922",
-  red: "#E24B4A",
-  orange: "#EF9F27",
 };
 
-// Inject CSS custom properties so var(--chart-color-*) resolves in inline styles
-function injectChartVars() {
-  if (typeof document === "undefined") return;
-  const existing = document.getElementById("chart-color-vars");
-  if (existing) return;
-  const style = document.createElement("style");
-  style.id = "chart-color-vars";
-  style.textContent = `
-    :root {
-      --chart-color-blue:   ${CHART_COLORS.blue};
-      --chart-color-teal:   ${CHART_COLORS.teal};
-      --chart-color-purple: ${CHART_COLORS.purple};
-      --chart-color-amber:  ${CHART_COLORS.amber};
-      --chart-color-coral:  ${CHART_COLORS.coral};
-      --chart-color-pink:   ${CHART_COLORS.pink};
-    }
-  `;
-  document.head.appendChild(style);
-}
-injectChartVars();
-
-function injectPageStyles() {
-  if (typeof document === "undefined") return;
-  const existing = document.getElementById("reporting-page-styles");
-  if (existing) return;
-  const style = document.createElement("style");
-  style.id = "reporting-page-styles";
-  style.textContent = `
-    /* Force the reporting page body to be visibly darker than bgPrimary cards */
-    .reporting-page-body {
-      background: var(--color-background-tertiary) !important;
-    }
-    /* Cards on bgPrimary always stand out against tertiary body */
-    .reporting-card {
-      background: var(--color-background-primary) !important;
-      border: 1px solid var(--color-border-secondary) !important;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2) !important;
-    }
-  `;
-  document.head.appendChild(style);
-}
-injectPageStyles();
+// Donut / multi-series palette (fixed hues that work on both bg modes)
+const DONUT_COLORS = [
+  "#378ADD",
+  "#1D9E75",
+  "#7F77DD",
+  "#BA7517",
+  "#D85A30",
+  "#D4537E",
+  "#888780",
+];
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
 
@@ -404,26 +339,11 @@ const utilByDeptData = [
 ];
 
 const utilByWorkType = [
-  {
-    name: "Project Delivery",
-    value: 47.9,
-    hours: 56500,
-    color: CHART_COLORS.blue,
-  },
-  {
-    name: "Support / BAU",
-    value: 24.1,
-    hours: 28400,
-    color: CHART_COLORS.green,
-  },
-  {
-    name: "Internal / Admin",
-    value: 14.4,
-    hours: 17000,
-    color: CHART_COLORS.orange,
-  },
-  { name: "Training", value: 7.7, hours: 9100, color: CHART_COLORS.purple },
-  { name: "Other", value: 5.9, hours: 7000, color: CHART_COLORS.gray },
+  { name: "Project Delivery", value: 47.9, hours: 56500, color: COLORS.blue },
+  { name: "Support / BAU", value: 24.1, hours: 28400, color: COLORS.green },
+  { name: "Internal / Admin", value: 14.4, hours: 17000, color: COLORS.orange },
+  { name: "Training", value: 7.7, hours: 9100, color: COLORS.purple },
+  { name: "Other", value: 5.9, hours: 7000, color: COLORS.gray },
 ];
 
 const billableNonBillableData = [
@@ -600,10 +520,10 @@ const execCapDemandData = [
 ];
 
 const demandStatusData = [
-  { name: "Approved", value: 1558, pct: 48, color: CHART_COLORS.green },
-  { name: "Pending Approval", value: 864, pct: 27, color: CHART_COLORS.orange },
-  { name: "Draft", value: 496, pct: 15, color: CHART_COLORS.blue },
-  { name: "Rejected", value: 327, pct: 10, color: CHART_COLORS.red },
+  { name: "Approved", value: 1558, pct: 48, color: COLORS.green },
+  { name: "Pending Approval", value: 864, pct: 27, color: COLORS.orange },
+  { name: "Draft", value: 496, pct: 15, color: COLORS.blue },
+  { name: "Rejected", value: 327, pct: 10, color: COLORS.red },
 ];
 
 const vendorData = [
@@ -721,36 +641,35 @@ const capDemand2026 = [
 
 // ─── Shared style helpers ─────────────────────────────────────────────────────
 
-/**
- * Card style — uses bgPrimary so cards stand clearly against the bgTertiary page body.
- * In dark mode:  bgPrimary ≈ slightly lighter surface, bgTertiary ≈ darkest layer.
- * In light mode: bgPrimary = white, bgTertiary = light gray page — clear contrast.
- */
+/** Card wrapper matching UserManagement card style */
 const cardStyle: React.CSSProperties = {
   background: CV.bgPrimary,
-  border: `1px solid ${CV.borderSecondary}`,
+  border: `1px solid ${CV.borderPrimary}`,
   borderRadius: CV.radiusLg,
   padding: "14px 16px",
-  boxShadow: "0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2)",
+  boxShadow:
+    "0 0 0 0.5px rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.25)",
+  outline: `1px solid rgba(255,255,255,0.06)`,
 };
 
+/** Table header cell */
 const thStyle: React.CSSProperties = {
   textAlign: "left",
   padding: "6px 8px",
   fontSize: 10,
   color: CV.textSecondary,
-  borderBottom: `1px solid ${CV.borderSecondary}`,
+  borderBottom: `0.5px solid ${CV.borderSecondary}`,
   fontWeight: 600,
   textTransform: "uppercase" as const,
   letterSpacing: "0.05em",
-  background: CV.bgSecondary,
 };
 
+/** Table body cell */
 const tdStyle: React.CSSProperties = {
   padding: "7px 8px",
   fontSize: 11,
   color: CV.textPrimary,
-  borderBottom: `1px solid ${CV.borderTertiary}`,
+  borderBottom: `0.5px solid ${CV.borderSecondary}`,
 };
 
 // ─── Reusable small components ────────────────────────────────────────────────
@@ -758,7 +677,7 @@ const tdStyle: React.CSSProperties = {
 function MiniBar({
   value,
   max = 100,
-  color = CHART_COLORS.blue,
+  color = COLORS.blue,
 }: {
   value: number;
   max?: number;
@@ -791,27 +710,27 @@ function RiskBadge({ level }: { level: string }) {
     High: {
       background: CV.bgDanger,
       color: CV.textDanger,
-      border: `1px solid ${CV.borderDanger}`,
+      border: `0.5px solid ${CV.borderDanger}`,
     },
     Medium: {
       background: CV.bgWarning,
       color: CV.textWarning,
-      border: `1px solid ${CV.borderWarning}`,
+      border: `0.5px solid ${CV.borderWarning}`,
     },
     Low: {
       background: CV.bgSuccess,
       color: CV.textSuccess,
-      border: `1px solid ${CV.borderSuccess}`,
+      border: `0.5px solid ${CV.borderSuccess}`,
     },
     Info: {
       background: CV.bgInfo,
       color: CV.textInfo,
-      border: `1px solid ${CV.borderInfo}`,
+      border: `0.5px solid ${CV.borderInfo}`,
     },
     Critical: {
       background: CV.bgDanger,
       color: CV.textDanger,
-      border: `1px solid ${CV.borderDanger}`,
+      border: `0.5px solid ${CV.borderDanger}`,
     },
   };
   const s = styles[level] || styles.Info;
@@ -819,7 +738,7 @@ function RiskBadge({ level }: { level: string }) {
     <span
       style={{
         fontSize: 10,
-        fontWeight: 600,
+        fontWeight: 700,
         padding: "2px 8px",
         borderRadius: CV.radiusMd,
         ...s,
@@ -845,7 +764,6 @@ function StatTile({
         background: CV.bgSecondary,
         borderRadius: CV.radiusMd,
         padding: "12px 16px",
-        border: `1px solid ${CV.borderTertiary}`,
       }}
     >
       <div style={{ fontSize: 10, color: CV.textSecondary, marginBottom: 4 }}>
@@ -867,7 +785,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
         letterSpacing: "0.06em",
         marginBottom: 10,
         marginTop: 14,
-        borderBottom: `1px solid ${CV.borderSecondary}`,
+        borderBottom: `0.5px solid ${CV.borderSecondary}`,
         paddingBottom: 6,
       }}
     >
@@ -912,7 +830,7 @@ function DetailTable({
 function DetailMiniBar({
   value,
   max = 100,
-  color = CHART_COLORS.blue,
+  color = COLORS.blue,
 }: {
   value: number;
   max?: number;
@@ -942,11 +860,7 @@ function DetailMiniBar({
 
 function UtilBar({ value }: { value: number }) {
   const color =
-    value >= 101
-      ? CHART_COLORS.red
-      : value >= 95
-        ? CHART_COLORS.orange
-        : CHART_COLORS.green;
+    value >= 101 ? COLORS.red : value >= 95 ? COLORS.orange : COLORS.green;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
       <div
@@ -967,14 +881,7 @@ function UtilBar({ value }: { value: number }) {
           }}
         />
       </div>
-      <span
-        style={{
-          fontSize: 10,
-          fontWeight: 600,
-          color: color as string,
-          minWidth: 28,
-        }}
-      >
+      <span style={{ fontSize: 10, fontWeight: 600, color, minWidth: 28 }}>
         {value}%
       </span>
     </div>
@@ -1019,6 +926,7 @@ function CardHeader({ children }: { children: React.ReactNode }) {
 // ─── Heatmap helpers ──────────────────────────────────────────────────────────
 
 function heatCell(val: number) {
+  if (val > 110) return { bg: CV.bgDanger, color: CV.textDanger };
   if (val > 100) return { bg: CV.bgDanger, color: CV.textDanger };
   if (val >= 85) return { bg: CV.bgSuccess, color: CV.textSuccess };
   if (val >= 70) return { bg: CV.bgInfo, color: CV.textInfo };
@@ -1288,7 +1196,7 @@ function GenericFilterBar({
             key={l}
             style={{
               background: CV.bgPrimary,
-              border: `1px solid ${CV.borderSecondary}`,
+              border: `0.5px solid ${CV.borderSecondary}`,
               borderRadius: CV.radiusMd,
               padding: "5px 12px",
               fontSize: 12,
@@ -1318,6 +1226,9 @@ function ReportCard({ card, onView }: { card: any; onView: (c: any) => void }) {
         flexDirection: "column" as const,
         gap: 10,
         minHeight: 220,
+        background:
+          "color-mix(in srgb, var(--color-background-primary) 100%, #fff 3%)",
+        boxShadow: "0 2px 8px 0 rgba(0,0,0,0.12), 0 1px 2px 0 rgba(0,0,0,0.07)",
       }}
     >
       <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
@@ -1327,7 +1238,6 @@ function ReportCard({ card, onView }: { card: any; onView: (c: any) => void }) {
             height: 32,
             borderRadius: CV.radiusMd,
             background: CV.bgSecondary,
-            border: `1px solid ${CV.borderTertiary}`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -1429,7 +1339,7 @@ function ReportCard({ card, onView }: { card: any; onView: (c: any) => void }) {
                 >
                   {r.name}
                 </span>
-                <MiniBar value={r.value} color={CHART_COLORS.teal} />
+                <MiniBar value={r.value} color={COLORS.teal} />
                 <span
                   style={{
                     color: CV.textPrimary,
@@ -1449,7 +1359,7 @@ function ReportCard({ card, onView }: { card: any; onView: (c: any) => void }) {
               style={{
                 fontSize: 18,
                 fontWeight: 700,
-                color: CV.textDanger,
+                color: COLORS.red,
                 marginBottom: 4,
               }}
             >
@@ -1468,7 +1378,7 @@ function ReportCard({ card, onView }: { card: any; onView: (c: any) => void }) {
                   justifyContent: "space-between",
                   fontSize: 10,
                   padding: "2px 0",
-                  borderBottom: `1px solid ${CV.borderTertiary}`,
+                  borderBottom: `0.5px solid ${CV.borderSecondary}`,
                 }}
               >
                 <span style={{ color: CV.textPrimary }}>{r.name}</span>
@@ -1501,7 +1411,7 @@ function ReportCard({ card, onView }: { card: any; onView: (c: any) => void }) {
               {
                 label: "Bench",
                 value: card.availability.bench,
-                color: CV.textSecondary as string,
+                color: CV.textSecondary,
               },
             ].map((r, i) => (
               <div key={i}>
@@ -1539,7 +1449,7 @@ function ReportCard({ card, onView }: { card: any; onView: (c: any) => void }) {
                 <span style={{ color: CV.textSecondary, minWidth: 120 }}>
                   {r.label}
                 </span>
-                <MiniBar value={r.value} color={CHART_COLORS.green} />
+                <MiniBar value={r.value} color={COLORS.green} />
                 <span style={{ fontWeight: 600, color: CV.textPrimary }}>
                   {r.value}%
                 </span>
@@ -1560,7 +1470,7 @@ function ReportCard({ card, onView }: { card: any; onView: (c: any) => void }) {
                     style={{
                       fontSize: 13,
                       fontWeight: 700,
-                      color: i === 2 ? CV.textDanger : CV.textPrimary,
+                      color: i === 2 ? COLORS.red : CV.textPrimary,
                     }}
                   >
                     {b.v}
@@ -1583,7 +1493,7 @@ function ReportCard({ card, onView }: { card: any; onView: (c: any) => void }) {
                 }}
               >
                 <span style={{ color: CV.textSecondary }}>{r.name}</span>
-                <span style={{ color: CV.textDanger, fontWeight: 600 }}>
+                <span style={{ color: COLORS.red, fontWeight: 600 }}>
                   ${r.variance}M
                 </span>
               </div>
@@ -1616,7 +1526,7 @@ function ReportCard({ card, onView }: { card: any; onView: (c: any) => void }) {
                   gap: "2px 8px",
                   fontSize: 10,
                   padding: "2px 0",
-                  borderBottom: `1px solid ${CV.borderTertiary}`,
+                  borderBottom: `0.5px solid ${CV.borderSecondary}`,
                 }}
               >
                 <span style={{ color: CV.textPrimary }}>{v.name}</span>
@@ -1685,34 +1595,28 @@ function ReportCard({ card, onView }: { card: any; onView: (c: any) => void }) {
               >
                 <CartesianGrid
                   strokeDasharray="2 2"
-                  stroke="var(--color-border-secondary)"
+                  stroke={CV.borderSecondary}
                 />
                 <XAxis
                   dataKey="month"
-                  tick={{
-                    fontSize: 8,
-                    fill: "var(--color-text-secondary)" as string,
-                  }}
+                  tick={{ fontSize: 8, fill: CV.textSecondary as string }}
                 />
                 <YAxis
-                  tick={{
-                    fontSize: 8,
-                    fill: "var(--color-text-secondary)" as string,
-                  }}
+                  tick={{ fontSize: 8, fill: CV.textSecondary as string }}
                   domain={[5, 11]}
                 />
                 <Tooltip
                   contentStyle={{
                     fontSize: 10,
-                    background: "var(--color-background-primary)",
-                    border: `1px solid var(--color-border-secondary)`,
-                    color: "var(--color-text-primary)",
+                    background: CV.bgPrimary,
+                    border: `0.5px solid ${CV.borderSecondary}`,
+                    color: CV.textPrimary,
                   }}
                 />
                 <Line
                   type="monotone"
                   dataKey="cap"
-                  stroke={CHART_COLORS.green}
+                  stroke={COLORS.green}
                   strokeWidth={1.5}
                   dot={false}
                   name="Capacity"
@@ -1720,7 +1624,7 @@ function ReportCard({ card, onView }: { card: any; onView: (c: any) => void }) {
                 <Line
                   type="monotone"
                   dataKey="demand"
-                  stroke={CHART_COLORS.blue}
+                  stroke={COLORS.blue}
                   strokeWidth={1.5}
                   dot={false}
                   name="Demand"
@@ -1728,7 +1632,7 @@ function ReportCard({ card, onView }: { card: any; onView: (c: any) => void }) {
                 <Line
                   type="monotone"
                   dataKey="gap"
-                  stroke={CHART_COLORS.red}
+                  stroke={COLORS.red}
                   strokeWidth={1.5}
                   dot={false}
                   name="Gap"
@@ -1768,7 +1672,7 @@ function ReportCard({ card, onView }: { card: any; onView: (c: any) => void }) {
                 >
                   {r.label}
                 </span>
-                <MiniBar value={r.value} color={CHART_COLORS.teal} />
+                <MiniBar value={r.value} color={COLORS.teal} />
                 <span style={{ fontWeight: 600, color: CV.textPrimary }}>
                   {r.value}%
                 </span>
@@ -1884,7 +1788,7 @@ function ReportCard({ card, onView }: { card: any; onView: (c: any) => void }) {
                 key={i}
                 style={{
                   background: CV.bgSecondary,
-                  border: `1px solid ${CV.borderSecondary}`,
+                  border: `0.5px solid ${CV.borderSecondary}`,
                   borderRadius: CV.radiusMd,
                   padding: "10px",
                   textAlign: "center" as const,
@@ -1991,7 +1895,7 @@ function ReportDetail12() {
     <div
       style={{
         fontFamily: "system-ui, sans-serif",
-        background: CV.bgTertiary,
+        background: CV.bgSecondary,
         minHeight: "100vh",
       }}
     >
@@ -2022,9 +1926,11 @@ function ReportDetail12() {
               key={i}
               style={{
                 background: CV.bgPrimary,
-                border: `1px solid ${CV.borderSecondary}`,
+                border: `1px solid ${CV.borderPrimary}`,
                 borderRadius: CV.radiusLg,
                 padding: "12px 14px",
+                boxShadow:
+                  "0 1px 4px 0 rgba(0,0,0,0.10), 0 0.5px 1px 0 rgba(0,0,0,0.06)",
               }}
             >
               <div
@@ -2070,7 +1976,7 @@ function ReportDetail12() {
           ))}
         </div>
 
-        {/* Row 1 */}
+        {/* Row 1: Trend + By Dept + By Work Type */}
         <div
           style={{
             display: "grid",
@@ -2078,6 +1984,7 @@ function ReportDetail12() {
             gap: 12,
           }}
         >
+          {/* 1. Trend */}
           <div style={cardStyle}>
             <div
               style={{
@@ -2096,39 +2003,33 @@ function ReportDetail12() {
               >
                 <CartesianGrid
                   strokeDasharray="2 2"
-                  stroke="var(--color-border-tertiary)"
+                  stroke={CV.borderTertiary}
                 />
                 <XAxis
                   dataKey="month"
-                  tick={{
-                    fontSize: 8,
-                    fill: "var(--color-text-secondary)" as string,
-                  }}
+                  tick={{ fontSize: 8, fill: CV.textSecondary as string }}
                   angle={-20}
                   textAnchor="end"
                   height={36}
                 />
                 <YAxis
                   domain={[40, 100]}
-                  tick={{
-                    fontSize: 9,
-                    fill: "var(--color-text-secondary)" as string,
-                  }}
+                  tick={{ fontSize: 9, fill: CV.textSecondary as string }}
                   tickFormatter={(v) => `${v}%`}
                 />
                 <Tooltip
                   contentStyle={{
                     fontSize: 10,
-                    background: "var(--color-background-primary)",
-                    border: `1px solid var(--color-border-secondary)`,
-                    color: "var(--color-text-primary)",
+                    background: CV.bgPrimary,
+                    border: `0.5px solid ${CV.borderSecondary}`,
+                    color: CV.textPrimary,
                   }}
                   formatter={(v) => `${v}%`}
                 />
                 <Line
                   type="monotone"
                   dataKey="overall"
-                  stroke={CHART_COLORS.blue}
+                  stroke={COLORS.blue}
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   name="Overall Utilization %"
@@ -2136,7 +2037,7 @@ function ReportDetail12() {
                 <Line
                   type="monotone"
                   dataKey="billable"
-                  stroke={CHART_COLORS.green}
+                  stroke={COLORS.green}
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   name="Billable Utilization %"
@@ -2145,6 +2046,7 @@ function ReportDetail12() {
             </ResponsiveContainer>
           </div>
 
+          {/* 2. By Dept */}
           <div style={cardStyle}>
             <div
               style={{
@@ -2180,9 +2082,9 @@ function ReportDetail12() {
                     }}
                   >
                     {[
-                      { val: d.overall, color: CHART_COLORS.blue },
-                      { val: d.billable, color: CHART_COLORS.green },
-                      { val: d.capacity, color: CHART_COLORS.orange },
+                      { val: d.overall, color: COLORS.blue },
+                      { val: d.billable, color: COLORS.green },
+                      { val: d.capacity, color: COLORS.orange },
                     ].map((row, j) => (
                       <div
                         key={j}
@@ -2213,6 +2115,7 @@ function ReportDetail12() {
             </div>
           </div>
 
+          {/* 3. By Work Type */}
           <div style={cardStyle}>
             <div
               style={{
@@ -2303,7 +2206,7 @@ function ReportDetail12() {
           </div>
         </div>
 
-        {/* Row 2 */}
+        {/* Row 2: Billable vs Non-Billable + Distribution + Under/Overutilized */}
         <div
           style={{
             display: "grid",
@@ -2311,6 +2214,7 @@ function ReportDetail12() {
             gap: 12,
           }}
         >
+          {/* 4. Billable vs Non-Billable */}
           <div style={cardStyle}>
             <div
               style={{
@@ -2349,10 +2253,10 @@ function ReportDetail12() {
                     <div
                       style={{
                         width: `${(d.billable / (d.billable + d.nonBillable)) * 100}%`,
-                        background: CHART_COLORS.blue,
+                        background: COLORS.blue,
                       }}
                     />
-                    <div style={{ flex: 1, background: CHART_COLORS.green }} />
+                    <div style={{ flex: 1, background: COLORS.green }} />
                   </div>
                   <span
                     style={{
@@ -2369,6 +2273,7 @@ function ReportDetail12() {
             </div>
           </div>
 
+          {/* 5. Distribution */}
           <div style={cardStyle}>
             <div
               style={{
@@ -2399,9 +2304,9 @@ function ReportDetail12() {
                     startAngle={90}
                     endAngle={-270}
                   >
-                    <Cell fill={CHART_COLORS.amber} />
-                    <Cell fill={CHART_COLORS.green} />
-                    <Cell fill={CHART_COLORS.red} />
+                    <Cell fill={COLORS.amber} />
+                    <Cell fill={COLORS.green} />
+                    <Cell fill={COLORS.red} />
                   </Pie>
                 </PieChart>
                 <div
@@ -2436,19 +2341,19 @@ function ReportDetail12() {
                   label: "Underutilized (<60%)",
                   count: 156,
                   pct: "7.9%",
-                  color: CHART_COLORS.amber,
+                  color: COLORS.amber,
                 },
                 {
                   label: "Optimal (60%–100%)",
                   count: 1738,
                   pct: "87.4%",
-                  color: CHART_COLORS.green,
+                  color: COLORS.green,
                 },
                 {
                   label: "Overutilized (>100%)",
                   count: 92,
                   pct: "4.7%",
-                  color: CHART_COLORS.red,
+                  color: COLORS.red,
                 },
               ].map((d, i) => (
                 <div
@@ -2480,6 +2385,7 @@ function ReportDetail12() {
             </div>
           </div>
 
+          {/* 6. Top 10 Underutilized */}
           <div style={cardStyle}>
             <div
               style={{
@@ -2507,7 +2413,7 @@ function ReportDetail12() {
                 {underutilizedResources.map((r, i) => (
                   <tr
                     key={i}
-                    style={{ borderBottom: `1px solid ${CV.borderTertiary}` }}
+                    style={{ borderBottom: `0.5px solid ${CV.borderTertiary}` }}
                   >
                     <td
                       style={{
@@ -2568,6 +2474,7 @@ function ReportDetail12() {
             </table>
           </div>
 
+          {/* 7. Top 10 Overutilized */}
           <div style={cardStyle}>
             <div
               style={{
@@ -2596,7 +2503,7 @@ function ReportDetail12() {
                   <tr
                     key={i}
                     style={{
-                      borderBottom: `1px solid ${CV.borderTertiary}`,
+                      borderBottom: `0.5px solid ${CV.borderTertiary}`,
                       background: r.util >= 120 ? CV.bgDanger : "transparent",
                     }}
                   >
@@ -2651,7 +2558,7 @@ function ReportDetail12() {
           </div>
         </div>
 
-        {/* Row 3 */}
+        {/* Row 3: Operational vs Strategic + Heatmap + Key Insights */}
         <div
           style={{
             display: "grid",
@@ -2659,6 +2566,7 @@ function ReportDetail12() {
             gap: 12,
           }}
         >
+          {/* 8. Operational vs Strategic */}
           <div style={cardStyle}>
             <div
               style={{
@@ -2689,9 +2597,9 @@ function ReportDetail12() {
                     startAngle={90}
                     endAngle={-270}
                   >
-                    <Cell fill={CHART_COLORS.orange} />
-                    <Cell fill={CHART_COLORS.blue} />
-                    <Cell fill={CHART_COLORS.purple} />
+                    <Cell fill={COLORS.orange} />
+                    <Cell fill={COLORS.blue} />
+                    <Cell fill={COLORS.purple} />
                   </Pie>
                 </PieChart>
                 <div
@@ -2724,17 +2632,17 @@ function ReportDetail12() {
               {
                 label: "Operational Work",
                 hours: "54.6K (46.3%)",
-                color: CHART_COLORS.orange,
+                color: COLORS.orange,
               },
               {
                 label: "Strategic Work",
                 hours: "37.7K (31.9%)",
-                color: CHART_COLORS.blue,
+                color: COLORS.blue,
               },
               {
                 label: "Other / Admin / Training",
                 hours: "25.7K (21.8%)",
-                color: CHART_COLORS.purple,
+                color: COLORS.purple,
               },
             ].map((d, i) => (
               <div
@@ -2770,6 +2678,7 @@ function ReportDetail12() {
             ))}
           </div>
 
+          {/* 9. Heatmap */}
           <div style={cardStyle}>
             <div
               style={{
@@ -2809,7 +2718,9 @@ function ReportDetail12() {
                   return (
                     <tr
                       key={i}
-                      style={{ borderBottom: `1px solid ${CV.borderTertiary}` }}
+                      style={{
+                        borderBottom: `0.5px solid ${CV.borderTertiary}`,
+                      }}
                     >
                       <td
                         style={{
@@ -2874,6 +2785,7 @@ function ReportDetail12() {
             </table>
           </div>
 
+          {/* 10. Key Insights */}
           <div style={cardStyle}>
             <div
               style={{
@@ -2889,28 +2801,28 @@ function ReportDetail12() {
               {[
                 {
                   icon: "📈",
-                  color: CV.textSuccess,
+                  color: COLORS.green,
                   bg: CV.bgSuccess,
                   border: CV.borderSuccess,
                   text: "Overall utilization increased by 2.6% compared to 11/04/26.",
                 },
                 {
                   icon: "⚠️",
-                  color: CV.textDanger,
+                  color: COLORS.red,
                   bg: CV.bgDanger,
                   border: CV.borderDanger,
                   text: "92 resources are overutilized (>100%). Immediate attention required.",
                 },
                 {
                   icon: "👥",
-                  color: CV.textWarning,
+                  color: COLORS.orange,
                   bg: CV.bgWarning,
                   border: CV.borderWarning,
                   text: "156 resources are underutilized (<60%). Consider reallocation.",
                 },
                 {
                   icon: "🎯",
-                  color: CV.textInfo,
+                  color: COLORS.blue,
                   bg: CV.bgInfo,
                   border: CV.borderInfo,
                   text: "Strategic work accounts for 31.9% of total effort.",
@@ -2925,7 +2837,7 @@ function ReportDetail12() {
                     background: ins.bg,
                     borderRadius: CV.radiusMd,
                     padding: "8px 10px",
-                    border: `1px solid ${ins.border}`,
+                    border: `0.5px solid ${ins.border}`,
                   }}
                 >
                   <span style={{ fontSize: 16, flexShrink: 0 }}>
@@ -2946,13 +2858,14 @@ function ReportDetail12() {
           </div>
         </div>
 
+        {/* Footer */}
         <div
           style={{
             textAlign: "center",
             fontSize: 10,
             color: CV.textTertiary,
             paddingTop: 8,
-            borderTop: `1px solid ${CV.borderTertiary}`,
+            borderTop: `0.5px solid ${CV.borderTertiary}`,
           }}
         >
           ℹ️ All metrics are based on data as of 15/05/26 10:30 AM &nbsp;|&nbsp;
@@ -3004,9 +2917,11 @@ function ReportDetail1() {
               key={i}
               style={{
                 background: CV.bgPrimary,
-                border: `1px solid ${CV.borderSecondary}`,
+                border: `1px solid ${CV.borderPrimary}`,
                 borderRadius: CV.radiusLg,
                 padding: "12px 14px",
+                boxShadow:
+                  "0 1px 4px 0 rgba(0,0,0,0.10), 0 0.5px 1px 0 rgba(0,0,0,0.06)",
               }}
             >
               <div
@@ -3086,7 +3001,7 @@ function ReportDetail1() {
           </div>
         </div>
 
-        {/* Heatmap + Cap vs Demand */}
+        {/* Heatmap + Capacity vs Demand */}
         <div
           style={{
             display: "grid",
@@ -3135,7 +3050,7 @@ function ReportDetail1() {
                             borderTop:
                               isFirst && pi > 0
                                 ? `2px solid ${CV.borderSecondary}`
-                                : `1px solid ${CV.borderTertiary}`,
+                                : `0.5px solid ${CV.borderTertiary}`,
                           }}
                         >
                           {isFirst && (
@@ -3213,9 +3128,9 @@ function ReportDetail1() {
               <span>2. Capacity vs Demand Trend (FTE)</span>
               <div style={{ display: "flex", gap: 12 }}>
                 {[
-                  ["Capacity", CHART_COLORS.blue],
-                  ["Demand", CHART_COLORS.orange],
-                  ["Gap", CHART_COLORS.red],
+                  ["Capacity", COLORS.blue],
+                  ["Demand", COLORS.orange],
+                  ["Gap", COLORS.red],
                 ].map(([l, c]) => (
                   <span
                     key={l}
@@ -3248,24 +3163,18 @@ function ReportDetail1() {
               >
                 <CartesianGrid
                   strokeDasharray="2 2"
-                  stroke="var(--color-border-tertiary)"
+                  stroke={CV.borderTertiary}
                 />
                 <XAxis
                   dataKey="month"
-                  tick={{
-                    fontSize: 8,
-                    fill: "var(--color-text-secondary)" as string,
-                  }}
+                  tick={{ fontSize: 8, fill: CV.textSecondary as string }}
                   interval={0}
                   angle={-30}
                   textAnchor="end"
                   height={36}
                 />
                 <YAxis
-                  tick={{
-                    fontSize: 9,
-                    fill: "var(--color-text-secondary)" as string,
-                  }}
+                  tick={{ fontSize: 9, fill: CV.textSecondary as string }}
                   tickFormatter={(v) =>
                     v < 0 ? v : `${(v / 1000).toFixed(1)}K`
                   }
@@ -3273,16 +3182,16 @@ function ReportDetail1() {
                 <Tooltip
                   contentStyle={{
                     fontSize: 10,
-                    background: "var(--color-background-primary)",
-                    border: `1px solid var(--color-border-secondary)`,
-                    color: "var(--color-text-primary)",
+                    background: CV.bgPrimary,
+                    border: `0.5px solid ${CV.borderSecondary}`,
+                    color: CV.textPrimary,
                   }}
                   formatter={(v) => `${(v as number).toLocaleString()} FTE`}
                 />
                 <Line
                   type="monotone"
                   dataKey="Capacity"
-                  stroke={CHART_COLORS.blue}
+                  stroke={COLORS.blue}
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   name="Capacity"
@@ -3290,7 +3199,7 @@ function ReportDetail1() {
                 <Line
                   type="monotone"
                   dataKey="Demand"
-                  stroke={CHART_COLORS.orange}
+                  stroke={COLORS.orange}
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   name="Demand"
@@ -3298,7 +3207,7 @@ function ReportDetail1() {
                 <Line
                   type="monotone"
                   dataKey="Gap"
-                  stroke={CHART_COLORS.red}
+                  stroke={COLORS.red}
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   strokeDasharray="4 4"
@@ -3426,7 +3335,7 @@ function ReportDetail1() {
                 {vendorData.map((v, i) => (
                   <tr
                     key={i}
-                    style={{ borderBottom: `1px solid ${CV.borderTertiary}` }}
+                    style={{ borderBottom: `0.5px solid ${CV.borderTertiary}` }}
                   >
                     <td
                       style={{
@@ -3499,7 +3408,7 @@ function ReportDetail1() {
                 {skillsGapData.map((s, i) => (
                   <tr
                     key={i}
-                    style={{ borderBottom: `1px solid ${CV.borderTertiary}` }}
+                    style={{ borderBottom: `0.5px solid ${CV.borderTertiary}` }}
                   >
                     <td
                       style={{
@@ -3552,7 +3461,7 @@ function ReportDetail1() {
                             style={{
                               width: `${Math.min(Math.abs(s.gap) / 2, 100)}%`,
                               height: "100%",
-                              background: CHART_COLORS.red,
+                              background: COLORS.red,
                               borderRadius: 3,
                             }}
                           />
@@ -3605,7 +3514,7 @@ function ReportDetail1() {
                 {crossPillarData.map((r, i) => (
                   <tr
                     key={i}
-                    style={{ borderBottom: `1px solid ${CV.borderTertiary}` }}
+                    style={{ borderBottom: `0.5px solid ${CV.borderTertiary}` }}
                   >
                     <td
                       style={{
@@ -3635,7 +3544,7 @@ function ReportDetail1() {
                           style={{
                             width: 28,
                             height: 6,
-                            background: CHART_COLORS.teal,
+                            background: COLORS.teal,
                             borderRadius: 3,
                           }}
                         />
@@ -3683,7 +3592,7 @@ function ReportDetail1() {
                 {staffingRiskProjects.map((r, i) => (
                   <tr
                     key={i}
-                    style={{ borderBottom: `1px solid ${CV.borderTertiary}` }}
+                    style={{ borderBottom: `0.5px solid ${CV.borderTertiary}` }}
                   >
                     <td
                       style={{
@@ -3737,7 +3646,7 @@ function ReportDetail1() {
                     gap: 8,
                     padding: "8px 10px",
                     background: CV.bgSecondary,
-                    border: `1px solid ${CV.borderSecondary}`,
+                    border: `0.5px solid ${CV.borderSecondary}`,
                     borderRadius: CV.radiusMd,
                   }}
                 >
@@ -3775,7 +3684,7 @@ function ReportDetail1() {
             fontSize: 10,
             color: CV.textTertiary,
             paddingTop: 8,
-            borderTop: `1px solid ${CV.borderTertiary}`,
+            borderTop: `0.5px solid ${CV.borderTertiary}`,
           }}
         >
           ℹ️ All metrics are based on data as of 15/05/26 10:30 AM &nbsp;|&nbsp;
@@ -3786,7 +3695,7 @@ function ReportDetail1() {
   );
 }
 
-// ─── Generic detail views ─────────────────────────────────────────────────────
+// ─── Generic detail views (2–11, 13–15) ──────────────────────────────────────
 
 function DetailCard({
   children,
@@ -3832,10 +3741,10 @@ function ReportDetail2() {
     },
   ];
   const buUtil = [
-    { name: "Engineering", util: 85, color: CHART_COLORS.blue },
-    { name: "Consulting", util: 81, color: CHART_COLORS.teal },
-    { name: "Data & Analytics", util: 84, color: CHART_COLORS.purple },
-    { name: "Products", util: 79, color: CHART_COLORS.orange },
+    { name: "Engineering", util: 85, color: COLORS.blue },
+    { name: "Consulting", util: 81, color: COLORS.teal },
+    { name: "Data & Analytics", util: 84, color: COLORS.purple },
+    { name: "Products", util: 79, color: COLORS.orange },
   ];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -3863,41 +3772,26 @@ function ReportDetail2() {
               data={capDemand2026}
               margin={{ top: 5, right: 5, bottom: 5, left: -15 }}
             >
-              <CartesianGrid
-                strokeDasharray="2 2"
-                stroke="var(--color-border-tertiary)"
-              />
+              <CartesianGrid strokeDasharray="2 2" stroke={CV.borderTertiary} />
               <XAxis
                 dataKey="month"
-                tick={{
-                  fontSize: 9,
-                  fill: "var(--color-text-secondary)" as string,
-                }}
+                tick={{ fontSize: 9, fill: CV.textSecondary as string }}
               />
-              <YAxis
-                tick={{
-                  fontSize: 9,
-                  fill: "var(--color-text-secondary)" as string,
-                }}
-              />
+              <YAxis tick={{ fontSize: 9, fill: CV.textSecondary as string }} />
               <Tooltip
                 contentStyle={{
                   fontSize: 10,
-                  background: "var(--color-background-primary)",
-                  border: `1px solid var(--color-border-secondary)`,
-                  color: "var(--color-text-primary)",
+                  background: CV.bgPrimary,
+                  border: `0.5px solid ${CV.borderSecondary}`,
+                  color: CV.textPrimary,
                 }}
               />
               <Bar
                 dataKey="Capacity"
-                fill={CHART_COLORS.blue}
+                fill={COLORS.blue}
                 radius={[2, 2, 0, 0]}
               />
-              <Bar
-                dataKey="Demand"
-                fill={CHART_COLORS.teal}
-                radius={[2, 2, 0, 0]}
-              />
+              <Bar dataKey="Demand" fill={COLORS.teal} radius={[2, 2, 0, 0]} />
               <Legend wrapperStyle={{ fontSize: 9 }} />
             </BarChart>
           </ResponsiveContainer>
@@ -3997,43 +3891,32 @@ function ReportDetail3() {
               data={approvalTrend}
               margin={{ top: 5, right: 5, bottom: 5, left: -15 }}
             >
-              <CartesianGrid
-                strokeDasharray="2 2"
-                stroke="var(--color-border-tertiary)"
-              />
+              <CartesianGrid strokeDasharray="2 2" stroke={CV.borderTertiary} />
               <XAxis
                 dataKey="month"
-                tick={{
-                  fontSize: 9,
-                  fill: "var(--color-text-secondary)" as string,
-                }}
+                tick={{ fontSize: 9, fill: CV.textSecondary as string }}
               />
-              <YAxis
-                tick={{
-                  fontSize: 9,
-                  fill: "var(--color-text-secondary)" as string,
-                }}
-              />
+              <YAxis tick={{ fontSize: 9, fill: CV.textSecondary as string }} />
               <Tooltip
                 contentStyle={{
                   fontSize: 10,
-                  background: "var(--color-background-primary)",
-                  border: `1px solid var(--color-border-secondary)`,
-                  color: "var(--color-text-primary)",
+                  background: CV.bgPrimary,
+                  border: `0.5px solid ${CV.borderSecondary}`,
+                  color: CV.textPrimary,
                 }}
               />
               <Area
                 type="monotone"
                 dataKey="Approved"
-                stroke={CHART_COLORS.green}
-                fill={`${CHART_COLORS.green}33`}
+                stroke={COLORS.green}
+                fill={`${COLORS.green}33`}
                 strokeWidth={2}
               />
               <Area
                 type="monotone"
                 dataKey="Pending"
-                stroke={CHART_COLORS.orange}
-                fill={`${CHART_COLORS.orange}33`}
+                stroke={COLORS.orange}
+                fill={`${COLORS.orange}33`}
                 strokeWidth={2}
               />
               <Legend wrapperStyle={{ fontSize: 9 }} />
@@ -4050,47 +3933,30 @@ function ReportDetail3() {
             >
               <CartesianGrid
                 strokeDasharray="2 2"
-                stroke="var(--color-border-tertiary)"
+                stroke={CV.borderTertiary}
                 horizontal={false}
               />
               <XAxis
                 type="number"
-                tick={{
-                  fontSize: 9,
-                  fill: "var(--color-text-secondary)" as string,
-                }}
+                tick={{ fontSize: 9, fill: CV.textSecondary as string }}
               />
               <YAxis
                 type="category"
                 dataKey="name"
-                tick={{
-                  fontSize: 9,
-                  fill: "var(--color-text-secondary)" as string,
-                }}
+                tick={{ fontSize: 9, fill: CV.textSecondary as string }}
                 width={90}
               />
               <Tooltip
                 contentStyle={{
                   fontSize: 10,
-                  background: "var(--color-background-primary)",
-                  border: `1px solid var(--color-border-secondary)`,
-                  color: "var(--color-text-primary)",
+                  background: CV.bgPrimary,
+                  border: `0.5px solid ${CV.borderSecondary}`,
+                  color: CV.textPrimary,
                 }}
               />
               <Bar dataKey="value" radius={[0, 3, 3, 0]}>
                 {byType.map((_, i) => (
-                  <Cell
-                    key={i}
-                    fill={
-                      [
-                        CHART_COLORS.blue,
-                        CHART_COLORS.teal,
-                        CHART_COLORS.purple,
-                        CHART_COLORS.amber,
-                        CHART_COLORS.coral,
-                      ][i]
-                    }
-                  />
+                  <Cell key={i} fill={DONUT_COLORS[i]} />
                 ))}
               </Bar>
             </BarChart>
@@ -4101,6 +3967,7 @@ function ReportDetail3() {
   );
 }
 
+// Reports 4–15 use the same pattern — generic placeholder returning key stats + charts
 function GenericDetailView({ num, title }: { num: number; title: string }) {
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
   return (
@@ -4144,7 +4011,7 @@ function BackButton({ onClick }: { onClick: () => void }) {
     <div
       style={{
         background: CV.bgPrimary,
-        borderBottom: `1px solid ${CV.borderSecondary}`,
+        borderBottom: `1px solid ${CV.borderTertiary}`,
         padding: "10px 20px",
       }}
     >
@@ -4152,7 +4019,7 @@ function BackButton({ onClick }: { onClick: () => void }) {
         onClick={onClick}
         style={{
           background: CV.bgPrimary,
-          border: `1px solid ${CV.borderSecondary}`,
+          border: `0.5px solid ${CV.borderSecondary}`,
           borderRadius: CV.radiusMd,
           padding: "6px 14px",
           fontSize: 13,
@@ -4177,6 +4044,7 @@ export default function ReportingAnalytics() {
   if (activeReport) {
     const DetailView = DETAIL_VIEWS[activeReport.num];
 
+    // Full-page detail views (1 and 12 have their own header/filter bar)
     if (activeReport.num === 1 || activeReport.num === 12) {
       return (
         <div
@@ -4192,6 +4060,7 @@ export default function ReportingAnalytics() {
       );
     }
 
+    // Standard detail views
     return (
       <div
         style={{
@@ -4213,7 +4082,7 @@ export default function ReportingAnalytics() {
             onClick={() => setActiveReport(null)}
             style={{
               background: CV.bgPrimary,
-              border: `1px solid ${CV.borderSecondary}`,
+              border: `0.5px solid ${CV.borderSecondary}`,
               borderRadius: CV.radiusMd,
               padding: "6px 14px",
               fontSize: 13,
@@ -4260,15 +4129,13 @@ export default function ReportingAnalytics() {
     );
   }
 
-  // ─── Main grid ────────────────────────────────────────────────────────────────
+  // ─── Main grid ──────────────────────────────────────────────────────────────
   return (
     <div
-      className="reporting-page-body"
       style={{
         fontFamily: "system-ui, -apple-system, sans-serif",
-        // bgTertiary = page body (darker in dark mode, gray in light mode)
-        // This gives clear contrast against bgPrimary (card surfaces = white/slightly lighter)
-        background: CV.bgTertiary,
+        background:
+          "color-mix(in srgb, var(--color-background-tertiary) 100%, #000 8%)",
         minHeight: "100vh",
         padding: "16px 20px",
       }}
@@ -4306,7 +4173,7 @@ export default function ReportingAnalytics() {
               key={l}
               style={{
                 background: CV.bgPrimary,
-                border: `1px solid ${CV.borderSecondary}`,
+                border: `0.5px solid ${CV.borderSecondary}`,
                 borderRadius: CV.radiusMd,
                 padding: "6px 14px",
                 fontSize: 12,
@@ -4320,7 +4187,7 @@ export default function ReportingAnalytics() {
         </div>
       </div>
 
-      {/* Report cards grid — bgPrimary cards on bgTertiary body = clear depth separation */}
+      {/* Report cards grid */}
       <div
         style={{
           display: "grid",

@@ -63,7 +63,8 @@ const MOCK_TASKS: TaskRequest[] = [
     allocation: 100,
     status: "Pending",
     timeline: "Nov 1 – Nov 22, 2024",
-    comments: "Critical path item. Needs to be completed before UI development begins.",
+    comments:
+      "Critical path item. Needs to be completed before UI development begins.",
     submittedDate: "Oct 28, 2024",
   },
   {
@@ -123,7 +124,8 @@ const MOCK_TASKS: TaskRequest[] = [
     allocation: 50,
     status: "Rejected",
     timeline: "Nov 12 – Nov 25, 2024",
-    comments: "Scope needs clarification. Please resubmit with updated requirements.",
+    comments:
+      "Scope needs clarification. Please resubmit with updated requirements.",
     submittedDate: "Oct 30, 2024",
   },
   {
@@ -203,7 +205,8 @@ const MOCK_TASKS: TaskRequest[] = [
     allocation: 75,
     status: "Rejected",
     timeline: "Nov 10 – Nov 28, 2024",
-    comments: "Resource conflict with Sprint 4 deliverables. Reschedule to Sprint 6.",
+    comments:
+      "Resource conflict with Sprint 4 deliverables. Reschedule to Sprint 6.",
     submittedDate: "Oct 27, 2024",
   },
   {
@@ -263,7 +266,8 @@ const MOCK_TASKS: TaskRequest[] = [
     allocation: 100,
     status: "Approved",
     timeline: "Oct 22 – Nov 5, 2024",
-    comments: "Architecture review board approved. Proceed with implementation.",
+    comments:
+      "Architecture review board approved. Proceed with implementation.",
     submittedDate: "Oct 15, 2024",
   },
   {
@@ -292,22 +296,24 @@ const MOCK_TASKS: TaskRequest[] = [
 
 function StatusBadge({ status }: { status: TaskStatus }) {
   const config = {
-    "Pending": {
-      cls: "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700",
+    Pending: {
+      cls: "bg-amber-500/15 text-amber-700 border-amber-500/30 dark:text-amber-300",
       dot: "bg-amber-500",
     },
     Approved: {
-      cls: "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-700",
-      dot: "bg-emerald-500",
+      cls: "bg-green-500/15 text-green-700 border-green-500/30 dark:text-green-300",
+      dot: "bg-green-500",
     },
     Rejected: {
-      cls: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/40 dark:text-red-300 dark:border-red-700",
+      cls: "bg-red-500/15 text-red-700 border-red-500/30 dark:text-red-300",
       dot: "bg-red-500",
     },
   }[status];
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${config.cls}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${config.cls}`}
+    >
       <span className={`w-1.5 h-1.5 rounded-full ${config.dot}`} />
       {status}
     </span>
@@ -318,12 +324,22 @@ function PriorityBadge({ priority }: { priority: "High" | "Medium" | "Low" }) {
   const cls = {
     High: "text-red-600 dark:text-red-400",
     Medium: "text-amber-600 dark:text-amber-400",
-    Low: "text-slate-500 dark:text-slate-400",
+    Low: "text-muted-foreground",
   }[priority];
-  return <span className={`text-xs font-medium ${cls}`}>{priority} Priority</span>;
+  return (
+    <span className={`text-xs font-medium ${cls}`}>{priority} Priority</span>
+  );
 }
 
-function Avatar({ initials, color, size = "sm" }: { initials: string; color: string; size?: "sm" | "md" }) {
+function Avatar({
+  initials,
+  color,
+  size = "sm",
+}: {
+  initials: string;
+  color: string;
+  size?: "sm" | "md";
+}) {
   const sz = size === "sm" ? "w-7 h-7 text-xs" : "w-9 h-9 text-sm";
   return (
     <div
@@ -337,72 +353,149 @@ function Avatar({ initials, color, size = "sm" }: { initials: string; color: str
 
 // ─── Details Dialog ───────────────────────────────────────────────────────────
 
-function TaskDetailsDialog({ task, onClose }: { task: TaskRequest; onClose: () => void }) {
+function TaskDetailsDialog({
+  task,
+  onClose,
+}: {
+  task: TaskRequest;
+  onClose: () => void;
+}) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-700">
-        <div className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="relative bg-card border border-border rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between rounded-t-2xl">
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">{task.taskName}</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">{task.id} · {task.project}</p>
+            <h2 className="text-lg font-bold text-foreground">
+              {task.taskName}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {task.id} · {task.project}
+            </p>
           </div>
           <div className="flex items-center gap-3">
             <StatusBadge status={task.status} />
-            <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            >
               <X className="w-4 h-4" />
             </button>
           </div>
         </div>
+
+        {/* Body */}
         <div className="p-6 space-y-6">
+          {/* Description */}
           <div>
-            <h3 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Description</h3>
-            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{task.taskDescription}</p>
+            <h3 className="text-xs font-semibold text-muted-foreground tracking-wider mb-2">
+              Description
+            </h3>
+            <p className="text-sm text-foreground leading-relaxed">
+              {task.taskDescription}
+            </p>
           </div>
+
+          {/* Detail grid */}
           <div className="grid grid-cols-2 gap-3">
             {[
-              { label: "Task Type", value: task.taskType, icon: <Tag className="w-3.5 h-3.5" /> },
-              { label: "Priority", value: task.priority, icon: <AlertCircle className="w-3.5 h-3.5" /> },
-              { label: "Sprint", value: task.sprint, icon: <BarChart3 className="w-3.5 h-3.5" /> },
-              { label: "Allocation", value: `${task.allocation}%`, icon: <Users className="w-3.5 h-3.5" /> },
-              { label: "Timeline", value: task.timeline, icon: <Calendar className="w-3.5 h-3.5" /> },
+              {
+                label: "Task Type",
+                value: task.taskType,
+                icon: <Tag className="w-3.5 h-3.5" />,
+              },
+              {
+                label: "Priority",
+                value: task.priority,
+                icon: <AlertCircle className="w-3.5 h-3.5" />,
+              },
+              {
+                label: "Sprint",
+                value: task.sprint,
+                icon: <BarChart3 className="w-3.5 h-3.5" />,
+              },
+              {
+                label: "Allocation",
+                value: `${task.allocation}%`,
+                icon: <Users className="w-3.5 h-3.5" />,
+              },
+              {
+                label: "Timeline",
+                value: task.timeline,
+                icon: <Calendar className="w-3.5 h-3.5" />,
+              },
             ].map((item) => (
-              <div key={item.label} className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
-                <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 mb-1">
+              <div
+                key={item.label}
+                className="bg-muted/40 border border-border rounded-xl p-3"
+              >
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
                   {item.icon}
-                  <span className="text-xs font-medium uppercase tracking-wide">{item.label}</span>
+                  <span className="text-xs font-medium uppercase tracking-wide">
+                    {item.label}
+                  </span>
                 </div>
-                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{item.value}</p>
+                <p className="text-sm font-semibold text-foreground">
+                  {item.value}
+                </p>
               </div>
             ))}
           </div>
+
+          {/* Assigned resource */}
           <div>
-            <h3 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">Assigned Resource</h3>
-            <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
-              <Avatar initials={task.assignedInitials} color={task.assignedColor} size="md" />
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+              Assigned Resource
+            </h3>
+            <div className="flex items-center gap-3 bg-muted/40 border border-border rounded-xl p-3">
+              <Avatar
+                initials={task.assignedInitials}
+                color={task.assignedColor}
+                size="md"
+              />
               <div>
-                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{task.assignedTo}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{task.assignedRole}</p>
+                <p className="text-sm font-semibold text-foreground">
+                  {task.assignedTo}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {task.assignedRole}
+                </p>
               </div>
             </div>
           </div>
+
+          {/* Requested by */}
           <div>
-            <h3 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">Requested By</h3>
-            <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
-              <div className="w-9 h-9 rounded-full bg-slate-700 dark:bg-slate-600 flex items-center justify-center flex-shrink-0">
-                <span className="text-sm font-bold text-white">AV</span>
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+              Requested By
+            </h3>
+            <div className="flex items-center gap-3 bg-muted/40 border border-border rounded-xl p-3">
+              <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                <span className="text-sm font-bold text-foreground">AV</span>
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{task.requestedBy}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Project Manager · Submitted {task.submittedDate}</p>
+                <p className="text-sm font-semibold text-foreground">
+                  {task.requestedBy}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Project Manager · Submitted {task.submittedDate}
+                </p>
               </div>
             </div>
           </div>
+
+          {/* Comments */}
           {task.comments && (
             <div>
-              <h3 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Comments</h3>
-              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-xl p-3">
-                <p className="text-sm text-slate-700 dark:text-slate-300">{task.comments}</p>
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                Comments
+              </h3>
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
+                <p className="text-sm text-foreground">{task.comments}</p>
               </div>
             </div>
           )}
@@ -414,33 +507,61 @@ function TaskDetailsDialog({ task, onClose }: { task: TaskRequest; onClose: () =
 
 // ─── Approve Dialog ───────────────────────────────────────────────────────────
 
-function ApproveConfirmDialog({ task, onConfirm, onCancel }: { task: TaskRequest; onConfirm: () => void; onCancel: () => void }) {
+function ApproveConfirmDialog({
+  task,
+  onConfirm,
+  onCancel,
+}: {
+  task: TaskRequest;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-slate-200 dark:border-slate-700">
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onCancel}
+      />
+      <div className="relative bg-card border border-border rounded-2xl shadow-2xl w-full max-w-md p-6">
         <div className="flex items-start gap-4 mb-5">
-          <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center flex-shrink-0">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+          <div className="w-10 h-10 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0">
+            <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">Approve Task Assignment?</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              You're approving <span className="font-semibold text-slate-700 dark:text-slate-200">{task.taskName}</span> assigned to{" "}
-              <span className="font-semibold text-slate-700 dark:text-slate-200">{task.assignedTo}</span>.
+            <h2 className="text-base font-bold text-foreground mb-1">
+              Approve Task Assignment?
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              You're approving{" "}
+              <span className="font-semibold text-foreground">
+                {task.taskName}
+              </span>{" "}
+              assigned to{" "}
+              <span className="font-semibold text-foreground">
+                {task.assignedTo}
+              </span>
+              .
             </p>
           </div>
         </div>
-        <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3 mb-5 text-sm text-slate-600 dark:text-slate-300">
-          <span className="font-medium">Project:</span> {task.project}
+        <div className="bg-muted/40 border border-border rounded-xl p-3 mb-5 text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">Project:</span>{" "}
+          {task.project}
           <br />
-          <span className="font-medium">Allocation:</span> {task.allocation}% 
+          <span className="font-medium text-foreground">Allocation:</span>{" "}
+          {task.allocation}%
         </div>
         <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+          <button
+            onClick={onCancel}
+            className="flex-1 px-4 py-2.5 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          >
             Cancel
           </button>
-          <button onClick={onConfirm} className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-sm font-semibold text-white transition-colors">
+          <button
+            onClick={onConfirm}
+            className="flex-1 px-4 py-2.5 rounded-lg bg-green-500/15 border border-green-500/30 text-sm font-semibold text-green-700 dark:text-green-400 hover:bg-green-500/25 transition-colors"
+          >
             Approve Task
           </button>
         </div>
@@ -451,56 +572,84 @@ function ApproveConfirmDialog({ task, onConfirm, onCancel }: { task: TaskRequest
 
 // ─── Reject Dialog ────────────────────────────────────────────────────────────
 
-function RejectTaskDialog({ task, onConfirm, onCancel }: { task: TaskRequest; onConfirm: (reason: string) => void; onCancel: () => void }) {
+function RejectTaskDialog({
+  task,
+  onConfirm,
+  onCancel,
+}: {
+  task: TaskRequest;
+  onConfirm: (reason: string) => void;
+  onCancel: () => void;
+}) {
   const [reason, setReason] = useState("");
   const [error, setError] = useState(false);
 
   const handleSubmit = () => {
-    if (!reason.trim()) { setError(true); return; }
+    if (!reason.trim()) {
+      setError(true);
+      return;
+    }
     onConfirm(reason);
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-slate-200 dark:border-slate-700">
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onCancel}
+      />
+      <div className="relative bg-card border border-border rounded-2xl shadow-2xl w-full max-w-md p-6">
         <div className="flex items-start gap-4 mb-5">
-          <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center flex-shrink-0">
             <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">Reject Task Assignment</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              Rejecting <span className="font-semibold text-slate-700 dark:text-slate-200">{task.taskName}</span>
+            <h2 className="text-base font-bold text-foreground mb-1">
+              Reject Task Assignment
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Rejecting{" "}
+              <span className="font-semibold text-foreground">
+                {task.taskName}
+              </span>
             </p>
           </div>
         </div>
         <div className="mb-5">
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-            Reason for Rejection <span className="text-red-500">*</span>
+          <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-2">
+            Reason for Rejection <span className="text-destructive">*</span>
           </label>
           <textarea
             value={reason}
-            onChange={(e) => { setReason(e.target.value); setError(false); }}
+            onChange={(e) => {
+              setReason(e.target.value);
+              setError(false);
+            }}
             placeholder="Provide a clear reason for rejection..."
             rows={4}
-            className={`w-full text-sm px-3 py-2.5 rounded-xl border ${
+            className={`w-full text-sm px-3 py-2.5 rounded-lg border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none transition-colors ${
               error
-                ? "border-red-400 bg-red-50 dark:bg-red-900/20 dark:border-red-700"
-                : "border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800"
-            } text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 resize-none transition-colors`}
+                ? "border-destructive"
+                : "border-border hover:border-border/80"
+            }`}
           />
           {error && (
-            <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+            <p className="mt-1.5 text-xs text-destructive flex items-center gap-1">
               <AlertCircle className="w-3 h-3" /> Rejection reason is required.
             </p>
           )}
         </div>
         <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+          <button
+            onClick={onCancel}
+            className="flex-1 px-4 py-2.5 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          >
             Cancel
           </button>
-          <button onClick={handleSubmit} className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-sm font-semibold text-white transition-colors">
+          <button
+            onClick={handleSubmit}
+            className="flex-1 px-4 py-2.5 rounded-lg bg-destructive text-destructive-foreground text-sm font-semibold hover:bg-destructive/90 transition-colors"
+          >
             Reject Task
           </button>
         </div>
@@ -511,17 +660,36 @@ function RejectTaskDialog({ task, onConfirm, onCancel }: { task: TaskRequest; on
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 
-function Toast({ message, type, onClose }: { message: string; type: "success" | "error"; onClose: () => void }) {
-  const cfg = type === "success"
-    ? { bg: "bg-emerald-600", icon: <CheckCircle2 className="w-4 h-4" /> }
-    : { bg: "bg-red-600", icon: <XCircle className="w-4 h-4" /> };
+function Toast({
+  message,
+  type,
+  onClose,
+}: {
+  message: string;
+  type: "success" | "error";
+  onClose: () => void;
+}) {
+  const cfg =
+    type === "success"
+      ? {
+          cls: "bg-green-500/15 border-green-500/30 text-green-700 dark:text-green-300",
+          icon: <CheckCircle2 className="w-4 h-4 text-green-500" />,
+        }
+      : {
+          cls: "bg-red-500/15 border-red-500/30 text-red-700 dark:text-red-300",
+          icon: <XCircle className="w-4 h-4 text-red-500" />,
+        };
 
   return (
-    <div className={`fixed bottom-5 right-5 z-[60] flex items-center gap-3 px-4 py-3 rounded-xl ${cfg.bg} text-white shadow-2xl text-sm font-medium`}
-      style={{ animation: "slideUp 0.2s ease-out" }}>
+    <div
+      className={`fixed bottom-5 right-5 z-[60] flex items-center gap-3 px-4 py-3 rounded-xl border ${cfg.cls} shadow-2xl text-sm font-medium`}
+      style={{ animation: "slideUp 0.2s ease-out" }}
+    >
       {cfg.icon}
       {message}
-      <button onClick={onClose} className="ml-1 opacity-70 hover:opacity-100"><X className="w-3.5 h-3.5" /></button>
+      <button onClick={onClose} className="ml-1 opacity-70 hover:opacity-100">
+        <X className="w-3.5 h-3.5" />
+      </button>
     </div>
   );
 }
@@ -533,11 +701,9 @@ export default function TaskReviewApproval() {
   const navigate = useNavigate();
 
   const initialTasks: TaskRequest[] = useMemo(() => {
-  const stateTasks = location.state?.submittedTasks ?? [];
-
-  // Put newly submitted tasks at the top
-  return [...stateTasks, ...MOCK_TASKS];
-}, [location.state]);
+    const stateTasks = location.state?.submittedTasks ?? [];
+    return [...stateTasks, ...MOCK_TASKS];
+  }, [location.state]);
 
   const [tasks, setTasks] = useState<TaskRequest[]>(initialTasks);
   const [search, setSearch] = useState("");
@@ -545,7 +711,10 @@ export default function TaskReviewApproval() {
   const [viewTask, setViewTask] = useState<TaskRequest | null>(null);
   const [approveTask, setApproveTask] = useState<TaskRequest | null>(null);
   const [rejectTask, setRejectTask] = useState<TaskRequest | null>(null);
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   const showToast = (message: string, type: "success" | "error") => {
     setToast({ message, type });
@@ -554,331 +723,485 @@ export default function TaskReviewApproval() {
 
   const handleApprove = () => {
     if (!approveTask) return;
-    setTasks((prev) => prev.map((t) => t.id === approveTask.id ? { ...t, status: "Approved" } : t));
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === approveTask.id ? { ...t, status: "Approved" } : t,
+      ),
+    );
     setApproveTask(null);
     showToast("Task approved successfully", "success");
   };
 
   const handleReject = (reason: string) => {
     if (!rejectTask) return;
-    setTasks((prev) => prev.map((t) => t.id === rejectTask.id ? { ...t, status: "Rejected", comments: reason } : t));
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === rejectTask.id
+          ? { ...t, status: "Rejected", comments: reason }
+          : t,
+      ),
+    );
     setRejectTask(null);
     showToast("Task rejected", "error");
   };
 
-  const kpi = useMemo(() => ({
-    pending: tasks.filter((t) => t.status === "Pending").length,
-    approved: tasks.filter((t) => t.status === "Approved").length,
-    rejected: tasks.filter((t) => t.status === "Rejected").length,
-  }), [tasks]);
+  const kpi = useMemo(
+    () => ({
+      pending: tasks.filter((t) => t.status === "Pending").length,
+      approved: tasks.filter((t) => t.status === "Approved").length,
+      rejected: tasks.filter((t) => t.status === "Rejected").length,
+    }),
+    [tasks],
+  );
 
-  const filtered = useMemo(() => tasks.filter((t) => {
-    const q = search.toLowerCase();
-    const matchSearch = !search || t.taskName.toLowerCase().includes(q) || t.project.toLowerCase().includes(q) || t.assignedTo.toLowerCase().includes(q);
-    const matchStatus = statusFilter === "All" || t.status === statusFilter;
-    return matchSearch && matchStatus;
-  }), [tasks, search, statusFilter]);
+  const filtered = useMemo(
+    () =>
+      tasks.filter((t) => {
+        const q = search.toLowerCase();
+        const matchSearch =
+          !search ||
+          t.taskName.toLowerCase().includes(q) ||
+          t.project.toLowerCase().includes(q) ||
+          t.assignedTo.toLowerCase().includes(q);
+        const matchStatus = statusFilter === "All" || t.status === statusFilter;
+        return matchSearch && matchStatus;
+      }),
+    [tasks, search, statusFilter],
+  );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
+    <div className="space-y-4">
       <style>{`
-        @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        * { box-sizing: border-box; }
-        :root { color-scheme: light dark; }
+        @keyframes slideUp {
+          from { transform: translateY(12px); opacity: 0; }
+          to   { transform: translateY(0);    opacity: 1; }
+        }
       `}</style>
 
       {/* Dialogs */}
-      {viewTask && <TaskDetailsDialog task={viewTask} onClose={() => setViewTask(null)} />}
-      {approveTask && <ApproveConfirmDialog task={approveTask} onConfirm={handleApprove} onCancel={() => setApproveTask(null)} />}
-      {rejectTask && <RejectTaskDialog task={rejectTask} onConfirm={handleReject} onCancel={() => setRejectTask(null)} />}
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {viewTask && (
+        <TaskDetailsDialog task={viewTask} onClose={() => setViewTask(null)} />
+      )}
+      {approveTask && (
+        <ApproveConfirmDialog
+          task={approveTask}
+          onConfirm={handleApprove}
+          onCancel={() => setApproveTask(null)}
+        />
+      )}
+      {rejectTask && (
+        <RejectTaskDialog
+          task={rejectTask}
+          onConfirm={handleReject}
+          onCancel={() => setRejectTask(null)}
+        />
+      )}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
 
-      <div className="px-5 py-5 space-y-4">
-
-        {/* ── Page Header ── */}
-        <div className="flex items-start justify-between">
+      {/* ── Page Header ── */}
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-2">
+          <FileText className="h-5 w-5 text-primary" />
           <div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Task Review</h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Project Manager approval for submitted task assignments</p>
-          </div>
-          <div className="hidden md:flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg px-3 py-1.5">
-            <User className="w-3.5 h-3.5 text-blue-500" />
-            PM approval only
-          </div>
-        </div>
-
-        {/* ── Workflow Bar ── */}
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 px-5 py-3">
-          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2.5">Approval Workflow</p>
-          <div className="flex items-center">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                <FileText className="w-3 h-3 text-white" />
-              </div>
-              <div>
-                <p className="text-xs font-bold text-blue-700 dark:text-blue-400 leading-tight">Submitted</p>
-                <p className="text-xs text-slate-400 dark:text-slate-500 leading-tight">Task assigned</p>
-              </div>
-            </div>
-            <div className="flex-1 mx-3 flex items-center gap-1 min-w-0">
-              <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
-              <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-600 flex-shrink-0" />
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
-                <Clock className="w-3 h-3 text-white" />
-              </div>
-              <div>
-                <p className="text-xs font-bold text-amber-700 dark:text-amber-400 leading-tight">Pending PM Approval</p>
-                <p className="text-xs text-slate-400 dark:text-slate-500 leading-tight">Awaiting review</p>
-              </div>
-            </div>
-            <div className="flex-1 mx-3 flex items-center gap-1 min-w-0">
-              <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
-              <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-600 flex-shrink-0" />
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
-                <CheckCircle2 className="w-3 h-3 text-white" />
-              </div>
-              <div>
-                <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 leading-tight">Approved</p>
-                <p className="text-xs text-slate-400 dark:text-slate-500 leading-tight">Ready to start</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── KPI Cards ── */}
-        <div className="grid grid-cols-3 gap-3">
-          {/* Pending */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider leading-tight">Pending PM Approval</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">{kpi.pending}</p>
-              </div>
-              <div className="w-9 h-9 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
-                <Clock className="w-4.5 h-4.5 text-amber-500" />
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-amber-400 rounded-full transition-all" style={{ width: `${tasks.length ? (kpi.pending / tasks.length) * 100 : 0}%` }} />
-              </div>
-              <span className="text-xs text-slate-400 dark:text-slate-500 flex-shrink-0 tabular-nums">
-                {tasks.length ? Math.round((kpi.pending / tasks.length) * 100) : 0}%
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">Awaiting your review</p>
-          </div>
-
-          {/* Approved */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider leading-tight">Approved</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">{kpi.approved}</p>
-              </div>
-              <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
-                <CheckCircle2 className="w-4.5 h-4.5 text-emerald-500" />
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-400 rounded-full transition-all" style={{ width: `${tasks.length ? (kpi.approved / tasks.length) * 100 : 0}%` }} />
-              </div>
-              <span className="text-xs text-slate-400 dark:text-slate-500 flex-shrink-0 tabular-nums">
-                {tasks.length ? Math.round((kpi.approved / tasks.length) * 100) : 0}%
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">Cleared for execution</p>
-          </div>
-
-          {/* Rejected */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider leading-tight">Rejected</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">{kpi.rejected}</p>
-              </div>
-              <div className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
-                <XCircle className="w-4.5 h-4.5 text-red-400" />
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-red-400 rounded-full transition-all" style={{ width: `${tasks.length ? (kpi.rejected / tasks.length) * 100 : 0}%` }} />
-              </div>
-              <span className="text-xs text-slate-400 dark:text-slate-500 flex-shrink-0 tabular-nums">
-                {tasks.length ? Math.round((kpi.rejected / tasks.length) * 100) : 0}%
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">Returned for revision</p>
-          </div>
-        </div>
-
-        {/* ── Table Card ── */}
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-          {/* Card Header */}
-          <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-3">
-            <div className="flex-1 min-w-0">
-              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">Task Requests</h2>
-              <p className="text-xs text-slate-400 dark:text-slate-500">{filtered.length} of {tasks.length} tasks</p>
-            </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search task, project, resource..."
-                  className="pl-8 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg w-52 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200 transition-colors"
-                />
-              </div>
-              <div className="relative">
-                <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as "All" | TaskStatus)}
-                  className="pl-8 pr-7 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 text-slate-700 dark:text-slate-200 appearance-none cursor-pointer"
-                >
-                  <option value="All">All Statuses</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Approved">Approved</option>
-                  <option value="Rejected">Rejected</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm" style={{ tableLayout: "fixed", minWidth: "960px" }}>
-              <colgroup>
-                <col style={{ width: "160px" }} />
-                <col style={{ width: "155px" }} />
-                <col style={{ width: "100px" }} />
-                <col style={{ width: "150px" }} />
-                <col style={{ width: "140px" }} />
-                <col style={{ width: "100px" }} />
-                <col style={{ width: "130px" }} />
-                <col style={{ width: "155px" }} />
-              </colgroup>
-              <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40">
-                  {["Task", "Project", "Task Type", "Assigned To", "Allocation", "Status", "Actions"].map((col) => (
-                    <th key={col} className="text-left px-3 py-2.5 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider whitespace-nowrap">
-                      {col}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filtered.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="px-3 py-10 text-center text-sm text-slate-400 dark:text-slate-500">
-                      No tasks match your current filters.
-                    </td>
-                  </tr>
-                ) : (
-                  filtered.map((task) => (
-                    <tr key={task.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors">
-                      {/* Task */}
-                      <td className="px-3 py-2.5">
-                        <p className="text-xs font-semibold text-slate-800 dark:text-slate-100 leading-tight truncate">{task.taskName}</p>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <PriorityBadge priority={task.priority} />
-                          <span className="text-slate-300 dark:text-slate-600">·</span>
-                          <span className="text-xs text-slate-400 dark:text-slate-500 truncate">{task.sprint}</span>
-                        </div>
-                      </td>
-
-                      {/* Project */}
-                      <td className="px-3 py-2.5">
-                        <p className="text-xs font-medium text-slate-600 dark:text-slate-300 leading-snug line-clamp-2">{task.project}</p>
-                      </td>
-
-                      {/* Task Type */}
-                      <td className="px-3 py-2.5">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-medium whitespace-nowrap">
-                          {task.taskType}
-                        </span>
-                      </td>
-
-                      {/* Assigned To */}
-                      <td className="px-3 py-2.5">
-                        <div className="flex items-center gap-1.5">
-                          <Avatar initials={task.assignedInitials} color={task.assignedColor} />
-                          <div className="min-w-0">
-                            <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">{task.assignedTo}</p>
-                            <p className="text-xs text-slate-400 dark:text-slate-500 truncate">{task.assignedRole}</p>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Allocation */}
-                      <td className="px-3 py-2.5">
-                        <div className="flex items-center gap-1.5">
-                          <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                            <div className="h-full bg-blue-400 rounded-full" style={{ width: `${task.allocation}%` }} />
-                          </div>
-                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 flex-shrink-0 tabular-nums">{task.allocation}%</span>
-                        </div>
-                      </td>
-
-                      {/* Status */}
-                      <td className="px-3 py-2.5">
-                        <StatusBadge status={task.status} />
-                      </td>
-
-                      {/* Actions */}
-                      <td className="px-3 py-2.5">
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => setViewTask(task)}
-                            title="View Details"
-                            className="w-6 h-6 rounded-md flex items-center justify-center text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors flex-shrink-0"
-                          >
-                            <Eye className="w-3.5 h-3.5" />
-                          </button>
-                          {task.status === "Pending" && (
-                            <>
-                              <button
-                                onClick={() => setApproveTask(task)}
-                                className="flex items-center gap-0.5 px-2 py-1 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-xs font-semibold transition-colors flex-shrink-0"
-                              >
-                                <Check className="w-2.5 h-2.5" />
-                                Approve
-                              </button>
-                              <button
-                                onClick={() => setRejectTask(task)}
-                                className="flex items-center gap-0.5 px-2 py-1 rounded-md border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 text-xs font-semibold transition-colors flex-shrink-0"
-                              >
-                                <X className="w-2.5 h-2.5" />
-                                Reject
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Footer */}
-          <div className="px-5 py-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-            <p className="text-xs text-slate-400 dark:text-slate-500">
-              Showing {filtered.length} of {tasks.length} task requests
+            <h1 className="text-lg font-semibold text-foreground tracking-tight">
+              Task Review
+            </h1>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Project Manager approval for submitted task assignments
             </p>
-            <span className="inline-flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500">
-              <User className="w-3 h-3" />
-              Only Project Manager approval required
+          </div>
+        </div>
+        <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground bg-blue-500/10 border border-blue-500/20 rounded-lg px-3 py-1.5">
+          <User className="w-3.5 h-3.5 text-blue-500" />
+          <span className="text-blue-700 dark:text-blue-300 font-medium">
+            PM approval only
+          </span>
+        </div>
+      </div>
+
+      {/* ── Workflow Bar ── */}
+      <div className="bg-card border border-border rounded-xl px-5 py-3">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2.5">
+          Approval Workflow
+        </p>
+        <div className="flex items-center">
+          {/* Step 1 */}
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-blue-500/15 border border-blue-500/30 flex items-center justify-center flex-shrink-0">
+              <FileText className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-blue-700 dark:text-blue-400 leading-tight">
+                Submitted
+              </p>
+              <p className="text-xs text-muted-foreground leading-tight">
+                Task assigned
+              </p>
+            </div>
+          </div>
+
+          <div className="flex-1 mx-3 flex items-center gap-1 min-w-0">
+            <div className="flex-1 h-px bg-border" />
+            <ChevronRight className="w-3 h-3 text-muted-foreground flex-shrink-0" />
+          </div>
+
+          {/* Step 2 */}
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center flex-shrink-0">
+              <Clock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-amber-700 dark:text-amber-400 leading-tight">
+                Pending PM Approval
+              </p>
+              <p className="text-xs text-muted-foreground leading-tight">
+                Awaiting review
+              </p>
+            </div>
+          </div>
+
+          <div className="flex-1 mx-3 flex items-center gap-1 min-w-0">
+            <div className="flex-1 h-px bg-border" />
+            <ChevronRight className="w-3 h-3 text-muted-foreground flex-shrink-0" />
+          </div>
+
+          {/* Step 3 */}
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center flex-shrink-0">
+              <CheckCircle2 className="w-3 h-3 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-green-700 dark:text-green-400 leading-tight">
+                Approved
+              </p>
+              <p className="text-xs text-muted-foreground leading-tight">
+                Ready to start
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── KPI Cards ── */}
+      <div className="grid grid-cols-3 gap-3">
+        {/* Pending */}
+        <div className="bg-card border border-border rounded-xl p-4">
+          <div className="flex items-start justify-between mb-3">
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider leading-tight">
+                Pending PM Approval
+              </p>
+              <p className="text-2xl font-bold text-foreground mt-1">
+                {kpi.pending}
+              </p>
+            </div>
+            <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center flex-shrink-0">
+              <Clock className="w-4 h-4 text-amber-500" />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-amber-500 rounded-full transition-all"
+                style={{
+                  width: `${tasks.length ? (kpi.pending / tasks.length) * 100 : 0}%`,
+                }}
+              />
+            </div>
+            <span className="text-xs text-muted-foreground flex-shrink-0 tabular-nums">
+              {tasks.length
+                ? Math.round((kpi.pending / tasks.length) * 100)
+                : 0}
+              %
             </span>
           </div>
+          <p className="text-xs text-muted-foreground mt-1.5">
+            Awaiting your review
+          </p>
+        </div>
+
+        {/* Approved */}
+        <div className="bg-card border border-border rounded-xl p-4">
+          <div className="flex items-start justify-between mb-3">
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider leading-tight">
+                Approved
+              </p>
+              <p className="text-2xl font-bold text-foreground mt-1">
+                {kpi.approved}
+              </p>
+            </div>
+            <div className="w-9 h-9 rounded-lg bg-green-500/15 flex items-center justify-center flex-shrink-0">
+              <CheckCircle2 className="w-4 h-4 text-green-500" />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-green-500 rounded-full transition-all"
+                style={{
+                  width: `${tasks.length ? (kpi.approved / tasks.length) * 100 : 0}%`,
+                }}
+              />
+            </div>
+            <span className="text-xs text-muted-foreground flex-shrink-0 tabular-nums">
+              {tasks.length
+                ? Math.round((kpi.approved / tasks.length) * 100)
+                : 0}
+              %
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1.5">
+            Cleared for execution
+          </p>
+        </div>
+
+        {/* Rejected */}
+        <div className="bg-card border border-border rounded-xl p-4">
+          <div className="flex items-start justify-between mb-3">
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider leading-tight">
+                Rejected
+              </p>
+              <p className="text-2xl font-bold text-foreground mt-1">
+                {kpi.rejected}
+              </p>
+            </div>
+            <div className="w-9 h-9 rounded-lg bg-red-500/15 flex items-center justify-center flex-shrink-0">
+              <XCircle className="w-4 h-4 text-red-500" />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-red-500 rounded-full transition-all"
+                style={{
+                  width: `${tasks.length ? (kpi.rejected / tasks.length) * 100 : 0}%`,
+                }}
+              />
+            </div>
+            <span className="text-xs text-muted-foreground flex-shrink-0 tabular-nums">
+              {tasks.length
+                ? Math.round((kpi.rejected / tasks.length) * 100)
+                : 0}
+              %
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1.5">
+            Returned for revision
+          </p>
+        </div>
+      </div>
+
+      {/* ── Table Card ── */}
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        {/* Card Header */}
+        <div className="px-5 py-3 border-b border-border flex flex-wrap items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-sm font-bold text-foreground">Task Requests</h2>
+            <p className="text-xs text-muted-foreground">
+              {filtered.length} of {tasks.length} tasks
+            </p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search task, project, resource..."
+                className="pl-8 pr-3 py-1.5 text-xs bg-card border border-border rounded-lg w-52 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring placeholder:text-muted-foreground text-foreground transition-colors hover:border-border/80"
+              />
+            </div>
+            {/* Status filter */}
+            <div className="relative">
+              <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+              <select
+                value={statusFilter}
+                onChange={(e) =>
+                  setStatusFilter(e.target.value as "All" | TaskStatus)
+                }
+                className="pl-8 pr-7 py-1.5 text-xs bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground appearance-none cursor-pointer hover:border-border/80 transition-colors"
+              >
+                <option value="All">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table
+            className="w-full text-sm"
+            style={{ tableLayout: "fixed", minWidth: "960px" }}
+          >
+            <colgroup>
+              <col style={{ width: "160px" }} />
+              <col style={{ width: "155px" }} />
+              <col style={{ width: "100px" }} />
+              <col style={{ width: "150px" }} />
+              <col style={{ width: "140px" }} />
+              <col style={{ width: "100px" }} />
+              <col style={{ width: "155px" }} />
+            </colgroup>
+            <thead>
+              <tr className="border-b border-border bg-muted/40">
+                {[
+                  "Task",
+                  "Project",
+                  "Task Type",
+                  "Assigned To",
+                  "Allocation",
+                  "Status",
+                  "Actions",
+                ].map((col) => (
+                  <th
+                    key={col}
+                    className="text-left px-3 py-2.5 text-xs font-semibold text-muted-foreground tracking-wider whitespace-nowrap"
+                  >
+                    {col}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {filtered.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="px-3 py-10 text-center text-sm text-muted-foreground"
+                  >
+                    No tasks match your current filters.
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((task) => (
+                  <tr
+                    key={task.id}
+                    className="hover:bg-accent/20 transition-colors"
+                  >
+                    {/* Task */}
+                    <td className="px-3 py-2.5">
+                      <p className="text-xs font-semibold text-foreground leading-tight truncate">
+                        {task.taskName}
+                      </p>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <PriorityBadge priority={task.priority} />
+                        <span className="text-border">·</span>
+                        <span className="text-xs text-muted-foreground truncate">
+                          {task.sprint}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Project */}
+                    <td className="px-3 py-2.5">
+                      <p className="text-xs font-medium text-muted-foreground leading-snug line-clamp-2">
+                        {task.project}
+                      </p>
+                    </td>
+
+                    {/* Task Type */}
+                    <td className="px-3 py-2.5">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted text-muted-foreground text-xs font-medium whitespace-nowrap border border-border">
+                        {task.taskType}
+                      </span>
+                    </td>
+
+                    {/* Assigned To */}
+                    <td className="px-3 py-2.5">
+                      <div className="flex items-center gap-1.5">
+                        <Avatar
+                          initials={task.assignedInitials}
+                          color={task.assignedColor}
+                        />
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-foreground truncate">
+                            {task.assignedTo}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {task.assignedRole}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Allocation */}
+                    <td className="px-3 py-2.5">
+                      <div className="flex items-center gap-1.5">
+                        <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-primary rounded-full"
+                            style={{ width: `${task.allocation}%` }}
+                          />
+                        </div>
+                        <span className="text-xs font-semibold text-foreground flex-shrink-0 tabular-nums">
+                          {task.allocation}%
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-3 py-2.5">
+                      <StatusBadge status={task.status} />
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-3 py-2.5">
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setViewTask(task)}
+                          title="View Details"
+                          className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex-shrink-0"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+                        {task.status === "Pending" && (
+                          <>
+                            <button
+                              onClick={() => setApproveTask(task)}
+                              className="flex items-center gap-0.5 px-2 py-1 rounded-lg bg-green-500/15 border border-green-500/30 text-green-700 dark:text-green-400 hover:bg-green-500/25 text-xs font-semibold transition-colors flex-shrink-0"
+                            >
+                              <Check className="w-2.5 h-2.5" />
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => setRejectTask(task)}
+                              className="flex items-center gap-0.5 px-2 py-1 rounded-lg border border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-500/10 text-xs font-semibold transition-colors flex-shrink-0"
+                            >
+                              <X className="w-2.5 h-2.5" />
+                              Reject
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 py-2.5 border-t border-border flex items-center justify-between">
+          <p className="text-xs text-muted-foreground">
+            Showing {filtered.length} of {tasks.length} task requests
+          </p>
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <User className="w-3 h-3" />
+            Only Project Manager approval required
+          </span>
         </div>
       </div>
     </div>

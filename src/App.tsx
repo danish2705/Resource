@@ -15,7 +15,7 @@ import CreateDemand from "@/pages/CreateDemand";
 import ResourceAllocation from "@/pages/Allocation";
 import ResourceInformation from "@/pages/Resource";
 import DemandStatus from "@/pages/AllocationStatus";
-import ReportingDashboard from "@/pages/ReportingDashboard";
+import ReportingDashboard from "@/pages/ReportingAnalytics";
 import ResourceForecast from "@/pages/ResourceForecast";
 import ForecastActual from "@/pages/ForecastActual";
 import ProjectsPage from "./pages/Projects";
