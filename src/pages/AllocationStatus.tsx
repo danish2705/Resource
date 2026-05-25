@@ -327,7 +327,7 @@ function YearField({
   );
 }
 
-export default function DemandStatus() {
+export default function AllocationStatus() {
   const { filterByPillar } = usePillarFilter(); 
   const visibleDemands = filterByPillar(demandData);
 
@@ -421,7 +421,7 @@ export default function DemandStatus() {
           <div className="flex items-center gap-2">
             <ClipboardList className="h-4 w-4 text-muted-foreground" />
             <CardTitle className="text-base">
-              Demand Status
+              Allocation Status
             </CardTitle>
           </div>
 
