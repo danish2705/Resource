@@ -832,7 +832,7 @@ export const UTIL_FILTER_DEFS = [
     key: "vendor",
     options: [
       "All",
-      "Tech Mahindra",
+      "Ascendion",
       "Tata Consultancy",
       "Infosys",
       "Wipro",
@@ -977,7 +977,7 @@ export const GENERIC_FILTER_DEFS = [
     key: "vendor",
     options: [
       "All",
-      "Tech Mahindra",
+      "Ascendion",
       "Tata Consultancy",
       "Infosys",
       "Wipro",
@@ -1082,3 +1082,92 @@ export const DEFAULT_GENERIC_FILTERS = {
   skillSet: "All",
   vendor: "All",
 };
+
+export const keyInsights = [
+  {
+    icon: "📈",
+    color: COLORS.green,
+    bg: "#eaf3e0",
+    text: "Overall utilization increased by 2.6% compared to 11/04/26.",
+  },
+  {
+    icon: "⚠️",
+    color: COLORS.red,
+    bg: "#fde8e8",
+    text: "92 resources are overutilized (>100%). Immediate attention required.",
+  },
+  {
+    icon: "👥",
+    color: COLORS.orange,
+    bg: "#fef4e6",
+    text: "156 resources are underutilized (<60%). Consider reallocation.",
+  },
+  {
+    icon: "🎯",
+    color: COLORS.blue,
+    bg: "#e8f0fb",
+    text: "Strategic work accounts for 31.9% of total effort. Continue to focus on strategic initiatives.",
+  },
+];
+
+export const utilization = [
+  {
+    label: "Underutilized (<70%)",
+    bg: "#fff9e6",
+    color: "#92400e",
+  },
+  {
+    label: "Optimal (70%–100%)",
+    bg: "#e8f5e9",
+    color: "#2e7d32",
+  },
+  {
+    label: "Near Capacity (100%–110%)",
+    bg: "#fde8e8",
+    color: COLORS.red,
+  },
+  {
+    label: "Overloaded (>110%)",
+    bg: "#fde8e8",
+    color: "#7f1d1d",
+  },
+];
+
+export const operational = [
+  {
+    label: "Operational Work (BAU + Support)",
+    hours: "54.6K (46.3%)",
+    color: COLORS.orange,
+  },
+  {
+    label: "Strategic Work (Projects + Innovation)",
+    hours: "37.7K (31.9%)",
+    color: COLORS.blue,
+  },
+  {
+    label: "Other / Admin / Training",
+    hours: "25.7K (21.8%)",
+    color: COLORS.purple,
+  },
+];
+
+export const utilizationDistribution = [
+  {
+    label: "Underutilized (<60%)",
+    count: 156,
+    pct: "7.9%",
+    color: COLORS.amber,
+  },
+  {
+    label: "Optimal (60%–100%)",
+    count: 1738,
+    pct: "87.4%",
+    color: COLORS.green,
+  },
+  {
+    label: "Overutilized (>100%)",
+    count: 92,
+    pct: "4.7%",
+    color: COLORS.red,
+  },
+];
