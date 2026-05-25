@@ -25,6 +25,10 @@ import {
   ClipboardList,
 } from "lucide-react";
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+
+
 function formatCurrency(value: number) {
   if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
   if (value >= 1_000) return `$${(value / 1_000).toFixed(0)}K`;
@@ -324,8 +328,7 @@ function YearField({
 }
 
 export default function DemandStatus() {
-  const { filterByPillar } = usePillarFilter();
-
+  const { filterByPillar } = usePillarFilter(); 
   const visibleDemands = filterByPillar(demandData);
 
   const [search, setSearch] = useState("");
@@ -346,13 +349,9 @@ export default function DemandStatus() {
         d.projectName.toLowerCase().includes(q) ||
         d.requiredSkills.some((s) => s.toLowerCase().includes(q)) ||
         d.submittedBy.toLowerCase().includes(q);
-
-      const matchStatus =
-        filterStatus === "all" || d.status === filterStatus;
-
+      const matchStatus = filterStatus === "all" || d.status === filterStatus;
       const matchDomain =
         filterDomain === "all" || d.pillar === filterDomain;
-
       const matchAllocation =
         filterAllocation === "all" ||
         (filterAllocation === "full" &&
@@ -624,8 +623,7 @@ export default function DemandStatus() {
                         <td className="px-3 py-3 font-medium whitespace-nowrap text-center">
                            ${d.estimatedRate}
                         </td>
-
-                        <td className="px-3 py-3 font-medium whitespace-nowrap text-center">
+                        <td className="px-3 py-3 font-medium whitespace-nowrap">
                           {formatCurrency(d.currentYearForecast)}
                         </td>
 
