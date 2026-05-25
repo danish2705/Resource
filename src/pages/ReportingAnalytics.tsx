@@ -26,7 +26,7 @@ import {
   EXEC_FILTER_DEFS,
   demandStatusData,
   capDemand2026,
-  utilTrend2026,
+  overList,
   skillsGapData,
   vendorData,
   strategicAlerts,
@@ -80,6 +80,25 @@ import {
   byRoleReportDetail16,
   sharedProjects,
   availTrend,
+  byProject,
+  byRoleReportsDetail15,
+  donutData,
+  byPortfolio,
+  allocationTrend,
+  approvalTrend,
+  byType,
+  owners,
+  allocationByRole,
+  buUtil,
+  byRoleReportDetail2,
+  crossPillar,
+  top5,
+  vendorOverview,
+  map,
+  operationData,
+  report10,
+  report10UnderUtilized,
+  utilisation,
 } from "@/mocks/ReportingAnalytics";
 
 function KpiCard({ kpi }) {
@@ -1263,11 +1282,7 @@ function ReportDetail12() {
               2. Utilization by Department (%)
             </div>
             <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
-              {[
-                ["Overall Utilization %", COLORS.blue],
-                ["Billable Utilization %", COLORS.green],
-                ["Capacity Utilization %", COLORS.orange],
-              ].map(([l, c]) => (
+              {utilisation.map(([l, c]) => (
                 <span
                   key={l}
                   style={{
@@ -1704,12 +1719,7 @@ function ReportDetail12() {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  {[
-                    "Resource",
-                    "Department",
-                    "Utilization %",
-                    "Available Hours",
-                  ].map((h) => (
+                  {report10UnderUtilized.map((h) => (
                     <th
                       key={h}
                       style={{
@@ -1810,12 +1820,7 @@ function ReportDetail12() {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  {[
-                    "Resource",
-                    "Department",
-                    "Utilization %",
-                    "Overtime Hours",
-                  ].map((h) => (
+                  {report10.map((h) => (
                     <th
                       key={h}
                       style={{
@@ -1934,11 +1939,7 @@ function ReportDetail12() {
               <div style={{ position: "relative", width: 130, height: 130 }}>
                 <PieChart width={130} height={130}>
                   <Pie
-                    data={[
-                      { value: 46.3, name: "Operational Work" },
-                      { value: 31.9, name: "Strategic Work" },
-                      { value: 21.8, name: "Other / Admin / Training" },
-                    ]}
+                    data={operationData}
                     cx={64}
                     cy={64}
                     innerRadius={38}
@@ -2300,13 +2301,6 @@ function UtilBar({ value }) {
 }
 
 function RiskBadge({ level }) {
-  const map = {
-    High: { bg: "#fde8e8", color: COLORS.red },
-    Medium: { bg: "#fff4e0", color: COLORS.orange },
-    Low: { bg: "#e8f5e9", color: COLORS.green },
-    Info: { bg: "#e3f2fd", color: COLORS.blue },
-    Critical: { bg: "#fde8e8", color: COLORS.red },
-  };
   const s = map[level] || map.Info;
   return (
     <span
@@ -2912,13 +2906,7 @@ function ReportDetail1() {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  {[
-                    "Vendor",
-                    "Utilization %",
-                    "FTE",
-                    "Spend (USD)",
-                    "Open Demands",
-                  ].map((h) => (
+                  {vendorOverview.map((h) => (
                     <th
                       key={h}
                       style={{
@@ -2999,12 +2987,7 @@ function ReportDetail1() {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  {[
-                    "Skill Set",
-                    "Demand (FTE)",
-                    "Available (FTE)",
-                    "Gap (FTE)",
-                  ].map((h) => (
+                  {top5.map((h) => (
                     <th
                       key={h}
                       style={{
@@ -3119,12 +3102,7 @@ function ReportDetail1() {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  {[
-                    "Borrowing Pillar",
-                    "Borrowing From",
-                    "FTE",
-                    "Top Skills",
-                  ].map((h) => (
+                  {crossPillar.map((h) => (
                     <th
                       key={h}
                       style={{
@@ -3416,43 +3394,7 @@ function GenericFilterBar({ filters, setFilters }) {
 
 function ReportDetail2() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-  const byRole = [
-    {
-      role: "Developers",
-      allocated: 3240,
-      capacity: 3825,
-      util: "85%",
-      gap: -585,
-    },
-    {
-      role: "Consultants",
-      allocated: 1910,
-      capacity: 2310,
-      util: "83%",
-      gap: -400,
-    },
-    {
-      role: "Analysts",
-      allocated: 1105,
-      capacity: 1320,
-      util: "84%",
-      gap: -215,
-    },
-    { role: "Testers", allocated: 605, capacity: 720, util: "84%", gap: -115 },
-    {
-      role: "Architects",
-      allocated: 255,
-      capacity: 300,
-      util: "85%",
-      gap: -45,
-    },
-  ];
-  const buUtil = [
-    { name: "Engineering", util: 85, color: COLORS.blue },
-    { name: "Consulting", util: 81, color: COLORS.teal },
-    { name: "Data & Analytics", util: 84, color: COLORS.purple },
-    { name: "Products", util: 79, color: COLORS.orange },
-  ];
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -3520,14 +3462,8 @@ function ReportDetail2() {
       <DetailCard>
         <SectionLabel>Allocation by Role</SectionLabel>
         <DetailTable
-          headers={[
-            "Role",
-            "Allocated (FTE)",
-            "Capacity (FTE)",
-            "Utilization",
-            "Gap",
-          ]}
-          rows={byRole.map((r) => [
+          headers={allocationByRole}
+          rows={byRoleReportDetail2.map((r) => [
             <span style={{ color: "#374151", fontWeight: 600 }}>{r.role}</span>,
             r.allocated.toLocaleString(),
             r.capacity.toLocaleString(),
@@ -3544,57 +3480,7 @@ function ReportDetail2() {
 
 function ReportDetail3() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-  const owners = [
-    {
-      name: "Sarah Johnson",
-      total: 235,
-      approved: 168,
-      pending: 67,
-      rate: "71%",
-    },
-    {
-      name: "Michael Lee",
-      total: 188,
-      approved: 128,
-      pending: 60,
-      rate: "68%",
-    },
-    {
-      name: "Emily Davis",
-      total: 176,
-      approved: 129,
-      pending: 47,
-      rate: "73%",
-    },
-    {
-      name: "David Brown",
-      total: 154,
-      approved: 101,
-      pending: 53,
-      rate: "66%",
-    },
-    {
-      name: "Olivia Martin",
-      total: 138,
-      approved: 92,
-      pending: 46,
-      rate: "67%",
-    },
-  ];
-  const approvalTrend = [
-    { month: "01/01/26", Approved: 720, Pending: 310 },
-    { month: "01/02/26", Approved: 780, Pending: 340 },
-    { month: "01/03/26", Approved: 810, Pending: 360 },
-    { month: "11/04/26", Approved: 850, Pending: 380 },
-    { month: "11/05/26", Approved: 864, Pending: 381 },
-  ];
-  const byType = [
-    { name: "Demand Inputs", value: 488 },
-    { name: "Capacity Inputs", value: 324 },
-    { name: "Allocation Inputs", value: 221 },
-    { name: "Financial Inputs", value: 126 },
-    { name: "Timesheet Inputs", value: 86 },
-  ];
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -3705,28 +3591,7 @@ function ReportDetail3() {
 
 function ReportDetail4() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-  const donutData = [
-    { name: "Cloud Migration", value: 18, fte: 1281 },
-    { name: "Data Warehouse", value: 14, fte: 996 },
-    { name: "Mobile App Revamp", value: 12, fte: 854 },
-    { name: "ERP Implementation", value: 10, fte: 712 },
-    { name: "AI Platform", value: 8, fte: 569 },
-    { name: "Others", value: 38, fte: 2703 },
-  ];
-  const byPortfolio = [
-    { name: "Digital Transformation", fte: 2248, pct: 31.6 },
-    { name: "Product Engineering", fte: 1842, pct: 25.9 },
-    { name: "Cloud Services", fte: 1365, pct: 19.2 },
-    { name: "Data & Analytics", fte: 1030, pct: 14.5 },
-    { name: "Business Applications", fte: 630, pct: 8.9 },
-  ];
-  const allocationTrend = [
-    { month: "01/01/26", fte: 6200 },
-    { month: "01/02/26", fte: 6500 },
-    { month: "01/03/26", fte: 6700 },
-    { month: "11/04/26", fte: 7000 },
-    { month: "11/05/26", fte: 7115 },
-  ];
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -3887,32 +3752,7 @@ function ReportDetail4() {
 
 function ReportDetail5() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-  const overList = [
-    { name: "John Smith", role: "Developer", alloc: 132, projects: 5 },
-    { name: "Priya Patel", role: "Analyst", alloc: 128, projects: 4 },
-    { name: "Ravi Kumar", role: "Developer", alloc: 120, projects: 4 },
-    { name: "Anita Desai", role: "Tester", alloc: 116, projects: 3 },
-    { name: "Carlos Martinez", role: "Consultant", alloc: 112, projects: 3 },
-    { name: "Emily Clark", role: "Developer", alloc: 110, projects: 2 },
-    { name: "David Lee", role: "Architect", alloc: 108, projects: 2 },
-    { name: "Sophie Wilson", role: "Analyst", alloc: 105, projects: 5 },
-    { name: "James Thomas", role: "Developer", alloc: 104, projects: 3 },
-    { name: "Maria Garcia", role: "Tester", alloc: 103, projects: 3 },
-  ];
-  const byRole = [
-    { role: "Developer", count: 198 },
-    { role: "Consultant", count: 42 },
-    { role: "Analyst", count: 18 },
-    { role: "Tester", count: 14 },
-    { role: "Architect", count: 10 },
-  ];
-  const byProject = [
-    { name: "Cloud Migration", count: 45 },
-    { name: "Data Warehouse", count: 36 },
-    { name: "Mobile App Revamp", count: 32 },
-    { name: "AI Platform", count: 28 },
-    { name: "ERP Implementation", count: 20 },
-  ];
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -3969,7 +3809,7 @@ function ReportDetail5() {
             <SectionLabel>Over Allocation by Role</SectionLabel>
             <ResponsiveContainer width="100%" height={150}>
               <BarChart
-                data={byRole}
+                data={byRoleReportsDetail15}
                 layout="vertical"
                 margin={{ top: 5, right: 20, bottom: 5, left: 65 }}
               >
@@ -4032,7 +3872,7 @@ function ReportDetail5() {
 
 function ReportDetail6() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-  
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -4143,7 +3983,7 @@ function ReportDetail6() {
 
 function ReportDetail7() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-  
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -4298,8 +4138,7 @@ function ReportDetail7() {
 
 function ReportDetail8() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-  
-  
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />

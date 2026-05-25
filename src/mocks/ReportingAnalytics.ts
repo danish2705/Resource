@@ -1501,7 +1501,7 @@ export const compTrend = [
   { month: "11/04/26", rate: 92 },
   { month: "11/05/26", rate: 92 },
 ];
-  
+
 export const items = [
   { label: "Timesheet Submission", value: 96, target: 95 },
   { label: "Allocation Adherence", value: 91, target: 90 },
@@ -1509,7 +1509,7 @@ export const items = [
   { label: "Data Quality", value: 88, target: 90 },
   { label: "Skill Certification", value: 90, target: 85 },
 ];
-  
+
 export const availTrend = [
   { month: "01/01/26", pct: 23.1 },
   { month: "01/02/26", pct: 22.4 },
@@ -1529,7 +1529,7 @@ export const sharedProjects = [
   { name: "Security Upgrade", shared: 98 },
   { name: "Automation Testing", shared: 66 },
 ];
-  
+
 export const byRoleReportDetail16 = [
   { role: "Developers", total: 4520, avail: 875, pct: "19.4%" },
   { role: "Consultants", total: 1850, avail: 410, pct: "22.2%" },
@@ -1538,4 +1538,214 @@ export const byRoleReportDetail16 = [
   { role: "Architects", total: 252, avail: 57, pct: "22.6%" },
   { role: "Others", total: 112, avail: 7, pct: "24.1%" },
 ];
-  
+
+export const byProject = [
+  { name: "Cloud Migration", count: 45 },
+  { name: "Data Warehouse", count: 36 },
+  { name: "Mobile App Revamp", count: 32 },
+  { name: "AI Platform", count: 28 },
+  { name: "ERP Implementation", count: 20 },
+];
+
+export const byRoleReportsDetail15 = [
+  { role: "Developer", count: 198 },
+  { role: "Consultant", count: 42 },
+  { role: "Analyst", count: 18 },
+  { role: "Tester", count: 14 },
+  { role: "Architect", count: 10 },
+];
+
+export const overList = [
+  { name: "John Smith", role: "Developer", alloc: 132, projects: 5 },
+  { name: "Priya Patel", role: "Analyst", alloc: 128, projects: 4 },
+  { name: "Ravi Kumar", role: "Developer", alloc: 120, projects: 4 },
+  { name: "Anita Desai", role: "Tester", alloc: 116, projects: 3 },
+  { name: "Carlos Martinez", role: "Consultant", alloc: 112, projects: 3 },
+  { name: "Emily Clark", role: "Developer", alloc: 110, projects: 2 },
+  { name: "David Lee", role: "Architect", alloc: 108, projects: 2 },
+  { name: "Sophie Wilson", role: "Analyst", alloc: 105, projects: 5 },
+  { name: "James Thomas", role: "Developer", alloc: 104, projects: 3 },
+  { name: "Maria Garcia", role: "Tester", alloc: 103, projects: 3 },
+];
+
+export const allocationTrend = [
+  { month: "01/01/26", fte: 6200 },
+  { month: "01/02/26", fte: 6500 },
+  { month: "01/03/26", fte: 6700 },
+  { month: "11/04/26", fte: 7000 },
+  { month: "11/05/26", fte: 7115 },
+];
+
+export const byPortfolio = [
+  { name: "Digital Transformation", fte: 2248, pct: 31.6 },
+  { name: "Product Engineering", fte: 1842, pct: 25.9 },
+  { name: "Cloud Services", fte: 1365, pct: 19.2 },
+  { name: "Data & Analytics", fte: 1030, pct: 14.5 },
+  { name: "Business Applications", fte: 630, pct: 8.9 },
+];
+
+export const donutData = [
+  { name: "Cloud Migration", value: 18, fte: 1281 },
+  { name: "Data Warehouse", value: 14, fte: 996 },
+  { name: "Mobile App Revamp", value: 12, fte: 854 },
+  { name: "ERP Implementation", value: 10, fte: 712 },
+  { name: "AI Platform", value: 8, fte: 569 },
+  { name: "Others", value: 38, fte: 2703 },
+];
+
+export const byType = [
+  { name: "Demand Inputs", value: 488 },
+  { name: "Capacity Inputs", value: 324 },
+  { name: "Allocation Inputs", value: 221 },
+  { name: "Financial Inputs", value: 126 },
+  { name: "Timesheet Inputs", value: 86 },
+];
+
+export const approvalTrend = [
+  { month: "01/01/26", Approved: 720, Pending: 310 },
+  { month: "01/02/26", Approved: 780, Pending: 340 },
+  { month: "01/03/26", Approved: 810, Pending: 360 },
+  { month: "11/04/26", Approved: 850, Pending: 380 },
+  { month: "11/05/26", Approved: 864, Pending: 381 },
+];
+
+export const owners = [
+  {
+    name: "Sarah Johnson",
+    total: 235,
+    approved: 168,
+    pending: 67,
+    rate: "71%",
+  },
+  {
+    name: "Michael Lee",
+    total: 188,
+    approved: 128,
+    pending: 60,
+    rate: "68%",
+  },
+  {
+    name: "Emily Davis",
+    total: 176,
+    approved: 129,
+    pending: 47,
+    rate: "73%",
+  },
+  {
+    name: "David Brown",
+    total: 154,
+    approved: 101,
+    pending: 53,
+    rate: "66%",
+  },
+  {
+    name: "Olivia Martin",
+    total: 138,
+    approved: 92,
+    pending: 46,
+    rate: "67%",
+  },
+];
+
+export const allocationByRole = [
+  "Role",
+  "Allocated (FTE)",
+  "Capacity (FTE)",
+  "Utilization",
+  "Gap",
+];
+
+export const buUtil = [
+  { name: "Engineering", util: 85, color: COLORS.blue },
+  { name: "Consulting", util: 81, color: COLORS.teal },
+  { name: "Data & Analytics", util: 84, color: COLORS.purple },
+  { name: "Products", util: 79, color: COLORS.orange },
+];
+
+export const byRoleReportDetail2 = [
+  {
+    role: "Developers",
+    allocated: 3240,
+    capacity: 3825,
+    util: "85%",
+    gap: -585,
+  },
+  {
+    role: "Consultants",
+    allocated: 1910,
+    capacity: 2310,
+    util: "83%",
+    gap: -400,
+  },
+  {
+    role: "Analysts",
+    allocated: 1105,
+    capacity: 1320,
+    util: "84%",
+    gap: -215,
+  },
+  { role: "Testers", allocated: 605, capacity: 720, util: "84%", gap: -115 },
+  {
+    role: "Architects",
+    allocated: 255,
+    capacity: 300,
+    util: "85%",
+    gap: -45,
+  },
+];
+
+export const crossPillar = [
+  "Borrowing Pillar",
+  "Borrowing From",
+  "FTE",
+  "Top Skills",
+];
+
+export const top5 = [
+  "Skill Set",
+  "Demand (FTE)",
+  "Available (FTE)",
+  "Gap (FTE)",
+];
+
+export const vendorOverview = [
+  "Vendor",
+  "Utilization %",
+  "FTE",
+  "Spend (USD)",
+  "Open Demands",
+];
+
+export const map = {
+  High: { bg: "#fde8e8", color: COLORS.red },
+  Medium: { bg: "#fff4e0", color: COLORS.orange },
+  Low: { bg: "#e8f5e9", color: COLORS.green },
+  Info: { bg: "#e3f2fd", color: COLORS.blue },
+  Critical: { bg: "#fde8e8", color: COLORS.red },
+};
+
+export const operationData = [
+  { value: 46.3, name: "Operational Work" },
+  { value: 31.9, name: "Strategic Work" },
+  { value: 21.8, name: "Other / Admin / Training" },
+];
+
+export const report10 = [
+  "Resource",
+  "Department",
+  "Utilization %",
+  "Overtime Hours",
+];
+
+export const report10UnderUtilized = [
+  "Resource",
+  "Department",
+  "Utilization %",
+  "Available Hours",
+];
+
+export const utilisation = [
+  ["Overall Utilization %", COLORS.blue],
+  ["Billable Utilization %", COLORS.green],
+  ["Capacity Utilization %", COLORS.orange],
+];
