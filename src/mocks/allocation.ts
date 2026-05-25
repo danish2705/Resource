@@ -62,7 +62,7 @@ export const allocations: AllocationRow[] = [
     resource: "Sneha Iyer",
     role: "DevSecOps Lead",
     project: "DevSecOps Pipeline Setup",
-    pillar: "Hi-tech", // DevSecOps → Hi-tech
+    pillar: "Hi-tech", // DevSecOps → Hi-techs
     allocationType: "Internal",
     allocationPercentage: 80,
     hoursPerWeek: 32,
