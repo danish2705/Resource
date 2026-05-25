@@ -64,10 +64,12 @@ const columns: Column<AllocationRow>[] = [
           : "bg-purple-500/20 text-purple-400 border border-purple-500/30";
 
       return (
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${color}`}>
-          {r.allocationType}
-        </span>
-      );
+  <div className="flex justify-center items-center w-full">
+    <span className={`px-2 py-1 rounded-full text-xs font-medium ${color}`}>
+      {r.allocationType}
+    </span>
+  </div>
+);
     },
   },
 
@@ -83,9 +85,11 @@ const columns: Column<AllocationRow>[] = [
             : "text-cyan-400";
 
       return (
+        <div className="flex justify-center items-center w-full">
         <span className={`font-semibold ${color}`}>
-          {r.allocationPercentage}%
+        {r.allocationPercentage}%
         </span>
+        </div>
       );
     },
   },
@@ -93,7 +97,11 @@ const columns: Column<AllocationRow>[] = [
   {
     key: "hoursPerWeek",
     header: "Hrs/Wk",
-    render: (r) => <span className="text-sm">{r.hoursPerWeek}</span>,
+    render: (r) => (
+  <div className="flex justify-center items-center w-full">
+    <span className="text-sm">{r.hoursPerWeek}</span>
+  </div>
+),
   },
 
   {

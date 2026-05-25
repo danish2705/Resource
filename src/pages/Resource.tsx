@@ -139,9 +139,11 @@ const columns: Column<Resource>[] = [
     key: "ratePerHr",
     header: "Rate/Hrs",
     render: (r) => (
+      <div className="flex justify-center items-center w-full">
       <span className="font-medium text-xs whitespace-nowrap">
-        ${r.ratePerHr}
-      </span>
+      ${r.ratePerHr}
+       </span>
+       </div>
     ),
   },
   {

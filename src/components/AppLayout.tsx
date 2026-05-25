@@ -40,41 +40,115 @@ import {
   useEffect,
 } from "react";
 
-const pageTitles: Record<
-  string,
-  string
-> = {
-  "/": "Dashboard",
+const resolvePageTitle = (
+  pathname: string,
+) => {
+  /* DASHBOARD */
 
-  "/demand":
-    "Demand & Allocation",
-  
-  "/create-demand":
-    "Demand & Allocation",
+  if (
+    pathname === "/" ||
+    pathname === "/dashboard" ||
+    pathname === "/my-dashboard"
+  ) {
+    return "Dashboard";
+  }
 
-  "/demand summary":
-    "Demand & Allocation",
+  /* RESOURCES */
 
-  "/demand-status":
-    "Demand & Allocation",
+  if (
+    pathname.startsWith(
+      "/resources",
+    )
+  ) {
+    return "Resource Information";
+  }
 
-  "/allocation":
-    "Resource Allocation",
+  /* DEMAND & ALLOCATION */
 
-  "/resources":
-    "Resource Information",
+  if (
+    pathname.startsWith(
+      "/demand",
+    ) ||
+    pathname.startsWith(
+      "/create-demand",
+    ) ||
+    pathname.startsWith(
+      "/resource-review",
+    )
+  ) {
+    return "Demand & Allocation";
+  }
 
-  "/reports":
-    "Reporting & Analytics",
-  
-  "/projects":
-  "Projects",
+  /* PROJECTS */
 
-  "/profile":
-    "My Profile",
+  if (
+    pathname.startsWith(
+      "/projects",
+    ) ||
+    pathname.startsWith(
+      "/task-review",
+    )
+  ) {
+    return "Projects";
+  }
 
-  "/my-allocations":
-    "My Allocations",
+  /* REPORTING */
+
+  if (
+    pathname.startsWith(
+      "/reports",
+    )
+  ) {
+    return "Reporting & Analytics";
+  }
+
+  /* USER MANAGEMENT */
+
+  if (
+    pathname.startsWith(
+      "/user-management",
+    )
+  ) {
+    return "User Management";
+  }
+
+  /* PROFILE */
+
+  if (
+    pathname.startsWith(
+      "/profile",
+    )
+  ) {
+    return "My Profile";
+  }
+
+  /* MY ALLOCATIONS */
+
+  if (
+    pathname.startsWith(
+      "/my-allocations",
+    )
+  ) {
+    return "My Allocations";
+  }
+
+  if (
+    pathname.startsWith(
+      "/allocation",
+    )
+  ) {
+    return "Allocation Details";
+  }
+
+  if (
+    pathname.startsWith(
+      "/audit-log",
+    )
+  ) {
+    return "Audit Log";
+  }
+
+  return "Enterprise Resource Management";
 };
 
 const initials = (n: string) =>
@@ -94,9 +168,9 @@ function LayoutContent({
 
   const navigate = useNavigate();
 
-  const title =
-    pageTitles[location.pathname] ??
-    "Resource Management";
+  const title = resolvePageTitle(
+    location.pathname,
+  );
 
   const { user, logout } =
     useAuth();

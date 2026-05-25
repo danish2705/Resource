@@ -572,7 +572,7 @@ export default function ResourceReview() {
                       <TableCell className="text-sm">
                         {req.requestedBy}
                       </TableCell>
-                      <TableCell className="text-sm">
+                      <TableCell className="text-center">
                         {req.allocationPercent}%
                       </TableCell>
                       <TableCell className="text-sm">

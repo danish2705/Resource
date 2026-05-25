@@ -1112,7 +1112,7 @@ export default function Projects() {
                               <td className="p-4"><StatusBadge status={project.status} /></td>
                               <td className="p-4"><PriorityBadge priority={project.priority} /></td>
                               <td className="p-4 text-sm font-medium">{project.budget}</td>
-                              <td className="p-4 text-sm text-muted-foreground">{project.budgetHrs}</td>
+                              <td className="p-4 text-sm text-muted-foreground text-center">{project.budgetHrs}</td>
                               <td className="p-4 text-sm text-muted-foreground whitespace-nowrap">{formatDate(project.start)}</td>
                               <td className="p-4 text-sm text-muted-foreground whitespace-nowrap">{formatDate(project.end)}</td>
                               <td className="p-4 text-sm text-muted-foreground whitespace-nowrap">{project.teamSize}</td>

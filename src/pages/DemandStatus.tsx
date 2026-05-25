@@ -13,7 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  type DemandStatusType,
   type DemandStatusRecord,
   statusStyleMap,
   demandData,
@@ -26,10 +25,6 @@ import {
   ClipboardList,
 } from "lucide-react";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-
-
 function formatCurrency(value: number) {
   if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
   if (value >= 1_000) return `$${(value / 1_000).toFixed(0)}K`;
@@ -38,15 +33,15 @@ function formatCurrency(value: number) {
 
 function formatDate(dateStr?: string) {
   if (!dateStr) return "—";
+
   const d = new Date(dateStr);
+
   return d.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
 }
-
-// ─── AllocationBar ────────────────────────────────────────────────────────────
 
 function AllocationBar({
   allocated,
@@ -56,12 +51,14 @@ function AllocationBar({
   total: number;
 }) {
   const pct = total === 0 ? 0 : Math.min((allocated / total) * 100, 100);
+
   const barColor =
     allocated === 0
       ? "bg-muted-foreground/30"
       : allocated < total
         ? "bg-yellow-500"
         : "bg-green-500";
+
   const textColor =
     allocated === 0
       ? "text-muted-foreground"
@@ -77,14 +74,13 @@ function AllocationBar({
           style={{ width: `${pct}%` }}
         />
       </div>
+
       <span className={`text-xs font-medium ${textColor}`}>
         {allocated}/{total}
       </span>
     </div>
   );
 }
-
-// ─── View Details Modal ───────────────────────────────────────────────────────
 
 function ViewDetailsModal({
   demand,
@@ -118,8 +114,6 @@ function ViewDetailsModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-background shadow-2xl">
-        
-        {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background px-6 py-4">
           <div>
             <p className="text-xs font-mono text-muted-foreground">
@@ -148,34 +142,21 @@ function ViewDetailsModal({
         </div>
 
         <div className="space-y-6 p-6">
-          {/* Project Details */}
           <section>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               Project Details
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Field
-                label="Portfolio"
-                value={demand.portfolio || "Global"}
-              />
-              <Field
-                label="Program"
-                value={demand.program || "Enterprise"}
-              />
-              <Field
-                label="Project Name"
-                value={demand.projectName}
-              />
+              <Field label="Portfolio" value={demand.portfolio || "Global"} />
+              <Field label="Program" value={demand.program || "Enterprise"} />
+              <Field label="Project Name" value={demand.projectName} />
               <Field
                 label="Project Role"
                 value={demand.projectRole || "—"}
               />
               <Field label="Pillar" value={demand.pillar} />
-              <Field
-                label="Budget Code"
-                value={demand.budgetCode}
-              />
+              <Field label="Budget Code" value={demand.budgetCode} />
               <Field
                 label="Workstream"
                 value={demand.workstream || "—"}
@@ -190,7 +171,6 @@ function ViewDetailsModal({
               />
             </div>
 
-            {/* Skills */}
             <div className="mt-5">
               <p className="text-sm text-muted-foreground mb-2">
                 Required Skills
@@ -205,7 +185,6 @@ function ViewDetailsModal({
               </div>
             </div>
 
-            {/* Comments */}
             {demand.comments && (
               <div className="mt-5">
                 <p className="text-sm text-muted-foreground mb-2">
@@ -219,7 +198,6 @@ function ViewDetailsModal({
             )}
           </section>
 
-          {/* Allocation */}
           <section className="rounded-xl border border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950/30 p-5">
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-sky-700 dark:text-sky-400">
               Allocation (%)
@@ -238,7 +216,6 @@ function ViewDetailsModal({
             </div>
           </section>
 
-          {/* Forecast */}
           <section className="rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/20 p-5">
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-rose-700 dark:text-rose-400">
               Forecast
@@ -258,7 +235,6 @@ function ViewDetailsModal({
             </div>
           </section>
 
-          {/* Footer Meta */}
           <div className="flex flex-wrap gap-6 border-t border-border pt-4 text-sm text-muted-foreground">
             <span>
               Submitted by:{" "}
@@ -277,7 +253,7 @@ function ViewDetailsModal({
             <span>
               Est. Rate:{" "}
               <span className="font-medium text-foreground">
-                ${demand.estimatedRate}/hr
+                ${demand.estimatedRate}
               </span>
             </span>
           </div>
@@ -287,7 +263,10 @@ function ViewDetailsModal({
   );
 }
 
-function Field({ label, value, }: {
+function Field({
+  label,
+  value,
+}: {
   label: string;
   value: string;
 }) {
@@ -323,8 +302,8 @@ function YearField({
     ? value === 0
       ? "0"
       : value >= 1000
-      ? `${(value / 1000).toFixed(0)}K`
-      : `${value}`
+        ? `${(value / 1000).toFixed(0)}K`
+        : `${value}`
     : `${value}`;
 
   return (
@@ -343,20 +322,23 @@ function YearField({
     </div>
   );
 }
-// ─── DemandStatus Page ────────────────────────────────────────────────────────
 
 export default function DemandStatus() {
-  const { filterByPillar } = usePillarFilter(); 
+  const { filterByPillar } = usePillarFilter();
+
   const visibleDemands = filterByPillar(demandData);
+
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterDomain, setFilterDomain] = useState("all");
   const [filterAllocation, setFilterAllocation] = useState("all");
+
   const [selectedDemand, setSelectedDemand] =
     useState<DemandStatusRecord | null>(null);
 
   const filteredData = useMemo(() => {
     const q = search.toLowerCase();
+
     return visibleDemands.filter((d) => {
       const matchSearch =
         !q ||
@@ -364,9 +346,13 @@ export default function DemandStatus() {
         d.projectName.toLowerCase().includes(q) ||
         d.requiredSkills.some((s) => s.toLowerCase().includes(q)) ||
         d.submittedBy.toLowerCase().includes(q);
-      const matchStatus = filterStatus === "all" || d.status === filterStatus;
+
+      const matchStatus =
+        filterStatus === "all" || d.status === filterStatus;
+
       const matchDomain =
         filterDomain === "all" || d.pillar === filterDomain;
+
       const matchAllocation =
         filterAllocation === "all" ||
         (filterAllocation === "full" &&
@@ -374,10 +360,23 @@ export default function DemandStatus() {
         (filterAllocation === "partial" &&
           d.allocatedResources > 0 &&
           d.allocatedResources < d.noOfResources) ||
-        (filterAllocation === "none" && d.allocatedResources === 0);
-      return matchSearch && matchStatus && matchDomain && matchAllocation;
+        (filterAllocation === "none" &&
+          d.allocatedResources === 0);
+
+      return (
+        matchSearch &&
+        matchStatus &&
+        matchDomain &&
+        matchAllocation
+      );
     });
-  }, [visibleDemands, search, filterStatus, filterDomain, filterAllocation]);
+  }, [
+    visibleDemands,
+    search,
+    filterStatus,
+    filterDomain,
+    filterAllocation,
+  ]);
 
   const hasActiveFilters =
     search ||
@@ -395,9 +394,9 @@ export default function DemandStatus() {
   const domains = [...new Set(visibleDemands.map((d) => d.pillar))].sort();
 
   const [allocationDialog, setAllocationDialog] = useState<{
-  open: boolean;
-  demand: DemandStatusRecord | null;}>
-  ({
+    open: boolean;
+    demand: DemandStatusRecord | null;
+  }>({
     open: false,
     demand: null,
   });
@@ -422,19 +421,22 @@ export default function DemandStatus() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <ClipboardList className="h-4 w-4 text-muted-foreground" />
-            <CardTitle className="text-base">Demand Status</CardTitle>
+            <CardTitle className="text-base">
+              Demand Status
+            </CardTitle>
           </div>
+
           <p className="text-sm text-muted-foreground">
-            {visibleDemands.length} demands · track allocation &amp; approval
-            progress
+            {visibleDemands.length} demands · track allocation &amp;
+            approval progress
           </p>
         </CardHeader>
 
         <CardContent>
-          {/* ── Search + Filters ── */}
           <div className="flex items-center gap-2 flex-wrap mb-4">
             <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+
               <Input
                 className="pl-9 h-9 text-sm"
                 placeholder="Search project, skill, submitted by…"
@@ -447,11 +449,14 @@ export default function DemandStatus() {
               <SelectTrigger className="h-9 w-[150px] text-sm">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
+
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="Draft">Draft</SelectItem>
                 <SelectItem value="Submitted">Submitted</SelectItem>
-                <SelectItem value="Under Review">Under Review</SelectItem>
+                <SelectItem value="Under Review">
+                  Under Review
+                </SelectItem>
                 <SelectItem value="Approved">Approved</SelectItem>
                 <SelectItem value="Rejected">Rejected</SelectItem>
               </SelectContent>
@@ -461,8 +466,10 @@ export default function DemandStatus() {
               <SelectTrigger className="h-9 w-[145px] text-sm">
                 <SelectValue placeholder="All Domains" />
               </SelectTrigger>
+
               <SelectContent>
                 <SelectItem value="all">All Domains</SelectItem>
+
                 {domains.map((d) => (
                   <SelectItem key={d} value={d}>
                     {d}
@@ -478,17 +485,31 @@ export default function DemandStatus() {
               <SelectTrigger className="h-9 w-[160px] text-sm">
                 <SelectValue placeholder="All Allocations" />
               </SelectTrigger>
+
               <SelectContent>
-                <SelectItem value="all">All Allocations</SelectItem>
-                <SelectItem value="full">Fully Allocated</SelectItem>
-                <SelectItem value="partial">Partially Allocated</SelectItem>
-                <SelectItem value="none">Not Allocated</SelectItem>
+                <SelectItem value="all">
+                  All Allocations
+                </SelectItem>
+
+                <SelectItem value="full">
+                  Fully Allocated
+                </SelectItem>
+
+                <SelectItem value="partial">
+                  Partially Allocated
+                </SelectItem>
+
+                <SelectItem value="none">
+                  Not Allocated
+                </SelectItem>
               </SelectContent>
             </Select>
 
             <span className="text-sm text-muted-foreground ml-1">
-              {filteredData.length} result{filteredData.length !== 1 ? "s" : ""}
+              {filteredData.length} result
+              {filteredData.length !== 1 ? "s" : ""}
             </span>
+
             {hasActiveFilters && (
               <Button
                 variant="ghost"
@@ -502,7 +523,6 @@ export default function DemandStatus() {
             )}
           </div>
 
-          {/* ── Table ── */}
           <div className="border rounded-lg overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -511,29 +531,37 @@ export default function DemandStatus() {
                     <th className="px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap">
                       Project ID
                     </th>
+
                     <th className="px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap">
                       Project Name
                     </th>
+
                     <th className="px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap">
                       Required Skills
                     </th>
+
                     <th className="px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap">
                       No. of Resources
                     </th>
+
                     <th className="px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap">
-                      Estimated Rate
+                      Estimated Rate/Hr
                     </th>
+
                     <th className="px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap">
                       Current Year Forecast
                     </th>
+
                     <th className="px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap">
                       Status
                     </th>
+
                     <th className="px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap">
                       Action
                     </th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {filteredData.length === 0 ? (
                     <tr>
@@ -553,14 +581,17 @@ export default function DemandStatus() {
                         <td className="px-3 py-3 font-mono text-xs text-muted-foreground whitespace-nowrap">
                           {d.projectId}
                         </td>
+
                         <td className="px-3 py-3">
                           <div className="font-medium text-foreground leading-snug max-w-[180px]">
                             {d.projectName}
                           </div>
+
                           <div className="text-xs text-muted-foreground mt-0.5">
                             {d.pillar}
                           </div>
                         </td>
+
                         <td className="px-3 py-3">
                           <div className="flex flex-wrap gap-1 max-w-[160px]">
                             {d.requiredSkills.map((s) => (
@@ -574,11 +605,13 @@ export default function DemandStatus() {
                             ))}
                           </div>
                         </td>
+
                         <td className="px-3 py-3">
                           <AllocationBar
                             allocated={d.allocatedResources}
                             total={d.noOfResources}
                           />
+
                           <div className="text-xs text-muted-foreground mt-1">
                             {d.allocatedResources === d.noOfResources
                               ? "Fully allocated"
@@ -587,28 +620,29 @@ export default function DemandStatus() {
                                 : `${d.noOfResources - d.allocatedResources} pending`}
                           </div>
                         </td>
-                        <td className="px-3 py-3 font-medium whitespace-nowrap">
-                          ${d.estimatedRate}
-                          <span className="text-xs text-muted-foreground font-normal">
-                            /hr
-                          </span>
+
+                        <td className="px-3 py-3 font-medium whitespace-nowrap text-center">
+                           ${d.estimatedRate}
                         </td>
-                        <td className="px-3 py-3 font-medium whitespace-nowrap">
+
+                        <td className="px-3 py-3 font-medium whitespace-nowrap text-center">
                           {formatCurrency(d.currentYearForecast)}
                         </td>
+
                         <td className="px-3 py-3">
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${statusStyleMap[d.status]}`}
                           >
                             {d.status}
                           </span>
+
                           <div className="text-xs text-muted-foreground mt-1">
                             {d.submittedBy}
                           </div>
                         </td>
+
                         <td className="px-3 py-3">
                           <div className="flex items-center gap-1">
-                            {/* View Details */}
                             <Button
                               variant="ghost"
                               size="sm"
@@ -619,7 +653,6 @@ export default function DemandStatus() {
                               <Eye className="h-4 w-4 text-blue-500" />
                             </Button>
 
-                            {/* Edit Allocation */}
                             <Button
                               variant="ghost"
                               size="sm"
@@ -644,7 +677,6 @@ export default function DemandStatus() {
             </div>
           </div>
 
-          {/* ── Footer summary ── */}
           <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
             <div className="flex items-center gap-4">
               <span>
@@ -658,29 +690,39 @@ export default function DemandStatus() {
                   )}
                 </span>
               </span>
+
               <span>
                 Approved:{" "}
                 <span className="font-medium text-green-400">
-                  {filteredData.filter((d) => d.status === "Approved").length}
+                  {
+                    filteredData.filter(
+                      (d) => d.status === "Approved",
+                    ).length
+                  }
                 </span>
               </span>
+
               <span>
                 Pending:{" "}
                 <span className="font-medium text-yellow-400">
                   {
                     filteredData.filter(
                       (d) =>
-                        d.status === "Submitted" || d.status === "Under Review",
+                        d.status === "Submitted" ||
+                        d.status === "Under Review",
                     ).length
                   }
                 </span>
               </span>
+
               <span>
                 Draft / Rejected:{" "}
                 <span className="font-medium text-muted-foreground">
                   {
                     filteredData.filter(
-                      (d) => d.status === "Draft" || d.status === "Rejected",
+                      (d) =>
+                        d.status === "Draft" ||
+                        d.status === "Rejected",
                     ).length
                   }
                 </span>
@@ -689,20 +731,21 @@ export default function DemandStatus() {
           </div>
         </CardContent>
       </Card>
+
       <ResourceDialog
-      open={allocationDialog.open}
-      onOpenChange={(open) =>
-        setAllocationDialog((prev) => ({
-          ...prev,
-          open,
-        }))
-      }
-      demandId={allocationDialog.demand?.id || ""}
-      projectName={allocationDialog.demand?.projectName || ""}
-      projectSkills={allocationDialog.demand?.requiredSkills || []}
-      initialResources={[]}
-      userRole="Resource Manager"
-    />
+        open={allocationDialog.open}
+        onOpenChange={(open) =>
+          setAllocationDialog((prev) => ({
+            ...prev,
+            open,
+          }))
+        }
+        demandId={allocationDialog.demand?.id || ""}
+        projectName={allocationDialog.demand?.projectName || ""}
+        projectSkills={allocationDialog.demand?.requiredSkills || []}
+        initialResources={[]}
+        userRole="Resource Manager"
+      />
     </>
   );
 }
