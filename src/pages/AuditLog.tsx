@@ -51,7 +51,9 @@ function actionBadge(action: string) {
     actionColors[action] ??
     "bg-muted text-muted-foreground border border-border";
   return (
-    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${cls}`}>
+    <span
+      className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${cls}`}
+    >
       {action}
     </span>
   );

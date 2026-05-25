@@ -27,10 +27,7 @@ import { useNavigate } from "react-router-dom";
 // Types
 // ---------------------------------------------------------------------------
 
-type TaskStatus =
-  | "Not Assigned"
-  | "Assigned"
-  | "Awaiting Approval";
+type TaskStatus = "Not Assigned" | "Assigned" | "Awaiting Approval";
 
 interface Task {
   id: string;
@@ -88,22 +85,50 @@ const TASK_TEMPLATES: { type: string; tasks: string[] }[] = [
   },
   {
     type: "Testing",
-    tasks: ["Test Case Creation", "Regression Testing", "API Validation", "Performance Testing"],
+    tasks: [
+      "Test Case Creation",
+      "Regression Testing",
+      "API Validation",
+      "Performance Testing",
+    ],
   },
   {
     type: "Architecture",
-    tasks: ["Cloud Architecture Design", "Security Review", "Infrastructure Planning"],
+    tasks: [
+      "Cloud Architecture Design",
+      "Security Review",
+      "Infrastructure Planning",
+    ],
   },
   {
     type: "Documentation",
-    tasks: ["Technical Documentation", "User Manual Creation", "API Reference Guide"],
+    tasks: [
+      "Technical Documentation",
+      "User Manual Creation",
+      "API Reference Guide",
+    ],
   },
   {
     type: "Deployment",
-    tasks: ["CI/CD Pipeline Setup", "Production Deployment", "Environment Configuration"],
+    tasks: [
+      "CI/CD Pipeline Setup",
+      "Production Deployment",
+      "Environment Configuration",
+    ],
   },
-  { type: "QA", tasks: ["QA Planning", "Test Automation", "Defect Triage", "Release Sign-off"] },
-  { type: "Review", tasks: ["Peer Code Review", "Security Code Audit", "Design Review"] },
+  {
+    type: "QA",
+    tasks: [
+      "QA Planning",
+      "Test Automation",
+      "Defect Triage",
+      "Release Sign-off",
+    ],
+  },
+  {
+    type: "Review",
+    tasks: ["Peer Code Review", "Security Code Audit", "Design Review"],
+  },
 ];
 
 function generateTasks(projectId: string): Task[] {
@@ -131,7 +156,7 @@ function buildInitialTasks(projects: Project[]): TaskMap {
   }
   if (map["P-001"]) {
     map["P-001"][0].assignedResources = ["Tracey Warren"];
-    map["P-001"][0].status = "Awaiting Approval"
+    map["P-001"][0].status = "Awaiting Approval";
     map["P-001"][1].assignedResources = ["Kiran Patel"];
     map["P-001"][1].status = "Assigned";
     map["P-001"][2].assignedResources = ["Kiran Patel"];
@@ -168,7 +193,11 @@ function StatusBadge({ status }: { status: string }) {
       ? "bg-green-500/20 text-green-700 border-green-500/40 dark:text-green-300"
       : "bg-orange-500/20 text-orange-700 border-orange-500/40 dark:text-orange-300";
   return (
-    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${cls}`}>{status}</span>
+    <span
+      className={`px-2 py-1 rounded-full text-xs font-medium border ${cls}`}
+    >
+      {status}
+    </span>
   );
 }
 
@@ -180,14 +209,17 @@ function PriorityBadge({ priority }: { priority: string }) {
         ? "bg-yellow-400/20 text-yellow-700 border-yellow-500/40 dark:text-yellow-300"
         : "bg-green-500/20 text-green-700 border-green-500/40 dark:text-green-300";
   return (
-    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${cls}`}>{priority}</span>
+    <span
+      className={`px-2 py-1 rounded-full text-xs font-medium border ${cls}`}
+    >
+      {priority}
+    </span>
   );
 }
 
 function TaskStatusBadge({ status }: { status: TaskStatus }) {
   const map: Record<TaskStatus, string> = {
-    "Not Assigned":
-      "bg-slate-500/10 text-muted-foreground border-border",
+    "Not Assigned": "bg-slate-500/10 text-muted-foreground border-border",
 
     Assigned:
       "bg-blue-500/20 text-blue-700 border-blue-500/40 dark:text-blue-300",
@@ -219,12 +251,19 @@ function TaskTypeBadge({ type }: { type: string }) {
 
 function ProgressBar({ progress }: { progress: number }) {
   const barColor =
-    progress > 70 ? "bg-green-500" : progress > 0 ? "bg-blue-500" : "bg-muted-foreground/30";
+    progress > 70
+      ? "bg-green-500"
+      : progress > 0
+        ? "bg-blue-500"
+        : "bg-muted-foreground/30";
   const textColor = progress > 70 ? "text-green-400" : "text-blue-400";
   return (
     <div className="flex items-center gap-2">
       <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
-        <div className={`h-full rounded-full ${barColor}`} style={{ width: `${progress}%` }} />
+        <div
+          className={`h-full rounded-full ${barColor}`}
+          style={{ width: `${progress}%` }}
+        />
       </div>
       <span className={`text-xs font-medium ${textColor}`}>{progress}%</span>
     </div>
@@ -252,9 +291,10 @@ function FilterSelect({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={`appearance-none h-10 pl-3 pr-8 rounded-lg border text-sm font-medium cursor-pointer transition-colors outline-none
-          ${isActive
-            ? "bg-blue-500/20 border-blue-500/50 text-blue-300"
-            : "bg-card border-border text-muted-foreground hover:border-border/80 hover:text-foreground"
+          ${
+            isActive
+              ? "bg-blue-500/20 border-blue-500/50 text-blue-300"
+              : "bg-card border-border text-muted-foreground hover:border-border/80 hover:text-foreground"
           }`}
       >
         {options.map((opt) => (
@@ -276,7 +316,9 @@ function Toast({ message, visible }: { message: string; visible: boolean }) {
   return (
     <div
       className={`fixed bottom-6 right-6 z-50 bg-slate-800 text-white text-xs font-medium px-4 py-2.5 rounded-lg shadow-lg transition-all duration-300 ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
+        visible
+          ? "opacity-100 translate-y-0"
+          : "opacity-0 translate-y-2 pointer-events-none"
       }`}
     >
       {message}
@@ -287,103 +329,6 @@ function Toast({ message, visible }: { message: string; visible: boolean }) {
 // ---------------------------------------------------------------------------
 // Resource multi-select dropdown
 // ---------------------------------------------------------------------------
-
-function ResourceMultiSelect({
-  resources,
-  selected,
-  onChange,
-}: {
-  resources: ProjectResource[];
-  selected: string[];
-  onChange: (names: string[]) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  const filteredRes = resources.filter((r) =>
-    r.resourceName.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const toggle = (name: string) => {
-    onChange(selected.includes(name) ? selected.filter((s) => s !== name) : [...selected, name]);
-  };
-
-  const remove = (name: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    onChange(selected.filter((s) => s !== name));
-  };
-
-  return (
-    <div ref={ref} className="relative min-w-[150px]">
-      <div
-        onClick={() => setOpen((o) => !o)}
-        className="flex flex-wrap gap-1 items-center min-h-[30px] border border-border rounded-lg px-2 py-1 cursor-pointer bg-card hover:border-border/80 transition-colors"
-      >
-        {selected.length === 0 ? (
-          <span className="text-xs text-muted-foreground">Assign resource…</span>
-        ) : (
-          selected.map((name) => (
-            <span
-              key={name}
-              className="inline-flex items-center gap-1 bg-blue-500/20 text-blue-700 dark:text-blue-300 rounded-full px-2 py-0.5 text-[10px] font-medium"
-            >
-              {name}
-              <span
-                onClick={(e) => remove(name, e)}
-                className="cursor-pointer opacity-60 hover:opacity-100 leading-none"
-              >
-                ×
-              </span>
-            </span>
-          ))
-        )}
-      </div>
-      {open && (
-        <div className="absolute top-[calc(100%+4px)] left-0 z-50 bg-card border border-border rounded-lg shadow-lg min-w-[190px] max-h-44 overflow-y-auto">
-          <div className="border-b border-border">
-            <input
-              autoFocus
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onClick={(e) => e.stopPropagation()}
-              placeholder="Search…"
-              className="w-full px-3 py-1.5 text-xs bg-muted/30 outline-none placeholder:text-muted-foreground"
-            />
-          </div>
-          <ul>
-            {filteredRes.map((r) => (
-              <li
-                key={r.resourceId}
-                onClick={(e) => { e.stopPropagation(); toggle(r.resourceName); }}
-                className="flex items-center gap-2 px-3 py-1.5 text-xs cursor-pointer hover:bg-accent/20 transition-colors"
-              >
-                <span
-                  className={`w-3 h-3 flex items-center justify-center rounded-sm border transition-colors ${
-                    selected.includes(r.resourceName)
-                      ? "bg-blue-600 border-blue-600 text-white"
-                      : "border-border"
-                  }`}
-                >
-                  {selected.includes(r.resourceName) && <Check className="w-2 h-2" />}
-                </span>
-                {r.resourceName}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Resource panel (left side)
@@ -414,28 +359,44 @@ function ResourcePanel({
           <table className="w-full min-w-[380px]">
             <thead className="bg-muted/20">
               <tr className="text-left">
-                <th className="p-3 text-xs font-medium text-muted-foreground">Resource</th>
-                <th className="p-3 text-xs font-medium text-muted-foreground">Designation</th>
-                <th className="p-3 text-xs font-medium text-muted-foreground">Tasks</th>
+                <th className="p-3 text-xs font-medium text-muted-foreground">
+                  Resource
+                </th>
+                <th className="p-3 text-xs font-medium text-muted-foreground">
+                  Designation
+                </th>
+                <th className="p-3 text-xs font-medium text-muted-foreground">
+                  Tasks
+                </th>
               </tr>
             </thead>
             <tbody>
               {project.resources.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="p-4 text-sm text-muted-foreground italic text-center">
+                  <td
+                    colSpan={3}
+                    className="p-4 text-sm text-muted-foreground italic text-center"
+                  >
                     No resources assigned
                   </td>
                 </tr>
               ) : (
                 project.resources.map((resource) => {
                   const assigned = tasks.filter((t) =>
-                    t.assignedResources.includes(resource.resourceName)
+                    t.assignedResources.includes(resource.resourceName),
                   );
                   return (
-                    <tr key={resource.resourceId} className="border-t border-border/50">
+                    <tr
+                      key={resource.resourceId}
+                      className="border-t border-border/50"
+                    >
                       <td className="p-3">
-                        <div className="font-medium text-sm">{resource.resourceName}</div>
-                        <div className="text-[10px] text-muted-foreground">{resource.resourceId}</div>
+                        <div className="font-medium text-sm">
+                          {resource.resourceName}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground">
+                          {resource.resourceId}
+                        </div>
                       </td>
                       <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">
                         {resource.designation}
@@ -456,7 +417,6 @@ function ResourcePanel({
                               </span>
                             ))
                           )}
-                          
                         </div>
                       </td>
                     </tr>
@@ -490,7 +450,8 @@ function TaskPanel({
   onSelectionChange: (ids: string[]) => void;
   onAssignToMe: () => void;
 }) {
-  const allSelected = tasks.length > 0 && selectedTaskIds.length === tasks.length;
+  const allSelected =
+    tasks.length > 0 && selectedTaskIds.length === tasks.length;
 
   const toggleSelectAll = (checked: boolean) =>
     onSelectionChange(checked ? tasks.map((t) => t.id) : []);
@@ -499,20 +460,8 @@ function TaskPanel({
     onSelectionChange(
       selectedTaskIds.includes(id)
         ? selectedTaskIds.filter((s) => s !== id)
-        : [...selectedTaskIds, id]
+        : [...selectedTaskIds, id],
     );
-
-  const updateTaskResources = (taskId: string, resources: string[]) => {
-    onTasksChange(
-      tasks.map((t) => {
-        if (t.id !== taskId) return t;
-        let status: TaskStatus = t.status;
-        if (resources.length > 0 && status === "Not Assigned") status = "Assigned";
-        if (resources.length === 0 && status === "Assigned") status = "Not Assigned";
-        return { ...t, assignedResources: resources, status };
-      })
-    );
-  };
 
   return (
     <div className="flex flex-col h-full">
@@ -539,10 +488,18 @@ function TaskPanel({
                     className="rounded accent-blue-600 cursor-pointer"
                   />
                 </th>
-                <th className="p-3 text-xs font-medium text-muted-foreground">Type</th>
-                <th className="p-3 text-xs font-medium text-muted-foreground">Task</th>
-                <th className="p-3 text-xs font-medium text-muted-foreground">Assigned</th>
-                <th className="p-3 text-xs font-medium text-muted-foreground">Status</th>
+                <th className="p-3 text-xs font-medium text-muted-foreground">
+                  Type
+                </th>
+                <th className="p-3 text-xs font-medium text-muted-foreground">
+                  Task
+                </th>
+                <th className="p-3 text-xs font-medium text-muted-foreground">
+                  Assigned
+                </th>
+                <th className="p-3 text-xs font-medium text-muted-foreground">
+                  Status
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -550,7 +507,9 @@ function TaskPanel({
                 <tr
                   key={task.id}
                   className={`border-t border-border/50 transition-colors ${
-                    selectedTaskIds.includes(task.id) ? "bg-blue-500/5" : "hover:bg-accent/10"
+                    selectedTaskIds.includes(task.id)
+                      ? "bg-blue-500/5"
+                      : "hover:bg-accent/10"
                   }`}
                 >
                   <td className="p-3">
@@ -564,13 +523,26 @@ function TaskPanel({
                   <td className="p-3">
                     <TaskTypeBadge type={task.type} />
                   </td>
-                  <td className="p-3 text-xs font-medium whitespace-nowrap">{task.task}</td>
+                  <td className="p-3 text-xs font-medium whitespace-nowrap">
+                    {task.task}
+                  </td>
                   <td className="p-3">
-                    <ResourceMultiSelect
-                      resources={project.resources}
-                      selected={task.assignedResources}
-                      onChange={(res) => updateTaskResources(task.id, res)}
-                    />
+                    {task.assignedResources.length === 0 ? (
+                      <span className="text-xs text-muted-foreground italic">
+                        Unassigned
+                      </span>
+                    ) : (
+                      <div className="flex flex-wrap gap-1">
+                        {task.assignedResources.map((name) => (
+                          <span
+                            key={name}
+                            className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-500/20 text-blue-700 dark:text-blue-300 border border-blue-500/30"
+                          >
+                            {name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </td>
                   <td className="p-3">
                     <TaskStatusBadge status={task.status} />
@@ -617,11 +589,7 @@ function SplitPanel({
 
   return (
     <div
-      className={`flex gap-4 ${
-        bothOpen
-          ? "flex-col md:flex-row"
-          : "flex-col"
-      }`}
+      className={`flex gap-4 ${bothOpen ? "flex-col md:flex-row" : "flex-col"}`}
     >
       {showResource && (
         <div className={bothOpen ? "w-full md:w-1/2" : "w-full"}>
@@ -656,7 +624,9 @@ function AssignmentDialog({
   onSubmit: () => void;
   onCommentChange: (value: string) => void;
 }) {
-  const selectedTasks = state.tasks.filter((t) => state.selectedTaskIds.includes(t.id));
+  const selectedTasks = state.tasks.filter((t) =>
+    state.selectedTaskIds.includes(t.id),
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -668,8 +638,12 @@ function AssignmentDialog({
               <ClipboardList className="w-4 h-4 text-blue-500" />
             </div>
             <div>
-              <h2 className="text-base font-semibold">Confirm Task Assignment</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">{state.projectName}</p>
+              <h2 className="text-base font-semibold">
+                Confirm Task Assignment
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {state.projectName}
+              </p>
             </div>
           </div>
         </div>
@@ -694,7 +668,9 @@ function AssignmentDialog({
                   <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
                   <div>
                     <p className="text-sm font-medium">{task.task}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">Type: {task.type}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                      Type: {task.type}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -712,7 +688,9 @@ function AssignmentDialog({
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium">{CURRENT_USER.name}</p>
-                <p className="text-[10px] text-muted-foreground">{CURRENT_USER.role}</p>
+                <p className="text-[10px] text-muted-foreground">
+                  {CURRENT_USER.role}
+                </p>
               </div>
               <div className="flex gap-1">
                 {CURRENT_USER.skills.map((s) => (
@@ -729,7 +707,7 @@ function AssignmentDialog({
               </span>
             </div>
           </div>
-          
+
           {/* Comments */}
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -813,32 +791,48 @@ export default function Projects() {
   });
 
   // Per-project panel state
-  const [expandedPanels, setExpandedPanels] = useState<Record<string, PanelState>>({});
+  const [expandedPanels, setExpandedPanels] = useState<
+    Record<string, PanelState>
+  >({});
 
   // Per-project task data
-  const [tasks, setTasks] = useState<TaskMap>(() => buildInitialTasks(visibleProjects));
+  const [tasks, setTasks] = useState<TaskMap>(() =>
+    buildInitialTasks(visibleProjects),
+  );
 
   // Per-project selected task IDs
-  const [selectedTasks, setSelectedTasks] = useState<Record<string, string[]>>({});
+  const [selectedTasks, setSelectedTasks] = useState<Record<string, string[]>>(
+    {},
+  );
 
   // Toast
   const [toast, setToast] = useState({ message: "", visible: false });
   const toastTimer = useRef<ReturnType<typeof setTimeout>>();
 
   // Assignment dialog
-  const [assignDialog, setAssignDialog] = useState<AssignmentDialogState | null>(null);
+  const [assignDialog, setAssignDialog] =
+    useState<AssignmentDialogState | null>(null);
 
   const showToast = useCallback((msg: string) => {
     clearTimeout(toastTimer.current);
     setToast({ message: msg, visible: true });
-    toastTimer.current = setTimeout(() => setToast((t) => ({ ...t, visible: false })), 3000);
+    toastTimer.current = setTimeout(
+      () => setToast((t) => ({ ...t, visible: false })),
+      3000,
+    );
   }, []);
 
   const setFilter = (key: keyof Filters) => (value: string) =>
     setFilters((prev) => ({ ...prev, [key]: value }));
 
   const clearFilters = () =>
-    setFilters({ search: "", status: "", priority: "", client: "", progressRange: "all" });
+    setFilters({
+      search: "",
+      status: "",
+      priority: "",
+      client: "",
+      progressRange: "all",
+    });
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
@@ -852,7 +846,7 @@ export default function Projects() {
 
   const uniqueClients = useMemo(
     () => Array.from(new Set(visibleProjects.map((p) => p.client))).sort(),
-    [visibleProjects]
+    [visibleProjects],
   );
 
   const filtered = useMemo(
@@ -872,7 +866,7 @@ export default function Projects() {
         if (!inProgressRange(p.progress, filters.progressRange)) return false;
         return true;
       }),
-    [filters, visibleProjects]
+    [filters, visibleProjects],
   );
 
   // Panel toggle helpers
@@ -889,7 +883,10 @@ export default function Projects() {
     }));
 
   const collapseAll = (pid: string) =>
-    setExpandedPanels((prev) => ({ ...prev, [pid]: { resource: false, task: false } }));
+    setExpandedPanels((prev) => ({
+      ...prev,
+      [pid]: { resource: false, task: false },
+    }));
 
   const openTaskPanelForResource = (pid: string) =>
     setExpandedPanels((prev) => ({
@@ -927,7 +924,7 @@ export default function Projects() {
             ...prev,
             comments: value,
           }
-        : prev
+        : prev,
     );
   };
 
@@ -950,7 +947,7 @@ export default function Projects() {
           assignedResources: resources,
           status: "Awaiting Approval",
         };
-      })
+      }),
     );
 
     updateSelectedTasks(projectId, []);
@@ -967,7 +964,9 @@ export default function Projects() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Project Portfolio</CardTitle>
-          <p className="text-sm text-muted-foreground">{filtered.length} projects</p>
+          <p className="text-sm text-muted-foreground">
+            {filtered.length} projects
+          </p>
         </CardHeader>
 
         <CardContent>
@@ -1049,34 +1048,62 @@ export default function Projects() {
                 <table className="w-full text-sm min-w-[1020px]">
                   <thead className="bg-card border-b border-border">
                     <tr className="text-left text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                      <th className="w-8 px-2 py-3" />
-                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">ID</th>
-                      <th className="px-4 py-3 font-medium normal-case w-[22%]">Project</th>
-                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">Status</th>
-                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">Priority</th>
-                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">Budget</th>
-                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">Budget Hours</th>
-                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">Start</th>
-                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">End</th>
-                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">Team Size</th>
-                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">Progress</th>
-                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">Actions</th>
+                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                        ID
+                      </th>
+                      <th className="px-4 py-3 font-medium normal-case w-[22%]">
+                        Project
+                      </th>
+                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                        Priority
+                      </th>
+                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                        Budget
+                      </th>
+                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                        Budget Hours
+                      </th>
+                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                        Start
+                      </th>
+                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                        End
+                      </th>
+                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                        Team Size
+                      </th>
+                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                        Progress
+                      </th>
+                      <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
 
                   <tbody>
                     {filtered.length === 0 ? (
                       <tr>
-                        <td colSpan={12} className="py-16 text-center text-sm text-muted-foreground">
+                        <td
+                          colSpan={12}
+                          className="py-16 text-center text-sm text-muted-foreground"
+                        >
                           No projects match the current filters.
                         </td>
                       </tr>
                     ) : (
                       filtered.map((project) => {
-                        const panels = expandedPanels[project.id] ?? { resource: false, task: false };
+                        const panels = expandedPanels[project.id] ?? {
+                          resource: false,
+                          task: false,
+                        };
                         const anyOpen = panels.resource || panels.task;
                         const projectTasks = tasks[project.id] ?? [];
-                        const projectSelectedTasks = selectedTasks[project.id] ?? [];
+                        const projectSelectedTasks =
+                          selectedTasks[project.id] ?? [];
 
                         return (
                           <>
@@ -1085,38 +1112,43 @@ export default function Projects() {
                               key={project.id}
                               className="border-b border-border/50 hover:bg-accent/20 transition-colors"
                             >
-                              <td className="px-2 w-8">
-                                <button
-                                  onClick={() =>
-                                    anyOpen ? collapseAll(project.id) : toggleResourcePanel(project.id)
-                                  }
-                                  className="flex items-center justify-center text-muted-foreground hover:text-foreground"
-                                >
-                                  {anyOpen ? (
-                                    <ChevronDown className="h-4 w-4" />
-                                  ) : (
-                                    <ChevronRight className="h-4 w-4" />
-                                  )}
-                                </button>
-                              </td>
-
                               <td className="p-4 text-sm text-muted-foreground font-medium">
                                 {project.id}
                               </td>
 
                               <td className="p-4">
-                                <div className="font-medium text-foreground">{project.project}</div>
-                                <div className="text-xs text-muted-foreground mt-0.5">{project.client}</div>
+                                <div className="font-medium text-foreground">
+                                  {project.project}
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-0.5">
+                                  {project.client}
+                                </div>
                               </td>
 
-                              <td className="p-4"><StatusBadge status={project.status} /></td>
-                              <td className="p-4"><PriorityBadge priority={project.priority} /></td>
-                              <td className="p-4 text-sm font-medium">{project.budget}</td>
-                              <td className="p-4 text-sm text-muted-foreground text-center">{project.budgetHrs}</td>
-                              <td className="p-4 text-sm text-muted-foreground whitespace-nowrap">{formatDate(project.start)}</td>
-                              <td className="p-4 text-sm text-muted-foreground whitespace-nowrap">{formatDate(project.end)}</td>
-                              <td className="p-4 text-sm text-muted-foreground whitespace-nowrap">{project.teamSize}</td>
-                              <td className="p-4"><ProgressBar progress={project.progress} /></td>
+                              <td className="p-4">
+                                <StatusBadge status={project.status} />
+                              </td>
+                              <td className="p-4">
+                                <PriorityBadge priority={project.priority} />
+                              </td>
+                              <td className="p-4 text-sm font-medium">
+                                {project.budget}
+                              </td>
+                              <td className="p-4 text-sm text-muted-foreground text-center">
+                                {project.budgetHrs}
+                              </td>
+                              <td className="p-4 text-sm text-muted-foreground whitespace-nowrap">
+                                {formatDate(project.start)}
+                              </td>
+                              <td className="p-4 text-sm text-muted-foreground whitespace-nowrap">
+                                {formatDate(project.end)}
+                              </td>
+                              <td className="p-4 text-sm text-muted-foreground whitespace-nowrap">
+                                {project.teamSize}
+                              </td>
+                              <td className="p-4">
+                                <ProgressBar progress={project.progress} />
+                              </td>
 
                               {/* Actions */}
                               <td className="p-4">
@@ -1124,7 +1156,9 @@ export default function Projects() {
                                   {/* View Resources */}
                                   <div className="relative group">
                                     <button
-                                      onClick={() => toggleResourcePanel(project.id)}
+                                      onClick={() =>
+                                        toggleResourcePanel(project.id)
+                                      }
                                       className={`flex items-center justify-center w-7 h-7 rounded-lg border transition-colors ${
                                         panels.resource
                                           ? "bg-blue-500/20 border-blue-500/40 text-blue-400"
@@ -1142,7 +1176,9 @@ export default function Projects() {
                                   {/* Allocate Tasks */}
                                   <div className="relative group">
                                     <button
-                                      onClick={() => toggleTaskPanel(project.id)}
+                                      onClick={() =>
+                                        toggleTaskPanel(project.id)
+                                      }
                                       className={`flex items-center justify-center w-7 h-7 rounded-lg border transition-colors ${
                                         panels.task
                                           ? "bg-blue-500/20 border-blue-500/40 text-blue-400"
@@ -1175,7 +1211,9 @@ export default function Projects() {
                                       <ResourcePanel
                                         project={project}
                                         tasks={projectTasks}
-                                        onAssignTask={() => openTaskPanelForResource(project.id)}
+                                        onAssignTask={() =>
+                                          openTaskPanelForResource(project.id)
+                                        }
                                       />
                                     }
                                     taskContent={
@@ -1184,12 +1222,17 @@ export default function Projects() {
                                         tasks={projectTasks}
                                         selectedTaskIds={projectSelectedTasks}
                                         onTasksChange={(updated) =>
-                                          updateProjectTasks(project.id, updated)
+                                          updateProjectTasks(
+                                            project.id,
+                                            updated,
+                                          )
                                         }
                                         onSelectionChange={(ids) =>
                                           updateSelectedTasks(project.id, ids)
                                         }
-                                        onAssignToMe={() => handleAssignToMe(project)}
+                                        onAssignToMe={() =>
+                                          handleAssignToMe(project)
+                                        }
                                       />
                                     }
                                   />
