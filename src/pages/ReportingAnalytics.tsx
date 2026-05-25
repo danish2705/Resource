@@ -46,7 +46,6 @@ import {
   utilByWorkType,
   main,
   utilKpiTiles,
-  riskTopItems,
   utilTrendData,
   utilByDeptData,
   GENERIC_FILTER_DEFS,
@@ -103,25 +102,8 @@ import {
 
 function KpiCard({ kpi }) {
   return (
-    <div
-      style={{
-        background: "#fff",
-        border: "0.5px solid #e5e7eb",
-        borderRadius: 10,
-        padding: "12px 14px",
-        display: "flex",
-        flexDirection: "column",
-        gap: 4,
-        minWidth: 0,
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-        }}
-      >
+    <div className="bg-white border border-gray-200 rounded-[10px] p-[12px_14px] flex flex-col gap-1 min-w-0">
+      <div className="flex justify-between items-start">
         <span style={{ fontSize: 11, color: "#6b7280", lineHeight: 1.3 }}>
           {kpi.label}
         </span>
@@ -4007,25 +3989,16 @@ function ReportDetail7() {
         />
         <StatTile label="Manager Approval" value="93%" color={COLORS.purple} />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div className="grid grid-cols-2 gap-[12px]">
         <DetailCard>
           <SectionLabel>Compliance by Area</SectionLabel>
           {items.map((r, i) => (
             <div key={i} style={{ marginBottom: 11 }}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: 4,
-                }}
-              >
-                <span style={{ fontSize: 11, color: "#374151" }}>
-                  {r.label}
-                </span>
+              <div className="flex justify-between mb-[4px]">
+                <span className="text-[11px] text-gray-700">{r.label}</span>
                 <span
+                  className="text-[11px] font-bold"
                   style={{
-                    fontSize: 11,
-                    fontWeight: 700,
                     color: r.value >= r.target ? COLORS.green : COLORS.red,
                   }}
                 >
@@ -4067,33 +4040,15 @@ function ReportDetail7() {
             </div>
             <div>
               {nonCompReasons.map((d, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    marginBottom: 6,
-                  }}
-                >
+                <div key={i} className="flex items-center gap-[6px] mb-[6px]">
                   <div
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: 2,
-                      background: d.color,
-                    }}
+                    className="w-[8px] h-[8px] rounded-[2px]"
+                    style={{ backgroundColor: d.color }}
                   />
-                  <span style={{ fontSize: 10, color: "#374151" }}>
-                    {d.name}
-                  </span>
+                  <span className="text-[10px] text-gray-700">{d.name}</span>
                   <span
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: d.color,
-                      marginLeft: 4,
-                    }}
+                    className="text-[11px] font-bold ml-[4px]"
+                    style={{ color: d.color }}
                   >
                     {d.value}%
                   </span>
@@ -4140,23 +4095,15 @@ function ReportDetail8() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="flex flex-col gap-4">
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4,1fr)",
-          gap: 10,
-        }}
-      >
+      <div className="grid grid-cols-4 gap-[10px]">
         <StatTile label="Total Budget" value="$24.80M" color={COLORS.blue} />
         <StatTile label="Total Actual" value="$20.36M" color={COLORS.teal} />
         <StatTile label="Variance" value="-$4.44M" color={COLORS.red} />
         <StatTile label="Variance %" value="-17.9%" color={COLORS.red} />
       </div>
-      <div
-        style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 12 }}
-      >
+      <div className="grid grid-cols-[1.2fr_1fr] gap-[12px]">
         <DetailCard>
           <SectionLabel>Budget vs Actual — Monthly</SectionLabel>
           <ResponsiveContainer width="100%" height={190}>
@@ -4239,13 +4186,7 @@ function ReportDetail9() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4,1fr)",
-          gap: 10,
-        }}
-      >
+      <div className="grid grid-cols-4 gap-[10px]">
         <StatTile
           label="Total Vendor Spend"
           value="$8.12M"
@@ -4259,9 +4200,7 @@ function ReportDetail9() {
         />
         <StatTile label="On-Time Delivery" value="92%" color={COLORS.purple} />
       </div>
-      <div
-        style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 12 }}
-      >
+      <div className="grid grid-cols-[1.5fr_1fr] gap-[12px]">
         <DetailCard>
           <SectionLabel>Vendor Ranking by Spend</SectionLabel>
           <DetailTable
@@ -4359,38 +4298,27 @@ function ReportDetail10() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="flex flex-col gap-4">
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4,1fr)",
-          gap: 10,
-        }}
-      >
+      <div className="grid grid-cols-4 gap-[10px]">
         <StatTile label="Open Demands" value="412" color={COLORS.red} />
         <StatTile label="In Progress (FTE)" value="186" color={COLORS.orange} />
         <StatTile label="Fulfilled (FTE)" value="226" color={COLORS.green} />
         <StatTile label="Avg Days to Fulfill" value="23" color={COLORS.teal} />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div className="grid grid-cols-2 gap-[12px]">
         <DetailCard>
           <SectionLabel>Demands by Priority</SectionLabel>
           {demandByPriority.map((d, i) => (
-            <div key={i} style={{ marginBottom: 12 }}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: 4,
-                }}
-              >
-                <span
-                  style={{ fontSize: 11, color: "#374151", fontWeight: 600 }}
-                >
+            <div key={i} className="mb-[12px]">
+              <div className="flex justify-between mb-[4px]">
+                <span className="text-[11px] text-[#374151] font-semibold">
                   {d.label}
                 </span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: d.color }}>
+                <span
+                  className="text-[11px] font-bold"
+                  style={{ color: d.color }}
+                >
                   {d.value} ({d.pct}%)
                 </span>
               </div>
@@ -4401,18 +4329,15 @@ function ReportDetail10() {
           {aging.map((d, i) => (
             <div
               key={i}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "6px 0",
-                borderBottom: "0.5px solid #f3f4f6",
-              }}
+              className="flex justify-between items-center py-[6px] border-b border-[#f3f4f6]"
             >
-              <span style={{ fontSize: 11, color: "#374151" }}>{d.range}</span>
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <span className="text-[11px] text-gray-700">{d.range}</span>
+              <div className="flex gap-2 items-center">
                 <span style={{ fontSize: 10, color: "#6b7280" }}>{d.pct}</span>
-                <span style={{ fontSize: 16, fontWeight: 800, color: d.color }}>
+                <span
+                  className="text-[16px] font-extrabold"
+                  style={{ color: d.color }}
+                >
                   {d.count}
                 </span>
               </div>
@@ -4449,13 +4374,16 @@ function ReportDetail10() {
             </BarChart>
           </ResponsiveContainer>
           <SectionLabel>Demand Fulfillment Status</SectionLabel>
-          <div style={{ display: "flex", gap: 20, marginTop: 4 }}>
+          <div className="flex gap-5 mt-1">
             {demand.map((s, i) => (
               <div key={i} style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 20, fontWeight: 800, color: s.color }}>
+                <div
+                  className="text-[20px] font-extrabold"
+                  style={{ color: s.color }}
+                >
                   {s.value}
                 </div>
-                <div style={{ fontSize: 9, color: "#6b7280" }}>{s.label}</div>
+                <div className="text-[9px] text-gray-500">{s.label}</div>
               </div>
             ))}
           </div>
@@ -4469,15 +4397,9 @@ function ReportDetail11() {
   const [filters, setFilters] = useState(DEFAULT_EXEC_FILTERS);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="flex flex-col gap-4">
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3,1fr)",
-          gap: 10,
-        }}
-      >
+      <div className="grid grid-cols-3 gap-[10px]">
         <StatTile
           label="Forecast Capacity (Jun)"
           value="8.3K FTE"
@@ -4541,7 +4463,7 @@ function ReportDetail11() {
           </LineChart>
         </ResponsiveContainer>
       </DetailCard>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div className="grid grid-cols-2 gap-[12px]">
         <DetailCard>
           <SectionLabel>Gap Analysis by Month</SectionLabel>
           <DetailTable
@@ -4576,25 +4498,16 @@ function ReportDetail11() {
           {planning.map((r, i) => (
             <div
               key={i}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "7px 0",
-                borderBottom: "0.5px solid #f3f4f6",
-              }}
+              className="flex justify-between items-center py-[7px] border-b border-[#f3f4f6]"
             >
-              <span style={{ fontSize: 11, color: "#374151", flex: 1 }}>
+              <span className="text-[11px] text-gray-700 flex-1">
                 {r.action}
               </span>
               <span
+                className="text-[10px] font-bold px-2 py-[2px] rounded"
                 style={{
-                  fontSize: 10,
-                  fontWeight: 700,
                   color: r.color,
-                  background: r.color + "18",
-                  padding: "2px 8px",
-                  borderRadius: 4,
+                  backgroundColor: `${r.color}18`,
                 }}
               >
                 {r.priority}
@@ -4655,22 +4568,8 @@ function ReportDetail13() {
         </DetailCard>
         <DetailCard>
           <SectionLabel>Timesheet Breakdown</SectionLabel>
-          <div
-            style={{
-              display: "flex",
-              gap: 16,
-              alignItems: "center",
-              marginBottom: 14,
-            }}
-          >
-            <div
-              style={{
-                position: "relative",
-                width: 120,
-                height: 120,
-                flexShrink: 0,
-              }}
-            >
+          <div className="flex gap-4 items-center mb-[14px]">
+            <div className="relative w-[120px] h-[120px] shrink-0">
               <PieChart width={120} height={120}>
                 <Pie
                   data={[
@@ -4702,25 +4601,13 @@ function ReportDetail13() {
                 ["Under", "10%", COLORS.orange],
                 ["Absent", "4%", COLORS.gray],
               ].map(([l, v, c]) => (
-                <div
-                  key={l}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    marginBottom: 6,
-                  }}
-                >
+                <div key={l} className="flex items-center gap-[8px] mb-[6px]">
                   <div
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: 2,
-                      background: c,
-                    }}
+                    className="w-[8px] h-[8px] rounded-[2px]"
+                    style={{ backgroundColor: c }}
                   />
                   <span style={{ fontSize: 11, color: "#374151" }}>{l}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: c }}>
+                  <span className="text-[12px] font-bold" style={{ color: c }}>
                     {v}
                   </span>
                 </div>
@@ -4729,30 +4616,15 @@ function ReportDetail13() {
           </div>
           <SectionLabel>Compliance by Department</SectionLabel>
           {compliance.map((d, i) => (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                marginBottom: 5,
-              }}
-            >
-              <span style={{ fontSize: 10, color: "#374151", minWidth: 130 }}>
+            <div key={i} className="flex items-center gap-[8px] mb-[5px]">
+              <span className="text-[10px] text-gray-700 min-w-[130px]">
                 {d.dept}
               </span>
               <DetailMiniBar
                 value={d.v}
                 color={d.v >= 95 ? COLORS.green : COLORS.orange}
               />
-              <span
-                style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  color: "#111",
-                  minWidth: 30,
-                }}
-              >
+              <span className="text-[10px] font-bold text-[#111] min-w-[30px]">
                 {d.v}%
               </span>
             </div>
@@ -4766,15 +4638,9 @@ function ReportDetail13() {
 function ReportDetail14() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="flex flex-col gap-4">
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4,1fr)",
-          gap: 10,
-        }}
-      >
+      <div className="grid grid-cols-4 gap-[10px]">
         <StatTile label="Pending Approvals" value="27" color={COLORS.orange} />
         <StatTile label="Overdue Approvals" value="12" color={COLORS.red} />
         <StatTile
@@ -4788,34 +4654,25 @@ function ReportDetail14() {
           color={COLORS.teal}
         />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div className="grid grid-cols-2 gap-[12px]">
         <DetailCard>
           <SectionLabel>Pending Approvals by Type</SectionLabel>
           {pendingApprovals.map((r, i) => (
             <div
               key={i}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "10px 0",
-                borderBottom: "0.5px solid #f3f4f6",
-              }}
+              className="flex justify-between items-center py-[10px] border-b border-[#f3f4f6]"
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div className="flex items-center gap-[8px]">
                 <div
-                  style={{
-                    width: 9,
-                    height: 9,
-                    borderRadius: "50%",
-                    background: r.color,
-                  }}
+                  className="w-[9px] h-[9px] rounded-full"
+                  style={{ backgroundColor: r.color }}
                 />
-                <span style={{ fontSize: 12, color: "#374151" }}>
-                  {r.label}
-                </span>
+                <span className="text-xs text-gray-700">{r.label}</span>
               </div>
-              <span style={{ fontSize: 20, fontWeight: 800, color: r.color }}>
+              <span
+                className="text-[20px] font-extrabold"
+                style={{ color: r.color }}
+              >
                 {r.value}
               </span>
             </div>
@@ -4848,17 +4705,11 @@ function ReportDetail14() {
         <DetailTable
           headers={header}
           rows={rows.map((r) => [
-            <span
-              style={{
-                color: COLORS.blue,
-                fontFamily: "monospace",
-                fontSize: 10,
-              }}
-            >
+            <span className="text-blueCustom font-mono text-[10px]">
               {r.id}
             </span>,
             r.type,
-            <span style={{ color: "#6b7280" }}>{r.req}</span>,
+            <span className="text-gray-500">{r.req}</span>,
             <span
               style={{
                 color: r.days >= 12 ? COLORS.red : COLORS.orange,
@@ -4868,13 +4719,10 @@ function ReportDetail14() {
               {r.days} days
             </span>,
             <span
+              className="text-[10px] font-bold px-2 py-[2px] rounded"
               style={{
-                fontSize: 10,
-                fontWeight: 700,
                 color: r.col,
-                background: r.col + "18",
-                padding: "2px 8px",
-                borderRadius: 4,
+                backgroundColor: `${r.col}18`,
               }}
             >
               {r.pri}
@@ -4890,55 +4738,27 @@ function ReportDetail15() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
   const allReports = reportCards.filter((r) => !r.hub);
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="flex flex-col gap-4">
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4,1fr)",
-          gap: 10,
-        }}
-      >
+      <div className="grid grid-cols-4 gap-[10px]">
         <StatTile label="Total Reports" value="14" color={COLORS.blue} />
         <StatTile label="Scheduled Reports" value="8" color={COLORS.teal} />
         <StatTile label="Favorites" value="5" color={COLORS.amber} />
         <StatTile label="Recently Viewed" value="7" color={COLORS.purple} />
       </div>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4,1fr)",
-          gap: 8,
-        }}
-      >
+      <div className="grid grid-cols-4 gap-[8px]">
         {reportDetails15.map((type, i) => (
           <div
             key={i}
-            style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
-              borderRadius: 10,
-              padding: "12px",
-              textAlign: "center",
-            }}
+            className="bg-white border border-gray-200 rounded-[10px] p-[12px] text-center"
           >
             <div
-              style={{
-                fontSize: 13,
-                fontWeight: 700,
-                color: DONUT_COLORS[i % DONUT_COLORS.length],
-              }}
+              className="text-[13px] font-bold"
+              style={{ color: DONUT_COLORS[i % DONUT_COLORS.length] }}
             >
               {type}
             </div>
-            <div
-              style={{
-                fontSize: 20,
-                fontWeight: 900,
-                color: "#111",
-                marginTop: 2,
-              }}
-            >
+            <div className="text-[20px] font-black text-[#111] mt-[2px]">
               {type === "All"
                 ? allReports.length
                 : Math.floor(Math.random() * 3) + 1}
@@ -4952,25 +4772,14 @@ function ReportDetail15() {
         <DetailTable
           headers={["#", "Report", "Description", "Last Run", "Status"]}
           rows={allReports.map((r) => [
-            <span style={{ color: "#9ca3af", fontWeight: 600 }}>{r.num}</span>,
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: 14 }}>{r.icon}</span>
-              <span style={{ color: "#374151", fontWeight: 600 }}>
-                {r.title}
-              </span>
+            <span className="text-gray-400 font-semibold">{r.num}</span>,
+            <div className="flex items-center gap-[6px]">
+              <span className="text-[14px]">{r.icon}</span>
+              <span className="text-[#374151] font-semibold">{r.title}</span>
             </div>,
-            <span style={{ color: "#9ca3af" }}>{r.desc}</span>,
-            <span style={{ color: "#6b7280" }}>15/05/26</span>,
-            <span
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                color: COLORS.green,
-                background: COLORS.green + "18",
-                padding: "2px 8px",
-                borderRadius: 4,
-              }}
-            >
+            <span className="text-[#9ca3af]">{r.desc}</span>,
+            <span className="text-[#6b7280]">15/05/26</span>,
+            <span className="text-[10px] font-bold text-greenCustom bg-greenCustom/10 px-2 py-[2px] rounded">
               Active
             </span>,
           ])}
@@ -5008,37 +4817,11 @@ export default function ReportingAnalytics() {
     const DetailView = DETAIL_VIEWS[activeReport.num];
     if (activeReport.num === 1) {
       return (
-        <div
-          style={{
-            fontFamily: "system-ui, sans-serif",
-            background: "#f3f4f6",
-            minHeight: "100vh",
-          }}
-        >
-          <div
-            style={{
-              background: "#fff",
-              borderBottom: "1px solid #e5e7eb",
-              padding: "10px 20px",
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-            }}
-          >
+        <div className="[font-family:system-ui,sans-serif] bg-[#f3f4f6] min-h-screen">
+          <div className="bg-white border-b border-gray-200 px-5 py-[10px] flex items-center gap-[10px]">
             <button
               onClick={() => setActiveReport(null)}
-              style={{
-                background: "#fff",
-                border: "0.5px solid #e5e7eb",
-                borderRadius: 8,
-                padding: "6px 14px",
-                fontSize: 13,
-                cursor: "pointer",
-                color: "#374151",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
+              className="bg-white border border-gray-200 rounded-lg px-[14px] py-[6px] text-[13px] cursor-pointer text-[#374151] flex items-center gap-[6px]"
             >
               ← Back
             </button>
@@ -5049,37 +4832,11 @@ export default function ReportingAnalytics() {
     }
     if (activeReport.num === 12) {
       return (
-        <div
-          style={{
-            fontFamily: "system-ui, sans-serif",
-            background: "#f3f4f6",
-            minHeight: "100vh",
-          }}
-        >
-          <div
-            style={{
-              background: "#fff",
-              borderBottom: "1px solid #e5e7eb",
-              padding: "10px 20px",
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-            }}
-          >
+        <div className="[font-family:system-ui,sans-serif] bg-[#f3f4f6] min-h-screen">
+          <div className="bg-white border-b border-gray-200 px-5 py-[10px] flex items-center gap-[10px]">
             <button
               onClick={() => setActiveReport(null)}
-              style={{
-                background: "#fff",
-                border: "0.5px solid #e5e7eb",
-                borderRadius: 8,
-                padding: "6px 14px",
-                fontSize: 13,
-                cursor: "pointer",
-                color: "#374151",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
+              className="bg-white border border-gray-200 rounded-lg px-[14px] py-[6px] text-[13px] cursor-pointer flex items-center gap-[6px] text-[#374151]"
             >
               ← Back
             </button>
@@ -5089,22 +4846,8 @@ export default function ReportingAnalytics() {
       );
     }
     return (
-      <div
-        style={{
-          padding: "20px",
-          fontFamily: "system-ui, sans-serif",
-          background: "#f9fafb",
-          minHeight: "100vh",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            marginBottom: 20,
-          }}
-        >
+      <div className="w-full min-h-screen bg-[#f9fafb] text-black p-5 [font-family:system-ui,sans-serif]">
+        <div className="flex items-center gap-3 mb-5">
           <button
             onClick={() => setActiveReport(null)}
             style={{
@@ -5122,18 +4865,14 @@ export default function ReportingAnalytics() {
           >
             ← Back
           </button>
-          <h2
-            style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#111" }}
-          >
+          <h2 className="m-0 text-[16px] font-semibold text-[#111]">
             {activeReport.num}. {activeReport.title}
           </h2>
           <span
+            className="text-[11px] rounded-md px-[10px] py-[3px]"
             style={{
-              fontSize: 11,
-              background: activeReport.color + "18",
+              backgroundColor: `${activeReport.color}18`,
               color: activeReport.color,
-              borderRadius: 6,
-              padding: "3px 10px",
             }}
           >
             {activeReport.desc}
@@ -5145,32 +4884,12 @@ export default function ReportingAnalytics() {
   }
 
   return (
-    <div
-      style={{
-        fontFamily: "system-ui,-apple-system,sans-serif",
-        background: "#f3f4f6",
-        minHeight: "100vh",
-        padding: "16px 20px",
-      }}
-    >
-      <div
-        style={{
-          fontSize: 13,
-          fontWeight: 700,
-          color: "#111",
-          marginBottom: 10,
-        }}
-      >
+    <div className="bg-[#f3f4f6] min-h-screen px-5 py-4 [font-family:system-ui,-apple-system,sans-serif]">
+      <div className="text-[13px] font-bold text-[#111] mb-[10px]">
         Resource Management Reports
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
-          gap: 10,
-        }}
-      >
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4">
         {reportCards.map((card) => (
           <ReportCard key={card.num} card={card} onView={setActiveReport} />
         ))}
