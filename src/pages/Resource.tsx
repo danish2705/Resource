@@ -185,6 +185,21 @@ const columns: Column<Resource>[] = [
     key: "utilization",
     header: "Util%",
     render: (r) => {
+      if (r.unavailability) {
+        return (
+          <div className="flex items-center gap-1.5">
+            <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full bg-amber-500"
+                style={{ width: `${Math.min(r.utilization, 100)}%` }}
+              />
+            </div>
+            <span className="text-xs font-medium whitespace-nowrap text-amber-500">
+              {r.utilization}%
+            </span>
+          </div>
+        );
+      }
       const barColor =
         r.utilization > 100
           ? "bg-red-500"
