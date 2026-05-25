@@ -35,8 +35,6 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-
-
 function formatCurrency(value: number) {
   if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
   if (value >= 1_000) return `$${(value / 1_000).toFixed(0)}K`;
@@ -383,7 +381,7 @@ function YearField({
 // ─── DemandStatus Page ────────────────────────────────────────────────────────
 
 export default function DemandStatus() {
-  const { filterByPillar } = usePillarFilter(); 
+  const { filterByPillar } = usePillarFilter();
   const visibleDemands = filterByPillar(demandData);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -402,8 +400,7 @@ export default function DemandStatus() {
         d.requiredSkills.some((s) => s.toLowerCase().includes(q)) ||
         d.submittedBy.toLowerCase().includes(q);
       const matchStatus = filterStatus === "all" || d.status === filterStatus;
-      const matchDomain =
-        filterDomain === "all" || d.pillar === filterDomain;
+      const matchDomain = filterDomain === "all" || d.pillar === filterDomain;
       const matchAllocation =
         filterAllocation === "all" ||
         (filterAllocation === "full" &&
@@ -616,7 +613,7 @@ export default function DemandStatus() {
                           </span>
                         </td>
                         <td className="px-3 py-3 font-medium whitespace-nowrap">
-                          {formatCurrency(d.currentYearForecast)}
+                          ${d.currentYearForecast.toLocaleString()}
                         </td>
                         <td className="px-3 py-3">
                           <span
