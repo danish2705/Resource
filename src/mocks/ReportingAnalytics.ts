@@ -1171,3 +1171,371 @@ export const utilizationDistribution = [
     color: COLORS.red,
   },
 ];
+
+export const main = {
+  date: "11/05/26",
+  portfolio: "All",
+  bu: "All",
+  region: "All",
+};
+
+export const reportDetails15 = [
+  "Executive",
+  "Operational",
+  "Planning",
+  "Finance",
+  "Compliance",
+  "Allocation",
+  "Governance",
+  "All",
+];
+
+export const header = [
+  "Request ID",
+  "Type",
+  "Requestor",
+  "Days Overdue",
+  "Priority",
+];
+
+export const rows = [
+  {
+    id: "REQ-2026-0892",
+    type: "Resource Request",
+    req: "Sarah Johnson",
+    days: 14,
+    pri: "Critical",
+    col: COLORS.red,
+  },
+  {
+    id: "REQ-2026-0885",
+    type: "Project Request",
+    req: "Michael Lee",
+    days: 11,
+    pri: "High",
+    col: COLORS.orange,
+  },
+  {
+    id: "REQ-2026-0878",
+    type: "Allocation Change",
+    req: "Emily Davis",
+    days: 9,
+    pri: "High",
+    col: COLORS.orange,
+  },
+  {
+    id: "REQ-2026-0861",
+    type: "Resource Request",
+    req: "David Brown",
+    days: 7,
+    pri: "Medium",
+    col: COLORS.amber,
+  },
+];
+
+export const data = [
+  { stage: "Submitted", count: 186 },
+  { stage: "In Review", count: 27 },
+  { stage: "Approved", count: 160 },
+  { stage: "Rejected", count: 12 },
+];
+
+export const pendingApprovals = [
+  { label: "Resource Requests", value: 12, color: COLORS.blue },
+  { label: "Project Requests", value: 7, color: COLORS.teal },
+  { label: "Allocation Changes", value: 5, color: COLORS.purple },
+  { label: "Time Off Requests", value: 3, color: COLORS.orange },
+];
+
+export const compliance = [
+  { dept: "Engineering", v: 94 },
+  { dept: "Consulting", v: 97 },
+  { dept: "IT Services", v: 96 },
+  { dept: "Data & Analytics", v: 93 },
+  { dept: "Business Operations", v: 98 },
+];
+
+export const tsData = [
+  { month: "01/01/26", planned: 2600, actual: 2450 },
+  { month: "01/02/26", planned: 2650, actual: 2500 },
+  { month: "01/03/26", planned: 2700, actual: 2550 },
+  { month: "11/04/26", planned: 2800, actual: 2750 },
+  { month: "11/05/26", planned: 2850, actual: 2850 },
+];
+
+export const planning = [
+  {
+    action: "Hire 200 developers for Aug gap",
+    priority: "Critical",
+    color: COLORS.red,
+  },
+  {
+    action: "Cross-train 150 analysts from other BUs",
+    priority: "High",
+    color: COLORS.orange,
+  },
+  {
+    action: "Engage 2 new vendor partners for Q3",
+    priority: "High",
+    color: COLORS.orange,
+  },
+  {
+    action: "Defer 3 low-priority projects to Q4",
+    priority: "Medium",
+    color: COLORS.amber,
+  },
+  {
+    action: "Upskill bench resources — Data Engg.",
+    priority: "Medium",
+    color: COLORS.amber,
+  },
+];
+
+export const forecastData = [
+  { month: "11/05/26", cap: 8.0, demand: 8.9, gap: -0.9 },
+  { month: "01/06/26", cap: 8.3, demand: 9.1, gap: -0.8 },
+  { month: "01/07/26", cap: 8.5, demand: 9.3, gap: -0.8 },
+  { month: "01/08/26", cap: 6.9, demand: 8.7, gap: -1.8 },
+  { month: "01/09/26", cap: 6.9, demand: 8.8, gap: -0.9 },
+  { month: "01/10/26", cap: 7.5, demand: 8.4, gap: -0.9 },
+];
+
+export const demand = [
+  { label: "Open", value: 412, color: COLORS.red },
+  { label: "In Progress", value: 186, color: COLORS.orange },
+  { label: "Fulfilled", value: 226, color: COLORS.green },
+  { label: "Staffing Gap", value: -18, color: COLORS.red },
+];
+
+export const byRole = [
+  { role: "Developers", value: 156 },
+  { role: "Consultants", value: 92 },
+  { role: "Analysts", value: 108 },
+  { role: "Testers", value: 100 },
+  { role: "Architects", value: 28 },
+];
+
+export const aging = [
+  { range: "0–15 Days", count: 142, pct: "34.5%", color: COLORS.green },
+  { range: "16–30 Days", count: 113, pct: "27.4%", color: COLORS.teal },
+  { range: "31–40 Days", count: 96, pct: "23.3%", color: COLORS.orange },
+  { range: ">40 Days", count: 61, pct: "14.8%", color: COLORS.red },
+];
+
+export const demandByPriority = [
+  { label: "High", value: 156, pct: 38, color: COLORS.red },
+  { label: "Medium", value: 164, pct: 40, color: COLORS.orange },
+  { label: "Low", value: 92, pct: 22, color: COLORS.blue },
+];
+
+export const spendTrend = [
+  { month: "01/01/26", spend: 6.84 },
+  { month: "01/02/26", spend: 5.84 },
+  { month: "01/03/26", spend: 5.98 },
+  { month: "11/04/26", spend: 7.1 },
+  { month: "11/05/26", spend: 8.1 },
+];
+
+export const spendByCat = [
+  { name: "Development", value: 48 },
+  { name: "Consulting", value: 25 },
+  { name: "Support & Maintenance", value: 17 },
+  { name: "Infrastructure", value: 10 },
+];
+
+export const vendors = [
+  {
+    name: "Ascendion",
+    spend: 3.21,
+    pct: 15.3,
+    score: 92,
+    category: "Development",
+    onTime: 94,
+  },
+  {
+    name: "Tata Consultancy Svcs",
+    spend: 2.98,
+    pct: 13.1,
+    score: 88,
+    category: "Consulting",
+    onTime: 91,
+  },
+  {
+    name: "Infosys",
+    spend: 2.25,
+    pct: 10.7,
+    score: 85,
+    category: "Development",
+    onTime: 89,
+  },
+  {
+    name: "Wipro",
+    spend: 1.89,
+    pct: 9.0,
+    score: 80,
+    category: "Support",
+    onTime: 86,
+  },
+  {
+    name: "HCL Technologies",
+    spend: 1.46,
+    pct: 7.0,
+    score: 78,
+    category: "Development",
+    onTime: 83,
+  },
+  {
+    name: "Accenture",
+    spend: 1.02,
+    pct: 4.9,
+    score: 90,
+    category: "Consulting",
+    onTime: 92,
+  },
+  {
+    name: "Cognizant",
+    spend: 0.98,
+    pct: 4.7,
+    score: 84,
+    category: "Development",
+    onTime: 87,
+  },
+  {
+    name: "LTI Mindtree",
+    spend: 0.87,
+    pct: 4.1,
+    score: 81,
+    category: "Support",
+    onTime: 85,
+  },
+  {
+    name: "Capgemini",
+    spend: 0.31,
+    pct: 3.8,
+    score: 82,
+    category: "Consulting",
+    onTime: 88,
+  },
+  {
+    name: "Others",
+    spend: 1.71,
+    pct: 21.4,
+    score: 79,
+    category: "Mixed",
+    onTime: 84,
+  },
+];
+
+export const varianceByPortfolioHeader = [
+  "Portfolio",
+  "Budget ($M)",
+  "Actual ($M)",
+  "Variance ($M)",
+  "Variance %",
+];
+
+export const varianceByTypedData = [
+  { name: "Resource Cost", value: 58.5 },
+  { name: "Infrastructure", value: 25.1 },
+  { name: "Other Cost", value: 15.5 },
+];
+
+export const portfolioVar = [
+  {
+    name: "Digital Transformation",
+    budget: 7.2,
+    actual: 5.96,
+    variance: -1.2,
+    pct: -16.7,
+  },
+  {
+    name: "Product Engineering",
+    budget: 6.5,
+    actual: 5.38,
+    variance: -1.12,
+    pct: -17.2,
+  },
+  {
+    name: "Cloud Services",
+    budget: 5.8,
+    actual: 4.85,
+    variance: -0.95,
+    pct: -16.4,
+  },
+  {
+    name: "Data & Analytics",
+    budget: 3.5,
+    actual: 2.77,
+    variance: -0.73,
+    pct: -20.9,
+  },
+  {
+    name: "Business Applications",
+    budget: 1.8,
+    actual: 1.38,
+    variance: -0.42,
+    pct: -23.3,
+  },
+];
+
+export const budgetMonthly = [
+  { month: "01/01/26", budget: 4.4, actual: 4.9, variance: -0.5 },
+  { month: "01/02/26", budget: 4.3, actual: 4.7, variance: -0.4 },
+  { month: "01/03/26", budget: 5.1, actual: 5.6, variance: -0.5 },
+  { month: "11/04/26", budget: 5.4, actual: 5.8, variance: -0.4 },
+  { month: "11/05/26", budget: 5.4, actual: 5.6, variance: -0.2 },
+];
+
+export const nonCompReasons = [
+  { name: "Missing Timesheet", value: 36, color: COLORS.red },
+  { name: "Over Allocation", value: 28, color: COLORS.orange },
+  { name: "Delayed Approval", value: 19, color: COLORS.amber },
+  { name: "Incorrect Allocation", value: 10, color: COLORS.blue },
+  { name: "Others", value: 8, color: COLORS.gray },
+];
+
+export const compTrend = [
+  { month: "01/01/26", rate: 90 },
+  { month: "01/02/26", rate: 91 },
+  { month: "01/03/26", rate: 90 },
+  { month: "11/04/26", rate: 92 },
+  { month: "11/05/26", rate: 92 },
+];
+  
+export const items = [
+  { label: "Timesheet Submission", value: 96, target: 95 },
+  { label: "Allocation Adherence", value: 91, target: 90 },
+  { label: "Manager Approval", value: 93, target: 90 },
+  { label: "Data Quality", value: 88, target: 90 },
+  { label: "Skill Certification", value: 90, target: 85 },
+];
+  
+export const availTrend = [
+  { month: "01/01/26", pct: 23.1 },
+  { month: "01/02/26", pct: 22.4 },
+  { month: "01/03/26", pct: 22.4 },
+  { month: "11/04/26", pct: 21.1 },
+  { month: "11/05/26", pct: 21.6 },
+];
+
+export const sharedProjects = [
+  { name: "Cloud Migration", shared: 245 },
+  { name: "Data Warehouse", shared: 198 },
+  { name: "Mobile App Revamp", shared: 176 },
+  { name: "ERP Implementation", shared: 164 },
+  { name: "DevOps Implementation", shared: 142 },
+  { name: "Analytics Dashboard", shared: 138 },
+  { name: "Customer Portal", shared: 116 },
+  { name: "Security Upgrade", shared: 98 },
+  { name: "Automation Testing", shared: 66 },
+];
+  
+export const byRoleReportDetail16 = [
+  { role: "Developers", total: 4520, avail: 875, pct: "19.4%" },
+  { role: "Consultants", total: 1850, avail: 410, pct: "22.2%" },
+  { role: "Analysts", total: 1210, avail: 245, pct: "20.2%" },
+  { role: "Testers", total: 700, avail: 155, pct: "22.1%" },
+  { role: "Architects", total: 252, avail: 57, pct: "22.6%" },
+  { role: "Others", total: 112, avail: 7, pct: "24.1%" },
+];
+  

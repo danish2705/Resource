@@ -44,6 +44,7 @@ import {
   billableNonBillableData,
   reportCards,
   utilByWorkType,
+  main,
   utilKpiTiles,
   riskTopItems,
   utilTrendData,
@@ -53,6 +54,32 @@ import {
   utilization,
   operational,
   utilizationDistribution,
+  reportDetails15,
+  header,
+  rows,
+  data,
+  pendingApprovals,
+  compliance,
+  tsData,
+  planning,
+  forecastData,
+  demand,
+  demandByPriority,
+  aging,
+  byRole,
+  vendors,
+  spendByCat,
+  spendTrend,
+  varianceByPortfolioHeader,
+  varianceByTypedData,
+  budgetMonthly,
+  portfolioVar,
+  items,
+  nonCompReasons,
+  compTrend,
+  byRoleReportDetail16,
+  sharedProjects,
+  availTrend,
 } from "@/mocks/ReportingAnalytics";
 
 function KpiCard({ kpi }) {
@@ -4005,32 +4032,7 @@ function ReportDetail5() {
 
 function ReportDetail6() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-  const byRole = [
-    { role: "Developers", total: 4520, avail: 875, pct: "19.4%" },
-    { role: "Consultants", total: 1850, avail: 410, pct: "22.2%" },
-    { role: "Analysts", total: 1210, avail: 245, pct: "20.2%" },
-    { role: "Testers", total: 700, avail: 155, pct: "22.1%" },
-    { role: "Architects", total: 252, avail: 57, pct: "22.6%" },
-    { role: "Others", total: 112, avail: 7, pct: "24.1%" },
-  ];
-  const sharedProjects = [
-    { name: "Cloud Migration", shared: 245 },
-    { name: "Data Warehouse", shared: 198 },
-    { name: "Mobile App Revamp", shared: 176 },
-    { name: "ERP Implementation", shared: 164 },
-    { name: "DevOps Implementation", shared: 142 },
-    { name: "Analytics Dashboard", shared: 138 },
-    { name: "Customer Portal", shared: 116 },
-    { name: "Security Upgrade", shared: 98 },
-    { name: "Automation Testing", shared: 66 },
-  ];
-  const availTrend = [
-    { month: "01/01/26", pct: 23.1 },
-    { month: "01/02/26", pct: 22.4 },
-    { month: "01/03/26", pct: 22.4 },
-    { month: "11/04/26", pct: 21.1 },
-    { month: "11/05/26", pct: 21.6 },
-  ];
+  
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -4064,7 +4066,7 @@ function ReportDetail6() {
               "Available (FTE)",
               "Availability %",
             ]}
-            rows={byRole.map((r) => [
+            rows={byRoleReportDetail16.map((r) => [
               <span style={{ color: "#374151" }}>{r.role}</span>,
               r.total.toLocaleString(),
               <span style={{ color: COLORS.green, fontWeight: 600 }}>
@@ -4141,27 +4143,7 @@ function ReportDetail6() {
 
 function ReportDetail7() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-  const items = [
-    { label: "Timesheet Submission", value: 96, target: 95 },
-    { label: "Allocation Adherence", value: 91, target: 90 },
-    { label: "Manager Approval", value: 93, target: 90 },
-    { label: "Data Quality", value: 88, target: 90 },
-    { label: "Skill Certification", value: 90, target: 85 },
-  ];
-  const compTrend = [
-    { month: "01/01/26", rate: 90 },
-    { month: "01/02/26", rate: 91 },
-    { month: "01/03/26", rate: 90 },
-    { month: "11/04/26", rate: 92 },
-    { month: "11/05/26", rate: 92 },
-  ];
-  const nonCompReasons = [
-    { name: "Missing Timesheet", value: 36, color: COLORS.red },
-    { name: "Over Allocation", value: 28, color: COLORS.orange },
-    { name: "Delayed Approval", value: 19, color: COLORS.amber },
-    { name: "Incorrect Allocation", value: 10, color: COLORS.blue },
-    { name: "Others", value: 8, color: COLORS.gray },
-  ];
+  
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -4316,50 +4298,8 @@ function ReportDetail7() {
 
 function ReportDetail8() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-  const budgetMonthly = [
-    { month: "01/01/26", budget: 4.4, actual: 4.9, variance: -0.5 },
-    { month: "01/02/26", budget: 4.3, actual: 4.7, variance: -0.4 },
-    { month: "01/03/26", budget: 5.1, actual: 5.6, variance: -0.5 },
-    { month: "11/04/26", budget: 5.4, actual: 5.8, variance: -0.4 },
-    { month: "11/05/26", budget: 5.4, actual: 5.6, variance: -0.2 },
-  ];
-  const portfolioVar = [
-    {
-      name: "Digital Transformation",
-      budget: 7.2,
-      actual: 5.96,
-      variance: -1.2,
-      pct: -16.7,
-    },
-    {
-      name: "Product Engineering",
-      budget: 6.5,
-      actual: 5.38,
-      variance: -1.12,
-      pct: -17.2,
-    },
-    {
-      name: "Cloud Services",
-      budget: 5.8,
-      actual: 4.85,
-      variance: -0.95,
-      pct: -16.4,
-    },
-    {
-      name: "Data & Analytics",
-      budget: 3.5,
-      actual: 2.77,
-      variance: -0.73,
-      pct: -20.9,
-    },
-    {
-      name: "Business Applications",
-      budget: 1.8,
-      actual: 1.38,
-      variance: -0.42,
-      pct: -23.3,
-    },
-  ];
+  
+  
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -4413,11 +4353,7 @@ function ReportDetail8() {
           <div style={{ position: "relative", width: 200, height: 160 }}>
             <PieChart width={200} height={160}>
               <Pie
-                data={[
-                  { name: "Resource Cost", value: 58.5 },
-                  { name: "Infrastructure", value: 25.1 },
-                  { name: "Other Cost", value: 15.5 },
-                ]}
+                data={varianceByTypedData}
                 cx={99}
                 cy={79}
                 innerRadius={45}
@@ -4440,13 +4376,7 @@ function ReportDetail8() {
       <DetailCard>
         <SectionLabel>Variance by Portfolio</SectionLabel>
         <DetailTable
-          headers={[
-            "Portfolio",
-            "Budget ($M)",
-            "Actual ($M)",
-            "Variance ($M)",
-            "Variance %",
-          ]}
+          headers={varianceByPortfolioHeader}
           rows={portfolioVar.map((r) => [
             <span style={{ color: "#374151" }}>{r.name}</span>,
             `$${r.budget}M`,
@@ -4466,101 +4396,7 @@ function ReportDetail8() {
 
 function ReportDetail9() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-  const vendors = [
-    {
-      name: "Tech Mahindra",
-      spend: 3.21,
-      pct: 15.3,
-      score: 92,
-      category: "Development",
-      onTime: 94,
-    },
-    {
-      name: "Tata Consultancy Svcs",
-      spend: 2.98,
-      pct: 13.1,
-      score: 88,
-      category: "Consulting",
-      onTime: 91,
-    },
-    {
-      name: "Infosys",
-      spend: 2.25,
-      pct: 10.7,
-      score: 85,
-      category: "Development",
-      onTime: 89,
-    },
-    {
-      name: "Wipro",
-      spend: 1.89,
-      pct: 9.0,
-      score: 80,
-      category: "Support",
-      onTime: 86,
-    },
-    {
-      name: "HCL Technologies",
-      spend: 1.46,
-      pct: 7.0,
-      score: 78,
-      category: "Development",
-      onTime: 83,
-    },
-    {
-      name: "Accenture",
-      spend: 1.02,
-      pct: 4.9,
-      score: 90,
-      category: "Consulting",
-      onTime: 92,
-    },
-    {
-      name: "Cognizant",
-      spend: 0.98,
-      pct: 4.7,
-      score: 84,
-      category: "Development",
-      onTime: 87,
-    },
-    {
-      name: "LTI Mindtree",
-      spend: 0.87,
-      pct: 4.1,
-      score: 81,
-      category: "Support",
-      onTime: 85,
-    },
-    {
-      name: "Capgemini",
-      spend: 0.31,
-      pct: 3.8,
-      score: 82,
-      category: "Consulting",
-      onTime: 88,
-    },
-    {
-      name: "Others",
-      spend: 1.71,
-      pct: 21.4,
-      score: 79,
-      category: "Mixed",
-      onTime: 84,
-    },
-  ];
-  const spendByCat = [
-    { name: "Development", value: 48 },
-    { name: "Consulting", value: 25 },
-    { name: "Support & Maintenance", value: 17 },
-    { name: "Infrastructure", value: 10 },
-  ];
-  const spendTrend = [
-    { month: "01/01/26", spend: 6.84 },
-    { month: "01/02/26", spend: 5.84 },
-    { month: "01/03/26", spend: 5.98 },
-    { month: "11/04/26", spend: 7.1 },
-    { month: "11/05/26", spend: 8.1 },
-  ];
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -4682,24 +4518,7 @@ function ReportDetail9() {
 
 function ReportDetail10() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-  const demandByPriority = [
-    { label: "High", value: 156, pct: 38, color: COLORS.red },
-    { label: "Medium", value: 164, pct: 40, color: COLORS.orange },
-    { label: "Low", value: 92, pct: 22, color: COLORS.blue },
-  ];
-  const aging = [
-    { range: "0–15 Days", count: 142, pct: "34.5%", color: COLORS.green },
-    { range: "16–30 Days", count: 113, pct: "27.4%", color: COLORS.teal },
-    { range: "31–40 Days", count: 96, pct: "23.3%", color: COLORS.orange },
-    { range: ">40 Days", count: 61, pct: "14.8%", color: COLORS.red },
-  ];
-  const byRole = [
-    { role: "Developers", value: 156 },
-    { role: "Consultants", value: 92 },
-    { role: "Analysts", value: 108 },
-    { role: "Testers", value: 100 },
-    { role: "Architects", value: 28 },
-  ];
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -4792,12 +4611,7 @@ function ReportDetail10() {
           </ResponsiveContainer>
           <SectionLabel>Demand Fulfillment Status</SectionLabel>
           <div style={{ display: "flex", gap: 20, marginTop: 4 }}>
-            {[
-              { label: "Open", value: 412, color: COLORS.red },
-              { label: "In Progress", value: 186, color: COLORS.orange },
-              { label: "Fulfilled", value: 226, color: COLORS.green },
-              { label: "Staffing Gap", value: -18, color: COLORS.red },
-            ].map((s, i) => (
+            {demand.map((s, i) => (
               <div key={i} style={{ textAlign: "center" }}>
                 <div style={{ fontSize: 20, fontWeight: 800, color: s.color }}>
                   {s.value}
@@ -4814,14 +4628,7 @@ function ReportDetail10() {
 
 function ReportDetail11() {
   const [filters, setFilters] = useState(DEFAULT_EXEC_FILTERS);
-  const forecastData = [
-    { month: "11/05/26", cap: 8.0, demand: 8.9, gap: -0.9 },
-    { month: "01/06/26", cap: 8.3, demand: 9.1, gap: -0.8 },
-    { month: "01/07/26", cap: 8.5, demand: 9.3, gap: -0.8 },
-    { month: "01/08/26", cap: 6.9, demand: 8.7, gap: -1.8 },
-    { month: "01/09/26", cap: 6.9, demand: 8.8, gap: -0.9 },
-    { month: "01/10/26", cap: 7.5, demand: 8.4, gap: -0.9 },
-  ];
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -4927,33 +4734,7 @@ function ReportDetail11() {
         </DetailCard>
         <DetailCard>
           <SectionLabel>Planning Recommendations</SectionLabel>
-          {[
-            {
-              action: "Hire 200 developers for Aug gap",
-              priority: "Critical",
-              color: COLORS.red,
-            },
-            {
-              action: "Cross-train 150 analysts from other BUs",
-              priority: "High",
-              color: COLORS.orange,
-            },
-            {
-              action: "Engage 2 new vendor partners for Q3",
-              priority: "High",
-              color: COLORS.orange,
-            },
-            {
-              action: "Defer 3 low-priority projects to Q4",
-              priority: "Medium",
-              color: COLORS.amber,
-            },
-            {
-              action: "Upskill bench resources — Data Engg.",
-              priority: "Medium",
-              color: COLORS.amber,
-            },
-          ].map((r, i) => (
+          {planning.map((r, i) => (
             <div
               key={i}
               style={{
@@ -4989,13 +4770,7 @@ function ReportDetail11() {
 
 function ReportDetail13() {
   const [filters, setFilters] = useState(DEFAULT_EXEC_FILTERS);
-  const tsData = [
-    { month: "01/01/26", planned: 2600, actual: 2450 },
-    { month: "01/02/26", planned: 2650, actual: 2500 },
-    { month: "01/03/26", planned: 2700, actual: 2550 },
-    { month: "11/04/26", planned: 2800, actual: 2750 },
-    { month: "11/05/26", planned: 2850, actual: 2850 },
-  ];
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -5114,13 +4889,7 @@ function ReportDetail13() {
             </div>
           </div>
           <SectionLabel>Compliance by Department</SectionLabel>
-          {[
-            { dept: "Engineering", v: 94 },
-            { dept: "Consulting", v: 97 },
-            { dept: "IT Services", v: 96 },
-            { dept: "Data & Analytics", v: 93 },
-            { dept: "Business Operations", v: 98 },
-          ].map((d, i) => (
+          {compliance.map((d, i) => (
             <div
               key={i}
               style={{
@@ -5183,12 +4952,7 @@ function ReportDetail14() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <DetailCard>
           <SectionLabel>Pending Approvals by Type</SectionLabel>
-          {[
-            { label: "Resource Requests", value: 12, color: COLORS.blue },
-            { label: "Project Requests", value: 7, color: COLORS.teal },
-            { label: "Allocation Changes", value: 5, color: COLORS.purple },
-            { label: "Time Off Requests", value: 3, color: COLORS.orange },
-          ].map((r, i) => (
+          {pendingApprovals.map((r, i) => (
             <div
               key={i}
               style={{
@@ -5222,12 +4986,7 @@ function ReportDetail14() {
           <SectionLabel>Approval Workflow Status</SectionLabel>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart
-              data={[
-                { stage: "Submitted", count: 186 },
-                { stage: "In Review", count: 27 },
-                { stage: "Approved", count: 160 },
-                { stage: "Rejected", count: 12 },
-              ]}
+              data={data}
               margin={{ top: 5, right: 10, bottom: 5, left: -10 }}
             >
               <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
@@ -5248,47 +5007,8 @@ function ReportDetail14() {
       <DetailCard>
         <SectionLabel>Overdue Approvals Detail</SectionLabel>
         <DetailTable
-          headers={[
-            "Request ID",
-            "Type",
-            "Requestor",
-            "Days Overdue",
-            "Priority",
-          ]}
-          rows={[
-            {
-              id: "REQ-2026-0892",
-              type: "Resource Request",
-              req: "Sarah Johnson",
-              days: 14,
-              pri: "Critical",
-              col: COLORS.red,
-            },
-            {
-              id: "REQ-2026-0885",
-              type: "Project Request",
-              req: "Michael Lee",
-              days: 11,
-              pri: "High",
-              col: COLORS.orange,
-            },
-            {
-              id: "REQ-2026-0878",
-              type: "Allocation Change",
-              req: "Emily Davis",
-              days: 9,
-              pri: "High",
-              col: COLORS.orange,
-            },
-            {
-              id: "REQ-2026-0861",
-              type: "Resource Request",
-              req: "David Brown",
-              days: 7,
-              pri: "Medium",
-              col: COLORS.amber,
-            },
-          ].map((r) => [
+          headers={header}
+          rows={rows.map((r) => [
             <span
               style={{
                 color: COLORS.blue,
@@ -5352,16 +5072,7 @@ function ReportDetail15() {
           gap: 8,
         }}
       >
-        {[
-          "Executive",
-          "Operational",
-          "Planning",
-          "Finance",
-          "Compliance",
-          "Allocation",
-          "Governance",
-          "All",
-        ].map((type, i) => (
+        {reportDetails15.map((type, i) => (
           <div
             key={i}
             style={{
@@ -5452,12 +5163,7 @@ const DETAIL_VIEWS = {
 
 export default function ReportingAnalytics() {
   const [activeReport, setActiveReport] = useState(null);
-  const [filters, setFilters] = useState({
-    date: "11/05/26",
-    portfolio: "All",
-    bu: "All",
-    region: "All",
-  });
+  const [filters, setFilters] = useState(main);
 
   if (activeReport) {
     const DetailView = DETAIL_VIEWS[activeReport.num];
