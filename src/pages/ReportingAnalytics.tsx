@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -82,12 +83,146 @@ import {
   availTrend,
 } from "@/mocks/ReportingAnalytics";
 
+// ─── CSS custom properties (light + dark) ────────────────────────────────────
+
+function GlobalStyles() {
+  return (
+    <style>{`
+      :root {
+        --ra-bg:           #f3f4f6;
+        --ra-surface:      #ffffff;
+        --ra-surface-alt:  #f9fafb;
+        --ra-border:       #e5e7eb;
+        --ra-border-light: #f3f4f6;
+        --ra-text-primary: #111827;
+        --ra-text-sec:     #374151;
+        --ra-text-muted:   #6b7280;
+        --ra-text-faint:   #9ca3af;
+        --ra-input-bg:     #ffffff;
+        --ra-th-bg:        #f9fafb;
+        --ra-row-hover:    #f9fafb;
+        --ra-row-alert:    #fff5f5;
+        --ra-insight-text: #374151;
+        --ra-badge-bg:     #f3f4f6;
+
+        /* semantic colours (same in both modes — they're vivid enough) */
+        --ra-blue:    #3b82f6;
+        --ra-green:   #10b981;
+        --ra-red:     #ef4444;
+        --ra-orange:  #f97316;
+        --ra-amber:   #f59e0b;
+        --ra-teal:    #14b8a6;
+        --ra-purple:  #8b5cf6;
+        --ra-gray:    #6b7280;
+      }
+
+      .dark {
+        --ra-bg:           #0f1117;
+        --ra-surface:      #1a1d27;
+        --ra-surface-alt:  #1f2231;
+        --ra-border:       #2d3148;
+        --ra-border-light: #252838;
+        --ra-text-primary: #f1f5f9;
+        --ra-text-sec:     #cbd5e1;
+        --ra-text-muted:   #8b99b5;
+        --ra-text-faint:   #4f5b73;
+        --ra-input-bg:     #1f2231;
+        --ra-th-bg:        #151823;
+        --ra-row-hover:    #1e2235;
+        --ra-row-alert:    #2a1a1a;
+        --ra-insight-text: #cbd5e1;
+        --ra-badge-bg:     #252838;
+      }
+
+      /* recharts tooltip dark mode */
+      .dark .recharts-tooltip-wrapper .recharts-default-tooltip {
+        background: #1a1d27 !important;
+        border-color: #2d3148 !important;
+        color: #f1f5f9 !important;
+      }
+
+      /* smooth transitions */
+      * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease; }
+    `}</style>
+  );
+}
+
+// ─── Dark Mode Toggle ─────────────────────────────────────────────────────────
+
+function DarkModeToggle() {
+  const [dark, setDark] = useState(() =>
+    document.documentElement.classList.contains("dark"),
+  );
+
+  // const toggle = () => {
+  //   const next = !dark;
+  //   setDark(next);
+  //   if (next) document.documentElement.classList.add("dark");
+  //   else document.documentElement.classList.remove("dark");
+  // };
+
+  // return (
+  //   <button
+  //     onClick={toggle}
+  //     title={dark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+  //     style={{
+  //       display: "flex",
+  //       alignItems: "center",
+  //       gap: 6,
+  //       padding: "6px 14px",
+  //       borderRadius: 8,
+  //       border: "1px solid var(--ra-border)",
+  //       background: "var(--ra-surface)",
+  //       color: "var(--ra-text-sec)",
+  //       fontSize: 13,
+  //       fontWeight: 500,
+  //       cursor: "pointer",
+  //       whiteSpace: "nowrap",
+  //     }}
+  //   >
+  //     {dark ? "☀️ Light" : "🌙 Dark"}
+  //   </button>
+  // );
+}
+
+// ─── Token shorthands ─────────────────────────────────────────────────────────
+// Use these everywhere instead of hard-coded hex values.
+
+const T = {
+  bg: "var(--ra-bg)",
+  surface: "var(--ra-surface)",
+  surfaceAlt: "var(--ra-surface-alt)",
+  border: "var(--ra-border)",
+  borderLight: "var(--ra-border-light)",
+  text: "var(--ra-text-primary)",
+  textSec: "var(--ra-text-sec)",
+  textMuted: "var(--ra-text-muted)",
+  textFaint: "var(--ra-text-faint)",
+  inputBg: "var(--ra-input-bg)",
+  thBg: "var(--ra-th-bg)",
+  rowHover: "var(--ra-row-hover)",
+  rowAlert: "var(--ra-row-alert)",
+  insightText: "var(--ra-insight-text)",
+  badgeBg: "var(--ra-badge-bg)",
+
+  blue: "var(--ra-blue)",
+  green: "var(--ra-green)",
+  red: "var(--ra-red)",
+  orange: "var(--ra-orange)",
+  amber: "var(--ra-amber)",
+  teal: "var(--ra-teal)",
+  purple: "var(--ra-purple)",
+  gray: "var(--ra-gray)",
+};
+
+// ─── Shared UI primitives ─────────────────────────────────────────────────────
+
 function KpiCard({ kpi }) {
   return (
     <div
       style={{
-        background: "#fff",
-        border: "0.5px solid #e5e7eb",
+        background: T.surface,
+        border: `0.5px solid ${T.border}`,
         borderRadius: 10,
         padding: "12px 14px",
         display: "flex",
@@ -103,7 +238,7 @@ function KpiCard({ kpi }) {
           alignItems: "flex-start",
         }}
       >
-        <span style={{ fontSize: 11, color: "#6b7280", lineHeight: 1.3 }}>
+        <span style={{ fontSize: 11, color: T.textMuted, lineHeight: 1.3 }}>
           {kpi.label}
         </span>
         <span style={{ fontSize: 18 }}>{kpi.icon}</span>
@@ -118,22 +253,20 @@ function KpiCard({ kpi }) {
       >
         {kpi.value}
       </div>
-      <div
-        style={{ fontSize: 11, color: kpi.deltaUp ? COLORS.green : COLORS.red }}
-      >
-        {kpi.delta} <span style={{ color: "#9ca3af" }}>vs Apr 2026</span>
+      <div style={{ fontSize: 11, color: kpi.deltaUp ? T.green : T.red }}>
+        {kpi.delta} <span style={{ color: T.textFaint }}>vs Apr 2026</span>
       </div>
     </div>
   );
 }
 
-function MiniBar({ value, max = 100, color = COLORS.blue }) {
+function MiniBar({ value, max = 100, color = T.blue }) {
   return (
     <div
       style={{
         flex: 1,
         height: 6,
-        background: "#f3f4f6",
+        background: T.borderLight,
         borderRadius: 3,
         overflow: "hidden",
       }}
@@ -187,14 +320,14 @@ function SmallDonut({ data, centerLabel, centerSub, size = 90 }) {
             style={{
               fontSize: 10,
               fontWeight: 700,
-              color: "#111",
+              color: T.text,
               lineHeight: 1,
             }}
           >
             {centerLabel}
           </div>
           {centerSub && (
-            <div style={{ fontSize: 8, color: "#6b7280", lineHeight: 1.2 }}>
+            <div style={{ fontSize: 8, color: T.textMuted, lineHeight: 1.2 }}>
               {centerSub}
             </div>
           )}
@@ -208,8 +341,8 @@ function ReportCard({ card, onView }) {
   return (
     <div
       style={{
-        background: "#fff",
-        border: "0.5px solid #e5e7eb",
+        background: T.surface,
+        border: `0.5px solid ${T.border}`,
         borderRadius: 10,
         padding: "14px",
         display: "flex",
@@ -239,7 +372,7 @@ function ReportCard({ card, onView }) {
             style={{
               fontSize: 12,
               fontWeight: 600,
-              color: "#111",
+              color: T.text,
               lineHeight: 1.3,
             }}
           >
@@ -248,7 +381,7 @@ function ReportCard({ card, onView }) {
           <div
             style={{
               fontSize: 10,
-              color: "#9ca3af",
+              color: T.textFaint,
               lineHeight: 1.4,
               marginTop: 2,
             }}
@@ -257,6 +390,7 @@ function ReportCard({ card, onView }) {
           </div>
         </div>
       </div>
+
       <div style={{ flex: 1 }}>
         {card.stats && (
           <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
@@ -266,12 +400,14 @@ function ReportCard({ card, onView }) {
                   style={{
                     fontSize: 16,
                     fontWeight: 700,
-                    color: s.color || "#111",
+                    color: s.color || T.text,
                   }}
                 >
                   {s.value}
                 </div>
-                <div style={{ fontSize: 10, color: "#6b7280" }}>{s.label}</div>
+                <div style={{ fontSize: 10, color: T.textMuted }}>
+                  {s.label}
+                </div>
               </div>
             ))}
           </div>
@@ -285,7 +421,7 @@ function ReportCard({ card, onView }) {
                   display: "flex",
                   justifyContent: "space-between",
                   fontSize: 11,
-                  color: "#374151",
+                  color: T.textSec,
                 }}
               >
                 <span>{e.label}</span>
@@ -298,10 +434,12 @@ function ReportCard({ card, onView }) {
           <div style={{ display: "flex", gap: 10, marginBottom: 8 }}>
             {card.summaryStats.map((s, i) => (
               <div key={i}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: "#111" }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: T.text }}>
                   {s.value}
                 </div>
-                <div style={{ fontSize: 10, color: "#6b7280" }}>{s.label}</div>
+                <div style={{ fontSize: 10, color: T.textMuted }}>
+                  {s.label}
+                </div>
               </div>
             ))}
           </div>
@@ -318,11 +456,11 @@ function ReportCard({ card, onView }) {
                   fontSize: 10,
                 }}
               >
-                <span style={{ color: "#6b7280", minWidth: 90, fontSize: 9 }}>
+                <span style={{ color: T.textMuted, minWidth: 90, fontSize: 9 }}>
                   {r.name}
                 </span>
-                <MiniBar value={r.value} color={COLORS.teal} />
-                <span style={{ color: "#111", minWidth: 28, fontWeight: 600 }}>
+                <MiniBar value={r.value} color={T.teal} />
+                <span style={{ color: T.text, minWidth: 28, fontWeight: 600 }}>
                   {r.value}%
                 </span>
               </div>
@@ -346,7 +484,7 @@ function ReportCard({ card, onView }) {
                     alignItems: "center",
                     gap: 4,
                     fontSize: 9,
-                    color: "#374151",
+                    color: T.textSec,
                   }}
                 >
                   <div
@@ -357,7 +495,8 @@ function ReportCard({ card, onView }) {
                       background: DONUT_COLORS[i],
                     }}
                   />
-                  {d.name} <span style={{ color: "#9ca3af" }}>{d.value}%</span>
+                  {d.name}{" "}
+                  <span style={{ color: T.textFaint }}>{d.value}%</span>
                 </div>
               ))}
             </div>
@@ -369,13 +508,13 @@ function ReportCard({ card, onView }) {
               style={{
                 fontSize: 18,
                 fontWeight: 800,
-                color: COLORS.red,
+                color: T.red,
                 marginBottom: 4,
               }}
             >
               {card.highlight}
             </div>
-            <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 6 }}>
+            <div style={{ fontSize: 10, color: T.textMuted, marginBottom: 6 }}>
               Over Allocated Resources
             </div>
             {card.overList.map((r, i) => (
@@ -386,10 +525,10 @@ function ReportCard({ card, onView }) {
                   justifyContent: "space-between",
                   fontSize: 10,
                   padding: "2px 0",
-                  borderBottom: "0.5px solid #f3f4f6",
+                  borderBottom: `0.5px solid ${T.borderLight}`,
                 }}
               >
-                <span style={{ color: "#374151" }}>{r.name}</span>
+                <span style={{ color: T.textSec }}>{r.name}</span>
                 <span style={{ fontWeight: 700, color: r.color }}>
                   {r.pct}%
                 </span>
@@ -403,34 +542,32 @@ function ReportCard({ card, onView }) {
               {
                 label: "Available",
                 value: card.availability.available,
-                color: COLORS.green,
+                color: T.green,
               },
               {
                 label: "Shared",
                 value: card.availability.shared,
-                color: COLORS.blue,
+                color: T.blue,
               },
-              {
-                label: "Bench",
-                value: card.availability.bench,
-                color: COLORS.gray,
-              },
+              { label: "Bench", value: card.availability.bench, color: T.gray },
             ].map((r, i) => (
               <div key={i}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: r.color }}>
                   {r.value}
                 </div>
-                <div style={{ fontSize: 10, color: "#6b7280" }}>{r.label}</div>
+                <div style={{ fontSize: 10, color: T.textMuted }}>
+                  {r.label}
+                </div>
               </div>
             ))}
           </div>
         )}
         {card.compliance !== undefined && (
           <div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: COLORS.green }}>
+            <div style={{ fontSize: 28, fontWeight: 800, color: T.green }}>
               {card.compliance}%
             </div>
-            <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 6 }}>
+            <div style={{ fontSize: 10, color: T.textMuted, marginBottom: 6 }}>
               Overall Compliance
             </div>
             {card.items.map((r, i) => (
@@ -444,11 +581,11 @@ function ReportCard({ card, onView }) {
                   marginBottom: 3,
                 }}
               >
-                <span style={{ color: "#6b7280", minWidth: 120 }}>
+                <span style={{ color: T.textMuted, minWidth: 120 }}>
                   {r.label}
                 </span>
-                <MiniBar value={r.value} color={COLORS.green} />
-                <span style={{ fontWeight: 600, color: "#111" }}>
+                <MiniBar value={r.value} color={T.green} />
+                <span style={{ fontWeight: 600, color: T.text }}>
                   {r.value}%
                 </span>
               </div>
@@ -459,15 +596,15 @@ function ReportCard({ card, onView }) {
           <div>
             <div style={{ display: "flex", gap: 10, marginBottom: 8 }}>
               {[
-                { l: "Total Budget", v: card.budget.total, c: "#111" },
-                { l: "Total Actual", v: card.budget.actual, c: "#111" },
-                { l: "Variance", v: card.budget.variance, c: COLORS.red },
+                { l: "Total Budget", v: card.budget.total, c: T.text },
+                { l: "Total Actual", v: card.budget.actual, c: T.text },
+                { l: "Variance", v: card.budget.variance, c: T.red },
               ].map((b, i) => (
                 <div key={i}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: b.c }}>
                     {b.v}
                   </div>
-                  <div style={{ fontSize: 9, color: "#9ca3af" }}>{b.l}</div>
+                  <div style={{ fontSize: 9, color: T.textFaint }}>{b.l}</div>
                 </div>
               ))}
             </div>
@@ -478,12 +615,12 @@ function ReportCard({ card, onView }) {
                   display: "flex",
                   justifyContent: "space-between",
                   fontSize: 10,
-                  color: "#374151",
+                  color: T.textSec,
                   padding: "2px 0",
                 }}
               >
                 <span>{r.name}</span>
-                <span style={{ color: COLORS.red, fontWeight: 600 }}>
+                <span style={{ color: T.red, fontWeight: 600 }}>
                   ${r.variance}M
                 </span>
               </div>
@@ -498,7 +635,7 @@ function ReportCard({ card, onView }) {
                 gridTemplateColumns: "1fr auto auto auto",
                 gap: "3px 8px",
                 fontSize: 10,
-                color: "#6b7280",
+                color: T.textMuted,
                 marginBottom: 2,
               }}
             >
@@ -516,19 +653,19 @@ function ReportCard({ card, onView }) {
                   gap: "2px 8px",
                   fontSize: 10,
                   padding: "2px 0",
-                  borderBottom: "0.5px solid #f3f4f6",
+                  borderBottom: `0.5px solid ${T.borderLight}`,
                 }}
               >
-                <span style={{ color: "#374151" }}>{v.name}</span>
-                <span style={{ fontWeight: 600, color: "#111" }}>
+                <span style={{ color: T.textSec }}>{v.name}</span>
+                <span style={{ fontWeight: 600, color: T.text }}>
                   {v.spend}
                 </span>
-                <span style={{ color: COLORS.blue, fontWeight: 700 }}>
+                <span style={{ color: T.blue, fontWeight: 700 }}>
                   #{v.rank}
                 </span>
                 <span
                   style={{
-                    color: v.score >= 85 ? COLORS.green : COLORS.orange,
+                    color: v.score >= 85 ? T.green : T.orange,
                     fontWeight: 600,
                   }}
                 >
@@ -548,7 +685,7 @@ function ReportCard({ card, onView }) {
                   >
                     {d.value}
                   </div>
-                  <div style={{ fontSize: 10, color: "#6b7280" }}>
+                  <div style={{ fontSize: 10, color: T.textMuted }}>
                     {d.label}
                   </div>
                 </div>
@@ -565,14 +702,14 @@ function ReportCard({ card, onView }) {
                   marginBottom: 3,
                 }}
               >
-                <span style={{ color: "#6b7280", minWidth: 50 }}>
+                <span style={{ color: T.textMuted, minWidth: 50 }}>
                   {r.label}
                 </span>
                 <MiniBar
                   value={parseInt(r.pct)}
-                  color={[COLORS.red, COLORS.orange, COLORS.blue][i]}
+                  color={[T.red, T.orange, T.blue][i]}
                 />
-                <span style={{ color: "#374151" }}>
+                <span style={{ color: T.textSec }}>
                   {r.value} ({r.pct})
                 </span>
               </div>
@@ -586,14 +723,27 @@ function ReportCard({ card, onView }) {
                 data={card.forecastData}
                 margin={{ top: 5, right: 5, bottom: 5, left: -20 }}
               >
-                <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-                <XAxis dataKey="month" tick={{ fontSize: 8 }} />
-                <YAxis tick={{ fontSize: 8 }} domain={[5, 11]} />
-                <Tooltip contentStyle={{ fontSize: 10 }} />
+                <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fontSize: 8, fill: T.textMuted }}
+                />
+                <YAxis
+                  tick={{ fontSize: 8, fill: T.textMuted }}
+                  domain={[5, 11]}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: T.surface,
+                    border: `1px solid ${T.border}`,
+                    fontSize: 10,
+                    color: T.text,
+                  }}
+                />
                 <Line
                   type="monotone"
                   dataKey="cap"
-                  stroke={COLORS.green}
+                  stroke={T.green}
                   strokeWidth={1.5}
                   dot={false}
                   name="Capacity"
@@ -601,7 +751,7 @@ function ReportCard({ card, onView }) {
                 <Line
                   type="monotone"
                   dataKey="demand"
-                  stroke={COLORS.blue}
+                  stroke={T.blue}
                   strokeWidth={1.5}
                   dot={false}
                   name="Demand"
@@ -609,7 +759,7 @@ function ReportCard({ card, onView }) {
                 <Line
                   type="monotone"
                   dataKey="gap"
-                  stroke={COLORS.red}
+                  stroke={T.red}
                   strokeWidth={1.5}
                   dot={false}
                   name="Gap"
@@ -621,10 +771,10 @@ function ReportCard({ card, onView }) {
         )}
         {card.utilOverall && (
           <div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: COLORS.teal }}>
+            <div style={{ fontSize: 26, fontWeight: 800, color: T.teal }}>
               {card.utilOverall}%
             </div>
-            <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 6 }}>
+            <div style={{ fontSize: 10, color: T.textMuted, marginBottom: 6 }}>
               Overall Utilization
             </div>
             {card.utilByType.map((r, i) => (
@@ -638,11 +788,13 @@ function ReportCard({ card, onView }) {
                   marginBottom: 3,
                 }}
               >
-                <span style={{ color: "#6b7280", minWidth: 110, fontSize: 9 }}>
+                <span
+                  style={{ color: T.textMuted, minWidth: 110, fontSize: 9 }}
+                >
                   {r.label}
                 </span>
-                <MiniBar value={r.value} color={COLORS.teal} />
-                <span style={{ fontWeight: 600, color: "#111" }}>
+                <MiniBar value={r.value} color={T.teal} />
+                <span style={{ fontWeight: 600, color: T.text }}>
                   {r.value}%
                 </span>
               </div>
@@ -652,12 +804,10 @@ function ReportCard({ card, onView }) {
         {card.tsCompliance && (
           <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
             <div>
-              <div
-                style={{ fontSize: 26, fontWeight: 800, color: COLORS.green }}
-              >
+              <div style={{ fontSize: 26, fontWeight: 800, color: T.green }}>
                 {card.tsCompliance}%
               </div>
-              <div style={{ fontSize: 10, color: "#6b7280" }}>
+              <div style={{ fontSize: 10, color: T.textMuted }}>
                 TS Compliance
               </div>
               {card.tsBreakdown.map((r, i) => (
@@ -679,20 +829,18 @@ function ReportCard({ card, onView }) {
                       background: r.color,
                     }}
                   />
-                  <span style={{ color: "#6b7280" }}>{r.label}</span>
-                  <span style={{ fontWeight: 600, color: "#111" }}>
+                  <span style={{ color: T.textMuted }}>{r.label}</span>
+                  <span style={{ fontWeight: 600, color: T.text }}>
                     {r.pct}%
                   </span>
                 </div>
               ))}
             </div>
             <div>
-              <div
-                style={{ fontSize: 22, fontWeight: 800, color: COLORS.blue }}
-              >
+              <div style={{ fontSize: 22, fontWeight: 800, color: T.blue }}>
                 {card.actualFTE}
               </div>
-              <div style={{ fontSize: 10, color: "#6b7280" }}>Actual FTE</div>
+              <div style={{ fontSize: 10, color: T.textMuted }}>Actual FTE</div>
             </div>
           </div>
         )}
@@ -700,26 +848,18 @@ function ReportCard({ card, onView }) {
           <div>
             <div style={{ display: "flex", gap: 16, marginBottom: 8 }}>
               <div>
-                <div
-                  style={{
-                    fontSize: 26,
-                    fontWeight: 800,
-                    color: COLORS.orange,
-                  }}
-                >
+                <div style={{ fontSize: 26, fontWeight: 800, color: T.orange }}>
                   {card.pending}
                 </div>
-                <div style={{ fontSize: 10, color: "#6b7280" }}>
+                <div style={{ fontSize: 10, color: T.textMuted }}>
                   Pending Approvals
                 </div>
               </div>
               <div>
-                <div
-                  style={{ fontSize: 26, fontWeight: 800, color: COLORS.red }}
-                >
+                <div style={{ fontSize: 26, fontWeight: 800, color: T.red }}>
                   {card.overdue}
                 </div>
-                <div style={{ fontSize: 10, color: "#6b7280" }}>
+                <div style={{ fontSize: 10, color: T.textMuted }}>
                   Overdue Approvals
                 </div>
               </div>
@@ -732,7 +872,7 @@ function ReportCard({ card, onView }) {
                   justifyContent: "space-between",
                   fontSize: 10,
                   padding: "2px 0",
-                  color: "#374151",
+                  color: T.textSec,
                 }}
               >
                 <span>{r.label}</span>
@@ -762,7 +902,7 @@ function ReportCard({ card, onView }) {
                   justifyContent: "space-between",
                 }}
               >
-                <span style={{ fontSize: 11, color: "#6b7280" }}>
+                <span style={{ fontSize: 11, color: T.textMuted }}>
                   {s.label}
                 </span>
                 <span style={{ fontSize: 14, fontWeight: 700, color: s.color }}>
@@ -785,13 +925,13 @@ function ReportCard({ card, onView }) {
               <div
                 key={i}
                 style={{
-                  background: "#f9fafb",
-                  border: "0.5px solid #e5e7eb",
+                  background: T.surfaceAlt,
+                  border: `0.5px solid ${T.border}`,
                   borderRadius: 8,
                   padding: "10px",
                   textAlign: "center",
                   fontSize: 11,
-                  color: "#374151",
+                  color: T.textSec,
                   fontWeight: 500,
                 }}
               >
@@ -801,6 +941,7 @@ function ReportCard({ card, onView }) {
           </div>
         )}
       </div>
+
       <button
         onClick={() => onView(card)}
         style={{
@@ -826,13 +967,13 @@ function ReportCard({ card, onView }) {
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
 
-function DetailMiniBar({ value, max = 100, color = COLORS.blue }) {
+function DetailMiniBar({ value, max = 100, color = T.blue }) {
   return (
     <div
       style={{
         flex: 1,
         height: 7,
-        background: "#f3f4f6",
+        background: T.borderLight,
         borderRadius: 3,
         overflow: "hidden",
       }}
@@ -853,14 +994,14 @@ function StatTile({ label, value, color }) {
   return (
     <div
       style={{
-        background: "#fff",
+        background: T.surface,
         border: `1px solid ${color}33`,
         borderRadius: 10,
         padding: "12px 16px",
         borderLeft: `3px solid ${color}`,
       }}
     >
-      <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 4 }}>
+      <div style={{ fontSize: 10, color: T.textMuted, marginBottom: 4 }}>
         {label}
       </div>
       <div style={{ fontSize: 22, fontWeight: 800, color }}>{value}</div>
@@ -874,12 +1015,12 @@ function SectionLabel({ children }) {
       style={{
         fontSize: 11,
         fontWeight: 700,
-        color: "#374151",
+        color: T.textSec,
         textTransform: "uppercase",
         letterSpacing: "0.06em",
         marginBottom: 10,
         marginTop: 18,
-        borderBottom: "0.5px solid #e5e7eb",
+        borderBottom: `0.5px solid ${T.border}`,
         paddingBottom: 6,
       }}
     >
@@ -892,8 +1033,8 @@ function DetailCard({ children, style = {} }) {
   return (
     <div
       style={{
-        background: "#fff",
-        border: "0.5px solid #e5e7eb",
+        background: T.surface,
+        border: `0.5px solid ${T.border}`,
         borderRadius: 10,
         padding: "16px 18px",
         ...style,
@@ -916,8 +1057,8 @@ function DetailTable({ headers, rows }) {
                 textAlign: "left",
                 padding: "6px 8px",
                 fontSize: 10,
-                color: "#6b7280",
-                borderBottom: "0.5px solid #e5e7eb",
+                color: T.textMuted,
+                borderBottom: `0.5px solid ${T.border}`,
                 fontWeight: 600,
               }}
             >
@@ -928,9 +1069,12 @@ function DetailTable({ headers, rows }) {
       </thead>
       <tbody>
         {rows.map((row, i) => (
-          <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
+          <tr key={i} style={{ borderBottom: `0.5px solid ${T.borderLight}` }}>
             {row.map((cell, j) => (
-              <td key={j} style={{ padding: "7px 8px", fontSize: 11 }}>
+              <td
+                key={j}
+                style={{ padding: "7px 8px", fontSize: 11, color: T.textSec }}
+              >
                 {cell}
               </td>
             ))}
@@ -941,28 +1085,29 @@ function DetailTable({ headers, rows }) {
   );
 }
 
-// ─── Utilization Dashboard (Report #12) ─────────────────────────────────────
+// ─── Filter bars ──────────────────────────────────────────────────────────────
 
-function heatCell(val) {
-  if (val > 110) return { bg: "#fde8e8", color: COLORS.red };
-  if (val > 100) return { bg: "#fee2e2", color: "#c0392b" };
-  if (val >= 85) return { bg: "#e8f5e9", color: "#2e7d32" };
-  if (val >= 70) return { bg: "#e3f4fd", color: "#1565c0" };
-  return { bg: "#fff9e6", color: "#92400e" };
-}
-
-// ─── Utilization Filter Bar ───────────────────────────────────────────────────
+const selectStyle = {
+  height: 36,
+  border: `1px solid var(--ra-border)`,
+  borderRadius: 8,
+  padding: "0 12px",
+  fontSize: 14,
+  background: "var(--ra-input-bg)",
+  color: "var(--ra-text-sec)",
+  cursor: "pointer",
+  outline: "none",
+};
 
 function UtilFilterBar({ filters, setFilters }) {
   return (
     <div
       style={{
-        background: "#fff",
-        borderBottom: "1px solid #e5e7eb",
+        background: T.surface,
+        borderBottom: `1px solid ${T.border}`,
         padding: "16px 20px",
       }}
     >
-      {/* Header Row */}
       <div
         style={{
           display: "flex",
@@ -973,16 +1118,10 @@ function UtilFilterBar({ filters, setFilters }) {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <h2
-            style={{
-              fontSize: 18,
-              fontWeight: 700,
-              color: "#111827",
-              margin: 0,
-            }}
+            style={{ fontSize: 18, fontWeight: 700, color: T.text, margin: 0 }}
           >
             4. Utilization Dashboard
           </h2>
-
           <span
             style={{
               background: "#e8f5ef",
@@ -996,18 +1135,13 @@ function UtilFilterBar({ filters, setFilters }) {
             Measure workforce efficiency & workload distribution
           </span>
         </div>
-
-        <div
-          style={{
-            fontSize: 13,
-            color: "#9ca3af",
-          }}
-        >
-          Last Updated: 15/05/26 10:30 AM
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 13, color: T.textFaint }}>
+            Last Updated: 15/05/26 10:30 AM
+          </span>
+          <DarkModeToggle />
         </div>
       </div>
-
-      {/* Filters Row */}
       <div
         style={{
           display: "flex",
@@ -1019,41 +1153,19 @@ function UtilFilterBar({ filters, setFilters }) {
         {UTIL_FILTER_DEFS.map((f) => (
           <div
             key={f.key}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              minWidth: 120,
-            }}
+            style={{ display: "flex", flexDirection: "column", minWidth: 120 }}
           >
             <label
-              style={{
-                fontSize: 11,
-                color: "#9ca3af",
-                marginBottom: 4,
-              }}
+              style={{ fontSize: 11, color: T.textFaint, marginBottom: 4 }}
             >
               {f.label}
             </label>
-
             <select
               value={filters[f.key]}
               onChange={(e) =>
-                setFilters((p) => ({
-                  ...p,
-                  [f.key]: e.target.value,
-                }))
+                setFilters((p) => ({ ...p, [f.key]: e.target.value }))
               }
-              style={{
-                height: 36,
-                border: "1px solid #d1d5db",
-                borderRadius: 8,
-                padding: "0 12px",
-                fontSize: 14,
-                background: "#fff",
-                color: "#374151",
-                cursor: "pointer",
-                outline: "none",
-              }}
+              style={selectStyle}
             >
               {f.options.map((o) => (
                 <option key={o}>{o}</option>
@@ -1066,19 +1178,195 @@ function UtilFilterBar({ filters, setFilters }) {
   );
 }
 
+function ExecFilterBar({ filters, setFilters }) {
+  return (
+    <div
+      style={{
+        background: T.surface,
+        borderBottom: `1px solid ${T.border}`,
+        padding: "14px 20px",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          marginBottom: 12,
+        }}
+      >
+        <div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: T.text }}>
+            Executive Leadership Report
+          </div>
+          <div style={{ fontSize: 11, color: T.textMuted, marginTop: 2 }}>
+            Strategic overview of resource planning, utilization, and
+            performance
+          </div>
+        </div>
+        <DarkModeToggle />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          gap: 10,
+          flexWrap: "wrap",
+          alignItems: "flex-end",
+        }}
+      >
+        {EXEC_FILTER_DEFS.map((f) => (
+          <div
+            key={f.key}
+            style={{ display: "flex", flexDirection: "column", gap: 3 }}
+          >
+            <label
+              style={{
+                fontSize: 9,
+                color: T.textFaint,
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              {f.label}
+            </label>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                border: `1px solid ${T.border}`,
+                borderRadius: 6,
+                background: T.inputBg,
+                paddingLeft: 8,
+              }}
+            >
+              <select
+                value={filters[f.key]}
+                onChange={(e) =>
+                  setFilters((p) => ({ ...p, [f.key]: e.target.value }))
+                }
+                style={{
+                  fontSize: 12,
+                  border: "none",
+                  background: "transparent",
+                  padding: "5px 4px 5px 0",
+                  color: T.textSec,
+                  cursor: "pointer",
+                  outline: "none",
+                }}
+              >
+                {f.options.map((o) => (
+                  <option key={o}>{o}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function GenericFilterBar({ filters, setFilters }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: 8,
+        alignItems: "center",
+        marginBottom: 16,
+        flexWrap: "wrap",
+      }}
+    >
+      {GENERIC_FILTER_DEFS.map((f) => (
+        <div
+          key={f.key}
+          style={{ display: "flex", flexDirection: "column", gap: 2 }}
+        >
+          <label style={{ fontSize: 9, color: T.textFaint }}>{f.label}</label>
+          <select
+            value={filters[f.key]}
+            onChange={(e) =>
+              setFilters((p) => ({ ...p, [f.key]: e.target.value }))
+            }
+            style={{
+              fontSize: 11,
+              borderRadius: 6,
+              border: `0.5px solid ${T.border}`,
+              padding: "4px 8px",
+              background: T.inputBg,
+              color: T.textSec,
+              cursor: "pointer",
+            }}
+          >
+            {f.options.map((o) => (
+              <option key={o}>{o}</option>
+            ))}
+          </select>
+        </div>
+      ))}
+      <div style={{ display: "flex", gap: 6, marginTop: 14 }}>
+        {["Filters", "Refresh", "Export"].map((l) => (
+          <button
+            key={l}
+            style={{
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
+              borderRadius: 6,
+              padding: "4px 10px",
+              fontSize: 11,
+              cursor: "pointer",
+              color: T.textSec,
+            }}
+          >
+            {l}
+          </button>
+        ))}
+      </div>
+      <div
+        style={{
+          marginLeft: "auto",
+          marginTop: 14,
+          fontSize: 10,
+          color: T.textFaint,
+        }}
+      >
+        Last Updated: 15/05/26 10:30 AM
+      </div>
+    </div>
+  );
+}
+
+// ─── Utilization-specific helpers ─────────────────────────────────────────────
+
+function heatCell(val) {
+  if (val > 110) return { bg: "#fde8e8", color: COLORS.red };
+  if (val > 100) return { bg: "#fee2e2", color: "#c0392b" };
+  if (val >= 85) return { bg: "#e8f5e9", color: "#2e7d32" };
+  if (val >= 70) return { bg: "#e3f4fd", color: "#1565c0" };
+  return { bg: "#fff9e6", color: "#92400e" };
+}
+
+// ─── Utilization Dashboard (Report #12) ──────────────────────────────────────
+
 function ReportDetail12() {
   const [filters, setFilters] = useState(DEFAULT_UTIL_FILTERS);
+  const tooltipStyle = {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    fontSize: 10,
+    color: T.text,
+  };
 
   return (
     <div
       style={{
         fontFamily: "system-ui, sans-serif",
-        background: "#f3f4f6",
+        background: T.bg,
         minHeight: "100vh",
       }}
     >
       <UtilFilterBar filters={filters} setFilters={setFilters} />
-
       <div
         style={{
           padding: "14px 20px",
@@ -1114,7 +1402,7 @@ function ReportDetail12() {
                 }}
               >
                 <span
-                  style={{ fontSize: 10, color: "#6b7280", lineHeight: 1.3 }}
+                  style={{ fontSize: 10, color: T.textMuted, lineHeight: 1.3 }}
                 >
                   {k.label}
                 </span>
@@ -1131,19 +1419,15 @@ function ReportDetail12() {
               >
                 {k.value}
               </div>
-              <div
-                style={{
-                  fontSize: 10,
-                  color: k.up ? COLORS.green : COLORS.red,
-                }}
-              >
-                {k.delta} <span style={{ color: "#9ca3af" }}>vs 11/04/26</span>
+              <div style={{ fontSize: 10, color: k.up ? T.green : T.red }}>
+                {k.delta}{" "}
+                <span style={{ color: T.textFaint }}>vs 11/04/26</span>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Row 1: Trend + By Dept + By Work Type */}
+        {/* Row 1 */}
         <div
           style={{
             display: "grid",
@@ -1151,11 +1435,11 @@ function ReportDetail12() {
             gap: 12,
           }}
         >
-          {/* 1. Utilization Trend */}
+          {/* Utilization Trend */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -1164,7 +1448,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: T.text,
                 marginBottom: 10,
               }}
             >
@@ -1172,8 +1456,8 @@ function ReportDetail12() {
             </div>
             <div style={{ display: "flex", gap: 14, marginBottom: 8 }}>
               {[
-                ["Overall Utilization %", COLORS.blue],
-                ["Billable Utilization %", COLORS.green],
+                ["Overall Utilization %", T.blue],
+                ["Billable Utilization %", T.green],
               ].map(([l, c]) => (
                 <span
                   key={l}
@@ -1182,7 +1466,7 @@ function ReportDetail12() {
                     alignItems: "center",
                     gap: 4,
                     fontSize: 10,
-                    color: "#6b7280",
+                    color: T.textMuted,
                   }}
                 >
                   <span
@@ -1198,35 +1482,32 @@ function ReportDetail12() {
                 </span>
               ))}
             </div>
-            <div style={{ fontSize: 10, color: "#9ca3af", marginBottom: 4 }}>
-              100%
-            </div>
             <ResponsiveContainer width="100%" height={180}>
               <LineChart
                 data={utilTrendData}
                 margin={{ top: 5, right: 10, bottom: 5, left: -15 }}
               >
-                <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
+                <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
                 <XAxis
                   dataKey="month"
-                  tick={{ fontSize: 8 }}
+                  tick={{ fontSize: 8, fill: T.textMuted }}
                   angle={-20}
                   textAnchor="end"
                   height={36}
                 />
                 <YAxis
                   domain={[40, 100]}
-                  tick={{ fontSize: 9 }}
+                  tick={{ fontSize: 9, fill: T.textMuted }}
                   tickFormatter={(v) => `${v}%`}
                 />
                 <Tooltip
-                  contentStyle={{ fontSize: 10 }}
+                  contentStyle={tooltipStyle}
                   formatter={(v) => `${v}%`}
                 />
                 <Line
                   type="monotone"
                   dataKey="overall"
-                  stroke={COLORS.blue}
+                  stroke={T.blue}
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   name="Overall Utilization %"
@@ -1234,7 +1515,7 @@ function ReportDetail12() {
                 <Line
                   type="monotone"
                   dataKey="billable"
-                  stroke={COLORS.green}
+                  stroke={T.green}
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   name="Billable Utilization %"
@@ -1243,11 +1524,11 @@ function ReportDetail12() {
             </ResponsiveContainer>
           </div>
 
-          {/* 2. Utilization by Department */}
+          {/* Utilization by Department */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -1256,7 +1537,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: T.text,
                 marginBottom: 10,
               }}
             >
@@ -1264,9 +1545,9 @@ function ReportDetail12() {
             </div>
             <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
               {[
-                ["Overall Utilization %", COLORS.blue],
-                ["Billable Utilization %", COLORS.green],
-                ["Capacity Utilization %", COLORS.orange],
+                ["Overall Utilization %", T.blue],
+                ["Billable Utilization %", T.green],
+                ["Capacity Utilization %", T.orange],
               ].map(([l, c]) => (
                 <span
                   key={l}
@@ -1275,7 +1556,7 @@ function ReportDetail12() {
                     alignItems: "center",
                     gap: 3,
                     fontSize: 9,
-                    color: "#6b7280",
+                    color: T.textMuted,
                   }}
                 >
                   <span
@@ -1297,7 +1578,7 @@ function ReportDetail12() {
                   style={{ display: "flex", alignItems: "center", gap: 6 }}
                 >
                   <span
-                    style={{ fontSize: 10, color: "#374151", minWidth: 110 }}
+                    style={{ fontSize: 10, color: T.textSec, minWidth: 110 }}
                   >
                     {d.dept}
                   </span>
@@ -1309,55 +1590,32 @@ function ReportDetail12() {
                       gap: 2,
                     }}
                   >
-                    <div
-                      style={{ display: "flex", gap: 3, alignItems: "center" }}
-                    >
+                    {[
+                      { v: d.overall, c: T.blue },
+                      { v: d.billable, c: T.green },
+                      { v: d.capacity, c: T.orange },
+                    ].map(({ v, c }, j) => (
                       <div
+                        key={j}
                         style={{
-                          width: `${d.overall}%`,
-                          height: 6,
-                          background: COLORS.blue,
-                          borderRadius: 2,
-                          minWidth: 2,
+                          display: "flex",
+                          gap: 3,
+                          alignItems: "center",
                         }}
-                      />
-                      <span style={{ fontSize: 9, color: COLORS.blue }}>
-                        {d.overall}%
-                      </span>
-                    </div>
-                    <div
-                      style={{ display: "flex", gap: 3, alignItems: "center" }}
-                    >
-                      <div
-                        style={{
-                          width: `${d.billable}%`,
-                          height: 6,
-                          background: COLORS.green,
-                          borderRadius: 2,
-                          minWidth: 2,
-                        }}
-                      />
-                      <span style={{ fontSize: 9, color: COLORS.green }}>
-                        {d.billable}%
-                      </span>
-                    </div>
-                    <div
-                      style={{ display: "flex", gap: 3, alignItems: "center" }}
-                    >
-                      <div
-                        style={{
-                          width: `${d.capacity}%`,
-                          height: 6,
-                          background: COLORS.orange,
-                          borderRadius: 2,
-                          minWidth: 2,
-                          opacity: 0.6,
-                        }}
-                      />
-                      <span style={{ fontSize: 9, color: COLORS.orange }}>
-                        {d.capacity}%
-                      </span>
-                    </div>
+                      >
+                        <div
+                          style={{
+                            width: `${v}%`,
+                            height: 6,
+                            background: c,
+                            borderRadius: 2,
+                            minWidth: 2,
+                            opacity: j === 2 ? 0.6 : 1,
+                          }}
+                        />
+                        <span style={{ fontSize: 9, color: c }}>{v}%</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
@@ -1368,7 +1626,7 @@ function ReportDetail12() {
                 gap: 4,
                 marginTop: 6,
                 fontSize: 9,
-                color: "#9ca3af",
+                color: T.textFaint,
               }}
             >
               {[0, 25, 50, 75, 100].map((v) => (
@@ -1379,11 +1637,11 @@ function ReportDetail12() {
             </div>
           </div>
 
-          {/* 3. Utilization by Work Type */}
+          {/* Utilization by Work Type */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -1392,7 +1650,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: T.text,
                 marginBottom: 10,
               }}
             >
@@ -1433,10 +1691,10 @@ function ReportDetail12() {
                     pointerEvents: "none",
                   }}
                 >
-                  <div style={{ fontSize: 16, fontWeight: 800, color: "#111" }}>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: T.text }}>
                     118K
                   </div>
-                  <div style={{ fontSize: 8, color: "#6b7280" }}>
+                  <div style={{ fontSize: 8, color: T.textMuted }}>
                     Total Hours
                   </div>
                 </div>
@@ -1457,7 +1715,7 @@ function ReportDetail12() {
                       flexShrink: 0,
                     }}
                   />
-                  <span style={{ fontSize: 9, color: "#374151", flex: 1 }}>
+                  <span style={{ fontSize: 9, color: T.textSec, flex: 1 }}>
                     {d.name}
                   </span>
                   <span
@@ -1471,7 +1729,7 @@ function ReportDetail12() {
           </div>
         </div>
 
-        {/* Row 2: Billable vs Non-Billable + Distribution + Under/Over-utilized */}
+        {/* Row 2 */}
         <div
           style={{
             display: "grid",
@@ -1479,11 +1737,11 @@ function ReportDetail12() {
             gap: 12,
           }}
         >
-          {/* 4. Billable vs Non-Billable */}
+          {/* Billable vs Non-Billable */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -1492,7 +1750,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: T.text,
                 marginBottom: 8,
               }}
             >
@@ -1500,8 +1758,8 @@ function ReportDetail12() {
             </div>
             <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
               {[
-                ["Billable Utilization %", COLORS.blue],
-                ["Non-Billable Utilization %", COLORS.green],
+                ["Billable Utilization %", T.blue],
+                ["Non-Billable Utilization %", T.green],
               ].map(([l, c]) => (
                 <span
                   key={l}
@@ -1510,7 +1768,7 @@ function ReportDetail12() {
                     alignItems: "center",
                     gap: 3,
                     fontSize: 9,
-                    color: "#6b7280",
+                    color: T.textMuted,
                   }}
                 >
                   <span
@@ -1533,7 +1791,7 @@ function ReportDetail12() {
                   style={{ display: "flex", alignItems: "center", gap: 6 }}
                 >
                   <span
-                    style={{ fontSize: 9.5, color: "#374151", minWidth: 105 }}
+                    style={{ fontSize: 9.5, color: T.textSec, minWidth: 105 }}
                   >
                     {d.dept}
                   </span>
@@ -1549,15 +1807,15 @@ function ReportDetail12() {
                     <div
                       style={{
                         width: `${(d.billable / (d.billable + d.nonBillable)) * 100}%`,
-                        background: COLORS.blue,
+                        background: T.blue,
                       }}
                     />
-                    <div style={{ flex: 1, background: COLORS.green }} />
+                    <div style={{ flex: 1, background: T.green }} />
                   </div>
                   <span
                     style={{
                       fontSize: 9,
-                      color: "#374151",
+                      color: T.textSec,
                       minWidth: 26,
                       fontWeight: 600,
                     }}
@@ -1567,28 +1825,13 @@ function ReportDetail12() {
                 </div>
               ))}
             </div>
-            <div
-              style={{
-                display: "flex",
-                gap: 4,
-                marginTop: 6,
-                fontSize: 9,
-                color: "#9ca3af",
-              }}
-            >
-              {[0, 25, 50, 75, 100].map((v) => (
-                <span key={v} style={{ flex: 1 }}>
-                  {v}%
-                </span>
-              ))}
-            </div>
           </div>
 
-          {/* 5. Utilization Distribution */}
+          {/* Utilization Distribution */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -1597,7 +1840,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: T.text,
                 marginBottom: 8,
               }}
             >
@@ -1626,9 +1869,9 @@ function ReportDetail12() {
                     startAngle={90}
                     endAngle={-270}
                   >
-                    <Cell fill={COLORS.amber} />
-                    <Cell fill={COLORS.green} />
-                    <Cell fill={COLORS.red} />
+                    <Cell fill={T.amber} />
+                    <Cell fill={T.green} />
+                    <Cell fill={T.red} />
                   </Pie>
                 </PieChart>
                 <div
@@ -1642,10 +1885,10 @@ function ReportDetail12() {
                     pointerEvents: "none",
                   }}
                 >
-                  <div style={{ fontSize: 13, fontWeight: 800, color: "#111" }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>
                     1,986
                   </div>
-                  <div style={{ fontSize: 8, color: "#6b7280" }}>
+                  <div style={{ fontSize: 8, color: T.textMuted }}>
                     Total Resources
                   </div>
                 </div>
@@ -1666,7 +1909,7 @@ function ReportDetail12() {
                       flexShrink: 0,
                     }}
                   />
-                  <span style={{ fontSize: 9, color: "#374151", flex: 1 }}>
+                  <span style={{ fontSize: 9, color: T.textSec, flex: 1 }}>
                     {d.label}
                   </span>
                   <span
@@ -1674,7 +1917,7 @@ function ReportDetail12() {
                   >
                     {d.count}
                   </span>
-                  <span style={{ fontSize: 9, color: "#9ca3af" }}>
+                  <span style={{ fontSize: 9, color: T.textFaint }}>
                     ({d.pct})
                   </span>
                 </div>
@@ -1682,11 +1925,11 @@ function ReportDetail12() {
             </div>
           </div>
 
-          {/* 6. Top 10 Underutilized */}
+          {/* Top 10 Underutilized */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -1695,7 +1938,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: T.text,
                 marginBottom: 8,
               }}
             >
@@ -1714,10 +1957,10 @@ function ReportDetail12() {
                       key={h}
                       style={{
                         fontSize: 9,
-                        color: "#6b7280",
+                        color: T.textMuted,
                         padding: "4px 6px",
                         textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
+                        borderBottom: `0.5px solid ${T.border}`,
                         fontWeight: 600,
                       }}
                     >
@@ -1728,12 +1971,15 @@ function ReportDetail12() {
               </thead>
               <tbody>
                 {underutilizedResources.map((r, i) => (
-                  <tr key={i} style={{ borderBottom: "0.5px solid #f9fafb" }}>
+                  <tr
+                    key={i}
+                    style={{ borderBottom: `0.5px solid ${T.borderLight}` }}
+                  >
                     <td
                       style={{
                         padding: "4px 6px",
                         fontSize: 10,
-                        color: "#374151",
+                        color: T.textSec,
                         fontWeight: 500,
                       }}
                     >
@@ -1743,7 +1989,7 @@ function ReportDetail12() {
                       style={{
                         padding: "4px 6px",
                         fontSize: 9.5,
-                        color: "#6b7280",
+                        color: T.textMuted,
                       }}
                     >
                       {r.dept}
@@ -1755,16 +2001,16 @@ function ReportDetail12() {
                           fontWeight: 700,
                           color:
                             r.util < 40
-                              ? COLORS.red
+                              ? T.red
                               : r.util < 50
-                                ? COLORS.orange
-                                : COLORS.amber,
+                                ? T.orange
+                                : T.amber,
                           background:
                             (r.util < 40
-                              ? COLORS.red
+                              ? T.red
                               : r.util < 50
-                                ? COLORS.orange
-                                : COLORS.amber) + "18",
+                                ? T.orange
+                                : T.amber) + "18",
                           padding: "1px 6px",
                           borderRadius: 3,
                         }}
@@ -1777,7 +2023,7 @@ function ReportDetail12() {
                         padding: "4px 6px",
                         fontSize: 10,
                         fontWeight: 600,
-                        color: "#111",
+                        color: T.text,
                       }}
                     >
                       {r.hours}
@@ -1788,11 +2034,11 @@ function ReportDetail12() {
             </table>
           </div>
 
-          {/* 7. Top 10 Overutilized */}
+          {/* Top 10 Overutilized */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -1801,7 +2047,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: T.text,
                 marginBottom: 8,
               }}
             >
@@ -1820,10 +2066,10 @@ function ReportDetail12() {
                       key={h}
                       style={{
                         fontSize: 9,
-                        color: "#6b7280",
+                        color: T.textMuted,
                         padding: "4px 6px",
                         textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
+                        borderBottom: `0.5px solid ${T.border}`,
                         fontWeight: 600,
                       }}
                     >
@@ -1837,15 +2083,15 @@ function ReportDetail12() {
                   <tr
                     key={i}
                     style={{
-                      borderBottom: "0.5px solid #f9fafb",
-                      background: r.util >= 120 ? "#fff5f5" : "transparent",
+                      borderBottom: `0.5px solid ${T.borderLight}`,
+                      background: r.util >= 120 ? T.rowAlert : "transparent",
                     }}
                   >
                     <td
                       style={{
                         padding: "4px 6px",
                         fontSize: 10,
-                        color: "#374151",
+                        color: T.textSec,
                         fontWeight: 500,
                       }}
                     >
@@ -1855,7 +2101,7 @@ function ReportDetail12() {
                       style={{
                         padding: "4px 6px",
                         fontSize: 9.5,
-                        color: "#6b7280",
+                        color: T.textMuted,
                       }}
                     >
                       {r.dept}
@@ -1867,12 +2113,11 @@ function ReportDetail12() {
                           fontWeight: 700,
                           color:
                             r.util >= 120
-                              ? COLORS.red
+                              ? T.red
                               : r.util >= 115
                                 ? "#c0392b"
-                                : COLORS.orange,
-                          background:
-                            (r.util >= 120 ? COLORS.red : COLORS.orange) + "18",
+                                : T.orange,
+                          background: (r.util >= 120 ? T.red : T.orange) + "18",
                           padding: "1px 6px",
                           borderRadius: 3,
                         }}
@@ -1885,7 +2130,7 @@ function ReportDetail12() {
                         padding: "4px 6px",
                         fontSize: 10,
                         fontWeight: 700,
-                        color: COLORS.red,
+                        color: T.red,
                       }}
                     >
                       {r.overtime}
@@ -1897,7 +2142,7 @@ function ReportDetail12() {
           </div>
         </div>
 
-        {/* Row 3: Operational vs Strategic + Heatmap + Key Insights */}
+        {/* Row 3 */}
         <div
           style={{
             display: "grid",
@@ -1905,11 +2150,11 @@ function ReportDetail12() {
             gap: 12,
           }}
         >
-          {/* 8. Operational vs Strategic */}
+          {/* Operational vs Strategic */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -1918,7 +2163,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: T.text,
                 marginBottom: 8,
               }}
             >
@@ -1934,11 +2179,7 @@ function ReportDetail12() {
               <div style={{ position: "relative", width: 130, height: 130 }}>
                 <PieChart width={130} height={130}>
                   <Pie
-                    data={[
-                      { value: 46.3, name: "Operational Work" },
-                      { value: 31.9, name: "Strategic Work" },
-                      { value: 21.8, name: "Other / Admin / Training" },
-                    ]}
+                    data={[{ value: 46.3 }, { value: 31.9 }, { value: 21.8 }]}
                     cx={64}
                     cy={64}
                     innerRadius={38}
@@ -1947,9 +2188,9 @@ function ReportDetail12() {
                     startAngle={90}
                     endAngle={-270}
                   >
-                    <Cell fill={COLORS.orange} />
-                    <Cell fill={COLORS.blue} />
-                    <Cell fill={COLORS.purple} />
+                    <Cell fill={T.orange} />
+                    <Cell fill={T.blue} />
+                    <Cell fill={T.purple} />
                   </Pie>
                 </PieChart>
                 <div
@@ -1963,10 +2204,10 @@ function ReportDetail12() {
                     pointerEvents: "none",
                   }}
                 >
-                  <div style={{ fontSize: 14, fontWeight: 800, color: "#111" }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: T.text }}>
                     118K
                   </div>
-                  <div style={{ fontSize: 8, color: "#6b7280" }}>
+                  <div style={{ fontSize: 8, color: T.textMuted }}>
                     Total Hours
                   </div>
                 </div>
@@ -1989,7 +2230,7 @@ function ReportDetail12() {
                     }}
                   />
                   <div>
-                    <div style={{ fontSize: 9, color: "#374151" }}>
+                    <div style={{ fontSize: 9, color: T.textSec }}>
                       {d.label}
                     </div>
                     <div
@@ -2003,11 +2244,11 @@ function ReportDetail12() {
             </div>
           </div>
 
-          {/* 9. Utilization Heatmap */}
+          {/* Heatmap */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -2016,7 +2257,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: T.text,
                 marginBottom: 10,
               }}
             >
@@ -2028,10 +2269,10 @@ function ReportDetail12() {
                   <th
                     style={{
                       fontSize: 10,
-                      color: "#6b7280",
+                      color: T.textMuted,
                       padding: "5px 8px",
                       textAlign: "left",
-                      borderBottom: "0.5px solid #e5e7eb",
+                      borderBottom: `0.5px solid ${T.border}`,
                       fontWeight: 600,
                       minWidth: 130,
                     }}
@@ -2043,10 +2284,10 @@ function ReportDetail12() {
                       key={m}
                       style={{
                         fontSize: 9.5,
-                        color: "#374151",
+                        color: T.textSec,
                         padding: "5px 8px",
                         textAlign: "center",
-                        borderBottom: "0.5px solid #e5e7eb",
+                        borderBottom: `0.5px solid ${T.border}`,
                         fontWeight: 700,
                       }}
                     >
@@ -2056,10 +2297,10 @@ function ReportDetail12() {
                   <th
                     style={{
                       fontSize: 10,
-                      color: "#6b7280",
+                      color: T.textMuted,
                       padding: "5px 8px",
                       textAlign: "center",
-                      borderBottom: "0.5px solid #e5e7eb",
+                      borderBottom: `0.5px solid ${T.border}`,
                       fontWeight: 600,
                     }}
                   >
@@ -2074,12 +2315,15 @@ function ReportDetail12() {
                       ? { bg: "#e8f5e9", color: "#2e7d32" }
                       : { bg: "#fff4cc", color: "#92400e" };
                   return (
-                    <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
+                    <tr
+                      key={i}
+                      style={{ borderBottom: `0.5px solid ${T.borderLight}` }}
+                    >
                       <td
                         style={{
                           padding: "6px 8px",
                           fontSize: 11,
-                          color: "#374151",
+                          color: T.textSec,
                           fontWeight: 600,
                         }}
                       >
@@ -2149,17 +2393,17 @@ function ReportDetail12() {
                       display: "inline-block",
                     }}
                   />
-                  <span style={{ color: "#6b7280" }}>{l.label}</span>
+                  <span style={{ color: T.textMuted }}>{l.label}</span>
                 </span>
               ))}
             </div>
           </div>
 
-          {/* 10. Key Insights */}
+          {/* Key Insights */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -2168,7 +2412,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: T.text,
                 marginBottom: 10,
               }}
             >
@@ -2194,7 +2438,7 @@ function ReportDetail12() {
                   <span
                     style={{
                       fontSize: 10.5,
-                      color: "#374151",
+                      color: T.insightText,
                       lineHeight: 1.5,
                     }}
                   >
@@ -2211,9 +2455,9 @@ function ReportDetail12() {
           style={{
             textAlign: "center",
             fontSize: 10,
-            color: "#9ca3af",
+            color: T.textFaint,
             paddingTop: 8,
-            borderTop: "0.5px solid #e5e7eb",
+            borderTop: `0.5px solid ${T.border}`,
           }}
         >
           ℹ️ All metrics are based on data as of 15/05/26 10:30 AM &nbsp;|&nbsp;
@@ -2225,7 +2469,7 @@ function ReportDetail12() {
   );
 }
 
-// ─── Other Detail Views (unchanged) ─────────────────────────────────────────
+// ─── Shared card/table helpers ────────────────────────────────────────────────
 
 function heatColor(val) {
   if (val >= 101) return { bg: "#fde8e8", text: COLORS.red, fw: 700 };
@@ -2240,7 +2484,7 @@ function CardHeader({ children }) {
       style={{
         fontSize: 12,
         fontWeight: 700,
-        color: "#111",
+        color: T.text,
         marginBottom: 10,
         display: "flex",
         justifyContent: "space-between",
@@ -2258,7 +2502,7 @@ function ViewAllLink({ label = "View All →" }) {
       <span
         style={{
           fontSize: 11,
-          color: COLORS.blue,
+          color: T.blue,
           fontWeight: 600,
           cursor: "pointer",
         }}
@@ -2270,15 +2514,14 @@ function ViewAllLink({ label = "View All →" }) {
 }
 
 function UtilBar({ value }) {
-  const color =
-    value >= 101 ? COLORS.red : value >= 95 ? "#a16207" : COLORS.green;
+  const color = value >= 101 ? T.red : value >= 95 ? "#a16207" : T.green;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
       <div
         style={{
           flex: 1,
           height: 6,
-          background: "#f3f4f6",
+          background: T.borderLight,
           borderRadius: 3,
           overflow: "hidden",
         }}
@@ -2324,102 +2567,22 @@ function RiskBadge({ level }) {
   );
 }
 
-// Executive filter bar with all slices
-function ExecFilterBar({ filters, setFilters }) {
-  return (
-    <div
-      style={{
-        background: "#fff",
-        borderBottom: "1px solid #e5e7eb",
-        padding: "14px 20px",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          marginBottom: 12,
-        }}
-      >
-        <div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: "#111" }}>
-            Executive Leadership Report
-          </div>
-          <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
-            Strategic overview of resource planning, utilization, and
-            performance
-          </div>
-        </div>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          gap: 10,
-          flexWrap: "wrap",
-          alignItems: "flex-end",
-        }}
-      >
-        {EXEC_FILTER_DEFS.map((f) => (
-          <div
-            key={f.key}
-            style={{ display: "flex", flexDirection: "column", gap: 3 }}
-          >
-            <label
-              style={{
-                fontSize: 9,
-                color: "#9ca3af",
-                fontWeight: 600,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-              }}
-            >
-              {f.label}
-            </label>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                border: "1px solid #d1d5db",
-                borderRadius: 6,
-                background: "#fff",
-                paddingLeft: 8,
-              }}
-            >
-              <select
-                value={filters[f.key]}
-                onChange={(e) =>
-                  setFilters((p) => ({ ...p, [f.key]: e.target.value }))
-                }
-                style={{
-                  fontSize: 12,
-                  border: "none",
-                  background: "transparent",
-                  padding: "5px 4px 5px 0",
-                  color: "#374151",
-                  cursor: "pointer",
-                  outline: "none",
-                }}
-              >
-                {f.options.map((o) => (
-                  <option key={o}>{o}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+// ─── Executive Report (Report #1) ─────────────────────────────────────────────
 
 function ReportDetail1() {
   const [execFilters, setExecFilters] = useState(DEFAULT_EXEC_FILTERS);
+  const ttStyle = {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    fontSize: 10,
+    color: T.text,
+  };
+
   return (
     <div
       style={{
         fontFamily: "system-ui, sans-serif",
-        background: "#f3f4f6",
+        background: T.bg,
         minHeight: "100vh",
       }}
     >
@@ -2432,6 +2595,7 @@ function ReportDetail1() {
           gap: 12,
         }}
       >
+        {/* KPIs */}
         <div
           style={{
             display: "grid",
@@ -2443,8 +2607,8 @@ function ReportDetail1() {
             <div
               key={i}
               style={{
-                background: "#fff",
-                border: "0.5px solid #e5e7eb",
+                background: T.surface,
+                border: `0.5px solid ${T.border}`,
                 borderRadius: 10,
                 padding: "12px 14px",
               }}
@@ -2458,7 +2622,7 @@ function ReportDetail1() {
                 }}
               >
                 <span
-                  style={{ fontSize: 10, color: "#6b7280", lineHeight: 1.3 }}
+                  style={{ fontSize: 10, color: T.textMuted, lineHeight: 1.3 }}
                 >
                   {k.label}
                 </span>
@@ -2475,17 +2639,14 @@ function ReportDetail1() {
               >
                 {k.value}
               </div>
-              <div
-                style={{
-                  fontSize: 10,
-                  color: k.up ? COLORS.green : COLORS.red,
-                }}
-              >
+              <div style={{ fontSize: 10, color: k.up ? T.green : T.red }}>
                 {k.delta}
               </div>
             </div>
           ))}
         </div>
+
+        {/* Leadership Insights */}
         <div
           style={{
             background: "#fffbeb",
@@ -2511,7 +2672,7 @@ function ReportDetail1() {
             </div>
             <div style={{ fontSize: 11, color: "#78350f" }}>
               Cloud & Retail pillars show{" "}
-              <span style={{ color: COLORS.blue, fontWeight: 700 }}>
+              <span style={{ color: T.blue, fontWeight: 700 }}>
                 12% demand increase
               </span>
               . Capacity shortfall expected in Q3 2026, primarily in Data
@@ -2519,6 +2680,8 @@ function ReportDetail1() {
             </div>
           </div>
         </div>
+
+        {/* Heatmap + Capacity vs Demand */}
         <div
           style={{
             display: "grid",
@@ -2528,8 +2691,8 @@ function ReportDetail1() {
         >
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -2548,7 +2711,7 @@ function ReportDetail1() {
                     <th
                       style={{
                         fontSize: 9,
-                        color: "#6b7280",
+                        color: T.textMuted,
                         padding: "4px 6px",
                         textAlign: "left",
                         width: 36,
@@ -2559,7 +2722,7 @@ function ReportDetail1() {
                     <th
                       style={{
                         fontSize: 9,
-                        color: "#6b7280",
+                        color: T.textMuted,
                         padding: "4px 6px",
                         textAlign: "left",
                         minWidth: 130,
@@ -2572,7 +2735,7 @@ function ReportDetail1() {
                         key={m}
                         style={{
                           fontSize: 8,
-                          color: "#6b7280",
+                          color: T.textMuted,
                           padding: "4px 4px",
                           textAlign: "center",
                           whiteSpace: "nowrap",
@@ -2593,8 +2756,8 @@ function ReportDetail1() {
                           style={{
                             borderTop:
                               isFirst && pi > 0
-                                ? "2px solid #e5e7eb"
-                                : "0.5px solid #f3f4f6",
+                                ? `2px solid ${T.border}`
+                                : `0.5px solid ${T.borderLight}`,
                           }}
                         >
                           {isFirst && (
@@ -2603,11 +2766,11 @@ function ReportDetail1() {
                               style={{
                                 fontSize: 10,
                                 fontWeight: 700,
-                                color: "#374151",
+                                color: T.textSec,
                                 padding: "4px 6px",
                                 verticalAlign: "middle",
                                 textAlign: "center",
-                                borderRight: "1px solid #e5e7eb",
+                                borderRight: `1px solid ${T.border}`,
                               }}
                             >
                               <div>{pillar.icon}</div>
@@ -2615,7 +2778,7 @@ function ReportDetail1() {
                                 style={{
                                   fontSize: 8,
                                   marginTop: 2,
-                                  color: "#6b7280",
+                                  color: T.textMuted,
                                 }}
                               >
                                 {pillar.pillar}
@@ -2625,7 +2788,7 @@ function ReportDetail1() {
                           <td
                             style={{
                               fontSize: 9.5,
-                              color: "#374151",
+                              color: T.textSec,
                               padding: "4px 6px",
                               whiteSpace: "nowrap",
                             }}
@@ -2710,15 +2873,16 @@ function ReportDetail1() {
                       display: "inline-block",
                     }}
                   />
-                  <span style={{ color: "#6b7280" }}>{leg.label}</span>
+                  <span style={{ color: T.textMuted }}>{leg.label}</span>
                 </span>
               ))}
             </div>
           </div>
+
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -2727,15 +2891,15 @@ function ReportDetail1() {
               <span>2. Capacity vs Demand Trend (FTE)</span>
               <div style={{ display: "flex", gap: 12 }}>
                 {[
-                  ["Capacity", COLORS.blue],
-                  ["Demand", COLORS.orange],
-                  ["Gap", COLORS.red],
+                  ["Capacity", T.blue],
+                  ["Demand", T.orange],
+                  ["Gap", T.red],
                 ].map(([l, c]) => (
                   <span
                     key={l}
                     style={{
                       fontSize: 9,
-                      color: "#6b7280",
+                      color: T.textMuted,
                       display: "flex",
                       alignItems: "center",
                       gap: 3,
@@ -2760,54 +2924,53 @@ function ReportDetail1() {
                 data={execCapDemandData}
                 margin={{ top: 5, right: 10, bottom: 5, left: -10 }}
               >
-                <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
+                <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
                 <XAxis
                   dataKey="month"
-                  tick={{ fontSize: 8 }}
+                  tick={{ fontSize: 8, fill: T.textMuted }}
                   interval={0}
                   angle={-30}
                   textAnchor="end"
                   height={36}
                 />
                 <YAxis
-                  tick={{ fontSize: 9 }}
+                  tick={{ fontSize: 9, fill: T.textMuted }}
                   tickFormatter={(v) =>
                     v < 0 ? v : `${(v / 1000).toFixed(1)}K`
                   }
                 />
                 <Tooltip
-                  contentStyle={{ fontSize: 10 }}
+                  contentStyle={ttStyle}
                   formatter={(v) => `${v.toLocaleString()} FTE`}
                 />
                 <Line
                   type="monotone"
                   dataKey="Capacity"
-                  stroke={COLORS.blue}
+                  stroke={T.blue}
                   strokeWidth={2}
                   dot={{ r: 3 }}
-                  name="Capacity"
                 />
                 <Line
                   type="monotone"
                   dataKey="Demand"
-                  stroke={COLORS.orange}
+                  stroke={T.orange}
                   strokeWidth={2}
                   dot={{ r: 3 }}
-                  name="Demand"
                 />
                 <Line
                   type="monotone"
                   dataKey="Gap"
-                  stroke={COLORS.red}
+                  stroke={T.red}
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   strokeDasharray="4 4"
-                  name="Gap"
                 />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
+
+        {/* Demand Status + Vendor + Skills */}
         <div
           style={{
             display: "grid",
@@ -2817,8 +2980,8 @@ function ReportDetail1() {
         >
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -2860,10 +3023,10 @@ function ReportDetail1() {
                     pointerEvents: "none",
                   }}
                 >
-                  <div style={{ fontSize: 16, fontWeight: 800, color: "#111" }}>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: T.text }}>
                     3,245
                   </div>
-                  <div style={{ fontSize: 8, color: "#6b7280" }}>Total</div>
+                  <div style={{ fontSize: 8, color: T.textMuted }}>Total</div>
                 </div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -2881,7 +3044,7 @@ function ReportDetail1() {
                         flexShrink: 0,
                       }}
                     />
-                    <span style={{ fontSize: 10, color: "#374151" }}>
+                    <span style={{ fontSize: 10, color: T.textSec }}>
                       {d.name}
                     </span>
                     <span
@@ -2900,10 +3063,11 @@ function ReportDetail1() {
               </div>
             </div>
           </div>
+
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -2923,10 +3087,10 @@ function ReportDetail1() {
                       key={h}
                       style={{
                         fontSize: 9,
-                        color: "#6b7280",
+                        color: T.textMuted,
                         padding: "4px 6px",
                         textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
+                        borderBottom: `0.5px solid ${T.border}`,
                         fontWeight: 600,
                       }}
                     >
@@ -2937,12 +3101,15 @@ function ReportDetail1() {
               </thead>
               <tbody>
                 {vendorData.map((v, i) => (
-                  <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
+                  <tr
+                    key={i}
+                    style={{ borderBottom: `0.5px solid ${T.borderLight}` }}
+                  >
                     <td
                       style={{
                         padding: "6px 6px",
                         fontSize: 11,
-                        color: "#374151",
+                        color: T.textSec,
                         fontWeight: 500,
                       }}
                     >
@@ -2956,7 +3123,7 @@ function ReportDetail1() {
                         padding: "6px 6px",
                         fontSize: 11,
                         fontWeight: 600,
-                        color: "#111",
+                        color: T.text,
                       }}
                     >
                       {v.fte}
@@ -2965,7 +3132,7 @@ function ReportDetail1() {
                       style={{
                         padding: "6px 6px",
                         fontSize: 11,
-                        color: COLORS.teal,
+                        color: T.teal,
                         fontWeight: 600,
                       }}
                     >
@@ -2975,7 +3142,7 @@ function ReportDetail1() {
                       style={{
                         padding: "6px 6px",
                         fontSize: 11,
-                        color: COLORS.orange,
+                        color: T.orange,
                         fontWeight: 600,
                       }}
                     >
@@ -2987,10 +3154,11 @@ function ReportDetail1() {
             </table>
             <ViewAllLink label="View All Vendors →" />
           </div>
+
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -3009,10 +3177,10 @@ function ReportDetail1() {
                       key={h}
                       style={{
                         fontSize: 9,
-                        color: "#6b7280",
+                        color: T.textMuted,
                         padding: "4px 6px",
                         textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
+                        borderBottom: `0.5px solid ${T.border}`,
                         fontWeight: 600,
                       }}
                     >
@@ -3023,12 +3191,15 @@ function ReportDetail1() {
               </thead>
               <tbody>
                 {skillsGapData.map((s, i) => (
-                  <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
+                  <tr
+                    key={i}
+                    style={{ borderBottom: `0.5px solid ${T.borderLight}` }}
+                  >
                     <td
                       style={{
                         padding: "6px 6px",
                         fontSize: 11,
-                        color: "#374151",
+                        color: T.textSec,
                         fontWeight: 500,
                       }}
                     >
@@ -3038,7 +3209,7 @@ function ReportDetail1() {
                       style={{
                         padding: "6px 6px",
                         fontSize: 11,
-                        color: "#111",
+                        color: T.text,
                         fontWeight: 600,
                       }}
                     >
@@ -3048,7 +3219,7 @@ function ReportDetail1() {
                       style={{
                         padding: "6px 6px",
                         fontSize: 11,
-                        color: COLORS.green,
+                        color: T.green,
                         fontWeight: 600,
                       }}
                     >
@@ -3075,7 +3246,7 @@ function ReportDetail1() {
                             style={{
                               width: `${Math.min(Math.abs(s.gap) / 2, 100)}%`,
                               height: "100%",
-                              background: COLORS.red,
+                              background: T.red,
                               borderRadius: 3,
                             }}
                           />
@@ -3084,7 +3255,7 @@ function ReportDetail1() {
                           style={{
                             fontSize: 11,
                             fontWeight: 700,
-                            color: COLORS.red,
+                            color: T.red,
                           }}
                         >
                           {s.gap}
@@ -3098,6 +3269,8 @@ function ReportDetail1() {
             <ViewAllLink label="View All Skills →" />
           </div>
         </div>
+
+        {/* Cross-Pillar + Staffing Risk + Strategic Alerts */}
         <div
           style={{
             display: "grid",
@@ -3107,8 +3280,8 @@ function ReportDetail1() {
         >
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -3129,10 +3302,10 @@ function ReportDetail1() {
                       key={h}
                       style={{
                         fontSize: 9,
-                        color: "#6b7280",
+                        color: T.textMuted,
                         padding: "4px 6px",
                         textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
+                        borderBottom: `0.5px solid ${T.border}`,
                         fontWeight: 600,
                       }}
                     >
@@ -3143,12 +3316,15 @@ function ReportDetail1() {
               </thead>
               <tbody>
                 {crossPillarData.map((r, i) => (
-                  <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
+                  <tr
+                    key={i}
+                    style={{ borderBottom: `0.5px solid ${T.borderLight}` }}
+                  >
                     <td
                       style={{
                         padding: "7px 6px",
                         fontSize: 11,
-                        color: "#374151",
+                        color: T.textSec,
                         fontWeight: 600,
                       }}
                     >
@@ -3158,7 +3334,7 @@ function ReportDetail1() {
                       style={{
                         padding: "7px 6px",
                         fontSize: 11,
-                        color: "#6b7280",
+                        color: T.textMuted,
                       }}
                     >
                       <div
@@ -3172,7 +3348,7 @@ function ReportDetail1() {
                           style={{
                             width: 28,
                             height: 6,
-                            background: `linear-gradient(to right, ${COLORS.blue}, ${COLORS.teal})`,
+                            background: `linear-gradient(to right, ${T.blue}, ${T.teal})`,
                             borderRadius: 3,
                           }}
                         />
@@ -3184,7 +3360,7 @@ function ReportDetail1() {
                         padding: "7px 6px",
                         fontSize: 12,
                         fontWeight: 800,
-                        color: COLORS.blue,
+                        color: T.blue,
                       }}
                     >
                       {r.fte}
@@ -3193,7 +3369,7 @@ function ReportDetail1() {
                       style={{
                         padding: "7px 6px",
                         fontSize: 9.5,
-                        color: "#6b7280",
+                        color: T.textMuted,
                       }}
                     >
                       {r.skills}
@@ -3203,10 +3379,11 @@ function ReportDetail1() {
               </tbody>
             </table>
           </div>
+
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -3220,10 +3397,10 @@ function ReportDetail1() {
                       key={h}
                       style={{
                         fontSize: 9,
-                        color: "#6b7280",
+                        color: T.textMuted,
                         padding: "4px 6px",
                         textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
+                        borderBottom: `0.5px solid ${T.border}`,
                         fontWeight: 600,
                       }}
                     >
@@ -3234,12 +3411,15 @@ function ReportDetail1() {
               </thead>
               <tbody>
                 {staffingRiskProjects.map((r, i) => (
-                  <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
+                  <tr
+                    key={i}
+                    style={{ borderBottom: `0.5px solid ${T.borderLight}` }}
+                  >
                     <td
                       style={{
                         padding: "7px 6px",
                         fontSize: 11,
-                        color: "#374151",
+                        color: T.textSec,
                         fontWeight: 600,
                       }}
                     >
@@ -3249,7 +3429,7 @@ function ReportDetail1() {
                       style={{
                         padding: "7px 6px",
                         fontSize: 10,
-                        color: "#6b7280",
+                        color: T.textMuted,
                       }}
                     >
                       {r.pillar}
@@ -3262,7 +3442,7 @@ function ReportDetail1() {
                         padding: "7px 6px",
                         fontSize: 12,
                         fontWeight: 800,
-                        color: COLORS.red,
+                        color: T.red,
                       }}
                     >
                       {r.gap}
@@ -3273,10 +3453,11 @@ function ReportDetail1() {
             </table>
             <ViewAllLink label="View All Projects →" />
           </div>
+
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -3310,7 +3491,7 @@ function ReportDetail1() {
                     <span
                       style={{
                         fontSize: 11,
-                        color: "#374151",
+                        color: T.textSec,
                         lineHeight: 1.4,
                       }}
                     >
@@ -3324,13 +3505,14 @@ function ReportDetail1() {
             <ViewAllLink label="View All Alerts →" />
           </div>
         </div>
+
         <div
           style={{
             textAlign: "center",
             fontSize: 10,
-            color: "#9ca3af",
+            color: T.textFaint,
             paddingTop: 8,
-            borderTop: "0.5px solid #e5e7eb",
+            borderTop: `0.5px solid ${T.border}`,
           }}
         >
           ℹ️ All metrics are based on data as of 15/05/26 10:30 AM &nbsp;|&nbsp;
@@ -3341,82 +3523,12 @@ function ReportDetail1() {
   );
 }
 
-// Generic filter bar for other reports
-function GenericFilterBar({ filters, setFilters }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        gap: 8,
-        alignItems: "center",
-        marginBottom: 16,
-        flexWrap: "wrap",
-      }}
-    >
-      {GENERIC_FILTER_DEFS.map((f) => (
-        <div
-          key={f.key}
-          style={{ display: "flex", flexDirection: "column", gap: 2 }}
-        >
-          <label style={{ fontSize: 9, color: "#9ca3af" }}>{f.label}</label>
-          <select
-            value={filters[f.key]}
-            onChange={(e) =>
-              setFilters((p) => ({ ...p, [f.key]: e.target.value }))
-            }
-            style={{
-              fontSize: 11,
-              borderRadius: 6,
-              border: "0.5px solid #d1d5db",
-              padding: "4px 8px",
-              background: "#fff",
-              color: "#374151",
-              cursor: "pointer",
-            }}
-          >
-            {f.options.map((o) => (
-              <option key={o}>{o}</option>
-            ))}
-          </select>
-        </div>
-      ))}
-      <div style={{ display: "flex", gap: 6, marginTop: 14 }}>
-        {["Filters", "Refresh", "Export"].map((l) => (
-          <button
-            key={l}
-            style={{
-              background: "#fff",
-              border: "0.5px solid #d1d5db",
-              borderRadius: 6,
-              padding: "4px 10px",
-              fontSize: 11,
-              cursor: "pointer",
-              color: "#374151",
-            }}
-          >
-            {l}
-          </button>
-        ))}
-      </div>
-      <div
-        style={{
-          marginLeft: "auto",
-          marginTop: 14,
-          fontSize: 10,
-          color: "#9ca3af",
-        }}
-      >
-        Last Updated: 15/05/26 10:30 AM
-      </div>
-    </div>
-  );
-}
-
-// ─── Remaining detail views (using updated date format and 2026 dates) ────────
+// ─── Generic detail views (Reports 2–11, 13–15) ───────────────────────────────
+// Each uses the same token variables so dark mode is automatic.
 
 function ReportDetail2() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-  const byRole = [
+  const byRoleData = [
     {
       role: "Developers",
       allocated: 3240,
@@ -3448,11 +3560,17 @@ function ReportDetail2() {
     },
   ];
   const buUtil = [
-    { name: "Engineering", util: 85, color: COLORS.blue },
-    { name: "Consulting", util: 81, color: COLORS.teal },
-    { name: "Data & Analytics", util: 84, color: COLORS.purple },
-    { name: "Products", util: 79, color: COLORS.orange },
+    { name: "Engineering", util: 85, color: T.blue },
+    { name: "Consulting", util: 81, color: T.teal },
+    { name: "Data & Analytics", util: 84, color: T.purple },
+    { name: "Products", util: 79, color: T.orange },
   ];
+  const ttStyle = {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    fontSize: 10,
+    color: T.text,
+  };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -3463,11 +3581,11 @@ function ReportDetail2() {
           gap: 10,
         }}
       >
-        <StatTile label="Total Capacity" value="7,427" color={COLORS.blue} />
-        <StatTile label="Total Demand" value="8,016" color={COLORS.orange} />
-        <StatTile label="Allocated (FTE)" value="7,115" color={COLORS.teal} />
-        <StatTile label="Utilization" value="83%" color={COLORS.purple} />
-        <StatTile label="Capacity Gap" value="-589" color={COLORS.red} />
+        <StatTile label="Total Capacity" value="7,427" color={T.blue} />
+        <StatTile label="Total Demand" value="8,016" color={T.orange} />
+        <StatTile label="Allocated (FTE)" value="7,115" color={T.teal} />
+        <StatTile label="Utilization" value="83%" color={T.purple} />
+        <StatTile label="Capacity Gap" value="-589" color={T.red} />
       </div>
       <div
         style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 12 }}
@@ -3479,20 +3597,19 @@ function ReportDetail2() {
               data={capDemand2026}
               margin={{ top: 5, right: 5, bottom: 5, left: -15 }}
             >
-              <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-              <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-              <YAxis tick={{ fontSize: 9 }} />
+              <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: 9, fill: T.textMuted }}
+              />
+              <YAxis tick={{ fontSize: 9, fill: T.textMuted }} />
               <Tooltip
-                contentStyle={{ fontSize: 10 }}
+                contentStyle={ttStyle}
                 formatter={(v) => v.toLocaleString()}
               />
-              <Bar
-                dataKey="Capacity"
-                fill={COLORS.blue}
-                radius={[2, 2, 0, 0]}
-              />
-              <Bar dataKey="Demand" fill={COLORS.teal} radius={[2, 2, 0, 0]} />
-              <Legend wrapperStyle={{ fontSize: 9 }} />
+              <Bar dataKey="Capacity" fill={T.blue} radius={[2, 2, 0, 0]} />
+              <Bar dataKey="Demand" fill={T.teal} radius={[2, 2, 0, 0]} />
+              <Legend wrapperStyle={{ fontSize: 9, color: T.textMuted }} />
             </BarChart>
           </ResponsiveContainer>
         </DetailCard>
@@ -3507,7 +3624,7 @@ function ReportDetail2() {
                   marginBottom: 4,
                 }}
               >
-                <span style={{ fontSize: 11, color: "#374151" }}>{r.name}</span>
+                <span style={{ fontSize: 11, color: T.textSec }}>{r.name}</span>
                 <span style={{ fontSize: 12, fontWeight: 700, color: r.color }}>
                   {r.util}%
                 </span>
@@ -3527,14 +3644,12 @@ function ReportDetail2() {
             "Utilization",
             "Gap",
           ]}
-          rows={byRole.map((r) => [
-            <span style={{ color: "#374151", fontWeight: 600 }}>{r.role}</span>,
+          rows={byRoleData.map((r) => [
+            <span style={{ color: T.textSec, fontWeight: 600 }}>{r.role}</span>,
             r.allocated.toLocaleString(),
             r.capacity.toLocaleString(),
-            <span style={{ color: COLORS.green, fontWeight: 700 }}>
-              {r.util}
-            </span>,
-            <span style={{ color: COLORS.red, fontWeight: 700 }}>{r.gap}</span>,
+            <span style={{ color: T.green, fontWeight: 700 }}>{r.util}</span>,
+            <span style={{ color: T.red, fontWeight: 700 }}>{r.gap}</span>,
           ])}
         />
       </DetailCard>
@@ -3595,6 +3710,12 @@ function ReportDetail3() {
     { name: "Financial Inputs", value: 126 },
     { name: "Timesheet Inputs", value: 86 },
   ];
+  const ttStyle = {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    fontSize: 10,
+    color: T.text,
+  };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -3605,14 +3726,10 @@ function ReportDetail3() {
           gap: 10,
         }}
       >
-        <StatTile
-          label="Total Planning Inputs"
-          value="1,245"
-          color={COLORS.blue}
-        />
-        <StatTile label="Approved" value="864" color={COLORS.green} />
-        <StatTile label="Pending" value="381" color={COLORS.orange} />
-        <StatTile label="Approval Rate" value="69.4%" color={COLORS.teal} />
+        <StatTile label="Total Planning Inputs" value="1,245" color={T.blue} />
+        <StatTile label="Approved" value="864" color={T.green} />
+        <StatTile label="Pending" value="381" color={T.orange} />
+        <StatTile label="Approval Rate" value="69.4%" color={T.teal} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <DetailCard>
@@ -3622,25 +3739,28 @@ function ReportDetail3() {
               data={approvalTrend}
               margin={{ top: 5, right: 5, bottom: 5, left: -15 }}
             >
-              <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-              <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-              <YAxis tick={{ fontSize: 9 }} />
-              <Tooltip contentStyle={{ fontSize: 10 }} />
+              <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: 9, fill: T.textMuted }}
+              />
+              <YAxis tick={{ fontSize: 9, fill: T.textMuted }} />
+              <Tooltip contentStyle={ttStyle} />
               <Area
                 type="monotone"
                 dataKey="Approved"
-                stroke={COLORS.green}
-                fill={COLORS.green + "33"}
+                stroke={T.green}
+                fill={T.green + "33"}
                 strokeWidth={2}
               />
               <Area
                 type="monotone"
                 dataKey="Pending"
-                stroke={COLORS.orange}
-                fill={COLORS.orange + "33"}
+                stroke={T.orange}
+                fill={T.orange + "33"}
                 strokeWidth={2}
               />
-              <Legend wrapperStyle={{ fontSize: 9 }} />
+              <Legend wrapperStyle={{ fontSize: 9, color: T.textMuted }} />
             </AreaChart>
           </ResponsiveContainer>
         </DetailCard>
@@ -3654,17 +3774,17 @@ function ReportDetail3() {
             >
               <CartesianGrid
                 strokeDasharray="2 2"
-                stroke="#f3f4f6"
+                stroke={T.borderLight}
                 horizontal={false}
               />
-              <XAxis type="number" tick={{ fontSize: 9 }} />
+              <XAxis type="number" tick={{ fontSize: 9, fill: T.textMuted }} />
               <YAxis
                 type="category"
                 dataKey="name"
-                tick={{ fontSize: 9 }}
+                tick={{ fontSize: 9, fill: T.textMuted }}
                 width={90}
               />
-              <Tooltip contentStyle={{ fontSize: 10 }} />
+              <Tooltip contentStyle={ttStyle} />
               <Bar dataKey="value" radius={[0, 3, 3, 0]}>
                 {byType.map((_, i) => (
                   <Cell key={i} fill={DONUT_COLORS[i]} />
@@ -3685,17 +3805,15 @@ function ReportDetail3() {
             "Approval Rate",
           ]}
           rows={owners.map((r) => [
-            <span style={{ color: "#374151", fontWeight: 600 }}>{r.name}</span>,
+            <span style={{ color: T.textSec, fontWeight: 600 }}>{r.name}</span>,
             r.total,
-            <span style={{ color: COLORS.green, fontWeight: 600 }}>
+            <span style={{ color: T.green, fontWeight: 600 }}>
               {r.approved}
             </span>,
-            <span style={{ color: COLORS.orange, fontWeight: 600 }}>
+            <span style={{ color: T.orange, fontWeight: 600 }}>
               {r.pending}
             </span>,
-            <span style={{ color: COLORS.blue, fontWeight: 700 }}>
-              {r.rate}
-            </span>,
+            <span style={{ color: T.blue, fontWeight: 700 }}>{r.rate}</span>,
           ])}
         />
       </DetailCard>
@@ -3727,6 +3845,12 @@ function ReportDetail4() {
     { month: "11/04/26", fte: 7000 },
     { month: "11/05/26", fte: 7115 },
   ];
+  const ttStyle = {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    fontSize: 10,
+    color: T.text,
+  };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -3737,13 +3861,9 @@ function ReportDetail4() {
           gap: 10,
         }}
       >
-        <StatTile
-          label="Total Allocated (FTE)"
-          value="7,115"
-          color={COLORS.blue}
-        />
-        <StatTile label="Active Projects" value="124" color={COLORS.teal} />
-        <StatTile label="Avg Allocation %" value="81%" color={COLORS.purple} />
+        <StatTile label="Total Allocated (FTE)" value="7,115" color={T.blue} />
+        <StatTile label="Active Projects" value="124" color={T.teal} />
+        <StatTile label="Avg Allocation %" value="81%" color={T.purple} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <DetailCard>
@@ -3787,10 +3907,10 @@ function ReportDetail4() {
                   pointerEvents: "none",
                 }}
               >
-                <div style={{ fontSize: 13, fontWeight: 800, color: "#111" }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>
                   7,115
                 </div>
-                <div style={{ fontSize: 9, color: "#6b7280" }}>Total FTE</div>
+                <div style={{ fontSize: 9, color: T.textMuted }}>Total FTE</div>
               </div>
             </div>
             <div>
@@ -3813,15 +3933,15 @@ function ReportDetail4() {
                       flexShrink: 0,
                     }}
                   />
-                  <span style={{ fontSize: 10, color: "#374151", flex: 1 }}>
+                  <span style={{ fontSize: 10, color: T.textSec, flex: 1 }}>
                     {d.name}
                   </span>
                   <span
-                    style={{ fontSize: 10, fontWeight: 700, color: "#111" }}
+                    style={{ fontSize: 10, fontWeight: 700, color: T.text }}
                   >
                     {d.value}%
                   </span>
-                  <span style={{ fontSize: 10, color: "#9ca3af" }}>
+                  <span style={{ fontSize: 10, color: T.textFaint }}>
                     {d.fte.toLocaleString()}
                   </span>
                 </div>
@@ -3840,7 +3960,7 @@ function ReportDetail4() {
                   marginBottom: 4,
                 }}
               >
-                <span style={{ fontSize: 10, color: "#374151" }}>{p.name}</span>
+                <span style={{ fontSize: 10, color: T.textSec }}>{p.name}</span>
                 <span
                   style={{
                     fontSize: 10,
@@ -3863,19 +3983,19 @@ function ReportDetail4() {
             data={allocationTrend}
             margin={{ top: 5, right: 20, bottom: 5, left: -10 }}
           >
-            <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-            <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-            <YAxis tick={{ fontSize: 9 }} />
+            <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
+            <XAxis dataKey="month" tick={{ fontSize: 9, fill: T.textMuted }} />
+            <YAxis tick={{ fontSize: 9, fill: T.textMuted }} />
             <Tooltip
-              contentStyle={{ fontSize: 10 }}
+              contentStyle={ttStyle}
               formatter={(v) => `${v.toLocaleString()} FTE`}
             />
             <Line
               type="monotone"
               dataKey="fte"
-              stroke={COLORS.blue}
+              stroke={T.blue}
               strokeWidth={2}
-              dot={{ r: 3, fill: COLORS.blue }}
+              dot={{ r: 3, fill: T.blue }}
               name="Allocated FTE"
             />
           </LineChart>
@@ -3899,7 +4019,7 @@ function ReportDetail5() {
     { name: "James Thomas", role: "Developer", alloc: 104, projects: 3 },
     { name: "Maria Garcia", role: "Tester", alloc: 103, projects: 3 },
   ];
-  const byRole = [
+  const byRoleOver = [
     { role: "Developer", count: 198 },
     { role: "Consultant", count: 42 },
     { role: "Analyst", count: 18 },
@@ -3913,6 +4033,12 @@ function ReportDetail5() {
     { name: "AI Platform", count: 28 },
     { name: "ERP Implementation", count: 20 },
   ];
+  const ttStyle = {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    fontSize: 10,
+    color: T.text,
+  };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -3926,14 +4052,10 @@ function ReportDetail5() {
         <StatTile
           label="Over Allocated Resources"
           value="312 FTE"
-          color={COLORS.red}
+          color={T.red}
         />
-        <StatTile
-          label="Over Allocation %"
-          value="12.3%"
-          color={COLORS.orange}
-        />
-        <StatTile label="Projects Impacted" value="47" color={COLORS.amber} />
+        <StatTile label="Over Allocation %" value="12.3%" color={T.orange} />
+        <StatTile label="Projects Impacted" value="47" color={T.amber} />
       </div>
       <div
         style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 12 }}
@@ -3943,19 +4065,19 @@ function ReportDetail5() {
           <DetailTable
             headers={["Resource", "Role", "Allocation %", "Projects"]}
             rows={overList.map((r) => [
-              <span style={{ color: "#374151", fontWeight: 600 }}>
+              <span style={{ color: T.textSec, fontWeight: 600 }}>
                 {r.name}
               </span>,
-              <span style={{ color: "#6b7280" }}>{r.role}</span>,
+              <span style={{ color: T.textMuted }}>{r.role}</span>,
               <span
                 style={{
                   fontWeight: 800,
                   color:
                     r.alloc >= 125
-                      ? COLORS.red
+                      ? T.red
                       : r.alloc >= 115
-                        ? COLORS.orange
-                        : COLORS.amber,
+                        ? T.orange
+                        : T.amber,
                 }}
               >
                 {r.alloc}%
@@ -3969,26 +4091,29 @@ function ReportDetail5() {
             <SectionLabel>Over Allocation by Role</SectionLabel>
             <ResponsiveContainer width="100%" height={150}>
               <BarChart
-                data={byRole}
+                data={byRoleOver}
                 layout="vertical"
                 margin={{ top: 5, right: 20, bottom: 5, left: 65 }}
               >
                 <CartesianGrid
                   strokeDasharray="2 2"
-                  stroke="#f3f4f6"
+                  stroke={T.borderLight}
                   horizontal={false}
                 />
-                <XAxis type="number" tick={{ fontSize: 9 }} />
+                <XAxis
+                  type="number"
+                  tick={{ fontSize: 9, fill: T.textMuted }}
+                />
                 <YAxis
                   type="category"
                   dataKey="role"
-                  tick={{ fontSize: 9 }}
+                  tick={{ fontSize: 9, fill: T.textMuted }}
                   width={65}
                 />
-                <Tooltip contentStyle={{ fontSize: 10 }} />
+                <Tooltip contentStyle={ttStyle} />
                 <Bar
                   dataKey="count"
-                  fill={COLORS.red}
+                  fill={T.red}
                   radius={[0, 3, 3, 0]}
                   name="Over-Allocated"
                 />
@@ -4007,15 +4132,15 @@ function ReportDetail5() {
                   marginBottom: 5,
                 }}
               >
-                <span style={{ fontSize: 10, color: "#374151", minWidth: 120 }}>
+                <span style={{ fontSize: 10, color: T.textSec, minWidth: 120 }}>
                   {p.name}
                 </span>
-                <DetailMiniBar value={p.count} max={50} color={COLORS.red} />
+                <DetailMiniBar value={p.count} max={50} color={T.red} />
                 <span
                   style={{
                     fontSize: 10,
                     fontWeight: 700,
-                    color: COLORS.red,
+                    color: T.red,
                     minWidth: 22,
                   }}
                 >
@@ -4032,7 +4157,12 @@ function ReportDetail5() {
 
 function ReportDetail6() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-  
+  const ttStyle = {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    fontSize: 10,
+    color: T.text,
+  };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -4043,17 +4173,13 @@ function ReportDetail6() {
           gap: 10,
         }}
       >
-        <StatTile
-          label="Total Resources (FTE)"
-          value="8,532"
-          color={COLORS.blue}
-        />
-        <StatTile label="Available (FTE)" value="1,842" color={COLORS.green} />
-        <StatTile label="Shared Resources" value="2,315" color={COLORS.teal} />
+        <StatTile label="Total Resources (FTE)" value="8,532" color={T.blue} />
+        <StatTile label="Available (FTE)" value="1,842" color={T.green} />
+        <StatTile label="Shared Resources" value="2,315" color={T.teal} />
         <StatTile
           label="Bench Resources"
           value="1,842 (21.6%)"
-          color={COLORS.gray}
+          color={T.gray}
         />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -4067,14 +4193,12 @@ function ReportDetail6() {
               "Availability %",
             ]}
             rows={byRoleReportDetail16.map((r) => [
-              <span style={{ color: "#374151" }}>{r.role}</span>,
+              <span style={{ color: T.textSec }}>{r.role}</span>,
               r.total.toLocaleString(),
-              <span style={{ color: COLORS.green, fontWeight: 600 }}>
+              <span style={{ color: T.green, fontWeight: 600 }}>
                 {r.avail}
               </span>,
-              <span style={{ color: COLORS.teal, fontWeight: 700 }}>
-                {r.pct}
-              </span>,
+              <span style={{ color: T.teal, fontWeight: 700 }}>{r.pct}</span>,
             ])}
           />
         </DetailCard>
@@ -4090,15 +4214,15 @@ function ReportDetail6() {
                 marginBottom: 5,
               }}
             >
-              <span style={{ fontSize: 10, color: "#374151", minWidth: 150 }}>
+              <span style={{ fontSize: 10, color: T.textSec, minWidth: 150 }}>
                 {p.name}
               </span>
-              <DetailMiniBar value={p.shared} max={250} color={COLORS.teal} />
+              <DetailMiniBar value={p.shared} max={250} color={T.teal} />
               <span
                 style={{
                   fontSize: 10,
                   fontWeight: 700,
-                  color: COLORS.teal,
+                  color: T.teal,
                   minWidth: 28,
                 }}
               >
@@ -4115,22 +4239,19 @@ function ReportDetail6() {
             data={availTrend}
             margin={{ top: 5, right: 20, bottom: 5, left: -10 }}
           >
-            <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-            <XAxis dataKey="month" tick={{ fontSize: 9 }} />
+            <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
+            <XAxis dataKey="month" tick={{ fontSize: 9, fill: T.textMuted }} />
             <YAxis
               domain={[18, 26]}
-              tick={{ fontSize: 9 }}
+              tick={{ fontSize: 9, fill: T.textMuted }}
               tickFormatter={(v) => `${v}%`}
             />
-            <Tooltip
-              contentStyle={{ fontSize: 10 }}
-              formatter={(v) => `${v}%`}
-            />
+            <Tooltip contentStyle={ttStyle} formatter={(v) => `${v}%`} />
             <Area
               type="monotone"
               dataKey="pct"
-              stroke={COLORS.green}
-              fill={COLORS.green + "33"}
+              stroke={T.green}
+              fill={T.green + "33"}
               strokeWidth={2}
               name="Availability %"
             />
@@ -4143,7 +4264,12 @@ function ReportDetail6() {
 
 function ReportDetail7() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-  
+  const ttStyle = {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    fontSize: 10,
+    color: T.text,
+  };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -4154,18 +4280,10 @@ function ReportDetail7() {
           gap: 10,
         }}
       >
-        <StatTile label="Overall Compliance" value="92%" color={COLORS.green} />
-        <StatTile
-          label="Timesheet Compliance"
-          value="96%"
-          color={COLORS.teal}
-        />
-        <StatTile
-          label="Allocation Adherence"
-          value="91%"
-          color={COLORS.blue}
-        />
-        <StatTile label="Manager Approval" value="93%" color={COLORS.purple} />
+        <StatTile label="Overall Compliance" value="92%" color={T.green} />
+        <StatTile label="Timesheet Compliance" value="96%" color={T.teal} />
+        <StatTile label="Allocation Adherence" value="91%" color={T.blue} />
+        <StatTile label="Manager Approval" value="93%" color={T.purple} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <DetailCard>
@@ -4179,14 +4297,14 @@ function ReportDetail7() {
                   marginBottom: 4,
                 }}
               >
-                <span style={{ fontSize: 11, color: "#374151" }}>
+                <span style={{ fontSize: 11, color: T.textSec }}>
                   {r.label}
                 </span>
                 <span
                   style={{
                     fontSize: 11,
                     fontWeight: 700,
-                    color: r.value >= r.target ? COLORS.green : COLORS.red,
+                    color: r.value >= r.target ? T.green : T.red,
                   }}
                 >
                   {r.value}%
@@ -4194,7 +4312,7 @@ function ReportDetail7() {
               </div>
               <DetailMiniBar
                 value={r.value}
-                color={r.value >= r.target ? COLORS.green : COLORS.red}
+                color={r.value >= r.target ? T.green : T.red}
               />
             </div>
           ))}
@@ -4244,7 +4362,7 @@ function ReportDetail7() {
                       background: d.color,
                     }}
                   />
-                  <span style={{ fontSize: 10, color: "#374151" }}>
+                  <span style={{ fontSize: 10, color: T.textSec }}>
                     {d.name}
                   </span>
                   <span
@@ -4270,23 +4388,20 @@ function ReportDetail7() {
             data={compTrend}
             margin={{ top: 5, right: 20, bottom: 5, left: -10 }}
           >
-            <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-            <XAxis dataKey="month" tick={{ fontSize: 9 }} />
+            <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
+            <XAxis dataKey="month" tick={{ fontSize: 9, fill: T.textMuted }} />
             <YAxis
               domain={[85, 100]}
-              tick={{ fontSize: 9 }}
+              tick={{ fontSize: 9, fill: T.textMuted }}
               tickFormatter={(v) => `${v}%`}
             />
-            <Tooltip
-              contentStyle={{ fontSize: 10 }}
-              formatter={(v) => `${v}%`}
-            />
+            <Tooltip contentStyle={ttStyle} formatter={(v) => `${v}%`} />
             <Line
               type="monotone"
               dataKey="rate"
-              stroke={COLORS.green}
+              stroke={T.green}
               strokeWidth={2}
-              dot={{ r: 3, fill: COLORS.green }}
+              dot={{ r: 3, fill: T.green }}
               name="Compliance %"
             />
           </LineChart>
@@ -4298,8 +4413,12 @@ function ReportDetail7() {
 
 function ReportDetail8() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-  
-  
+  const ttStyle = {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    fontSize: 10,
+    color: T.text,
+  };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -4310,10 +4429,10 @@ function ReportDetail8() {
           gap: 10,
         }}
       >
-        <StatTile label="Total Budget" value="$24.80M" color={COLORS.blue} />
-        <StatTile label="Total Actual" value="$20.36M" color={COLORS.teal} />
-        <StatTile label="Variance" value="-$4.44M" color={COLORS.red} />
-        <StatTile label="Variance %" value="-17.9%" color={COLORS.red} />
+        <StatTile label="Total Budget" value="$24.80M" color={T.blue} />
+        <StatTile label="Total Actual" value="$20.36M" color={T.teal} />
+        <StatTile label="Variance" value="-$4.44M" color={T.red} />
+        <StatTile label="Variance %" value="-17.9%" color={T.red} />
       </div>
       <div
         style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 12 }}
@@ -4325,26 +4444,29 @@ function ReportDetail8() {
               data={budgetMonthly}
               margin={{ top: 5, right: 10, bottom: 5, left: -10 }}
             >
-              <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-              <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-              <YAxis tick={{ fontSize: 9 }} tickFormatter={(v) => `$${v}M`} />
-              <Tooltip
-                contentStyle={{ fontSize: 10 }}
-                formatter={(v) => `$${v}M`}
+              <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: 9, fill: T.textMuted }}
               />
+              <YAxis
+                tick={{ fontSize: 9, fill: T.textMuted }}
+                tickFormatter={(v) => `$${v}M`}
+              />
+              <Tooltip contentStyle={ttStyle} formatter={(v) => `$${v}M`} />
               <Bar
                 dataKey="budget"
-                fill={COLORS.blue}
+                fill={T.blue}
                 radius={[2, 2, 0, 0]}
                 name="Budget"
               />
               <Bar
                 dataKey="actual"
-                fill={COLORS.orange}
+                fill={T.orange}
                 radius={[2, 2, 0, 0]}
                 name="Actual"
               />
-              <Legend wrapperStyle={{ fontSize: 9 }} />
+              <Legend wrapperStyle={{ fontSize: 9, color: T.textMuted }} />
             </BarChart>
           </ResponsiveContainer>
         </DetailCard>
@@ -4360,15 +4482,12 @@ function ReportDetail8() {
                 outerRadius={70}
                 dataKey="value"
               >
-                {[COLORS.red, COLORS.orange, COLORS.amber].map((c, i) => (
+                {[T.red, T.orange, T.amber].map((c, i) => (
                   <Cell key={i} fill={c} />
                 ))}
               </Pie>
-              <Tooltip
-                contentStyle={{ fontSize: 10 }}
-                formatter={(v) => `${v}%`}
-              />
-              <Legend wrapperStyle={{ fontSize: 9 }} />
+              <Tooltip contentStyle={ttStyle} formatter={(v) => `${v}%`} />
+              <Legend wrapperStyle={{ fontSize: 9, color: T.textMuted }} />
             </PieChart>
           </div>
         </DetailCard>
@@ -4378,15 +4497,13 @@ function ReportDetail8() {
         <DetailTable
           headers={varianceByPortfolioHeader}
           rows={portfolioVar.map((r) => [
-            <span style={{ color: "#374151" }}>{r.name}</span>,
+            <span style={{ color: T.textSec }}>{r.name}</span>,
             `$${r.budget}M`,
             `$${r.actual}M`,
-            <span style={{ color: COLORS.red, fontWeight: 700 }}>
+            <span style={{ color: T.red, fontWeight: 700 }}>
               ${r.variance}M
             </span>,
-            <span style={{ color: COLORS.red, fontWeight: 700 }}>
-              {r.pct}%
-            </span>,
+            <span style={{ color: T.red, fontWeight: 700 }}>{r.pct}%</span>,
           ])}
         />
       </DetailCard>
@@ -4396,7 +4513,12 @@ function ReportDetail8() {
 
 function ReportDetail9() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-
+  const ttStyle = {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    fontSize: 10,
+    color: T.text,
+  };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -4407,18 +4529,10 @@ function ReportDetail9() {
           gap: 10,
         }}
       >
-        <StatTile
-          label="Total Vendor Spend"
-          value="$8.12M"
-          color={COLORS.blue}
-        />
-        <StatTile label="Active Vendors" value="56" color={COLORS.teal} />
-        <StatTile
-          label="Avg Performance Score"
-          value="87%"
-          color={COLORS.green}
-        />
-        <StatTile label="On-Time Delivery" value="92%" color={COLORS.purple} />
+        <StatTile label="Total Vendor Spend" value="$8.12M" color={T.blue} />
+        <StatTile label="Active Vendors" value="56" color={T.teal} />
+        <StatTile label="Avg Performance Score" value="87%" color={T.green} />
+        <StatTile label="On-Time Delivery" value="92%" color={T.purple} />
       </div>
       <div
         style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 12 }}
@@ -4438,12 +4552,12 @@ function ReportDetail9() {
               <span
                 style={{
                   fontWeight: 800,
-                  color: i < 3 ? COLORS.amber : "#9ca3af",
+                  color: i < 3 ? T.amber : T.textFaint,
                 }}
               >
                 #{i + 1}
               </span>,
-              <span style={{ color: "#374151", fontWeight: 600 }}>
+              <span style={{ color: T.textSec, fontWeight: 600 }}>
                 {v.name}
               </span>,
               `$${v.spend}M`,
@@ -4451,7 +4565,7 @@ function ReportDetail9() {
               <span
                 style={{
                   fontWeight: 700,
-                  color: v.score >= 85 ? COLORS.green : COLORS.orange,
+                  color: v.score >= 85 ? T.green : T.orange,
                 }}
               >
                 {v.score}%
@@ -4477,11 +4591,8 @@ function ReportDetail9() {
                     <Cell key={i} fill={DONUT_COLORS[i]} />
                   ))}
                 </Pie>
-                <Tooltip
-                  contentStyle={{ fontSize: 10 }}
-                  formatter={(v) => `${v}%`}
-                />
-                <Legend wrapperStyle={{ fontSize: 9 }} />
+                <Tooltip contentStyle={ttStyle} formatter={(v) => `${v}%`} />
+                <Legend wrapperStyle={{ fontSize: 9, color: T.textMuted }} />
               </PieChart>
             </div>
           </DetailCard>
@@ -4492,17 +4603,20 @@ function ReportDetail9() {
                 data={spendTrend}
                 margin={{ top: 5, right: 10, bottom: 5, left: -10 }}
               >
-                <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-                <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-                <YAxis tick={{ fontSize: 9 }} tickFormatter={(v) => `$${v}M`} />
-                <Tooltip
-                  contentStyle={{ fontSize: 10 }}
-                  formatter={(v) => `$${v}M`}
+                <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fontSize: 9, fill: T.textMuted }}
                 />
+                <YAxis
+                  tick={{ fontSize: 9, fill: T.textMuted }}
+                  tickFormatter={(v) => `$${v}M`}
+                />
+                <Tooltip contentStyle={ttStyle} formatter={(v) => `$${v}M`} />
                 <Line
                   type="monotone"
                   dataKey="spend"
-                  stroke={COLORS.amber}
+                  stroke={T.amber}
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   name="Vendor Spend"
@@ -4518,7 +4632,12 @@ function ReportDetail9() {
 
 function ReportDetail10() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-
+  const ttStyle = {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    fontSize: 10,
+    color: T.text,
+  };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -4529,10 +4648,10 @@ function ReportDetail10() {
           gap: 10,
         }}
       >
-        <StatTile label="Open Demands" value="412" color={COLORS.red} />
-        <StatTile label="In Progress (FTE)" value="186" color={COLORS.orange} />
-        <StatTile label="Fulfilled (FTE)" value="226" color={COLORS.green} />
-        <StatTile label="Avg Days to Fulfill" value="23" color={COLORS.teal} />
+        <StatTile label="Open Demands" value="412" color={T.red} />
+        <StatTile label="In Progress (FTE)" value="186" color={T.orange} />
+        <StatTile label="Fulfilled (FTE)" value="226" color={T.green} />
+        <StatTile label="Avg Days to Fulfill" value="23" color={T.teal} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <DetailCard>
@@ -4547,7 +4666,7 @@ function ReportDetail10() {
                 }}
               >
                 <span
-                  style={{ fontSize: 11, color: "#374151", fontWeight: 600 }}
+                  style={{ fontSize: 11, color: T.textSec, fontWeight: 600 }}
                 >
                   {d.label}
                 </span>
@@ -4567,12 +4686,14 @@ function ReportDetail10() {
                 justifyContent: "space-between",
                 alignItems: "center",
                 padding: "6px 0",
-                borderBottom: "0.5px solid #f3f4f6",
+                borderBottom: `0.5px solid ${T.borderLight}`,
               }}
             >
-              <span style={{ fontSize: 11, color: "#374151" }}>{d.range}</span>
+              <span style={{ fontSize: 11, color: T.textSec }}>{d.range}</span>
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <span style={{ fontSize: 10, color: "#6b7280" }}>{d.pct}</span>
+                <span style={{ fontSize: 10, color: T.textMuted }}>
+                  {d.pct}
+                </span>
                 <span style={{ fontSize: 16, fontWeight: 800, color: d.color }}>
                   {d.count}
                 </span>
@@ -4590,20 +4711,20 @@ function ReportDetail10() {
             >
               <CartesianGrid
                 strokeDasharray="2 2"
-                stroke="#f3f4f6"
+                stroke={T.borderLight}
                 horizontal={false}
               />
-              <XAxis type="number" tick={{ fontSize: 9 }} />
+              <XAxis type="number" tick={{ fontSize: 9, fill: T.textMuted }} />
               <YAxis
                 type="category"
                 dataKey="role"
-                tick={{ fontSize: 9 }}
+                tick={{ fontSize: 9, fill: T.textMuted }}
                 width={65}
               />
-              <Tooltip contentStyle={{ fontSize: 10 }} />
+              <Tooltip contentStyle={ttStyle} />
               <Bar
                 dataKey="value"
-                fill={COLORS.blue}
+                fill={T.blue}
                 radius={[0, 3, 3, 0]}
                 name="Demands"
               />
@@ -4616,7 +4737,7 @@ function ReportDetail10() {
                 <div style={{ fontSize: 20, fontWeight: 800, color: s.color }}>
                   {s.value}
                 </div>
-                <div style={{ fontSize: 9, color: "#6b7280" }}>{s.label}</div>
+                <div style={{ fontSize: 9, color: T.textMuted }}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -4628,7 +4749,12 @@ function ReportDetail10() {
 
 function ReportDetail11() {
   const [filters, setFilters] = useState(DEFAULT_EXEC_FILTERS);
-
+  const ttStyle = {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    fontSize: 10,
+    color: T.text,
+  };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -4642,18 +4768,14 @@ function ReportDetail11() {
         <StatTile
           label="Forecast Capacity (Jun)"
           value="8.3K FTE"
-          color={COLORS.blue}
+          color={T.blue}
         />
         <StatTile
           label="Forecast Demand (Jun)"
           value="9.1K FTE"
-          color={COLORS.orange}
+          color={T.orange}
         />
-        <StatTile
-          label="Projected Gap (Jun)"
-          value="-800 FTE"
-          color={COLORS.red}
-        />
+        <StatTile label="Projected Gap (Jun)" value="-800 FTE" color={T.red} />
       </div>
       <DetailCard>
         <SectionLabel>6-Month Capacity vs Demand Forecast</SectionLabel>
@@ -4662,21 +4784,18 @@ function ReportDetail11() {
             data={forecastData}
             margin={{ top: 5, right: 20, bottom: 5, left: -10 }}
           >
-            <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-            <XAxis dataKey="month" tick={{ fontSize: 9 }} />
+            <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
+            <XAxis dataKey="month" tick={{ fontSize: 9, fill: T.textMuted }} />
             <YAxis
               domain={[4, 12]}
-              tick={{ fontSize: 9 }}
+              tick={{ fontSize: 9, fill: T.textMuted }}
               tickFormatter={(v) => `${v}K`}
             />
-            <Tooltip
-              contentStyle={{ fontSize: 10 }}
-              formatter={(v) => `${v}K FTE`}
-            />
+            <Tooltip contentStyle={ttStyle} formatter={(v) => `${v}K FTE`} />
             <Line
               type="monotone"
               dataKey="cap"
-              stroke={COLORS.green}
+              stroke={T.green}
               strokeWidth={2}
               dot={{ r: 4 }}
               name="Capacity"
@@ -4684,7 +4803,7 @@ function ReportDetail11() {
             <Line
               type="monotone"
               dataKey="demand"
-              stroke={COLORS.blue}
+              stroke={T.blue}
               strokeWidth={2}
               dot={{ r: 4 }}
               name="Demand"
@@ -4692,13 +4811,13 @@ function ReportDetail11() {
             <Line
               type="monotone"
               dataKey="gap"
-              stroke={COLORS.red}
+              stroke={T.red}
               strokeWidth={2}
               strokeDasharray="4 4"
               dot={{ r: 3 }}
               name="Gap"
             />
-            <Legend wrapperStyle={{ fontSize: 9 }} />
+            <Legend wrapperStyle={{ fontSize: 9, color: T.textMuted }} />
           </LineChart>
         </ResponsiveContainer>
       </DetailCard>
@@ -4708,21 +4827,18 @@ function ReportDetail11() {
           <DetailTable
             headers={["Month", "Capacity (K)", "Demand (K)", "Gap (K)", "Risk"]}
             rows={forecastData.map((r) => [
-              <span style={{ fontWeight: 600, color: "#374151" }}>
+              <span style={{ fontWeight: 600, color: T.textSec }}>
                 {r.month}
               </span>,
               r.cap,
               r.demand,
-              <span style={{ color: COLORS.red, fontWeight: 700 }}>
-                {r.gap}
-              </span>,
+              <span style={{ color: T.red, fontWeight: 700 }}>{r.gap}</span>,
               <span
                 style={{
                   fontSize: 10,
                   fontWeight: 700,
-                  color: r.gap < -1.5 ? COLORS.red : COLORS.orange,
-                  background:
-                    (r.gap < -1.5 ? COLORS.red : COLORS.orange) + "18",
+                  color: r.gap < -1.5 ? T.red : T.orange,
+                  background: (r.gap < -1.5 ? T.red : T.orange) + "18",
                   padding: "1px 6px",
                   borderRadius: 4,
                 }}
@@ -4742,10 +4858,10 @@ function ReportDetail11() {
                 justifyContent: "space-between",
                 alignItems: "center",
                 padding: "7px 0",
-                borderBottom: "0.5px solid #f3f4f6",
+                borderBottom: `0.5px solid ${T.borderLight}`,
               }}
             >
-              <span style={{ fontSize: 11, color: "#374151", flex: 1 }}>
+              <span style={{ fontSize: 11, color: T.textSec, flex: 1 }}>
                 {r.action}
               </span>
               <span
@@ -4770,7 +4886,12 @@ function ReportDetail11() {
 
 function ReportDetail13() {
   const [filters, setFilters] = useState(DEFAULT_EXEC_FILTERS);
-
+  const ttStyle = {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    fontSize: 10,
+    color: T.text,
+  };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -4781,10 +4902,10 @@ function ReportDetail13() {
           gap: 10,
         }}
       >
-        <StatTile label="TS Compliance" value="96%" color={COLORS.green} />
-        <StatTile label="Actual FTE" value="2,850" color={COLORS.blue} />
-        <StatTile label="Planned FTE" value="2,850" color={COLORS.teal} />
-        <StatTile label="Variance" value="0%" color={COLORS.gray} />
+        <StatTile label="TS Compliance" value="96%" color={T.green} />
+        <StatTile label="Actual FTE" value="2,850" color={T.blue} />
+        <StatTile label="Planned FTE" value="2,850" color={T.teal} />
+        <StatTile label="Variance" value="0%" color={T.gray} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <DetailCard>
@@ -4794,23 +4915,26 @@ function ReportDetail13() {
               data={tsData}
               margin={{ top: 5, right: 10, bottom: 5, left: -10 }}
             >
-              <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-              <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-              <YAxis tick={{ fontSize: 9 }} />
-              <Tooltip contentStyle={{ fontSize: 10 }} />
+              <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: 9, fill: T.textMuted }}
+              />
+              <YAxis tick={{ fontSize: 9, fill: T.textMuted }} />
+              <Tooltip contentStyle={ttStyle} />
               <Bar
                 dataKey="planned"
-                fill={COLORS.blue}
+                fill={T.blue}
                 radius={[2, 2, 0, 0]}
                 name="Planned"
               />
               <Bar
                 dataKey="actual"
-                fill={COLORS.green}
+                fill={T.green}
                 radius={[2, 2, 0, 0]}
                 name="Actual"
               />
-              <Legend wrapperStyle={{ fontSize: 9 }} />
+              <Legend wrapperStyle={{ fontSize: 9, color: T.textMuted }} />
             </BarChart>
           </ResponsiveContainer>
         </DetailCard>
@@ -4848,20 +4972,18 @@ function ReportDetail13() {
                   startAngle={90}
                   endAngle={-270}
                 >
-                  {[COLORS.green, COLORS.red, COLORS.orange, COLORS.gray].map(
-                    (c, i) => (
-                      <Cell key={i} fill={c} />
-                    ),
-                  )}
+                  {[T.green, T.red, T.orange, T.gray].map((c, i) => (
+                    <Cell key={i} fill={c} />
+                  ))}
                 </Pie>
               </PieChart>
             </div>
             <div>
               {[
-                ["On Track", "66%", COLORS.green],
-                ["Over", "20%", COLORS.red],
-                ["Under", "10%", COLORS.orange],
-                ["Absent", "4%", COLORS.gray],
+                ["On Track", "66%", T.green],
+                ["Over", "20%", T.red],
+                ["Under", "10%", T.orange],
+                ["Absent", "4%", T.gray],
               ].map(([l, v, c]) => (
                 <div
                   key={l}
@@ -4880,7 +5002,7 @@ function ReportDetail13() {
                       background: c,
                     }}
                   />
-                  <span style={{ fontSize: 11, color: "#374151" }}>{l}</span>
+                  <span style={{ fontSize: 11, color: T.textSec }}>{l}</span>
                   <span style={{ fontSize: 12, fontWeight: 700, color: c }}>
                     {v}
                   </span>
@@ -4899,18 +5021,18 @@ function ReportDetail13() {
                 marginBottom: 5,
               }}
             >
-              <span style={{ fontSize: 10, color: "#374151", minWidth: 130 }}>
+              <span style={{ fontSize: 10, color: T.textSec, minWidth: 130 }}>
                 {d.dept}
               </span>
               <DetailMiniBar
                 value={d.v}
-                color={d.v >= 95 ? COLORS.green : COLORS.orange}
+                color={d.v >= 95 ? T.green : T.orange}
               />
               <span
                 style={{
                   fontSize: 10,
                   fontWeight: 700,
-                  color: "#111",
+                  color: T.text,
                   minWidth: 30,
                 }}
               >
@@ -4926,6 +5048,12 @@ function ReportDetail13() {
 
 function ReportDetail14() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
+  const ttStyle = {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    fontSize: 10,
+    color: T.text,
+  };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -4936,18 +5064,10 @@ function ReportDetail14() {
           gap: 10,
         }}
       >
-        <StatTile label="Pending Approvals" value="27" color={COLORS.orange} />
-        <StatTile label="Overdue Approvals" value="12" color={COLORS.red} />
-        <StatTile
-          label="Approved (This Month)"
-          value="186"
-          color={COLORS.green}
-        />
-        <StatTile
-          label="Avg Approval Time"
-          value="2.4 days"
-          color={COLORS.teal}
-        />
+        <StatTile label="Pending Approvals" value="27" color={T.orange} />
+        <StatTile label="Overdue Approvals" value="12" color={T.red} />
+        <StatTile label="Approved (This Month)" value="186" color={T.green} />
+        <StatTile label="Avg Approval Time" value="2.4 days" color={T.teal} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <DetailCard>
@@ -4960,7 +5080,7 @@ function ReportDetail14() {
                 justifyContent: "space-between",
                 alignItems: "center",
                 padding: "10px 0",
-                borderBottom: "0.5px solid #f3f4f6",
+                borderBottom: `0.5px solid ${T.borderLight}`,
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -4972,7 +5092,7 @@ function ReportDetail14() {
                     background: r.color,
                   }}
                 />
-                <span style={{ fontSize: 12, color: "#374151" }}>
+                <span style={{ fontSize: 12, color: T.textSec }}>
                   {r.label}
                 </span>
               </div>
@@ -4989,16 +5109,17 @@ function ReportDetail14() {
               data={data}
               margin={{ top: 5, right: 10, bottom: 5, left: -10 }}
             >
-              <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-              <XAxis dataKey="stage" tick={{ fontSize: 9 }} />
-              <YAxis tick={{ fontSize: 9 }} />
-              <Tooltip contentStyle={{ fontSize: 10 }} />
+              <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
+              <XAxis
+                dataKey="stage"
+                tick={{ fontSize: 9, fill: T.textMuted }}
+              />
+              <YAxis tick={{ fontSize: 9, fill: T.textMuted }} />
+              <Tooltip contentStyle={ttStyle} />
               <Bar dataKey="count" radius={[3, 3, 0, 0]}>
-                {[COLORS.blue, COLORS.orange, COLORS.green, COLORS.red].map(
-                  (c, i) => (
-                    <Cell key={i} fill={c} />
-                  ),
-                )}
+                {[T.blue, T.orange, T.green, T.red].map((c, i) => (
+                  <Cell key={i} fill={c} />
+                ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -5010,19 +5131,15 @@ function ReportDetail14() {
           headers={header}
           rows={rows.map((r) => [
             <span
-              style={{
-                color: COLORS.blue,
-                fontFamily: "monospace",
-                fontSize: 10,
-              }}
+              style={{ color: T.blue, fontFamily: "monospace", fontSize: 10 }}
             >
               {r.id}
             </span>,
             r.type,
-            <span style={{ color: "#6b7280" }}>{r.req}</span>,
+            <span style={{ color: T.textMuted }}>{r.req}</span>,
             <span
               style={{
-                color: r.days >= 12 ? COLORS.red : COLORS.orange,
+                color: r.days >= 12 ? T.red : T.orange,
                 fontWeight: 700,
               }}
             >
@@ -5060,10 +5177,10 @@ function ReportDetail15() {
           gap: 10,
         }}
       >
-        <StatTile label="Total Reports" value="14" color={COLORS.blue} />
-        <StatTile label="Scheduled Reports" value="8" color={COLORS.teal} />
-        <StatTile label="Favorites" value="5" color={COLORS.amber} />
-        <StatTile label="Recently Viewed" value="7" color={COLORS.purple} />
+        <StatTile label="Total Reports" value="14" color={T.blue} />
+        <StatTile label="Scheduled Reports" value="8" color={T.teal} />
+        <StatTile label="Favorites" value="5" color={T.amber} />
+        <StatTile label="Recently Viewed" value="7" color={T.purple} />
       </div>
       <div
         style={{
@@ -5076,8 +5193,8 @@ function ReportDetail15() {
           <div
             key={i}
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
               borderRadius: 10,
               padding: "12px",
               textAlign: "center",
@@ -5096,7 +5213,7 @@ function ReportDetail15() {
               style={{
                 fontSize: 20,
                 fontWeight: 900,
-                color: "#111",
+                color: T.text,
                 marginTop: 2,
               }}
             >
@@ -5104,7 +5221,7 @@ function ReportDetail15() {
                 ? allReports.length
                 : Math.floor(Math.random() * 3) + 1}
             </div>
-            <div style={{ fontSize: 10, color: "#9ca3af" }}>reports</div>
+            <div style={{ fontSize: 10, color: T.textFaint }}>reports</div>
           </div>
         ))}
       </div>
@@ -5113,21 +5230,23 @@ function ReportDetail15() {
         <DetailTable
           headers={["#", "Report", "Description", "Last Run", "Status"]}
           rows={allReports.map((r) => [
-            <span style={{ color: "#9ca3af", fontWeight: 600 }}>{r.num}</span>,
+            <span style={{ color: T.textFaint, fontWeight: 600 }}>
+              {r.num}
+            </span>,
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ fontSize: 14 }}>{r.icon}</span>
-              <span style={{ color: "#374151", fontWeight: 600 }}>
+              <span style={{ color: T.textSec, fontWeight: 600 }}>
                 {r.title}
               </span>
             </div>,
-            <span style={{ color: "#9ca3af" }}>{r.desc}</span>,
-            <span style={{ color: "#6b7280" }}>15/05/26</span>,
+            <span style={{ color: T.textFaint }}>{r.desc}</span>,
+            <span style={{ color: T.textMuted }}>15/05/26</span>,
             <span
               style={{
                 fontSize: 10,
                 fontWeight: 700,
-                color: COLORS.green,
-                background: COLORS.green + "18",
+                color: T.green,
+                background: T.green + "18",
                 padding: "2px 8px",
                 borderRadius: 4,
               }}
@@ -5140,6 +5259,8 @@ function ReportDetail15() {
     </div>
   );
 }
+
+// ─── Detail view registry ─────────────────────────────────────────────────────
 
 const DETAIL_VIEWS = {
   1: ReportDetail1,
@@ -5159,183 +5280,174 @@ const DETAIL_VIEWS = {
   15: ReportDetail15,
 };
 
+// ─── Back bar ─────────────────────────────────────────────────────────────────
+
+function BackBar({ onBack }) {
+  return (
+    <div
+      style={{
+        background: T.surface,
+        borderBottom: `1px solid ${T.border}`,
+        padding: "10px 20px",
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+      }}
+    >
+      <button
+        onClick={onBack}
+        style={{
+          background: T.surface,
+          border: `0.5px solid ${T.border}`,
+          borderRadius: 8,
+          padding: "6px 14px",
+          fontSize: 13,
+          cursor: "pointer",
+          color: T.textSec,
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+        }}
+      >
+        ← Back
+      </button>
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ReportingAnalytics() {
   const [activeReport, setActiveReport] = useState(null);
   const [filters, setFilters] = useState(main);
 
+  // Full-page detail for reports 1 and 12 (have their own filter bars)
+  if (activeReport && (activeReport.num === 1 || activeReport.num === 12)) {
+    const DetailView = DETAIL_VIEWS[activeReport.num];
+    return (
+      <>
+        <GlobalStyles />
+        <div
+          style={{
+            fontFamily: "system-ui, sans-serif",
+            background: T.bg,
+            minHeight: "100vh",
+          }}
+        >
+          <BackBar onBack={() => setActiveReport(null)} />
+          <DetailView />
+        </div>
+      </>
+    );
+  }
+
+  // Padded detail for all other reports
   if (activeReport) {
     const DetailView = DETAIL_VIEWS[activeReport.num];
-    if (activeReport.num === 1) {
-      return (
-        <div
-          style={{
-            fontFamily: "system-ui, sans-serif",
-            background: "#f3f4f6",
-            minHeight: "100vh",
-          }}
-        >
-          <div
-            style={{
-              background: "#fff",
-              borderBottom: "1px solid #e5e7eb",
-              padding: "10px 20px",
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-            }}
-          >
-            <button
-              onClick={() => setActiveReport(null)}
-              style={{
-                background: "#fff",
-                border: "0.5px solid #e5e7eb",
-                borderRadius: 8,
-                padding: "6px 14px",
-                fontSize: 13,
-                cursor: "pointer",
-                color: "#374151",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              ← Back
-            </button>
-          </div>
-          <DetailView />
-        </div>
-      );
-    }
-    if (activeReport.num === 12) {
-      return (
-        <div
-          style={{
-            fontFamily: "system-ui, sans-serif",
-            background: "#f3f4f6",
-            minHeight: "100vh",
-          }}
-        >
-          <div
-            style={{
-              background: "#fff",
-              borderBottom: "1px solid #e5e7eb",
-              padding: "10px 20px",
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-            }}
-          >
-            <button
-              onClick={() => setActiveReport(null)}
-              style={{
-                background: "#fff",
-                border: "0.5px solid #e5e7eb",
-                borderRadius: 8,
-                padding: "6px 14px",
-                fontSize: 13,
-                cursor: "pointer",
-                color: "#374151",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              ← Back
-            </button>
-          </div>
-          <DetailView />
-        </div>
-      );
-    }
     return (
+      <>
+        <GlobalStyles />
+        <div
+          style={{
+            padding: "20px",
+            fontFamily: "system-ui, sans-serif",
+            background: T.bg,
+            minHeight: "100vh",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              marginBottom: 20,
+            }}
+          >
+            <button
+              onClick={() => setActiveReport(null)}
+              style={{
+                background: T.surface,
+                border: `0.5px solid ${T.border}`,
+                borderRadius: 8,
+                padding: "6px 14px",
+                fontSize: 13,
+                cursor: "pointer",
+                color: T.textSec,
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              ← Back
+            </button>
+            <h2
+              style={{
+                margin: 0,
+                fontSize: 16,
+                fontWeight: 600,
+                color: T.text,
+              }}
+            >
+              {activeReport.num}. {activeReport.title}
+            </h2>
+            <span
+              style={{
+                fontSize: 11,
+                background: activeReport.color + "18",
+                color: activeReport.color,
+                borderRadius: 6,
+                padding: "3px 10px",
+              }}
+            >
+              {activeReport.desc}
+            </span>
+            <div style={{ marginLeft: "auto" }}>
+              <DarkModeToggle />
+            </div>
+          </div>
+          {DetailView ? <DetailView /> : null}
+        </div>
+      </>
+    );
+  }
+
+  // Main grid
+  return (
+    <>
+      <GlobalStyles />
       <div
         style={{
-          padding: "20px",
-          fontFamily: "system-ui, sans-serif",
-          background: "#f9fafb",
+          fontFamily: "system-ui,-apple-system,sans-serif",
+          background: T.bg,
           minHeight: "100vh",
+          padding: "16px 20px",
         }}
       >
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 12,
-            marginBottom: 20,
+            justifyContent: "space-between",
+            marginBottom: 10,
           }}
         >
-          <button
-            onClick={() => setActiveReport(null)}
-            style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
-              borderRadius: 8,
-              padding: "6px 14px",
-              fontSize: 13,
-              cursor: "pointer",
-              color: "#374151",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            ← Back
-          </button>
-          <h2
-            style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#111" }}
-          >
-            {activeReport.num}. {activeReport.title}
-          </h2>
-          <span
-            style={{
-              fontSize: 11,
-              background: activeReport.color + "18",
-              color: activeReport.color,
-              borderRadius: 6,
-              padding: "3px 10px",
-            }}
-          >
-            {activeReport.desc}
-          </span>
+          <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>
+            Resource Management Reports
+          </div>
+          <DarkModeToggle />
         </div>
-        {DetailView ? <DetailView /> : null}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+            gap: 10,
+          }}
+        >
+          {reportCards.map((card) => (
+            <ReportCard key={card.num} card={card} onView={setActiveReport} />
+          ))}
+        </div>
       </div>
-    );
-  }
-
-  return (
-    <div
-      style={{
-        fontFamily: "system-ui,-apple-system,sans-serif",
-        background: "#f3f4f6",
-        minHeight: "100vh",
-        padding: "16px 20px",
-      }}
-    >
-      <div
-        style={{
-          fontSize: 13,
-          fontWeight: 700,
-          color: "#111",
-          marginBottom: 10,
-        }}
-      >
-        Resource Management Reports
-      </div>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
-          gap: 10,
-        }}
-      >
-        {reportCards.map((card) => (
-          <ReportCard key={card.num} card={card} onView={setActiveReport} />
-        ))}
-      </div>
-    </div>
+    </>
   );
 }
