@@ -2225,7 +2225,7 @@ function ReportDetail12() {
                 marginBottom: 10,
               }}
             >
->>>>>>>>> Temporary merge branch 2
+
               9. Utilization Heatmap by Department & Manager
             </div>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
