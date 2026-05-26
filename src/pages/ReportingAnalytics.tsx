@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   BarChart,
@@ -17,71 +16,6 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-
-import {
-  COLORS,
-  UTIL_FILTER_DEFS,
-  DEFAULT_UTIL_FILTERS,
-  DEFAULT_EXEC_FILTERS,
-  DEFAULT_GENERIC_FILTERS,
-  EXEC_FILTER_DEFS,
-  demandStatusData,
-  capDemand2026,
-  utilTrend2026,
-  skillsGapData,
-  vendorData,
-  strategicAlerts,
-  staffingRiskProjects,
-  crossPillarData,
-  execCapDemandData,
-  heatmapMonths,
-  DONUT_COLORS,
-  heatmapData,
-  execKpis,
-  heatmapDepts,
-  heatmapManagers,
-  overutilizedResources,
-  underutilizedResources,
-  billableNonBillableData,
-  reportCards,
-  utilByWorkType,
-  main,
-  utilKpiTiles,
-  riskTopItems,
-  utilTrendData,
-  utilByDeptData,
-  GENERIC_FILTER_DEFS,
-  keyInsights,
-  utilization,
-  operational,
-  utilizationDistribution,
-  reportDetails15,
-  header,
-  rows,
-  data,
-  pendingApprovals,
-  compliance,
-  tsData,
-  planning,
-  forecastData,
-  demand,
-  demandByPriority,
-  aging,
-  byRole,
-  vendors,
-  spendByCat,
-  spendTrend,
-  varianceByPortfolioHeader,
-  varianceByTypedData,
-  budgetMonthly,
-  portfolioVar,
-  items,
-  nonCompReasons,
-  compTrend,
-  byRoleReportDetail16,
-  sharedProjects,
-  availTrend,
-} from "@/mocks/ReportingAnalytics";
 
 // ─── CSS custom properties (light + dark) ────────────────────────────────────
 
@@ -153,8 +87,6 @@ function DarkModeToggle() {
   const [dark, setDark] = useState(() =>
     document.documentElement.classList.contains("dark"),
   );
-
-  
 }
 
 // ─── Token shorthands ─────────────────────────────────────────────────────────
