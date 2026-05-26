@@ -297,9 +297,9 @@ export default function AuditLog() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="h-[calc(100vh-110px)] flex flex-col gap-4">
       {/* ── Header ── */}
-      <div className="flex items-center justify-between">
+      <div className="shrink-0 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-primary" />
           <div>
@@ -321,7 +321,7 @@ export default function AuditLog() {
       </div>
 
       {/* ── KPI Row ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="shrink-0 grid grid-cols-2 md:grid-cols-4 gap-3">
         <KpiCard
           label="Total Entries"
           value={kpis.total}
@@ -349,8 +349,8 @@ export default function AuditLog() {
       </div>
 
       {/* ── Table Card ── */}
-      <Card>
-        <CardHeader className="pb-3">
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="pb-3 shrink-0">
           <CardTitle className="text-base">Change History</CardTitle>
           <p className="text-sm text-muted-foreground">
             {filteredData.length} entr
@@ -358,9 +358,9 @@ export default function AuditLog() {
           </p>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="flex flex-col flex-1 min-h-0">
           {/* ── Filter bar ── */}
-          <div className="flex flex-wrap items-center gap-2 mb-4">
+          <div className="shrink-0 flex flex-wrap items-center gap-2 mb-4">
             {/* Search */}
             <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
@@ -444,7 +444,7 @@ export default function AuditLog() {
           </div>
 
           {/* ── Entity legend ── */}
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="shrink-0 flex flex-wrap gap-2 mb-4">
             {(
               [
                 "Demand",
@@ -467,7 +467,13 @@ export default function AuditLog() {
             ))}
           </div>
 
-          <DataTable data={filteredData} columns={columns} pageSize={15} />
+          <div className="flex-1 min-h-0">
+  <DataTable
+    data={filteredData}
+    columns={columns}
+    pageSize={15}
+  />
+</div>
         </CardContent>
       </Card>
     </div>

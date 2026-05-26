@@ -770,7 +770,7 @@ export default function TaskReviewApproval() {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="h-[calc(100vh-110px)] flex flex-col gap-4">
       <style>{`
         @keyframes slideUp {
           from { transform: translateY(12px); opacity: 0; }
@@ -804,6 +804,7 @@ export default function TaskReviewApproval() {
         />
       )}
 
+      <div className="shrink-0">
       {/* ── Page Header ── */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
@@ -993,10 +994,12 @@ export default function TaskReviewApproval() {
         </div>
       </div>
 
+      </div>
+
       {/* ── Table Card ── */}
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
+      <div className="flex-1 min-h-0 bg-card border border-border rounded-xl overflow-hidden flex flex-col">
         {/* Card Header */}
-        <div className="px-5 py-3 border-b border-border flex flex-wrap items-center gap-3">
+        <div className="shrink-0 px-5 py-3 border-b border-border flex flex-wrap items-center gap-3">
           <div className="flex-1 min-w-0">
             <h2 className="text-sm font-bold text-foreground">Task Requests</h2>
             <p className="text-xs text-muted-foreground">
@@ -1034,7 +1037,7 @@ export default function TaskReviewApproval() {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
           <table
             className="w-full text-sm"
             style={{ tableLayout: "fixed", minWidth: "960px" }}
@@ -1048,7 +1051,7 @@ export default function TaskReviewApproval() {
               <col style={{ width: "100px" }} />
               <col style={{ width: "155px" }} />
             </colgroup>
-            <thead>
+            <thead className="sticky top-0 z-20 bg-muted/40">
               <tr className="border-b border-border bg-muted/40">
                 {[
                   "Task",
@@ -1061,7 +1064,7 @@ export default function TaskReviewApproval() {
                 ].map((col) => (
                   <th
                     key={col}
-                    className="text-left px-3 py-2.5 text-xs font-semibold text-muted-foreground tracking-wider whitespace-nowrap"
+                    className="sticky top-0 z-20 bg-muted/40 text-left px-3 py-2.5 text-xs font-semibold text-muted-foreground tracking-wider whitespace-nowrap"
                   >
                     {col}
                   </th>
@@ -1188,7 +1191,7 @@ export default function TaskReviewApproval() {
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-2.5 border-t border-border flex items-center justify-between">
+        <div className="shrink-0 px-5 py-2.5 border-t border-border flex items-center justify-between">
           <p className="text-xs text-muted-foreground">
             Showing {filtered.length} of {tasks.length} task requests
           </p>
