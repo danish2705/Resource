@@ -495,8 +495,8 @@ export default function UserManagement() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="h-[calc(100vh-110px)] flex flex-col gap-4">
+      <div className="shrink-0 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Users className="h-5 w-5 text-primary" />
           <div>
@@ -517,17 +517,17 @@ export default function UserManagement() {
         </button>
       </div>
 
-      <Card>
-        <CardHeader className="pb-3">
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="pb-3 shrink-0">
           <CardTitle className="text-base">All Users</CardTitle>
           <p className="text-sm text-muted-foreground">
             {filtered.length} of {list.length} users shown
           </p>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="flex flex-col flex-1 min-h-0">
           {/* Filter bar */}
-          <div className="flex flex-wrap items-center gap-2 mb-4">
+          <div className="shrink-0 flex flex-wrap items-center gap-2 mb-4">
             <div className="relative flex-1 min-w-[200px]">
               <div className="flex items-center bg-card border border-border rounded-lg px-3 h-10 gap-2">
                 <Search className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -588,13 +588,13 @@ export default function UserManagement() {
           </div>
 
           {/* Table */}
-          <div className="border border-border rounded-xl overflow-hidden">
-            <div className="overflow-x-auto">
+          <div className="flex-1 min-h-0 border border-border rounded-xl overflow-hidden">
+            <div className="h-full overflow-y-auto overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-card border-b border-border">
+                <thead className="sticky top-0 z-20 bg-card border-b border-border">
                   <tr className="text-left text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                    <th className="px-4 py-3">Email</th>
-                    <th className="px-4 py-3">
+                    <th className="sticky top-0 z-20 bg-card px-4 py-3">Email</th>
+                    <th className="sticky top-0 z-20 bg-card px-4 py-3">
                       <button
                         onClick={() => toggleSort("name")}
                         className="flex items-center hover:text-foreground transition-colors"
@@ -602,7 +602,7 @@ export default function UserManagement() {
                         Name <SortIcon k="name" />
                       </button>
                     </th>
-                    <th className="px-4 py-3">
+                    <th className="sticky top-0 z-20 bg-card px-4 py-3">
                       <button
                         onClick={() => toggleSort("team")}
                         className="flex items-center hover:text-foreground transition-colors"
@@ -610,7 +610,7 @@ export default function UserManagement() {
                         Pillar <SortIcon k="team" />
                       </button>
                     </th>
-                    <th className="px-4 py-3">
+                    <th className="sticky top-0 z-20 bg-card px-4 py-3">
                       <button
                         onClick={() => toggleSort("systemRole")}
                         className="flex items-center hover:text-foreground transition-colors"
@@ -618,7 +618,7 @@ export default function UserManagement() {
                         System Role <SortIcon k="systemRole" />
                       </button>
                     </th>
-                    <th className="px-4 py-3 text-center">Actions</th>
+                    <th className="sticky top-0 z-20 bg-card px-4 py-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody>

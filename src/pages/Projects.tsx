@@ -355,7 +355,7 @@ function ResourcePanel({
         </span>
       </div>
       <div className="rounded-lg border border-border/50 overflow-hidden flex-1">
-        <div className="overflow-x-auto">
+        <div className="h-full overflow-y-auto overflow-x-auto">
           <table className="w-full min-w-[380px]">
             <thead className="bg-muted/20">
               <tr className="text-left">
@@ -476,7 +476,7 @@ function TaskPanel({
       </div>
 
       <div className="rounded-lg border border-border/50 overflow-hidden flex-1">
-        <div className="overflow-x-auto">
+        <div className="h-full overflow-y-auto overflow-x-auto">
           <table className="w-full min-w-[520px]">
             <thead className="bg-muted/20">
               <tr className="text-left">
@@ -931,15 +931,17 @@ export default function Projects() {
   const handleDialogSubmit = () => {
     if (!assignDialog) return;
 
-    const { projectId, selectedTaskIds, projectName, comments } = assignDialog;
+    const { projectId, selectedTaskIds } = assignDialog;
 
     updateProjectTasks(
       projectId,
       (tasks[projectId] ?? []).map((t) => {
         if (!selectedTaskIds.includes(t.id)) return t;
+
         const resources = t.assignedResources.includes(CURRENT_USER.name)
           ? t.assignedResources
           : [...t.assignedResources, CURRENT_USER.name];
+
         return {
           ...t,
           assignedResources: resources,
@@ -948,52 +950,29 @@ export default function Projects() {
       }),
     );
 
-    const submittedTasks = (tasks[projectId] ?? [])
-      .filter((t) => selectedTaskIds.includes(t.id))
-      .map((t, i) => ({
-        id: `TRQ-${Date.now()}-${i}`,
-        taskName: t.task,
-        taskDescription: `${t.type} task assigned by ${CURRENT_USER.name}`,
-        project: projectName,
-        taskType: t.type,
-        assignedTo: CURRENT_USER.name,
-        assignedRole: CURRENT_USER.role,
-        assignedInitials: CURRENT_USER.initials,
-        assignedColor: "#6366f1",
-        requestedBy: CURRENT_USER.name,
-        priority: "Medium" as const,
-        sprint: "Sprint 1",
-        allocation: 100,
-        status: "Pending" as const,
-        timeline: "TBD",
-        comments: comments ?? "",
-        submittedDate: new Date().toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }),
-      }));
-
     updateSelectedTasks(projectId, []);
     setAssignDialog(null);
+
     showToast("Tasks submitted for approval");
-    navigate("/task-review-approval", { state: { submittedTasks } });
+
+    // Navigate to TaskReviewApproval page
+    navigate("/task-review-approval");
   };
 
   return (
-    <>
-      <Card>
-        <CardHeader>
+    <div className="h-[calc(100vh-110px)] flex flex-col">
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="shrink-0">
           <CardTitle className="text-base">Project Portfolio</CardTitle>
           <p className="text-sm text-muted-foreground">
             {filtered.length} projects
           </p>
         </CardHeader>
 
-        <CardContent>
-          <div className="space-y-4">
+        <CardContent className="flex flex-col flex-1 min-h-0">
+          <div className="flex flex-col flex-1 min-h-0 gap-4">
             {/* Search */}
-            <div className="flex items-center bg-card border border-border rounded-lg px-3 h-12 gap-2">
+            <div className="shrink-0 flex items-center bg-card border border-border rounded-lg px-3 h-12 gap-2">
               <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <input
                 value={filters.search}
@@ -1012,7 +991,7 @@ export default function Projects() {
             </div>
 
             {/* Filters */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="shrink-0 flex flex-wrap items-center gap-2">
               <FilterSelect
                 label="All Statuses"
                 value={filters.status}
@@ -1064,10 +1043,10 @@ export default function Projects() {
             </div>
 
             {/* Table */}
-            <div className="border border-border rounded-xl overflow-hidden">
-              <div className="overflow-x-auto">
+            <div className="flex-1 min-h-0 border border-border rounded-xl overflow-hidden">
+              <div className="h-full overflow-y-auto overflow-x-auto">
                 <table className="w-full text-sm min-w-[1020px]">
-                  <thead className="bg-card border-b border-border">
+                  <thead className="sticky top-0 z-20 bg-card border-b border-border">
                     <tr className="text-left text-xs font-medium tracking-wide text-muted-foreground uppercase">
                       <th className="px-4 py-3 font-medium normal-case whitespace-nowrap">
                         ID
@@ -1284,6 +1263,6 @@ export default function Projects() {
           onCommentChange={handleCommentChange}
         />
       )}
-    </>
+    </div>
   );
 }

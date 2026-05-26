@@ -437,9 +437,10 @@ export default function ResourceReview() {
         : "";
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
+    <div className="h-[calc(100vh-110px)] flex flex-col p-6 gap-6">
+        <div className="shrink-0">
+        <div>
+    <h1 className="text-2xl font-semibold tracking-tight">
           Resource Review
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -459,6 +460,7 @@ export default function ResourceReview() {
         <div className="flex items-center gap-2 text-green-600 font-medium">
           <CheckCheck className="h-4 w-4" /> Fully Approved
         </div>
+      </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -488,8 +490,8 @@ export default function ResourceReview() {
         />
       </div>
 
-      <Card>
-        <CardHeader className="pb-3">
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="pb-3 shrink-0">
           <div className="flex flex-col md:flex-row md:items-center gap-3 justify-between">
             <CardTitle className="text-base font-semibold">Requests</CardTitle>
             <div className="flex gap-2 flex-wrap">
@@ -521,21 +523,44 @@ export default function ResourceReview() {
           </div>
         </CardHeader>
 
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
+        <CardContent className="p-0 flex flex-col flex-1 min-h-0">
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-muted/40">
-                  <TableHead className="pl-6">Resource</TableHead>
-                  <TableHead>Project</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Requested By</TableHead>
-                  <TableHead>Allocation</TableHead>
-                  <TableHead>Forecast</TableHead>
-                  <TableHead>Approval Stage</TableHead>
-                  <TableHead className="text-right pr-6">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
+  <TableRow>
+    <TableHead className="sticky top-0 z-20 bg-muted/40 pl-6">
+      Resource
+    </TableHead>
+
+    <TableHead className="sticky top-0 z-20 bg-muted/40">
+      Project
+    </TableHead>
+
+    <TableHead className="sticky top-0 z-20 bg-muted/40">
+      Role
+    </TableHead>
+
+    <TableHead className="sticky top-0 z-20 bg-muted/40">
+      Requested By
+    </TableHead>
+
+    <TableHead className="sticky top-0 z-20 bg-muted/40">
+      Allocation
+    </TableHead>
+
+    <TableHead className="sticky top-0 z-20 bg-muted/40">
+      Forecast
+    </TableHead>
+
+    <TableHead className="sticky top-0 z-20 bg-muted/40">
+      Approval Stage
+    </TableHead>
+
+    <TableHead className="sticky top-0 z-20 bg-muted/40 text-right pr-6">
+      Actions
+    </TableHead>
+  </TableRow>
+</TableHeader>
               <TableBody>
                 {filtered.length === 0 && (
                   <TableRow>

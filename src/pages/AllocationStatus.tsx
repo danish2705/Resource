@@ -371,8 +371,8 @@ export default function AllocationStatus() {
         />
       )}
 
-      <Card>
-        <CardHeader>
+      <Card className="h-[calc(100vh-120px)] flex flex-col">
+        <CardHeader className="shrink-0">
           <div className="flex items-center gap-2">
             <ClipboardList className="h-4 w-4 text-muted-foreground" />
             <CardTitle className="text-base">Allocation Status</CardTitle>
@@ -384,8 +384,8 @@ export default function AllocationStatus() {
           </p>
         </CardHeader>
 
-        <CardContent>
-          <div className="flex items-center gap-2 flex-wrap mb-4">
+        <CardContent className="flex flex-col flex-1 min-h-0">
+          <div className="shrink-0 flex items-center gap-2 flex-wrap mb-4">
             <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
 
@@ -465,40 +465,40 @@ export default function AllocationStatus() {
             )}
           </div>
 
-          <div className="border rounded-lg overflow-hidden">
-            <div className="overflow-x-auto">
+          <div className="flex-1 min-h-0 border rounded-lg overflow-hidden">
+            <div className="h-full overflow-y-auto overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-muted">
+                <thead className="sticky top-0 z-20 bg-muted">
                   <tr>
-                    <th className="px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap">
+                    <th className="sticky top-0 z-20 bg-muted px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap border-b">
                       Project ID
                     </th>
 
-                    <th className="px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap">
+                    <th className="sticky top-0 z-20 bg-muted px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap border-b">
                       Project Name
                     </th>
 
-                    <th className="px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap">
+                    <th className="sticky top-0 z-20 bg-muted px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap border-b">
                       Required Skills
                     </th>
 
-                    <th className="px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap">
+                    <th className="sticky top-0 z-20 bg-muted px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap border-b">
                       No. of Resources
                     </th>
 
-                    <th className="px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap">
+                    <th className="sticky top-0 z-20 bg-muted px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap border-b">
                       Estimated Rate/Hr
                     </th>
 
-                    <th className="px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap">
+                    <th className="sticky top-0 z-20 bg-muted px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap border-b">
                       Current Year Forecast
                     </th>
 
-                    <th className="px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap">
+                    <th className="sticky top-0 z-20 bg-muted px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap border-b">
                       Status
                     </th>
 
-                    <th className="px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap">
+                    <th className="sticky top-0 z-20 bg-muted px-3 py-2.5 text-left font-medium text-muted-foreground whitespace-nowrap border-b">
                       Action
                     </th>
                   </tr>
@@ -618,7 +618,7 @@ export default function AllocationStatus() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
+          <div className="shrink-0 border-t pt-3 mt-3 flex items-center justify-between text-xs text-muted-foreground">
             <div className="flex items-center gap-4">
               <span>
                 Total forecast:{" "}

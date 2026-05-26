@@ -131,28 +131,36 @@ export default function DataTable<T extends object>({
   // ───────────────────────────────────────────────────────────
 
   return (
-    <div className="space-y-3">
-      {/* Table */}
-      <div className="border rounded-md overflow-auto">
+  <div className="flex flex-col h-[calc(100vh-280px)]">
+    {/* Table Container */}
+    <div className="flex-1 min-h-0 border rounded-md overflow-hidden">
+      <div className="h-full overflow-y-auto overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
               {columns.map((col) => (
                 <TableHead
-                  key={String(col.key)}
-                  className={
-                    col.sortable !== false
-                      ? "cursor-pointer select-none hover:bg-muted/50"
-                      : ""
-                  }
-                  onClick={() =>
-                    col.sortable !== false && handleSort(String(col.key))
-                  }
-                >
-                  {col.header}
-
-                  {sortKey === col.key && (sortDir === "asc" ? " ↑" : " ↓")}
-                </TableHead>
+  key={String(col.key)}
+  className={`
+    sticky top-0
+    z-30
+    bg-background
+    border-b
+    shadow-sm
+    ${
+      col.sortable !== false
+        ? "cursor-pointer select-none hover:bg-muted/50"
+        : ""
+    }
+  `}
+  onClick={() =>
+    col.sortable !== false && handleSort(String(col.key))
+  }
+>
+  {col.header}
+  {sortKey === col.key &&
+    (sortDir === "asc" ? " ↑" : " ↓")}
+</TableHead>
               ))}
             </TableRow>
           </TableHeader>
@@ -183,8 +191,10 @@ export default function DataTable<T extends object>({
           </TableBody>
         </Table>
       </div>
+    </div>
 
-      {/* Pagination */}
+    {/* Fixed Pagination */}
+    <div className="shrink-0 border-t bg-background py-3">
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
           Showing {sorted.length === 0 ? 0 : page * pageSize + 1} to{" "}
@@ -203,9 +213,7 @@ export default function DataTable<T extends object>({
           </Button>
 
           {Array.from(
-            {
-              length: Math.min(totalPages, 5),
-            },
+            { length: Math.min(totalPages, 5) },
             (_, i) => {
               const p =
                 totalPages <= 5
@@ -223,7 +231,7 @@ export default function DataTable<T extends object>({
                   {p + 1}
                 </Button>
               );
-            },
+            }
           )}
 
           <Button
@@ -237,5 +245,6 @@ export default function DataTable<T extends object>({
         </div>
       </div>
     </div>
+  </div>
   );
 }
