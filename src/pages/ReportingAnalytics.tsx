@@ -60,7 +60,7 @@ import {
   vendorData,
   vendors,
 } from "@/mocks/ReportingAnalytics";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   BarChart,
   Bar,
@@ -100,8 +100,6 @@ function GlobalStyles() {
         --ra-row-alert:    #fff5f5;
         --ra-insight-text: #374151;
         --ra-badge-bg:     #f3f4f6;
-
-        /* semantic colours (same in both modes — they're vivid enough) */
         --ra-blue:    #3b82f6;
         --ra-green:   #10b981;
         --ra-red:     #ef4444;
@@ -130,29 +128,274 @@ function GlobalStyles() {
         --ra-badge-bg:     #252838;
       }
 
-      /* recharts tooltip dark mode */
       .dark .recharts-tooltip-wrapper .recharts-default-tooltip {
         background: #1a1d27 !important;
         border-color: #2d3148 !important;
         color: #f1f5f9 !important;
       }
 
-      /* smooth transitions */
       * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease; }
+
+      /* Date Picker Styles */
+      .ra-date-picker-container {
+        position: relative;
+        display: inline-block;
+        height: 36;
+        cursor: pointer;
+      }
+
+      .ra-date-picker-chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--ra-surface);
+        border: 1px solid var(--ra-border);
+        border-radius: 8px;
+        padding: "0 12px";
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 400;
+        width: 160px;
+        color: var(--ra-text-sec);
+        white-space: nowrap;
+        user-select: none;
+        cursor: "pointer";
+        outline: "none";
+        background: "var(--ra-input-bg)";
+        color: "var(--ra-text-sec)";
+ 
+      }
+
+      .ra-date-picker-chip .chip-icon {
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+
+      .ra-date-picker-popup {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        z-index: 9999;
+        background: var(--ra-surface);
+        border: 1px solid var(--ra-border);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+        padding: 16px;
+        min-width: 300px;
+        animation: ra-popup-in 0.15s ease;
+      }
+
+      @keyframes ra-popup-in {
+        from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      .ra-cal-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+
+      .ra-cal-nav-btn {
+        background: none;
+        border: 1px solid var(--ra-border);
+        border-radius: 8px;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        font-size: 14px;
+        color: var(--ra-text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.1s;
+      }
+
+      .ra-cal-nav-btn:hover {
+        background: var(--ra-surface-alt);
+      }
+
+      .ra-cal-month-year {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--ra-text-primary);
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: background 0.1s;
+      }
+
+      .ra-cal-month-year:hover {
+        background: var(--ra-surface-alt);
+      }
+
+      .ra-cal-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+      }
+
+      .ra-cal-dow {
+        text-align: center;
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--ra-text-faint);
+        padding: 4px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .ra-cal-day {
+        text-align: center;
+        font-size: 12px;
+        padding: 6px 2px;
+        border-radius: 6px;
+        cursor: pointer;
+        color: var(--ra-text-sec);
+        transition: background 0.1s, color 0.1s;
+      }
+
+      .ra-cal-day:hover {
+        background: var(--ra-surface-alt);
+      }
+
+      .ra-cal-day.in-range {
+        background: rgba(99,102,241,0.10);
+        border-radius: 0;
+      }
+
+      .ra-cal-day.range-start, .ra-cal-day.range-end {
+        background: #6366f1;
+        color: #fff;
+        border-radius: 6px;
+        font-weight: 700;
+      }
+
+      .ra-cal-day.today {
+        font-weight: 700;
+        color: #6366f1;
+      }
+
+      .ra-cal-day.other-month {
+        color: var(--ra-text-faint);
+      }
+
+      .ra-cal-day.disabled {
+        pointer-events: none;
+        opacity: 0.3;
+      }
+
+      .ra-month-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-top: 4px;
+      }
+
+      .ra-month-btn {
+        padding: 8px 4px;
+        border-radius: 8px;
+        border: none;
+        background: var(--ra-surface-alt);
+        font-size: 12px;
+        color: var(--ra-text-sec);
+        cursor: pointer;
+        font-weight: 500;
+        transition: background 0.1s, color 0.1s;
+      }
+
+      .ra-month-btn:hover, .ra-month-btn.selected {
+        background: #6366f1;
+        color: #fff;
+      }
+
+      .ra-year-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-top: 4px;
+        max-height: 160px;
+        overflow-y: auto;
+      }
+
+      .ra-year-btn {
+        padding: 8px 4px;
+        border-radius: 8px;
+        border: none;
+        background: var(--ra-surface-alt);
+        font-size: 12px;
+        color: var(--ra-text-sec);
+        cursor: pointer;
+        font-weight: 500;
+        transition: background 0.1s, color 0.1s;
+      }
+
+      .ra-year-btn:hover, .ra-year-btn.selected {
+        background: #6366f1;
+        color: #fff;
+      }
+
+      .ra-picker-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 12px;
+        border-top: 1px solid var(--ra-border);
+        padding-top: 12px;
+      }
+
+      .ra-picker-btn {
+        padding: 6px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--ra-border);
+        background: var(--ra-surface);
+        font-size: 12px;
+        cursor: pointer;
+        color: var(--ra-text-sec);
+        font-weight: 500;
+      }
+
+      .ra-picker-btn.primary {
+        background: #6366f1;
+        color: #fff;
+        border-color: #6366f1;
+      }
+
+      .ra-picker-btn:hover {
+        opacity: 0.85;
+      }
+
+      .ra-picker-view-toggle {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 10px;
+      }
+
+      .ra-picker-view-tab {
+        flex: 1;
+        padding: 5px;
+        border-radius: 6px;
+        border: 1px solid var(--ra-border);
+        background: var(--ra-surface-alt);
+        font-size: 11px;
+        cursor: pointer;
+        color: var(--ra-text-muted);
+        font-weight: 500;
+        text-align: center;
+        transition: background 0.1s, color 0.1s;
+      }
+
+      .ra-picker-view-tab.active {
+        background: #6366f1;
+        color: #fff;
+        border-color: #6366f1;
+      }
     `}</style>
   );
 }
 
-// ─── Dark Mode Toggle ─────────────────────────────────────────────────────────
-
-function DarkModeToggle() {
-  const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains("dark"),
-  );
-}
-
 // ─── Token shorthands ─────────────────────────────────────────────────────────
-// Use these everywhere instead of hard-coded hex values.
 
 const T = {
   bg: "var(--ra-bg)",
@@ -181,9 +424,268 @@ const T = {
   gray: "var(--ra-gray)",
 };
 
+// ─── Date Picker Component ────────────────────────────────────────────────────
+
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DOW = ["Su","Mo","Tu","We","Th","Fr","Sa"];
+
+interface DateRange {
+  start: Date | null;
+  end: Date | null;
+}
+
+function formatDateRange(range: DateRange): string {
+  if (!range.start) return "Select date range";
+  const fmt = (d: Date) => `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  if (!range.end || range.start.getTime() === range.end.getTime()) {
+    return fmt(range.start);
+  }
+  // Same year
+  const s = range.start;
+  const e = range.end;
+  if (s.getFullYear() === e.getFullYear()) {
+    if (s.getMonth() === e.getMonth()) {
+      return `${MONTHS[s.getMonth()]} ${s.getDate()} \u2013 ${e.getDate()}, ${s.getFullYear()}`;
+    }
+    return `${MONTHS[s.getMonth()]} ${s.getDate()} \u2013 ${MONTHS[e.getMonth()]} ${e.getDate()}, ${s.getFullYear()}`;
+  }
+  return `${fmt(s)} \u2013 ${fmt(e)}`;
+}
+
+function getDaysInMonth(year: number, month: number) {
+  return new Date(year, month + 1, 0).getDate();
+}
+
+function getFirstDayOfMonth(year: number, month: number) {
+  return new Date(year, month, 1).getDay();
+}
+
+interface DatePickerProps {
+  value: DateRange;
+  onChange: (range: DateRange) => void;
+}
+
+type PickerView = "day" | "month" | "year";
+
+function DateRangePicker({ value, onChange }: DatePickerProps) {
+  const [open, setOpen] = useState(false);
+  const [view, setView] = useState<PickerView>("day");
+  const [calYear, setCalYear] = useState(() => value.start ? value.start.getFullYear() : new Date().getFullYear());
+  const [calMonth, setCalMonth] = useState(() => value.start ? value.start.getMonth() : new Date().getMonth());
+  const [selecting, setSelecting] = useState<"start" | "end">("start");
+  const [hover, setHover] = useState<Date | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  function prevMonth() {
+    if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); }
+    else setCalMonth(m => m - 1);
+  }
+  function nextMonth() {
+    if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1); }
+    else setCalMonth(m => m + 1);
+  }
+
+  function handleDayClick(day: number) {
+    const clicked = new Date(calYear, calMonth, day);
+    if (selecting === "start") {
+      onChange({ start: clicked, end: null });
+      setSelecting("end");
+    } else {
+      const { start } = value;
+      if (start && clicked < start) {
+        onChange({ start: clicked, end: start });
+      } else {
+        onChange({ start: start, end: clicked });
+      }
+      setSelecting("start");
+      setOpen(false);
+    }
+  }
+
+  function handleMonthClick(m: number) {
+    setCalMonth(m);
+    setView("day");
+    // Also set a full-month range
+    const start = new Date(calYear, m, 1);
+    const end = new Date(calYear, m + 1, 0);
+    onChange({ start, end });
+  }
+
+  function handleYearClick(y: number) {
+    setCalYear(y);
+    setView("month");
+  }
+
+  function isInRange(day: number): boolean {
+    const d = new Date(calYear, calMonth, day);
+    const { start, end } = value;
+    const hoverDate = hover;
+    if (start && !end && hoverDate) {
+      const lo = start < hoverDate ? start : hoverDate;
+      const hi = start < hoverDate ? hoverDate : start;
+      return d > lo && d < hi;
+    }
+    if (!start || !end) return false;
+    return d > start && d < end;
+  }
+
+  function isRangeStart(day: number): boolean {
+    if (!value.start) return false;
+    const d = new Date(calYear, calMonth, day);
+    return d.toDateString() === value.start.toDateString();
+  }
+
+  function isRangeEnd(day: number): boolean {
+    if (!value.end) return false;
+    const d = new Date(calYear, calMonth, day);
+    return d.toDateString() === value.end.toDateString();
+  }
+
+  function isToday(day: number): boolean {
+    const today = new Date();
+    return calYear === today.getFullYear() && calMonth === today.getMonth() && day === today.getDate();
+  }
+
+  const daysInMonth = getDaysInMonth(calYear, calMonth);
+  const firstDay = getFirstDayOfMonth(calYear, calMonth);
+  const prevMonthDays = getDaysInMonth(calYear, calMonth === 0 ? 11 : calMonth - 1);
+
+  const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 3 + i);
+
+  return (
+    <div className="ra-date-picker-container" ref={ref}>
+      <div
+        className={`ra-date-picker-chip${open ? " open" : ""}`}
+        onClick={() => setOpen(o => !o)}
+      >
+        <span className="chip-icon">🗓️</span>
+        <span>{formatDateRange(value)}</span>
+      </div>
+
+      {open && (
+        <div className="ra-date-picker-popup">
+          <div className="ra-picker-view-toggle">
+            <button className={`ra-picker-view-tab${view === "day" ? " active" : ""}`} onClick={() => setView("day")}>Day</button>
+            <button className={`ra-picker-view-tab${view === "month" ? " active" : ""}`} onClick={() => setView("month")}>Month</button>
+            <button className={`ra-picker-view-tab${view === "year" ? " active" : ""}`} onClick={() => setView("year")}>Year</button>
+          </div>
+
+          {view === "day" && (
+            <>
+              <div className="ra-cal-nav">
+                <button className="ra-cal-nav-btn" onClick={prevMonth}>‹</button>
+                <span
+                  className="ra-cal-month-year"
+                  onClick={() => setView("month")}
+                >
+                  {MONTHS_FULL[calMonth]} {calYear}
+                </span>
+                <button className="ra-cal-nav-btn" onClick={nextMonth}>›</button>
+              </div>
+              <div className="ra-cal-grid">
+                {DOW.map(d => <div key={d} className="ra-cal-dow">{d}</div>)}
+                {/* Leading days from previous month */}
+                {Array.from({ length: firstDay }, (_, i) => (
+                  <div key={`prev-${i}`} className="ra-cal-day other-month">
+                    {prevMonthDays - firstDay + 1 + i}
+                  </div>
+                ))}
+                {/* Current month days */}
+                {Array.from({ length: daysInMonth }, (_, i) => {
+                  const day = i + 1;
+                  const cls = [
+                    "ra-cal-day",
+                    isRangeStart(day) ? "range-start" : "",
+                    isRangeEnd(day) ? "range-end" : "",
+                    isInRange(day) ? "in-range" : "",
+                    isToday(day) ? "today" : "",
+                  ].filter(Boolean).join(" ");
+                  return (
+                    <div
+                      key={day}
+                      className={cls}
+                      onClick={() => handleDayClick(day)}
+                      onMouseEnter={() => setHover(new Date(calYear, calMonth, day))}
+                      onMouseLeave={() => setHover(null)}
+                    >
+                      {day}
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ fontSize: 11, color: T.textFaint, marginTop: 8, textAlign: "center" }}>
+                {selecting === "start" ? "Select start date" : "Select end date"}
+              </div>
+            </>
+          )}
+
+          {view === "month" && (
+            <>
+              <div className="ra-cal-nav">
+                <button className="ra-cal-nav-btn" onClick={() => setCalYear(y => y - 1)}>‹</button>
+                <span className="ra-cal-month-year" onClick={() => setView("year")}>{calYear}</span>
+                <button className="ra-cal-nav-btn" onClick={() => setCalYear(y => y + 1)}>›</button>
+              </div>
+              <div className="ra-month-grid">
+                {MONTHS.map((m, i) => (
+                  <button
+                    key={m}
+                    className={`ra-month-btn${calMonth === i ? " selected" : ""}`}
+                    onClick={() => handleMonthClick(i)}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          {view === "year" && (
+            <>
+              <div className="ra-cal-nav">
+                <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>Select Year</div>
+              </div>
+              <div className="ra-year-grid">
+                {years.map(y => (
+                  <button
+                    key={y}
+                    className={`ra-year-btn${calYear === y ? " selected" : ""}`}
+                    onClick={() => handleYearClick(y)}
+                  >
+                    {y}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          <div className="ra-picker-actions">
+            <button className="ra-picker-btn" onClick={() => {
+              onChange({ start: null, end: null });
+              setSelecting("start");
+            }}>Clear</button>
+            <button className="ra-picker-btn primary" onClick={() => setOpen(false)}>Done</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Shared UI primitives ─────────────────────────────────────────────────────
 
-function KpiCard({ kpi }) {
+function KpiCard({ kpi }: { kpi: any }) {
   return (
     <div
       style={{
@@ -220,13 +722,13 @@ function KpiCard({ kpi }) {
         {kpi.value}
       </div>
       <div style={{ fontSize: 11, color: kpi.deltaUp ? T.green : T.red }}>
-        {kpi.delta} <span style={{ color: T.textFaint }}>vs Apr 2026</span>
+        {kpi.delta} <span style={{ color: T.textFaint }}>vs Jan 2026</span>
       </div>
     </div>
   );
 }
 
-function MiniBar({ value, max = 100, color = T.blue }) {
+function MiniBar({ value, max = 100, color = T.blue }: { value: number; max?: number; color?: string }) {
   return (
     <div
       style={{
@@ -249,7 +751,7 @@ function MiniBar({ value, max = 100, color = T.blue }) {
   );
 }
 
-function SmallDonut({ data, centerLabel, centerSub, size = 90 }) {
+function SmallDonut({ data, centerLabel, centerSub, size = 90 }: { data: any[]; centerLabel?: string; centerSub?: string; size?: number }) {
   return (
     <div
       style={{ position: "relative", width: size, height: size, flexShrink: 0 }}
@@ -303,7 +805,7 @@ function SmallDonut({ data, centerLabel, centerSub, size = 90 }) {
   );
 }
 
-function ReportCard({ card, onView }) {
+function ReportCard({ card, onView }: { card: any; onView: (card: any) => void }) {
   return (
     <div
       style={{
@@ -360,7 +862,7 @@ function ReportCard({ card, onView }) {
       <div style={{ flex: 1 }}>
         {card.stats && (
           <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
-            {card.stats.map((s, i) => (
+            {card.stats.map((s: any, i: number) => (
               <div key={i}>
                 <div
                   style={{
@@ -380,7 +882,7 @@ function ReportCard({ card, onView }) {
         )}
         {card.extra && (
           <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            {card.extra.map((e, i) => (
+            {card.extra.map((e: any, i: number) => (
               <div
                 key={i}
                 style={{
@@ -398,7 +900,7 @@ function ReportCard({ card, onView }) {
         )}
         {card.summaryStats && (
           <div style={{ display: "flex", gap: 10, marginBottom: 8 }}>
-            {card.summaryStats.map((s, i) => (
+            {card.summaryStats.map((s: any, i: number) => (
               <div key={i}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: T.text }}>
                   {s.value}
@@ -412,7 +914,7 @@ function ReportCard({ card, onView }) {
         )}
         {card.barData && (
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            {card.barData.map((r, i) => (
+            {card.barData.map((r: any, i: number) => (
               <div
                 key={i}
                 style={{
@@ -442,7 +944,7 @@ function ReportCard({ card, onView }) {
               size={80}
             />
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {card.donut.slice(0, 5).map((d, i) => (
+              {card.donut.slice(0, 5).map((d: any, i: number) => (
                 <div
                   key={i}
                   style={{
@@ -483,7 +985,7 @@ function ReportCard({ card, onView }) {
             <div style={{ fontSize: 10, color: T.textMuted, marginBottom: 6 }}>
               Over Allocated Resources
             </div>
-            {card.overList.map((r, i) => (
+            {card.overList.map((r: any, i: number) => (
               <div
                 key={i}
                 style={{
@@ -536,7 +1038,7 @@ function ReportCard({ card, onView }) {
             <div style={{ fontSize: 10, color: T.textMuted, marginBottom: 6 }}>
               Overall Compliance
             </div>
-            {card.items.map((r, i) => (
+            {card.items.map((r: any, i: number) => (
               <div
                 key={i}
                 style={{
@@ -574,7 +1076,7 @@ function ReportCard({ card, onView }) {
                 </div>
               ))}
             </div>
-            {card.budgetRows.map((r, i) => (
+            {card.budgetRows.map((r: any, i: number) => (
               <div
                 key={i}
                 style={{
@@ -610,7 +1112,7 @@ function ReportCard({ card, onView }) {
               <span>Rank</span>
               <span>Score</span>
             </div>
-            {card.vendors.map((v, i) => (
+            {card.vendors.map((v: any, i: number) => (
               <div
                 key={i}
                 style={{
@@ -644,7 +1146,7 @@ function ReportCard({ card, onView }) {
         {card.demandStats && (
           <div>
             <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
-              {card.demandStats.map((d, i) => (
+              {card.demandStats.map((d: any, i: number) => (
                 <div key={i}>
                   <div
                     style={{ fontSize: 18, fontWeight: 800, color: d.color }}
@@ -657,7 +1159,7 @@ function ReportCard({ card, onView }) {
                 </div>
               ))}
             </div>
-            {card.demandByPriority.map((r, i) => (
+            {card.demandByPriority.map((r: any, i: number) => (
               <div
                 key={i}
                 style={{
@@ -743,7 +1245,7 @@ function ReportCard({ card, onView }) {
             <div style={{ fontSize: 10, color: T.textMuted, marginBottom: 6 }}>
               Overall Utilization
             </div>
-            {card.utilByType.map((r, i) => (
+            {card.utilByType.map((r: any, i: number) => (
               <div
                 key={i}
                 style={{
@@ -776,7 +1278,7 @@ function ReportCard({ card, onView }) {
               <div style={{ fontSize: 10, color: T.textMuted }}>
                 TS Compliance
               </div>
-              {card.tsBreakdown.map((r, i) => (
+              {card.tsBreakdown.map((r: any, i: number) => (
                 <div
                   key={i}
                   style={{
@@ -830,7 +1332,7 @@ function ReportCard({ card, onView }) {
                 </div>
               </div>
             </div>
-            {card.byType.map((r, i) => (
+            {card.byType.map((r: any, i: number) => (
               <div
                 key={i}
                 style={{
@@ -856,7 +1358,7 @@ function ReportCard({ card, onView }) {
               marginTop: 4,
             }}
           >
-            {card.execStats.map((s, i) => (
+            {card.execStats.map((s: any, i: number) => (
               <div
                 key={i}
                 style={{
@@ -933,7 +1435,7 @@ function ReportCard({ card, onView }) {
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
 
-function DetailMiniBar({ value, max = 100, color = T.blue }) {
+function DetailMiniBar({ value, max = 100, color = T.blue }: { value: number; max?: number; color?: string }) {
   return (
     <div
       style={{
@@ -956,7 +1458,7 @@ function DetailMiniBar({ value, max = 100, color = T.blue }) {
   );
 }
 
-function StatTile({ label, value, color }) {
+function StatTile({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div
       style={{
@@ -975,7 +1477,7 @@ function StatTile({ label, value, color }) {
   );
 }
 
-function SectionLabel({ children }) {
+function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
@@ -995,7 +1497,7 @@ function SectionLabel({ children }) {
   );
 }
 
-function DetailCard({ children, style = {} }) {
+function DetailCard({ children, style = {} }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
     <div
       style={{
@@ -1011,7 +1513,7 @@ function DetailCard({ children, style = {} }) {
   );
 }
 
-function DetailTable({ headers, rows }) {
+function DetailTable({ headers, rows }: { headers: React.ReactNode[]; rows: React.ReactNode[][] }) {
   return (
     <table style={{ width: "100%", borderCollapse: "collapse" }}>
       <thead>
@@ -1053,7 +1555,7 @@ function DetailTable({ headers, rows }) {
 
 // ─── Filter bars ──────────────────────────────────────────────────────────────
 
-const selectStyle = {
+const selectStyle: React.CSSProperties = {
   height: 36,
   border: `1px solid var(--ra-border)`,
   borderRadius: 8,
@@ -1065,7 +1567,18 @@ const selectStyle = {
   outline: "none",
 };
 
-function UtilFilterBar({ filters, setFilters }) {
+// Default date range: May 1 – May 31, 2026
+const DEFAULT_DATE_RANGE: DateRange = {
+  start: new Date(2026, 4, 1),
+  end: new Date(2026, 4, 31),
+};
+
+function UtilFilterBar({ filters, setFilters }: { filters: any; setFilters: (fn: (p: any) => any) => void }) {
+  const [dateRange, setDateRange] = useState<DateRange>(DEFAULT_DATE_RANGE);
+
+  // non-date filters from UTIL_FILTER_DEFS (skip Time Period which is index 0)
+  const otherFilters = UTIL_FILTER_DEFS.filter(f => f.key !== "timePeriod");
+
   return (
     <div
       style={{
@@ -1105,12 +1618,21 @@ function UtilFilterBar({ filters, setFilters }) {
       <div
         style={{
           display: "flex",
-          alignItems: "center",
+          alignItems: "flex-end",
           gap: 10,
           flexWrap: "wrap",
         }}
       >
-        {UTIL_FILTER_DEFS.map((f) => (
+        {/* Date Range Picker */}
+        <div style={{ display: "flex", flexDirection: "column", minWidth: 120 }}>
+          <label style={{ fontSize: 11, color: T.textFaint, marginBottom: 4 }}>
+            Time Period
+          </label>
+          <DateRangePicker value={dateRange} onChange={setDateRange} />
+        </div>
+
+        {/* Other filters */}
+        {otherFilters.map((f) => (
           <div
             key={f.key}
             style={{ display: "flex", flexDirection: "column", minWidth: 120 }}
@@ -1123,7 +1645,7 @@ function UtilFilterBar({ filters, setFilters }) {
             <select
               value={filters[f.key]}
               onChange={(e) =>
-                setFilters((p) => ({ ...p, [f.key]: e.target.value }))
+                setFilters((p: any) => ({ ...p, [f.key]: e.target.value }))
               }
               style={selectStyle}
             >
@@ -1138,7 +1660,11 @@ function UtilFilterBar({ filters, setFilters }) {
   );
 }
 
-function ExecFilterBar({ filters, setFilters }) {
+function ExecFilterBar({ filters, setFilters }: { filters: any; setFilters: (fn: (p: any) => any) => void }) {
+  const [dateRange, setDateRange] = useState<DateRange>(DEFAULT_DATE_RANGE);
+
+  const otherFilters = EXEC_FILTER_DEFS.filter(f => f.key !== "timePeriod");
+
   return (
     <div
       style={{
@@ -1173,7 +1699,24 @@ function ExecFilterBar({ filters, setFilters }) {
           alignItems: "flex-end",
         }}
       >
-        {EXEC_FILTER_DEFS.map((f) => (
+        {/* Date Range Picker */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <label
+            style={{
+              fontSize: 9,
+              color: T.textFaint,
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
+            Time Period
+          </label>
+          <DateRangePicker value={dateRange} onChange={setDateRange} />
+        </div>
+
+        {/* Other filters */}
+        {otherFilters.map((f) => (
           <div
             key={f.key}
             style={{ display: "flex", flexDirection: "column", gap: 3 }}
@@ -1202,7 +1745,7 @@ function ExecFilterBar({ filters, setFilters }) {
               <select
                 value={filters[f.key]}
                 onChange={(e) =>
-                  setFilters((p) => ({ ...p, [f.key]: e.target.value }))
+                  setFilters((p: any) => ({ ...p, [f.key]: e.target.value }))
                 }
                 style={{
                   fontSize: 12,
@@ -1226,18 +1769,29 @@ function ExecFilterBar({ filters, setFilters }) {
   );
 }
 
-function GenericFilterBar({ filters, setFilters }) {
+function GenericFilterBar({ filters, setFilters }: { filters: any; setFilters: (fn: (p: any) => any) => void }) {
+  const [dateRange, setDateRange] = useState<DateRange>(DEFAULT_DATE_RANGE);
+
+  const otherFilters = GENERIC_FILTER_DEFS.filter(f => f.key !== "date");
+
   return (
     <div
       style={{
         display: "flex",
         gap: 8,
-        alignItems: "center",
+        alignItems: "flex-end",
         marginBottom: 16,
         flexWrap: "wrap",
       }}
     >
-      {GENERIC_FILTER_DEFS.map((f) => (
+      {/* Date Range Picker */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <label style={{ fontSize: 9, color: T.textFaint }}>Date Range</label>
+        <DateRangePicker value={dateRange} onChange={setDateRange} />
+      </div>
+
+      {/* Other filters */}
+      {otherFilters.map((f) => (
         <div
           key={f.key}
           style={{ display: "flex", flexDirection: "column", gap: 2 }}
@@ -1246,7 +1800,7 @@ function GenericFilterBar({ filters, setFilters }) {
           <select
             value={filters[f.key]}
             onChange={(e) =>
-              setFilters((p) => ({ ...p, [f.key]: e.target.value }))
+              setFilters((p: any) => ({ ...p, [f.key]: e.target.value }))
             }
             style={{
               fontSize: 11,
@@ -1256,6 +1810,7 @@ function GenericFilterBar({ filters, setFilters }) {
               background: T.inputBg,
               color: T.textSec,
               cursor: "pointer",
+              height: 36,
             }}
           >
             {f.options.map((o) => (
@@ -1264,8 +1819,9 @@ function GenericFilterBar({ filters, setFilters }) {
           </select>
         </div>
       ))}
-      <div style={{ display: "flex", gap: 6, marginTop: 14 }}>
-        {["Filters", "Refresh", "Export"].map((l) => (
+
+      <div style={{ display: "flex", gap: 6 }}>
+        {["Refresh", "Export"].map((l) => (
           <button
             key={l}
             style={{
@@ -1276,21 +1832,12 @@ function GenericFilterBar({ filters, setFilters }) {
               fontSize: 11,
               cursor: "pointer",
               color: T.textSec,
+              height: 36,
             }}
           >
             {l}
           </button>
         ))}
-      </div>
-      <div
-        style={{
-          marginLeft: "auto",
-          marginTop: 14,
-          fontSize: 10,
-          color: T.textFaint,
-        }}
-      >
-        Last Updated: 15/05/26 10:30 AM
       </div>
     </div>
   );
@@ -1298,7 +1845,7 @@ function GenericFilterBar({ filters, setFilters }) {
 
 // ─── Utilization-specific helpers ─────────────────────────────────────────────
 
-function heatCell(val) {
+function heatCell(val: number) {
   if (val > 110) return { bg: "#fde8e8", color: COLORS.red };
   if (val > 100) return { bg: "#fee2e2", color: "#c0392b" };
   if (val >= 85) return { bg: "#e8f5e9", color: "#2e7d32" };
@@ -1380,7 +1927,7 @@ function ReportDetail12() {
               </div>
               <div style={{ fontSize: 10, color: k.up ? T.green : T.red }}>
                 {k.delta}{" "}
-                <span style={{ color: T.textFaint }}>vs 11/04/26</span>
+                <span style={{ color: T.textFaint }}>vs Jan 2026</span>
               </div>
             </div>
           ))}
@@ -1461,7 +2008,7 @@ function ReportDetail12() {
                 />
                 <Tooltip
                   contentStyle={tooltipStyle}
-                  formatter={(v) => `${v}%`}
+                  formatter={(v: any) => `${v}%`}
                 />
                 <Line
                   type="monotone"
@@ -1696,7 +2243,6 @@ function ReportDetail12() {
             gap: 12,
           }}
         >
-
           {/* Top 10 Underutilized */}
           <div
             style={{
@@ -1856,7 +2402,7 @@ function ReportDetail12() {
                     key={i}
                     style={{
                       borderBottom: `0.5px solid ${T.borderLight}`,
-                      background: r.util >= 120 ? T.rowAlert : "transparent",
+                      background: r.util >= 95 ? T.rowAlert : "transparent",
                     }}
                   >
                     <td
@@ -1884,12 +2430,12 @@ function ReportDetail12() {
                           fontSize: 10,
                           fontWeight: 700,
                           color:
-                            r.util >= 120
+                            r.util >= 95
                               ? T.red
-                              : r.util >= 115
+                              : r.util >= 90
                                 ? "#c0392b"
                                 : T.orange,
-                          background: (r.util >= 120 ? T.red : T.orange) + "18",
+                          background: (r.util >= 95 ? T.red : T.orange) + "18",
                           padding: "1px 6px",
                           borderRadius: 3,
                         }}
@@ -2033,7 +2579,6 @@ function ReportDetail12() {
                 marginBottom: 10,
               }}
             >
-
               7. Utilization Heatmap by Department
             </div>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -2233,8 +2778,8 @@ function ReportDetail12() {
             borderTop: `0.5px solid ${T.border}`,
           }}
         >
-          ℹ️ All metrics are based on data as of 15/05/26 10:30 AM &nbsp;|&nbsp;
-          Historical data available from 01/01/26 &nbsp;|&nbsp; Data refreshed
+          ℹ️ All metrics are based on data as of May 15, 2026 10:30 AM &nbsp;|&nbsp;
+          Historical data available from Jan 2026 &nbsp;|&nbsp; Data refreshed
           daily
         </div>
       </div>
@@ -2244,14 +2789,14 @@ function ReportDetail12() {
 
 // ─── Shared card/table helpers ────────────────────────────────────────────────
 
-function heatColor(val) {
+function heatColor(val: number) {
   if (val >= 101) return { bg: "#fde8e8", text: COLORS.red, fw: 700 };
   if (val >= 95) return { bg: "#fff4cc", text: "#a16207", fw: 600 };
   if (val >= 70) return { bg: "#e8f5e9", text: "#2e7d32", fw: 500 };
   return { bg: "#e3f2fd", text: "#1565c0", fw: 500 };
 }
 
-function CardHeader({ children }) {
+function CardHeader({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
@@ -2269,7 +2814,7 @@ function CardHeader({ children }) {
   );
 }
 
-function ViewAllLink({ label = "View All →" }) {
+function ViewAllLink({ label = "View All →" }: { label?: string }) {
   return (
     <div style={{ marginTop: 8 }}>
       <span
@@ -2286,8 +2831,8 @@ function ViewAllLink({ label = "View All →" }) {
   );
 }
 
-function UtilBar({ value }) {
-  const color = value >= 101 ? T.red : value >= 95 ? "#a16207" : T.green;
+function UtilBar({ value }: { value: number }) {
+  const color = value >= 95 ? T.red : value >= 85 ? "#a16207" : T.green;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
       <div
@@ -2315,8 +2860,8 @@ function UtilBar({ value }) {
   );
 }
 
-function RiskBadge({ level }) {
-  const map = {
+function RiskBadge({ level }: { level: string }) {
+  const map: Record<string, { bg: string; color: string }> = {
     High: { bg: "#fde8e8", color: COLORS.red },
     Medium: { bg: "#fff4e0", color: COLORS.orange },
     Low: { bg: "#e8f5e9", color: COLORS.green },
@@ -2419,14 +2964,8 @@ function ReportDetail1() {
           ))}
         </div>
 
-        {/* Heatmap + Capacity vs Demand */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr",
-            gap: 12,
-          }}
-        >
+        {/* Heatmap */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12 }}>
           <div
             style={{
               background: T.surface,
@@ -2616,8 +3155,6 @@ function ReportDetail1() {
               ))}
             </div>
           </div>
-
-          
         </div>
 
         {/* Demand Status + Vendor + Skills */}
@@ -2674,7 +3211,7 @@ function ReportDetail1() {
                   }}
                 >
                   <div style={{ fontSize: 16, fontWeight: 800, color: T.text }}>
-                    3,245
+                    99
                   </div>
                   <div style={{ fontSize: 8, color: T.textMuted }}>Total</div>
                 </div>
@@ -2706,7 +3243,7 @@ function ReportDetail1() {
                         paddingLeft: 8,
                       }}
                     >
-                      {d.value.toLocaleString()} ({d.pct}%)
+                      {d.value} ({d.pct}%)
                     </span>
                   </div>
                 ))}
@@ -3160,78 +3697,32 @@ function ReportDetail1() {
   );
 }
 
-// ─── Generic detail views (Reports 2–11, 13–15) ───────────────────────────────
-// Each uses the same token variables so dark mode is automatic.
+// ─── Generic detail views ─────────────────────────────────────────────────────
 
 function ReportDetail2() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-
   const byRoleData = [
-    {
-      role: "Developers",
-      allocated: 28,
-      capacity: 33,
-      util: "85%",
-      gap: -5,
-    },
-    {
-      role: "Consultants",
-      allocated: 18,
-      capacity: 22,
-      util: "82%",
-      gap: -4,
-    },
-    {
-      role: "Analysts",
-      allocated: 12,
-      capacity: 14,
-      util: "86%",
-      gap: -2,
-    },
-    {
-      role: "Testers",
-      allocated: 8,
-      capacity: 10,
-      util: "80%",
-      gap: -2,
-    },
-    {
-      role: "Architects",
-      allocated: 6,
-      capacity: 7,
-      util: "86%",
-      gap: -1,
-    },
+    { role: "Developers", allocated: 32, capacity: 38, util: "85%", gap: -6 },
+    { role: "Consultants", allocated: 19, capacity: 23, util: "83%", gap: -4 },
+    { role: "Analysts", allocated: 11, capacity: 13, util: "84%", gap: -2 },
+    { role: "Testers", allocated: 6, capacity: 7, util: "84%", gap: -1 },
+    { role: "Architects", allocated: 3, capacity: 3, util: "85%", gap: 0 },
   ];
-
   const buUtil = [
     { name: "Engineering", util: 85, color: T.blue },
     { name: "Consulting", util: 81, color: T.teal },
     { name: "Data & Analytics", util: 84, color: T.purple },
     { name: "Products", util: 79, color: T.orange },
   ];
-
-  const capDemand2026 = [
-    { month: "Jan", Capacity: 58, Demand: 61 },
-    { month: "Feb", Capacity: 60, Demand: 65 },
-    { month: "Mar", Capacity: 63, Demand: 68 },
-    { month: "Apr", Capacity: 67, Demand: 72 },
-    { month: "May", Capacity: 70, Demand: 76 },
-    { month: "Jun", Capacity: 74, Demand: 80 },
-  ];
-
   const ttStyle = {
     background: T.surface,
     border: `1px solid ${T.border}`,
     fontSize: 10,
     color: T.text,
   };
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-
-      {/* KPI Cards */}
       <div
         style={{
           display: "grid",
@@ -3241,74 +3732,38 @@ function ReportDetail2() {
       >
         <StatTile label="Total Capacity" value="74" color={T.blue} />
         <StatTile label="Total Demand" value="80" color={T.orange} />
-        <StatTile label="Allocated (FTE)" value="61" color={T.teal} />
+        <StatTile label="Allocated (FTE)" value="71" color={T.teal} />
         <StatTile label="Utilization" value="83%" color={T.purple} />
         <StatTile label="Capacity Gap" value="-6" color={T.red} />
       </div>
-
-      {/* Charts Section */}
       <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1.3fr 1fr",
-          gap: 12,
-        }}
+        style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 12 }}
       >
-        {/* Capacity vs Demand Trend */}
         <DetailCard>
           <SectionLabel>Capacity vs Demand Trend</SectionLabel>
-
           <ResponsiveContainer width="100%" height={190}>
             <BarChart
               data={capDemand2026}
               margin={{ top: 5, right: 5, bottom: 5, left: -15 }}
             >
-              <CartesianGrid
-                strokeDasharray="2 2"
-                stroke={T.borderLight}
-              />
-
+              <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
               <XAxis
                 dataKey="month"
                 tick={{ fontSize: 9, fill: T.textMuted }}
               />
-
-              <YAxis
-                domain={[0, 100]}
-                tick={{ fontSize: 9, fill: T.textMuted }}
-              />
-
+              <YAxis tick={{ fontSize: 9, fill: T.textMuted }} />
               <Tooltip
                 contentStyle={ttStyle}
-                formatter={(v: number) => [v, ""]}
+                formatter={(v: any) => v.toLocaleString()}
               />
-
-              <Legend
-                wrapperStyle={{
-                  fontSize: 9,
-                  color: T.textMuted,
-                }}
-              />
-
-              <Bar
-                dataKey="Capacity"
-                fill={T.blue}
-                radius={[2, 2, 0, 0]}
-              />
-
-              <Bar
-                dataKey="Demand"
-                fill={T.teal}
-                radius={[2, 2, 0, 0]}
-              />
+              <Bar dataKey="Capacity" fill={T.blue} radius={[2, 2, 0, 0]} />
+              <Bar dataKey="Demand" fill={T.teal} radius={[2, 2, 0, 0]} />
+              <Legend wrapperStyle={{ fontSize: 9, color: T.textMuted }} />
             </BarChart>
           </ResponsiveContainer>
         </DetailCard>
-
-        {/* Utilization by Business Unit */}
         <DetailCard>
           <SectionLabel>Utilization by Business Unit</SectionLabel>
-
           {buUtil.map((r, i) => (
             <div key={i} style={{ marginBottom: 12 }}>
               <div
@@ -3318,39 +3773,18 @@ function ReportDetail2() {
                   marginBottom: 4,
                 }}
               >
-                <span
-                  style={{
-                    fontSize: 11,
-                    color: T.textSec,
-                  }}
-                >
-                  {r.name}
-                </span>
-
-                <span
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 700,
-                    color: r.color,
-                  }}
-                >
+                <span style={{ fontSize: 11, color: T.textSec }}>{r.name}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: r.color }}>
                   {r.util}%
                 </span>
               </div>
-
-              <DetailMiniBar
-                value={r.util}
-                color={r.color}
-              />
+              <DetailMiniBar value={r.util} color={r.color} />
             </div>
           ))}
         </DetailCard>
       </div>
-
-      {/* Allocation by Role Table */}
       <DetailCard>
         <SectionLabel>Allocation by Role</SectionLabel>
-
         <DetailTable
           headers={[
             "Role",
@@ -3360,35 +3794,11 @@ function ReportDetail2() {
             "Gap",
           ]}
           rows={byRoleData.map((r) => [
-            <span
-              style={{
-                color: T.textSec,
-                fontWeight: 600,
-              }}
-            >
-              {r.role}
-            </span>,
-
-            r.allocated,
-            r.capacity,
-
-            <span
-              style={{
-                color: T.green,
-                fontWeight: 700,
-              }}
-            >
-              {r.util}
-            </span>,
-
-            <span
-              style={{
-                color: T.red,
-                fontWeight: 700,
-              }}
-            >
-              {r.gap}
-            </span>,
+            <span style={{ color: T.textSec, fontWeight: 600 }}>{r.role}</span>,
+            r.allocated.toLocaleString(),
+            r.capacity.toLocaleString(),
+            <span style={{ color: T.green, fontWeight: 700 }}>{r.util}</span>,
+            <span style={{ color: T.red, fontWeight: 700 }}>{r.gap}</span>,
           ])}
         />
       </DetailCard>
@@ -3399,55 +3809,25 @@ function ReportDetail2() {
 function ReportDetail3() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
   const owners = [
-    {
-      name: "Sarah Johnson",
-      total: 235,
-      approved: 168,
-      pending: 67,
-      rate: "71%",
-    },
-    {
-      name: "Michael Lee",
-      total: 188,
-      approved: 128,
-      pending: 60,
-      rate: "68%",
-    },
-    {
-      name: "Emily Davis",
-      total: 176,
-      approved: 129,
-      pending: 47,
-      rate: "73%",
-    },
-    {
-      name: "David Brown",
-      total: 154,
-      approved: 101,
-      pending: 53,
-      rate: "66%",
-    },
-    {
-      name: "Olivia Martin",
-      total: 138,
-      approved: 92,
-      pending: 46,
-      rate: "67%",
-    },
+    { name: "Sarah Johnson", total: 35, approved: 25, pending: 10, rate: "71%" },
+    { name: "Michael Lee", total: 28, approved: 19, pending: 9, rate: "68%" },
+    { name: "Emily Davis", total: 23, approved: 17, pending: 6, rate: "73%" },
+    { name: "David Brown", total: 18, approved: 12, pending: 6, rate: "66%" },
+    { name: "Olivia Martin", total: 14, approved: 9, pending: 5, rate: "67%" },
   ];
   const approvalTrend = [
-    { month: "01/01/26", Approved: 720, Pending: 310 },
-    { month: "01/02/26", Approved: 780, Pending: 340 },
-    { month: "01/03/26", Approved: 810, Pending: 360 },
-    { month: "11/04/26", Approved: 850, Pending: 380 },
-    { month: "11/05/26", Approved: 864, Pending: 381 },
+    { month: "Jan 2026", Approved: 52, Pending: 24 },
+    { month: "Feb 2026", Approved: 58, Pending: 28 },
+    { month: "Mar 2026", Approved: 62, Pending: 30 },
+    { month: "Apr 2026", Approved: 66, Pending: 33 },
+    { month: "May 2026", Approved: 64, Pending: 22 },
   ];
   const byType = [
-    { name: "Demand Inputs", value: 488 },
-    { name: "Capacity Inputs", value: 324 },
-    { name: "Allocation Inputs", value: 221 },
-    { name: "Financial Inputs", value: 126 },
-    { name: "Timesheet Inputs", value: 86 },
+    { name: "Demand Inputs", value: 38 },
+    { name: "Capacity Inputs", value: 24 },
+    { name: "Allocation Inputs", value: 14 },
+    { name: "Financial Inputs", value: 7 },
+    { name: "Timesheet Inputs", value: 3 },
   ];
   const ttStyle = {
     background: T.surface,
@@ -3465,10 +3845,10 @@ function ReportDetail3() {
           gap: 10,
         }}
       >
-        <StatTile label="Total Planning Inputs" value="1,245" color={T.blue} />
-        <StatTile label="Approved" value="864" color={T.green} />
-        <StatTile label="Pending" value="381" color={T.orange} />
-        <StatTile label="Approval Rate" value="69.4%" color={T.teal} />
+        <StatTile label="Total Planning Inputs" value="86" color={T.blue} />
+        <StatTile label="Approved" value="64" color={T.green} />
+        <StatTile label="Pending" value="22" color={T.orange} />
+        <StatTile label="Approval Rate" value="74.4%" color={T.teal} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <DetailCard>
@@ -3563,26 +3943,26 @@ function ReportDetail3() {
 function ReportDetail4() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
   const donutData = [
-    { name: "Cloud Migration", value: 18, fte: 1281 },
-    { name: "Data Warehouse", value: 14, fte: 996 },
-    { name: "Mobile App Revamp", value: 12, fte: 854 },
-    { name: "ERP Implementation", value: 10, fte: 712 },
-    { name: "AI Platform", value: 8, fte: 569 },
-    { name: "Others", value: 38, fte: 2703 },
+    { name: "Cloud Migration", value: 18, fte: 13 },
+    { name: "Data Warehouse", value: 14, fte: 10 },
+    { name: "Mobile App Revamp", value: 12, fte: 9 },
+    { name: "ERP Implementation", value: 10, fte: 7 },
+    { name: "AI Platform", value: 8, fte: 6 },
+    { name: "Others", value: 38, fte: 27 },
   ];
   const byPortfolio = [
-    { name: "Digital Transformation", fte: 2248, pct: 31.6 },
-    { name: "Product Engineering", fte: 1842, pct: 25.9 },
-    { name: "Cloud Services", fte: 1365, pct: 19.2 },
-    { name: "Data & Analytics", fte: 1030, pct: 14.5 },
-    { name: "Business Applications", fte: 630, pct: 8.9 },
+    { name: "Digital Transformation", fte: 22, pct: 31.6 },
+    { name: "Product Engineering", fte: 18, pct: 25.9 },
+    { name: "Cloud Services", fte: 14, pct: 19.2 },
+    { name: "Data & Analytics", fte: 10, pct: 14.5 },
+    { name: "Business Applications", fte: 7, pct: 8.9 },
   ];
   const allocationTrend = [
-    { month: "01/01/26", fte: 6200 },
-    { month: "01/02/26", fte: 6500 },
-    { month: "01/03/26", fte: 6700 },
-    { month: "11/04/26", fte: 7000 },
-    { month: "11/05/26", fte: 7115 },
+    { month: "Jan 2026", fte: 60 },
+    { month: "Feb 2026", fte: 63 },
+    { month: "Mar 2026", fte: 65 },
+    { month: "Apr 2026", fte: 68 },
+    { month: "May 2026", fte: 71 },
   ];
   const ttStyle = {
     background: T.surface,
@@ -3600,8 +3980,8 @@ function ReportDetail4() {
           gap: 10,
         }}
       >
-        <StatTile label="Total Allocated (FTE)" value="7,115" color={T.blue} />
-        <StatTile label="Active Projects" value="124" color={T.teal} />
+        <StatTile label="Total Allocated (FTE)" value="71" color={T.blue} />
+        <StatTile label="Active Projects" value="24" color={T.teal} />
         <StatTile label="Avg Allocation %" value="81%" color={T.purple} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -3647,7 +4027,7 @@ function ReportDetail4() {
                 }}
               >
                 <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>
-                  7,115
+                  71
                 </div>
                 <div style={{ fontSize: 9, color: T.textMuted }}>Total FTE</div>
               </div>
@@ -3681,7 +4061,7 @@ function ReportDetail4() {
                     {d.value}%
                   </span>
                   <span style={{ fontSize: 10, color: T.textFaint }}>
-                    {d.fte.toLocaleString()}
+                    {d.fte}
                   </span>
                 </div>
               ))}
@@ -3707,7 +4087,7 @@ function ReportDetail4() {
                     color: DONUT_COLORS[i],
                   }}
                 >
-                  {p.fte.toLocaleString()} ({p.pct}%)
+                  {p.fte} ({p.pct}%)
                 </span>
               </div>
               <DetailMiniBar value={p.pct} max={35} color={DONUT_COLORS[i]} />
@@ -3727,7 +4107,7 @@ function ReportDetail4() {
             <YAxis tick={{ fontSize: 9, fill: T.textMuted }} />
             <Tooltip
               contentStyle={ttStyle}
-              formatter={(v) => `${v.toLocaleString()} FTE`}
+              formatter={(v: any) => `${v} FTE`}
             />
             <Line
               type="monotone"
@@ -3747,30 +4127,30 @@ function ReportDetail4() {
 function ReportDetail5() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
   const overList = [
-    { name: "John Smith", role: "Developer", alloc: 132, projects: 5 },
-    { name: "Priya Patel", role: "Analyst", alloc: 128, projects: 4 },
-    { name: "Ravi Kumar", role: "Developer", alloc: 120, projects: 4 },
-    { name: "Anita Desai", role: "Tester", alloc: 116, projects: 3 },
-    { name: "Carlos Martinez", role: "Consultant", alloc: 112, projects: 3 },
-    { name: "Emily Clark", role: "Developer", alloc: 110, projects: 2 },
-    { name: "David Lee", role: "Architect", alloc: 108, projects: 2 },
-    { name: "Sophie Wilson", role: "Analyst", alloc: 105, projects: 5 },
-    { name: "James Thomas", role: "Developer", alloc: 104, projects: 3 },
-    { name: "Maria Garcia", role: "Tester", alloc: 103, projects: 3 },
+    { name: "John Smith", role: "Developer", alloc: 98, projects: 5 },
+    { name: "Priya Patel", role: "Analyst", alloc: 95, projects: 4 },
+    { name: "Ravi Kumar", role: "Developer", alloc: 92, projects: 4 },
+    { name: "Anita Desai", role: "Tester", alloc: 90, projects: 3 },
+    { name: "Carlos Martinez", role: "Consultant", alloc: 88, projects: 3 },
+    { name: "Emily Clark", role: "Developer", alloc: 86, projects: 2 },
+    { name: "David Lee", role: "Architect", alloc: 84, projects: 2 },
+    { name: "Sophie Wilson", role: "Analyst", alloc: 82, projects: 5 },
+    { name: "James Thomas", role: "Developer", alloc: 80, projects: 3 },
+    { name: "Maria Garcia", role: "Tester", alloc: 78, projects: 3 },
   ];
   const byRoleOver = [
-    { role: "Developer", count: 198 },
-    { role: "Consultant", count: 42 },
-    { role: "Analyst", count: 18 },
-    { role: "Tester", count: 14 },
-    { role: "Architect", count: 10 },
+    { role: "Developer", count: 19 },
+    { role: "Consultant", count: 4 },
+    { role: "Analyst", count: 4 },
+    { role: "Tester", count: 3 },
+    { role: "Architect", count: 1 },
   ];
   const byProject = [
-    { name: "Cloud Migration", count: 45 },
-    { name: "Data Warehouse", count: 36 },
-    { name: "Mobile App Revamp", count: 32 },
-    { name: "AI Platform", count: 28 },
-    { name: "ERP Implementation", count: 20 },
+    { name: "Cloud Migration", count: 8 },
+    { name: "Data Warehouse", count: 7 },
+    { name: "Mobile App Revamp", count: 6 },
+    { name: "AI Platform", count: 5 },
+    { name: "ERP Implementation", count: 5 },
   ];
   const ttStyle = {
     background: T.surface,
@@ -3790,11 +4170,11 @@ function ReportDetail5() {
       >
         <StatTile
           label="Over Allocated Resources"
-          value="312 FTE"
+          value="31 FTE"
           color={T.red}
         />
         <StatTile label="Over Allocation %" value="12.3%" color={T.orange} />
-        <StatTile label="Projects Impacted" value="47" color={T.amber} />
+        <StatTile label="Projects Impacted" value="17" color={T.amber} />
       </div>
       <div
         style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 12 }}
@@ -3812,9 +4192,9 @@ function ReportDetail5() {
                 style={{
                   fontWeight: 800,
                   color:
-                    r.alloc >= 125
+                    r.alloc >= 95
                       ? T.red
-                      : r.alloc >= 115
+                      : r.alloc >= 90
                         ? T.orange
                         : T.amber,
                 }}
@@ -3874,7 +4254,7 @@ function ReportDetail5() {
                 <span style={{ fontSize: 10, color: T.textSec, minWidth: 120 }}>
                   {p.name}
                 </span>
-                <DetailMiniBar value={p.count} max={50} color={T.red} />
+                <DetailMiniBar value={p.count} max={10} color={T.red} />
                 <span
                   style={{
                     fontSize: 10,
@@ -3912,12 +4292,12 @@ function ReportDetail6() {
           gap: 10,
         }}
       >
-        <StatTile label="Total Resources (FTE)" value="8,532" color={T.blue} />
-        <StatTile label="Available (FTE)" value="1,842" color={T.green} />
-        <StatTile label="Shared Resources" value="2,315" color={T.teal} />
+        <StatTile label="Total Resources (FTE)" value="92" color={T.blue} />
+        <StatTile label="Available (FTE)" value="18" color={T.green} />
+        <StatTile label="Shared Resources" value="23" color={T.teal} />
         <StatTile
           label="Bench Resources"
-          value="1,842 (21.6%)"
+          value="18 (24.8%)"
           color={T.gray}
         />
       </div>
@@ -3956,7 +4336,7 @@ function ReportDetail6() {
               <span style={{ fontSize: 10, color: T.textSec, minWidth: 150 }}>
                 {p.name}
               </span>
-              <DetailMiniBar value={p.shared} max={250} color={T.teal} />
+              <DetailMiniBar value={p.shared} max={25} color={T.teal} />
               <span
                 style={{
                   fontSize: 10,
@@ -3985,7 +4365,7 @@ function ReportDetail6() {
               tick={{ fontSize: 9, fill: T.textMuted }}
               tickFormatter={(v) => `${v}%`}
             />
-            <Tooltip contentStyle={ttStyle} formatter={(v) => `${v}%`} />
+            <Tooltip contentStyle={ttStyle} formatter={(v: any) => `${v}%`} />
             <Area
               type="monotone"
               dataKey="pct"
@@ -4134,7 +4514,7 @@ function ReportDetail7() {
               tick={{ fontSize: 9, fill: T.textMuted }}
               tickFormatter={(v) => `${v}%`}
             />
-            <Tooltip contentStyle={ttStyle} formatter={(v) => `${v}%`} />
+            <Tooltip contentStyle={ttStyle} formatter={(v: any) => `${v}%`} />
             <Line
               type="monotone"
               dataKey="rate"
@@ -4192,7 +4572,7 @@ function ReportDetail8() {
                 tick={{ fontSize: 9, fill: T.textMuted }}
                 tickFormatter={(v) => `$${v}M`}
               />
-              <Tooltip contentStyle={ttStyle} formatter={(v) => `$${v}M`} />
+              <Tooltip contentStyle={ttStyle} formatter={(v: any) => `$${v}M`} />
               <Bar
                 dataKey="budget"
                 fill={T.blue}
@@ -4210,49 +4590,46 @@ function ReportDetail8() {
           </ResponsiveContainer>
         </DetailCard>
         <DetailCard>
-  <SectionLabel>Variance by Type</SectionLabel>
-
-  <div
-    style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      width: "100%",
-      height: 220,
-    }}
-  >
-    <PieChart width={260} height={200}>
-      <Pie
-        data={varianceByTypedData}
-        cx="50%"
-        cy="42%"
-        innerRadius={45}
-        outerRadius={70}
-        paddingAngle={2}
-        dataKey="value"
-      >
-        {[T.red, T.orange, T.amber].map((c, i) => (
-          <Cell key={i} fill={c} />
-        ))}
-      </Pie>
-
-      <Tooltip
-        contentStyle={ttStyle}
-        formatter={(v) => `${v}%`}
-      />
-
-      <Legend
-        verticalAlign="bottom"
-        align="center"
-        wrapperStyle={{
-          fontSize: 10,
-          color: T.textMuted,
-          paddingTop: 8,
-        }}
-      />
-    </PieChart>
-  </div>
-</DetailCard>
+          <SectionLabel>Variance by Type</SectionLabel>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+              height: 220,
+            }}
+          >
+            <PieChart width={260} height={200}>
+              <Pie
+                data={varianceByTypedData}
+                cx="50%"
+                cy="42%"
+                innerRadius={45}
+                outerRadius={70}
+                paddingAngle={2}
+                dataKey="value"
+              >
+                {[T.red, T.orange, T.amber].map((c, i) => (
+                  <Cell key={i} fill={c} />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={ttStyle}
+                formatter={(v: any) => `${v}%`}
+              />
+              <Legend
+                verticalAlign="bottom"
+                align="center"
+                wrapperStyle={{
+                  fontSize: 10,
+                  color: T.textMuted,
+                  paddingTop: 8,
+                }}
+              />
+            </PieChart>
+          </div>
+        </DetailCard>
       </div>
       <DetailCard>
         <SectionLabel>Variance by Portfolio</SectionLabel>
@@ -4353,7 +4730,7 @@ function ReportDetail9() {
                     <Cell key={i} fill={DONUT_COLORS[i]} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={ttStyle} formatter={(v) => `${v}%`} />
+                <Tooltip contentStyle={ttStyle} formatter={(v: any) => `${v}%`} />
                 <Legend wrapperStyle={{ fontSize: 9, color: T.textMuted }} />
               </PieChart>
             </div>
@@ -4374,7 +4751,7 @@ function ReportDetail9() {
                   tick={{ fontSize: 9, fill: T.textMuted }}
                   tickFormatter={(v) => `$${v}M`}
                 />
-                <Tooltip contentStyle={ttStyle} formatter={(v) => `$${v}M`} />
+                <Tooltip contentStyle={ttStyle} formatter={(v: any) => `$${v}M`} />
                 <Line
                   type="monotone"
                   dataKey="spend"
@@ -4410,9 +4787,9 @@ function ReportDetail10() {
           gap: 10,
         }}
       >
-        <StatTile label="Open Demands" value="412" color={T.red} />
-        <StatTile label="In Progress (FTE)" value="186" color={T.orange} />
-        <StatTile label="Fulfilled (FTE)" value="226" color={T.green} />
+        <StatTile label="Open Demands" value="41" color={T.red} />
+        <StatTile label="In Progress (FTE)" value="18" color={T.orange} />
+        <StatTile label="Fulfilled (FTE)" value="23" color={T.green} />
         <StatTile label="Avg Days to Fulfill" value="23" color={T.teal} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -4529,15 +4906,15 @@ function ReportDetail11() {
       >
         <StatTile
           label="Forecast Capacity (Jun)"
-          value="8.3K FTE"
+          value="78 FTE"
           color={T.blue}
         />
         <StatTile
           label="Forecast Demand (Jun)"
-          value="9.1K FTE"
+          value="84 FTE"
           color={T.orange}
         />
-        <StatTile label="Projected Gap (Jun)" value="-800 FTE" color={T.red} />
+        <StatTile label="Projected Gap (Jun)" value="-6" color={T.red} />
       </div>
       <DetailCard>
         <SectionLabel>6-Month Capacity vs Demand Forecast</SectionLabel>
@@ -4553,7 +4930,7 @@ function ReportDetail11() {
               tick={{ fontSize: 9, fill: T.textMuted }}
               tickFormatter={(v) => `${v}K`}
             />
-            <Tooltip contentStyle={ttStyle} formatter={(v) => `${v}K FTE`} />
+            <Tooltip contentStyle={ttStyle} formatter={(v: any) => `${v}K FTE`} />
             <Line
               type="monotone"
               dataKey="cap"
@@ -4665,8 +5042,8 @@ function ReportDetail13() {
         }}
       >
         <StatTile label="TS Compliance" value="96%" color={T.green} />
-        <StatTile label="Actual FTE" value="2,850" color={T.blue} />
-        <StatTile label="Planned FTE" value="2,850" color={T.teal} />
+        <StatTile label="Actual FTE" value="29" color={T.blue} />
+        <StatTile label="Planned FTE" value="29" color={T.teal} />
         <StatTile label="Variance" value="0%" color={T.gray} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -4828,7 +5205,7 @@ function ReportDetail14() {
       >
         <StatTile label="Pending Approvals" value="27" color={T.orange} />
         <StatTile label="Overdue Approvals" value="12" color={T.red} />
-        <StatTile label="Approved (This Month)" value="186" color={T.green} />
+        <StatTile label="Approved (This Month)" value="60" color={T.green} />
         <StatTile label="Avg Approval Time" value="2.4 days" color={T.teal} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -4979,9 +5356,7 @@ function ReportDetail15() {
                 marginTop: 2,
               }}
             >
-              {type === "All"
-                ? allReports.length
-                : Math.floor(Math.random() * 3) + 1}
+              {type === "All" ? allReports.length : [3, 2, 4, 3, 2, 3, 2][i % 7]}
             </div>
             <div style={{ fontSize: 10, color: T.textFaint }}>reports</div>
           </div>
@@ -5002,7 +5377,7 @@ function ReportDetail15() {
               </span>
             </div>,
             <span style={{ color: T.textFaint }}>{r.desc}</span>,
-            <span style={{ color: T.textMuted }}>15/05/26</span>,
+            <span style={{ color: T.textMuted }}>May 15, 2026</span>,
             <span
               style={{
                 fontSize: 10,

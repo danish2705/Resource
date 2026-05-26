@@ -33,7 +33,7 @@ export const kpis = [
   },
   {
     label: "Total Capacity (FTE)",
-    value: "88",
+    value: "74",
     delta: "+1.8%",
     deltaUp: true,
     icon: "🏗️",
@@ -41,7 +41,7 @@ export const kpis = [
   },
   {
     label: "Total Demand (FTE)",
-    value: "94",
+    value: "80",
     delta: "+3.6%",
     deltaUp: true,
     icon: "📋",
@@ -498,16 +498,16 @@ export const heatmapDepts = [
 export const execKpis = [
   {
     label: "Total Capacity",
-    value: "88 FTE",
-    delta: "+6.2% vs Apr 2026",
+    value: "74 FTE",
+    delta: "+6.2% vs Jan 2026",
     up: true,
     color: COLORS.blue,
     icon: "👥",
   },
   {
     label: "Total Demand",
-    value: "94 FTE",
-    delta: "+3.4% vs Apr 2026",
+    value: "80 FTE",
+    delta: "+3.4% vs Jan 2026",
     up: true,
     color: COLORS.orange,
     icon: "📋",
@@ -515,15 +515,15 @@ export const execKpis = [
   {
     label: "Capacity Gap",
     value: "-6 FTE",
-    delta: "▼ 2.8% vs Apr 2026",
+    delta: "▼ 2.8% vs Jan 2026",
     up: false,
     color: COLORS.red,
     icon: "📉",
   },
   {
     label: "Utilization Rate",
-    value: "82%",
-    delta: "▲ 2.3 pp vs Apr 2026",
+    value: "83%",
+    delta: "▲ 2.3 pp vs Jan 2026",
     up: true,
     color: COLORS.purple,
     icon: "📈",
@@ -531,7 +531,7 @@ export const execKpis = [
   {
     label: "Open Demands",
     value: "41",
-    delta: "▼ 5.1% vs Apr 2026",
+    delta: "▼ 5.1% vs Jan 2026",
     up: false,
     color: COLORS.blue,
     icon: "📂",
@@ -539,7 +539,7 @@ export const execKpis = [
   {
     label: "Overallocated Resources",
     value: "17",
-    delta: "▼ 3.6% vs Apr 2026",
+    delta: "▼ 3.6% vs Jan 2026",
     up: true,
     color: COLORS.amber,
     icon: "⚠️",
@@ -547,7 +547,7 @@ export const execKpis = [
   {
     label: "Vendor Spend",
     value: "$8.6M",
-    delta: "▲ 7.3% vs Apr 2026",
+    delta: "▲ 7.3% vs Jan 2026",
     up: true,
     color: COLORS.teal,
     icon: "💲",
@@ -555,7 +555,7 @@ export const execKpis = [
   {
     label: "Projects at Staffing Risk",
     value: "9",
-    delta: "▼ 4 vs Apr 2026",
+    delta: "▼ 4 vs Jan 2026",
     up: true,
     color: COLORS.red,
     icon: "🚨",
