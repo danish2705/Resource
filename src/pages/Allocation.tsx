@@ -261,3 +261,4 @@ export default function ResourceAllocation() {
     </div>
   );
 }
+//last line
