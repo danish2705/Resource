@@ -3165,52 +3165,73 @@ function ReportDetail1() {
 
 function ReportDetail2() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
+
   const byRoleData = [
     {
       role: "Developers",
-      allocated: 3240,
-      capacity: 3825,
+      allocated: 28,
+      capacity: 33,
       util: "85%",
-      gap: -585,
+      gap: -5,
     },
     {
       role: "Consultants",
-      allocated: 1910,
-      capacity: 2310,
-      util: "83%",
-      gap: -400,
+      allocated: 18,
+      capacity: 22,
+      util: "82%",
+      gap: -4,
     },
     {
       role: "Analysts",
-      allocated: 1105,
-      capacity: 1320,
-      util: "84%",
-      gap: -215,
+      allocated: 12,
+      capacity: 14,
+      util: "86%",
+      gap: -2,
     },
-    { role: "Testers", allocated: 605, capacity: 720, util: "84%", gap: -115 },
+    {
+      role: "Testers",
+      allocated: 8,
+      capacity: 10,
+      util: "80%",
+      gap: -2,
+    },
     {
       role: "Architects",
-      allocated: 255,
-      capacity: 300,
-      util: "85%",
-      gap: -45,
+      allocated: 6,
+      capacity: 7,
+      util: "86%",
+      gap: -1,
     },
   ];
+
   const buUtil = [
     { name: "Engineering", util: 85, color: T.blue },
     { name: "Consulting", util: 81, color: T.teal },
     { name: "Data & Analytics", util: 84, color: T.purple },
     { name: "Products", util: 79, color: T.orange },
   ];
+
+  const capDemand2026 = [
+    { month: "Jan", Capacity: 58, Demand: 61 },
+    { month: "Feb", Capacity: 60, Demand: 65 },
+    { month: "Mar", Capacity: 63, Demand: 68 },
+    { month: "Apr", Capacity: 67, Demand: 72 },
+    { month: "May", Capacity: 70, Demand: 76 },
+    { month: "Jun", Capacity: 74, Demand: 80 },
+  ];
+
   const ttStyle = {
     background: T.surface,
     border: `1px solid ${T.border}`,
     fontSize: 10,
     color: T.text,
   };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
+
+      {/* KPI Cards */}
       <div
         style={{
           display: "grid",
@@ -3218,40 +3239,76 @@ function ReportDetail2() {
           gap: 10,
         }}
       >
-        <StatTile label="Total Capacity" value="7,427" color={T.blue} />
-        <StatTile label="Total Demand" value="8,016" color={T.orange} />
-        <StatTile label="Allocated (FTE)" value="7,115" color={T.teal} />
+        <StatTile label="Total Capacity" value="74" color={T.blue} />
+        <StatTile label="Total Demand" value="80" color={T.orange} />
+        <StatTile label="Allocated (FTE)" value="61" color={T.teal} />
         <StatTile label="Utilization" value="83%" color={T.purple} />
-        <StatTile label="Capacity Gap" value="-589" color={T.red} />
+        <StatTile label="Capacity Gap" value="-6" color={T.red} />
       </div>
+
+      {/* Charts Section */}
       <div
-        style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 12 }}
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1.3fr 1fr",
+          gap: 12,
+        }}
       >
+        {/* Capacity vs Demand Trend */}
         <DetailCard>
           <SectionLabel>Capacity vs Demand Trend</SectionLabel>
+
           <ResponsiveContainer width="100%" height={190}>
             <BarChart
               data={capDemand2026}
               margin={{ top: 5, right: 5, bottom: 5, left: -15 }}
             >
-              <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
+              <CartesianGrid
+                strokeDasharray="2 2"
+                stroke={T.borderLight}
+              />
+
               <XAxis
                 dataKey="month"
                 tick={{ fontSize: 9, fill: T.textMuted }}
               />
-              <YAxis tick={{ fontSize: 9, fill: T.textMuted }} />
+
+              <YAxis
+                domain={[0, 100]}
+                tick={{ fontSize: 9, fill: T.textMuted }}
+              />
+
               <Tooltip
                 contentStyle={ttStyle}
-                formatter={(v) => v.toLocaleString()}
+                formatter={(v: number) => [v, ""]}
               />
-              <Bar dataKey="Capacity" fill={T.blue} radius={[2, 2, 0, 0]} />
-              <Bar dataKey="Demand" fill={T.teal} radius={[2, 2, 0, 0]} />
-              <Legend wrapperStyle={{ fontSize: 9, color: T.textMuted }} />
+
+              <Legend
+                wrapperStyle={{
+                  fontSize: 9,
+                  color: T.textMuted,
+                }}
+              />
+
+              <Bar
+                dataKey="Capacity"
+                fill={T.blue}
+                radius={[2, 2, 0, 0]}
+              />
+
+              <Bar
+                dataKey="Demand"
+                fill={T.teal}
+                radius={[2, 2, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </DetailCard>
+
+        {/* Utilization by Business Unit */}
         <DetailCard>
           <SectionLabel>Utilization by Business Unit</SectionLabel>
+
           {buUtil.map((r, i) => (
             <div key={i} style={{ marginBottom: 12 }}>
               <div
@@ -3261,18 +3318,39 @@ function ReportDetail2() {
                   marginBottom: 4,
                 }}
               >
-                <span style={{ fontSize: 11, color: T.textSec }}>{r.name}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: r.color }}>
+                <span
+                  style={{
+                    fontSize: 11,
+                    color: T.textSec,
+                  }}
+                >
+                  {r.name}
+                </span>
+
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: r.color,
+                  }}
+                >
                   {r.util}%
                 </span>
               </div>
-              <DetailMiniBar value={r.util} color={r.color} />
+
+              <DetailMiniBar
+                value={r.util}
+                color={r.color}
+              />
             </div>
           ))}
         </DetailCard>
       </div>
+
+      {/* Allocation by Role Table */}
       <DetailCard>
         <SectionLabel>Allocation by Role</SectionLabel>
+
         <DetailTable
           headers={[
             "Role",
@@ -3282,11 +3360,35 @@ function ReportDetail2() {
             "Gap",
           ]}
           rows={byRoleData.map((r) => [
-            <span style={{ color: T.textSec, fontWeight: 600 }}>{r.role}</span>,
-            r.allocated.toLocaleString(),
-            r.capacity.toLocaleString(),
-            <span style={{ color: T.green, fontWeight: 700 }}>{r.util}</span>,
-            <span style={{ color: T.red, fontWeight: 700 }}>{r.gap}</span>,
+            <span
+              style={{
+                color: T.textSec,
+                fontWeight: 600,
+              }}
+            >
+              {r.role}
+            </span>,
+
+            r.allocated,
+            r.capacity,
+
+            <span
+              style={{
+                color: T.green,
+                fontWeight: 700,
+              }}
+            >
+              {r.util}
+            </span>,
+
+            <span
+              style={{
+                color: T.red,
+                fontWeight: 700,
+              }}
+            >
+              {r.gap}
+            </span>,
           ])}
         />
       </DetailCard>
