@@ -114,6 +114,18 @@ export interface ResourceProfile {
   history: HistoryEntry[];
 }
 
+export interface TaskAssignment {
+  projectId: string;
+  projectName: string;
+  taskId: string;
+  taskName: string;
+  taskType: string;
+  assignedTo: string;
+  status: "Awaiting Approval";
+  comments?: string;
+  submittedAt: string;
+}
+
 export interface Forecast {
   id: string;
   portfolio: string;
@@ -175,15 +187,15 @@ interface AppState {
   powerBiUrl: string;
 
   addDemand: (
-  d: Omit<
-    Demand,
-    | "id"
-    | "history"
-    | "createdBy"
-    | "createdDate"
-    | "updatedBy"
-    | "updatedDate"
-  >,
+    d: Omit<
+      Demand,
+      | "id"
+      | "history"
+      | "createdBy"
+      | "createdDate"
+      | "updatedBy"
+      | "updatedDate"
+    >,
   ) => string; // ← now returns the new demand ID
 
   addDemands: (
