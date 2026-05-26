@@ -297,7 +297,7 @@ export default function AuditLog() {
   };
 
   return (
-    <div className="h-[calc(100vh-110px)] flex flex-col gap-4">
+    <div className="h-[calc(100vh-110px)] flex flex-col gap-4 overflow-hidden">
       {/* ── Header ── */}
       <div className="shrink-0 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -349,7 +349,7 @@ export default function AuditLog() {
       </div>
 
       {/* ── Table Card ── */}
-      <Card className="flex-1 min-h-0 flex flex-col">
+      <Card className="flex-1 min-h-0 flex flex-col overflow-hidden">
         <CardHeader className="pb-3 shrink-0">
           <CardTitle className="text-base">Change History</CardTitle>
           <p className="text-sm text-muted-foreground">
@@ -358,7 +358,7 @@ export default function AuditLog() {
           </p>
         </CardHeader>
 
-        <CardContent className="flex flex-col flex-1 min-h-0">
+        <CardContent className="flex flex-col flex-1 min-h-0 overflow-hidden">
           {/* ── Filter bar ── */}
           <div className="shrink-0 flex flex-wrap items-center gap-2 mb-4">
             {/* Search */}
