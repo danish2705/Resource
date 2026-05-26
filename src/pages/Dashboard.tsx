@@ -24,9 +24,6 @@ import {
   UserX,
   TrendingUp,
   AlertTriangle,
-  ClipboardCheck,
-  Activity,
-  Zap,
   ArrowUpRight,
   ArrowDownRight,
 } from "lucide-react";
@@ -48,10 +45,90 @@ import {
   completeness,
 } from "@/mocks/dashboard.ts";
 
-// ─── Theme hook ────────────────────────────────────────────────────────────────
-// Passive listener — syncs with the theme set by the app profile dropdown.
-// The dropdown should do one of: toggle <html class="dark">, or write
-// localStorage key "theme" | "dashboard-theme" | "color-theme" to "dark"/"light".
+// ─── CSS custom properties — exact same system as ReportingAnalytics ──────────
+function GlobalStyles() {
+  return (
+    <style>{`
+      :root {
+        --db-bg:           #f3f4f6;
+        --db-surface:      #ffffff;
+        --db-surface-alt:  #f9fafb;
+        --db-border:       #e5e7eb;
+        --db-border-light: #f3f4f6;
+        --db-text-primary: #111827;
+        --db-text-sec:     #374151;
+        --db-text-muted:   #6b7280;
+        --db-text-faint:   #9ca3af;
+        --db-input-bg:     #ffffff;
+        --db-overlay:      rgba(0,0,0,0.3);
+        --db-drag-checked: #eff6ff;
+        --db-drag-checked-border: #3b82f6;
+        --db-drag-unchecked: #f9fafb;
+        --db-hover-bg:     #f3f4f6;
+        --db-section-label:#9ca3af;
+        --db-row-alert:    #fff5f5;
+      }
+      .dark {
+        --db-bg:           #0f1117;
+        --db-surface:      #1a1d27;
+        --db-surface-alt:  #1f2231;
+        --db-border:       #2d3148;
+        --db-border-light: #252838;
+        --db-text-primary: #f1f5f9;
+        --db-text-sec:     #cbd5e1;
+        --db-text-muted:   #8b99b5;
+        --db-text-faint:   #4f5b73;
+        --db-input-bg:     #1f2231;
+        --db-overlay:      rgba(0,0,0,0.6);
+        --db-drag-checked: #1e2a3a;
+        --db-drag-checked-border: #3b82f6;
+        --db-drag-unchecked: #1a1d27;
+        --db-hover-bg:     #252838;
+        --db-section-label:#4f5b73;
+        --db-row-alert:    #2a1a1a;
+      }
+      .dark .recharts-tooltip-wrapper .recharts-default-tooltip {
+        background: #1a1d27 !important;
+        border-color: #2d3148 !important;
+        color: #f1f5f9 !important;
+      }
+      * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease; }
+    `}</style>
+  );
+}
+
+// ─── Token shorthands (CSS vars — auto dark/light, no JS logic needed) ────────
+const T = {
+  bg: "var(--db-bg)",
+  surface: "var(--db-surface)",
+  surfaceAlt: "var(--db-surface-alt)",
+  border: "var(--db-border)",
+  borderLight: "var(--db-border-light)",
+  text: "var(--db-text-primary)",
+  textSec: "var(--db-text-sec)",
+  textMuted: "var(--db-text-muted)",
+  textFaint: "var(--db-text-faint)",
+  inputBg: "var(--db-input-bg)",
+  overlay: "var(--db-overlay)",
+  dragChecked: "var(--db-drag-checked)",
+  dragCheckedBorder: "var(--db-drag-checked-border)",
+  dragUnchecked: "var(--db-drag-unchecked)",
+  hoverBg: "var(--db-hover-bg)",
+  sectionLabel: "var(--db-section-label)",
+  rowAlert: "var(--db-row-alert)",
+  // semantic colours — vivid, same in both modes
+  blue: "#3b82f6",
+  green: "#10b981",
+  red: "#ef4444",
+  orange: "#f97316",
+  amber: "#f59e0b",
+  teal: "#14b8a6",
+  purple: "#8b5cf6",
+  sky: "#0ea5e9",
+  gray: "#6b7280",
+};
+
+// ─── Passive theme listener — watches <html class> set by profile dropdown ────
 function resolveDark(): boolean {
   if (document.documentElement.classList.contains("dark")) return true;
   if (document.documentElement.classList.contains("light")) return false;
@@ -70,141 +147,36 @@ function resolveDark(): boolean {
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
-function useTheme() {
+function useDark(): boolean {
   const [dark, setDark] = useState<boolean>(resolveDark);
-
   useEffect(() => {
-    // Watch <html class> mutations — Tailwind/shadcn sets this
     const mo = new MutationObserver(() => setDark(resolveDark()));
     mo.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     });
-
-    // Watch localStorage changes from the profile dropdown (same tab or other tabs)
     const onStorage = (e: StorageEvent) => {
       if (
         ["theme", "dashboard-theme", "color-theme", "app-theme"].includes(
           e.key ?? "",
         )
-      ) {
+      )
         setDark(resolveDark());
-      }
     };
     window.addEventListener("storage", onStorage);
-
-    // OS-level preference fallback
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const onMq = () => setDark(resolveDark());
     mq.addEventListener("change", onMq);
-
     return () => {
       mo.disconnect();
       window.removeEventListener("storage", onStorage);
       mq.removeEventListener("change", onMq);
     };
   }, []);
-
-  const t = dark
-    ? {
-        pageBg: "#181818",
-        panel: "#222222",
-        card: "#2a2a2a",
-        border: "#3a3a3a",
-        inputBg: "#1e1e1e",
-        text1: "#f0f0f0",
-        text2: "#b0b0b0",
-        text3: "#666666",
-        grid: "#333333",
-        axis: "#777777",
-        tableHead: "#1e1e1e",
-        cardBg: "#2a2a2a",
-        textSecondary: "#b0b0b0",
-        axisColor: "#777777",
-        gridStroke: "#333333",
-        tooltipBg: "#1e293b",
-        tableHeader: "#1e1e1e",
-        sectionLabel: "#888888",
-        overlay: "rgba(0,0,0,0.6)",
-        hoverBg: "#333333",
-        dragChecked: "#1e2a3a",
-        dragCheckedBorder: C.blue,
-        dragUnchecked: "#2a2a2a",
-        alertRed: {
-          bg: "rgba(220,38,38,.12)",
-          text: "#fca5a5",
-          dot: "#ef4444",
-        },
-        alertOrange: {
-          bg: "rgba(234,88,12,.12)",
-          text: "#fdba74",
-          dot: "#f97316",
-        },
-        alertAmber: {
-          bg: "rgba(217,119,6,.12)",
-          text: "#fcd34d",
-          dot: "#f59e0b",
-        },
-        badgeIP: { bg: "#1e3a5f", color: C.blue },
-        badgeO: { bg: "#14351f", color: C.green },
-        badgeNS: { bg: "#2a2a2a", color: C.gray },
-        badgeInProgress: { bg: "#1e3a5f", color: C.blue },
-        badgeOpen: { bg: "#14351f", color: C.green },
-        badgeNotStarted: { bg: "#2a2a2a", color: C.gray },
-        trackBg: "#3a3a3a",
-      }
-    : {
-        pageBg: "#f5f5f4",
-        panel: "#ffffff",
-        card: "#ffffff",
-        border: "#e5e7eb",
-        inputBg: "#f9fafb",
-        text1: "#111827",
-        text2: "#374151",
-        text3: "#9ca3af",
-        grid: "#f3f4f6",
-        axis: "#9ca3af",
-        tableHead: "#f9fafb",
-        cardBg: "#ffffff",
-        textSecondary: "#374151",
-        axisColor: "#9ca3af",
-        gridStroke: "#f3f4f6",
-        tooltipBg: "#ffffff",
-        tableHeader: "#f9fafb",
-        sectionLabel: "#9ca3af",
-        overlay: "rgba(0,0,0,0.3)",
-        hoverBg: "#f3f4f6",
-        dragChecked: "#eff6ff",
-        dragCheckedBorder: C.blue,
-        dragUnchecked: "#f9fafb",
-        alertRed: {
-          bg: "rgba(220,38,38,.07)",
-          text: "#b91c1c",
-          dot: "#ef4444",
-        },
-        alertOrange: {
-          bg: "rgba(234,88,12,.07)",
-          text: "#c2410c",
-          dot: "#f97316",
-        },
-        alertAmber: {
-          bg: "rgba(217,119,6,.07)",
-          text: "#b45309",
-          dot: "#f59e0b",
-        },
-        badgeIP: { bg: "#dbeafe", color: "#1d4ed8" },
-        badgeO: { bg: "#dcfce7", color: "#15803d" },
-        badgeNS: { bg: "#f3f4f6", color: C.gray },
-        badgeInProgress: { bg: "#dbeafe", color: "#1d4ed8" },
-        badgeOpen: { bg: "#dcfce7", color: "#15803d" },
-        badgeNotStarted: { bg: "#f3f4f6", color: C.gray },
-        trackBg: "#e5e7eb",
-      };
-
-  return { dark, t };
+  return dark;
 }
 
-// ─── KPI Cards Data ────────────────────────────────────────────────────────────
+// ─── KPI Cards data ───────────────────────────────────────────────────────────
 const DEFAULT_KPI_CARDS = [
   {
     id: "kpi_resources",
@@ -216,7 +188,7 @@ const DEFAULT_KPI_CARDS = [
     vsLabel: "vs Apr 2025",
     delta: "2.3%",
     deltaUp: true,
-    valueColor: C.blue,
+    valueColor: T.blue,
     checked: true,
   },
   {
@@ -229,7 +201,7 @@ const DEFAULT_KPI_CARDS = [
     vsLabel: "vs Apr 2025",
     delta: "1.8%",
     deltaUp: true,
-    valueColor: C.green,
+    valueColor: T.green,
     checked: true,
   },
   {
@@ -242,7 +214,7 @@ const DEFAULT_KPI_CARDS = [
     vsLabel: "vs Apr 2025",
     delta: "3.6%",
     deltaUp: true,
-    valueColor: C.orange,
+    valueColor: T.orange,
     checked: true,
   },
   {
@@ -255,7 +227,7 @@ const DEFAULT_KPI_CARDS = [
     vsLabel: "vs Apr 2025",
     delta: "4.7%",
     deltaUp: false,
-    valueColor: C.red,
+    valueColor: T.red,
     checked: true,
   },
   {
@@ -268,7 +240,7 @@ const DEFAULT_KPI_CARDS = [
     vsLabel: "vs Apr 2025",
     delta: "2pp",
     deltaUp: true,
-    valueColor: C.purple,
+    valueColor: T.purple,
     checked: true,
   },
   {
@@ -281,110 +253,48 @@ const DEFAULT_KPI_CARDS = [
     vsLabel: "vs Apr 2025",
     delta: "5.6%",
     deltaUp: true,
-    valueColor: C.amber,
+    valueColor: T.amber,
     checked: true,
   },
   {
     id: "kpi_opendemand",
     icon: UserCheck,
     iconBg: "#e0f2fe",
-    iconColor: C.sky,
+    iconColor: T.sky,
     label: "Open Demands",
     value: "27",
     vsLabel: "vs Apr 2025",
     delta: "5.1%",
     deltaUp: false,
-    valueColor: C.sky,
+    valueColor: T.sky,
     checked: true,
   },
 ];
 
-// ─── Widgets ───────────────────────────────────────────────────────────────────
+// ─── Widgets ──────────────────────────────────────────────────────────────────
 const DEFAULT_WIDGETS = [
   {
     id: "capTrendLine",
     label: "Capacity & Demand Trend",
     checked: true,
     row: 1,
-    colSpan: "1fr",
   },
-  {
-    id: "utilDonut",
-    label: "Utilization Distribution",
-    checked: true,
-    row: 1,
-    colSpan: "1fr",
-  },
-  {
-    id: "utilDept",
-    label: "Utilization by Department",
-    checked: true,
-    row: 1,
-    colSpan: "1fr",
-  },
+  { id: "utilDonut", label: "Utilization Distribution", checked: true, row: 1 },
+  { id: "utilDept", label: "Utilization by Department", checked: true, row: 1 },
   {
     id: "allocPortfolio",
     label: "Allocation by Portfolio",
     checked: true,
     row: 2,
-    colSpan: "1fr",
   },
-  {
-    id: "allocByFn",
-    label: "Allocation by Function",
-    checked: true,
-    row: 2,
-    colSpan: "1fr",
-  },
-  {
-    id: "forecastBar",
-    label: "Forecast vs Actuals",
-    checked: true,
-    row: 2,
-    colSpan: "1fr",
-  },
-  {
-    id: "utilTrend",
-    label: "Utilization Trend (%)",
-    checked: true,
-    row: 3,
-    colSpan: "1fr",
-  },
-  {
-    id: "allocTrend",
-    label: "Allocation Trend",
-    checked: true,
-    row: 3,
-    colSpan: "1fr",
-  },
-  {
-    id: "demandPriority",
-    label: "Demand by Priority",
-    checked: true,
-    row: 3,
-    colSpan: "1fr",
-  },
-  {
-    id: "forecastAcc",
-    label: "Forecast Accuracy",
-    checked: true,
-    row: 4,
-    colSpan: "1fr",
-  },
-  {
-    id: "staffing",
-    label: "Pending Staffing",
-    checked: true,
-    row: 4,
-    colSpan: "1fr",
-  },
-  {
-    id: "resourceRisk",
-    label: "Resource Risks",
-    checked: true,
-    row: 4,
-    colSpan: "1fr",
-  },
+  { id: "allocByFn", label: "Allocation by Function", checked: true, row: 2 },
+  { id: "forecastBar", label: "Forecast vs Actuals", checked: true, row: 2 },
+  { id: "utilTrend", label: "Utilization Trend (%)", checked: true, row: 3 },
+  { id: "allocTrend", label: "Allocation Trend", checked: true, row: 3 },
+  { id: "demandPriority", label: "Demand by Priority", checked: true, row: 3 },
+  { id: "forecastAcc", label: "Forecast Accuracy", checked: true, row: 4 },
+  { id: "staffing", label: "Pending Staffing", checked: true, row: 4 },
+  { id: "resourceRisk", label: "Resource Risks", checked: true, row: 4 },
 ];
 
 const INITIAL_SAVED_VIEWS = [
@@ -420,7 +330,7 @@ const INITIAL_SAVED_VIEWS = [
   },
 ];
 
-// ─── Utility ───────────────────────────────────────────────────────────────────
+// ─── Utility ──────────────────────────────────────────────────────────────────
 function formatDateRange(start, end) {
   const fmt = (d) =>
     d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
@@ -434,33 +344,29 @@ function fromInputValue(s) {
   return new Date(y, m - 1, day);
 }
 
-const alertColors = {
-  red: { bg: "#FEE2E2", text: "#B91C1C", dot: "#EF4444" },
-  orange: { bg: "#FFEDD5", text: "#C2410C", dot: "#F97316" },
-  amber: { bg: "#FEF3C7", text: "#B45309", dot: "#F59E0B" },
-};
-const alertColorsDark = {
-  red: { bg: "#3b1212", text: "#fca5a5", dot: "#EF4444" },
-  orange: { bg: "#3b1f0b", text: "#fdba74", dot: "#F97316" },
-  amber: { bg: "#3b2c0b", text: "#fcd34d", dot: "#F59E0B" },
+// alert colours — use CSS-var aware values so they adapt automatically
+const alertTokens = {
+  red: { bg: "rgba(239,68,68,0.10)", text: T.red, dot: T.red },
+  orange: { bg: "rgba(249,115,22,0.10)", text: T.orange, dot: T.orange },
+  amber: { bg: "rgba(245,158,11,0.10)", text: T.amber, dot: T.amber },
 };
 
-// ─── Custom Tooltip ────────────────────────────────────────────────────────────
+// ─── Custom Tooltip ───────────────────────────────────────────────────────────
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
     <div
       style={{
-        background: "#1e293b",
-        border: "1px solid #334155",
+        background: T.surface,
+        border: `1px solid ${T.border}`,
         borderRadius: 10,
         padding: "10px 14px",
         fontSize: 12,
-        color: "#f1f5f9",
+        color: T.text,
         minWidth: 140,
       }}
     >
-      <div style={{ fontWeight: 700, marginBottom: 6, color: "#94a3b8" }}>
+      <div style={{ fontWeight: 700, marginBottom: 6, color: T.textMuted }}>
         {label}
       </div>
       {payload.map((p, i) => (
@@ -481,8 +387,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
-// ─── Shared Components ─────────────────────────────────────────────────────────
-function SectionLabel({ children, t }) {
+// ─── Shared Components ────────────────────────────────────────────────────────
+function DashSectionLabel({ children }) {
   return (
     <div
       style={{
@@ -490,7 +396,7 @@ function SectionLabel({ children, t }) {
         fontWeight: 700,
         letterSpacing: "0.12em",
         textTransform: "uppercase",
-        color: t.sectionLabel,
+        color: T.sectionLabel,
         marginBottom: 12,
         paddingLeft: 2,
       }}
@@ -500,13 +406,13 @@ function SectionLabel({ children, t }) {
   );
 }
 
-function CardShell({ title, subtitle, children, t }: any) {
+function CardShell({ title, subtitle, children }: any) {
   return (
     <div
       style={{
-        background: t.cardBg,
+        background: T.surface,
         borderRadius: 14,
-        border: `1px solid ${t.border}`,
+        border: `1px solid ${T.border}`,
         padding: "18px 18px 16px",
         display: "flex",
         flexDirection: "column",
@@ -517,11 +423,11 @@ function CardShell({ title, subtitle, children, t }: any) {
       }}
     >
       <div>
-        <div style={{ fontSize: 13, fontWeight: 700, color: t.text1 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>
           {title}
         </div>
         {subtitle && (
-          <div style={{ fontSize: 11, color: t.text3, marginTop: 2 }}>
+          <div style={{ fontSize: 11, color: T.textFaint, marginTop: 2 }}>
             {subtitle}
           </div>
         )}
@@ -531,13 +437,13 @@ function CardShell({ title, subtitle, children, t }: any) {
   );
 }
 
-function MiniBar({ value, max = 100, color = C.blue, height = 8, t }) {
+function MiniBar({ value, max = 100, color = T.blue, height = 8 }) {
   return (
     <div
       style={{
         flex: 1,
         height,
-        background: t.border,
+        background: T.borderLight,
         borderRadius: 4,
         overflow: "hidden",
       }}
@@ -565,14 +471,13 @@ function KpiCard({
   vsLabel,
   delta,
   deltaUp,
-  t,
 }) {
   return (
     <div
       style={{
-        background: t.cardBg,
+        background: T.surface,
         borderRadius: 14,
-        border: `1px solid ${t.border}`,
+        border: `1px solid ${T.border}`,
         padding: "16px 16px 14px",
         minWidth: 0,
         position: "relative",
@@ -581,7 +486,7 @@ function KpiCard({
         transition: "box-shadow 0.2s, transform 0.2s",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.10)";
+        e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.12)";
         e.currentTarget.style.transform = "translateY(-2px)";
       }}
       onMouseLeave={(e) => {
@@ -629,7 +534,7 @@ function KpiCard({
       <div
         style={{
           fontSize: 10,
-          color: t.text3,
+          color: T.textFaint,
           lineHeight: 1.4,
           marginBottom: 6,
           minHeight: 28,
@@ -640,18 +545,18 @@ function KpiCard({
       <div
         style={{
           fontSize: 10,
-          color: t.text3,
+          color: T.textFaint,
           display: "flex",
           alignItems: "center",
           gap: 3,
         }}
       >
         {deltaUp ? (
-          <ArrowUpRight size={11} color={C.green} />
+          <ArrowUpRight size={11} color={T.green} />
         ) : (
-          <ArrowDownRight size={11} color={C.red} />
+          <ArrowDownRight size={11} color={T.red} />
         )}
-        <span style={{ color: deltaUp ? C.green : C.red, fontWeight: 700 }}>
+        <span style={{ color: deltaUp ? T.green : T.red, fontWeight: 700 }}>
           {delta}
         </span>
         <span>{vsLabel}</span>
@@ -660,41 +565,8 @@ function KpiCard({
   );
 }
 
-function statusBadge(status, t) {
-  const map = {
-    "In Progress": t.badgeInProgress,
-    Open: t.badgeOpen,
-    "Not Started": t.badgeNotStarted,
-    Closed: t.badgeNotStarted,
-  };
-  const s = map[status] || t.badgeNotStarted;
-  return (
-    <span
-      style={{
-        fontSize: 10,
-        fontWeight: 600,
-        color: s.color,
-        background: s.bg,
-        padding: "2px 8px",
-        borderRadius: 10,
-        whiteSpace: "nowrap",
-      }}
-    >
-      {status}
-    </span>
-  );
-}
-function priorityBadge(p) {
-  const map = { High: C.red, Medium: C.amber, Low: C.green };
-  return (
-    <span style={{ fontSize: 10, fontWeight: 700, color: map[p] || C.gray }}>
-      {p}
-    </span>
-  );
-}
-
-// ─── Modals ────────────────────────────────────────────────────────────────────
-function CalendarModal({ startDate, endDate, onApply, onClose, t }: any) {
+// ─── Modals ───────────────────────────────────────────────────────────────────
+function CalendarModal({ startDate, endDate, onApply, onClose }: any) {
   const [start, setStart] = useState(toInputValue(startDate));
   const [end, setEnd] = useState(toInputValue(endDate));
   const [error, setError] = useState("");
@@ -714,7 +586,7 @@ function CalendarModal({ startDate, endDate, onApply, onClose, t }: any) {
       style={{
         position: "fixed",
         inset: 0,
-        background: t.overlay,
+        background: T.overlay,
         zIndex: 1000,
         display: "flex",
         alignItems: "center",
@@ -723,12 +595,12 @@ function CalendarModal({ startDate, endDate, onApply, onClose, t }: any) {
     >
       <div
         style={{
-          background: t.cardBg,
+          background: T.surface,
           borderRadius: 16,
-          boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.24)",
           width: 360,
           padding: 28,
-          border: `1px solid ${t.border}`,
+          border: `1px solid ${T.border}`,
         }}
       >
         <div
@@ -739,7 +611,7 @@ function CalendarModal({ startDate, endDate, onApply, onClose, t }: any) {
             marginBottom: 20,
           }}
         >
-          <span style={{ fontSize: 16, fontWeight: 700, color: t.text1 }}>
+          <span style={{ fontSize: 16, fontWeight: 700, color: T.text }}>
             Select Date Range
           </span>
           <button
@@ -749,7 +621,7 @@ function CalendarModal({ startDate, endDate, onApply, onClose, t }: any) {
               border: "none",
               cursor: "pointer",
               fontSize: 20,
-              color: t.text3,
+              color: T.textMuted,
               lineHeight: 1,
             }}
           >
@@ -773,7 +645,7 @@ function CalendarModal({ startDate, endDate, onApply, onClose, t }: any) {
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
-                  color: t.textSecondary,
+                  color: T.textSec,
                   display: "block",
                   marginBottom: 6,
                 }}
@@ -792,18 +664,18 @@ function CalendarModal({ startDate, endDate, onApply, onClose, t }: any) {
                   boxSizing: "border-box",
                   padding: "10px 12px",
                   fontSize: 13,
-                  border: `1px solid ${error ? C.red : t.border}`,
+                  border: `1px solid ${error ? T.red : T.border}`,
                   borderRadius: 8,
                   outline: "none",
-                  color: t.text1,
-                  background: t.inputBg,
+                  color: T.text,
+                  background: T.inputBg,
                 }}
               />
             </div>
           ))}
         </div>
         {error && (
-          <div style={{ fontSize: 11, color: C.red, marginBottom: 12 }}>
+          <div style={{ fontSize: 11, color: T.red, marginBottom: 12 }}>
             {error}
           </div>
         )}
@@ -814,9 +686,9 @@ function CalendarModal({ startDate, endDate, onApply, onClose, t }: any) {
               padding: "8px 20px",
               fontSize: 12,
               fontWeight: 600,
-              color: t.text3,
-              background: t.inputBg,
-              border: `1px solid ${t.border}`,
+              color: T.textSec,
+              background: T.surfaceAlt,
+              border: `1px solid ${T.border}`,
               borderRadius: 8,
               cursor: "pointer",
             }}
@@ -830,7 +702,7 @@ function CalendarModal({ startDate, endDate, onApply, onClose, t }: any) {
               fontSize: 12,
               fontWeight: 600,
               color: "#fff",
-              background: C.blue,
+              background: T.blue,
               border: "none",
               borderRadius: 8,
               cursor: "pointer",
@@ -844,7 +716,7 @@ function CalendarModal({ startDate, endDate, onApply, onClose, t }: any) {
   );
 }
 
-function SaveViewModal({ onSave, onClose, t }) {
+function SaveViewModal({ onSave, onClose }) {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   return (
@@ -852,7 +724,7 @@ function SaveViewModal({ onSave, onClose, t }) {
       style={{
         position: "fixed",
         inset: 0,
-        background: t.overlay,
+        background: T.overlay,
         zIndex: 1000,
         display: "flex",
         alignItems: "center",
@@ -861,12 +733,12 @@ function SaveViewModal({ onSave, onClose, t }) {
     >
       <div
         style={{
-          background: t.cardBg,
+          background: T.surface,
           borderRadius: 16,
-          boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.24)",
           width: 400,
           padding: 28,
-          border: `1px solid ${t.border}`,
+          border: `1px solid ${T.border}`,
         }}
       >
         <div
@@ -877,7 +749,7 @@ function SaveViewModal({ onSave, onClose, t }) {
             marginBottom: 20,
           }}
         >
-          <span style={{ fontSize: 16, fontWeight: 700, color: t.text1 }}>
+          <span style={{ fontSize: 16, fontWeight: 700, color: T.text }}>
             Save View
           </span>
           <button
@@ -887,7 +759,7 @@ function SaveViewModal({ onSave, onClose, t }) {
               border: "none",
               cursor: "pointer",
               fontSize: 20,
-              color: t.text3,
+              color: T.textMuted,
             }}
           >
             ×
@@ -897,7 +769,7 @@ function SaveViewModal({ onSave, onClose, t }) {
           style={{
             fontSize: 12,
             fontWeight: 600,
-            color: t.textSecondary,
+            color: T.textSec,
             display: "block",
             marginBottom: 6,
           }}
@@ -923,19 +795,19 @@ function SaveViewModal({ onSave, onClose, t }) {
             boxSizing: "border-box",
             padding: "10px 12px",
             fontSize: 13,
-            border: `1px solid ${error ? C.red : t.border}`,
+            border: `1px solid ${error ? T.red : T.border}`,
             borderRadius: 8,
             outline: "none",
-            color: t.text1,
-            background: t.inputBg,
+            color: T.text,
+            background: T.inputBg,
           }}
         />
         {error && (
-          <div style={{ fontSize: 11, color: C.red, marginTop: 4 }}>
+          <div style={{ fontSize: 11, color: T.red, marginTop: 4 }}>
             {error}
           </div>
         )}
-        <div style={{ fontSize: 11, color: t.text3, margin: "16px 0" }}>
+        <div style={{ fontSize: 11, color: T.textFaint, margin: "16px 0" }}>
           Saves your current widget & KPI selection as a named view.
         </div>
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
@@ -945,9 +817,9 @@ function SaveViewModal({ onSave, onClose, t }) {
               padding: "8px 20px",
               fontSize: 12,
               fontWeight: 600,
-              color: t.text3,
-              background: t.inputBg,
-              border: `1px solid ${t.border}`,
+              color: T.textSec,
+              background: T.surfaceAlt,
+              border: `1px solid ${T.border}`,
               borderRadius: 8,
               cursor: "pointer",
             }}
@@ -965,7 +837,7 @@ function SaveViewModal({ onSave, onClose, t }) {
               fontSize: 12,
               fontWeight: 600,
               color: "#fff",
-              background: C.blue,
+              background: T.blue,
               border: "none",
               borderRadius: 8,
               cursor: "pointer",
@@ -979,7 +851,7 @@ function SaveViewModal({ onSave, onClose, t }) {
   );
 }
 
-// ─── Draggable rows ────────────────────────────────────────────────────────────
+// ─── Draggable rows ───────────────────────────────────────────────────────────
 function DraggableWidgetRow({
   widget,
   index,
@@ -989,7 +861,6 @@ function DraggableWidgetRow({
   onDrop,
   isDraggingOver,
   isDragging,
-  t,
 }) {
   return (
     <div
@@ -1007,11 +878,11 @@ function DraggableWidgetRow({
         padding: "8px 10px",
         borderRadius: 8,
         background: isDraggingOver
-          ? t.hoverBg
+          ? T.hoverBg
           : widget.checked
-            ? t.dragChecked
-            : t.dragUnchecked,
-        border: `1px solid ${isDraggingOver ? C.blue : widget.checked ? t.dragCheckedBorder : t.border}`,
+            ? T.dragChecked
+            : T.dragUnchecked,
+        border: `1px solid ${isDraggingOver ? T.blue : widget.checked ? T.dragCheckedBorder : T.border}`,
         opacity: isDragging ? 0.4 : 1,
         cursor: "grab",
         transition: "background .15s, opacity .15s",
@@ -1031,16 +902,19 @@ function DraggableWidgetRow({
           type="checkbox"
           checked={widget.checked}
           onChange={() => onToggle(widget.id)}
-          style={{ accentColor: C.blue, width: 14, height: 14 }}
+          style={{ accentColor: T.blue, width: 14, height: 14 }}
         />
-        <span style={{ fontSize: 11, color: t.textSecondary, fontWeight: 500 }}>
+        <span style={{ fontSize: 11, color: T.textSec, fontWeight: 500 }}>
           {widget.label}
         </span>
       </label>
-      <span style={{ fontSize: 14, color: t.text3, cursor: "grab" }}>⠿</span>
+      <span style={{ fontSize: 14, color: T.textMuted, cursor: "grab" }}>
+        ⠿
+      </span>
     </div>
   );
 }
+
 function DraggableKpiRow({
   kpi,
   index,
@@ -1050,7 +924,6 @@ function DraggableKpiRow({
   onDrop,
   isDraggingOver,
   isDragging,
-  t,
 }) {
   const Icon = kpi.icon;
   return (
@@ -1069,11 +942,11 @@ function DraggableKpiRow({
         padding: "8px 10px",
         borderRadius: 8,
         background: isDraggingOver
-          ? t.hoverBg
+          ? T.hoverBg
           : kpi.checked
-            ? t.dragChecked
-            : t.dragUnchecked,
-        border: `1px solid ${isDraggingOver ? C.blue : kpi.checked ? t.dragCheckedBorder : t.border}`,
+            ? T.dragChecked
+            : T.dragUnchecked,
+        border: `1px solid ${isDraggingOver ? T.blue : kpi.checked ? T.dragCheckedBorder : T.border}`,
         opacity: isDragging ? 0.4 : 1,
         cursor: "grab",
         transition: "background .15s, opacity .15s",
@@ -1093,96 +966,43 @@ function DraggableKpiRow({
           type="checkbox"
           checked={kpi.checked}
           onChange={() => onToggle(kpi.id)}
-          style={{ accentColor: C.blue, width: 14, height: 14 }}
+          style={{ accentColor: T.blue, width: 14, height: 14 }}
         />
         <Icon size={12} color={kpi.iconColor} />
-        <span style={{ fontSize: 11, color: t.textSecondary, fontWeight: 500 }}>
+        <span style={{ fontSize: 11, color: T.textSec, fontWeight: 500 }}>
           {kpi.label}
         </span>
       </label>
-      <span style={{ fontSize: 14, color: t.text3, cursor: "grab" }}>⠿</span>
+      <span style={{ fontSize: 14, color: T.textMuted, cursor: "grab" }}>
+        ⠿
+      </span>
     </div>
   );
 }
 
-// ─── Widget Content Renderer ───────────────────────────────────────────────────
-function renderWidgetContent(id, t, isDark) {
-  const axisProps = { tick: { fontSize: 9, fill: t.axisColor } };
+// ─── Widget Content Renderer ──────────────────────────────────────────────────
+function renderWidgetContent(id) {
+  const axisProps = { tick: { fontSize: 9, fill: T.textMuted } };
   const tooltipStyle = {
     contentStyle: {
       fontSize: 10,
-      background: t.tooltipBg,
-      border: `1px solid ${t.border}`,
-      color: t.text1,
+      background: T.surface,
+      border: `1px solid ${T.border}`,
+      color: T.text,
       borderRadius: 8,
     },
   };
-  const aColors = isDark ? alertColorsDark : alertColors;
 
   switch (id) {
-    case "capDemandBar":
-      return (
-        <CardShell
-          title="Capacity vs Demand Trend"
-          subtitle="Jan – Jun 2026"
-          t={t}
-        >
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart
-              data={capacityTrendData}
-              barSize={10}
-              barCategoryGap="28%"
-              margin={{ top: 4, right: 8, bottom: 4, left: -12 }}
-            >
-              <CartesianGrid
-                strokeDasharray="2 2"
-                stroke={t.gridStroke}
-                vertical={false}
-              />
-              <XAxis dataKey="month" {...axisProps} />
-              <YAxis {...axisProps} />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend
-                iconType="circle"
-                iconSize={7}
-                wrapperStyle={{ fontSize: 9, paddingTop: 8 }}
-              />
-              <Bar
-                dataKey="capacity"
-                fill={C.blue}
-                radius={[3, 3, 0, 0]}
-                name="Total Capacity"
-              />
-              <Bar
-                dataKey="allocated"
-                fill={C.green}
-                radius={[3, 3, 0, 0]}
-                name="Allocated"
-              />
-              <Bar
-                dataKey="available"
-                fill={C.orange}
-                radius={[3, 3, 0, 0]}
-                name="Available"
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardShell>
-      );
-
     case "capTrendLine":
       return (
-        <CardShell
-          title="Capacity & Demand Trend"
-          subtitle="Jan – Jun 2026"
-          t={t}
-        >
+        <CardShell title="Capacity & Demand Trend" subtitle="Jan – Jun 2026">
           <ResponsiveContainer width="100%" height={220}>
             <LineChart
               data={capacityTrendData}
               margin={{ top: 4, right: 8, bottom: 4, left: -12 }}
             >
-              <CartesianGrid strokeDasharray="2 2" stroke={t.gridStroke} />
+              <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
               <XAxis dataKey="month" {...axisProps} />
               <YAxis {...axisProps} />
               <Tooltip content={<CustomTooltip />} />
@@ -1194,33 +1014,33 @@ function renderWidgetContent(id, t, isDark) {
               <Line
                 type="monotone"
                 dataKey="capacity"
-                stroke={C.blue}
+                stroke={T.blue}
                 strokeWidth={2.5}
-                dot={{ r: 3, fill: C.blue, strokeWidth: 0 }}
+                dot={{ r: 3, fill: T.blue, strokeWidth: 0 }}
                 name="Total Capacity"
               />
               <Line
                 type="monotone"
                 dataKey="allocated"
-                stroke={C.green}
+                stroke={T.green}
                 strokeWidth={2.5}
-                dot={{ r: 3, fill: C.green, strokeWidth: 0 }}
+                dot={{ r: 3, fill: T.green, strokeWidth: 0 }}
                 name="Allocated"
               />
               <Line
                 type="monotone"
                 dataKey="available"
-                stroke={C.orange}
+                stroke={T.orange}
                 strokeWidth={2.5}
-                dot={{ r: 3, fill: C.orange, strokeWidth: 0 }}
+                dot={{ r: 3, fill: T.orange, strokeWidth: 0 }}
                 name="Available"
               />
               <Line
                 type="monotone"
                 dataKey="forecast"
-                stroke={C.purple}
+                stroke={T.purple}
                 strokeWidth={2}
-                dot={{ r: 3, fill: C.purple, strokeWidth: 0 }}
+                dot={{ r: 3, fill: T.purple, strokeWidth: 0 }}
                 strokeDasharray="5 3"
                 name="Forecast"
               />
@@ -1234,7 +1054,6 @@ function renderWidgetContent(id, t, isDark) {
         <CardShell
           title="Utilization Distribution"
           subtitle="Current period breakdown"
-          t={t}
         >
           <div style={{ position: "relative", height: 150 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -1266,10 +1085,10 @@ function renderWidgetContent(id, t, isDark) {
                 pointerEvents: "none",
               }}
             >
-              <div style={{ fontSize: 20, fontWeight: 800, color: t.text1 }}>
+              <div style={{ fontSize: 20, fontWeight: 800, color: T.text }}>
                 78.4%
               </div>
-              <div style={{ fontSize: 9, color: t.text3 }}>Utilization</div>
+              <div style={{ fontSize: 9, color: T.textMuted }}>Utilization</div>
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
@@ -1292,9 +1111,9 @@ function renderWidgetContent(id, t, isDark) {
                       background: item.color,
                     }}
                   />
-                  <span style={{ color: t.textSecondary }}>{item.name}</span>
+                  <span style={{ color: T.textSec }}>{item.name}</span>
                 </div>
-                <span style={{ fontWeight: 700, color: t.text1 }}>
+                <span style={{ fontWeight: 700, color: T.text }}>
                   {item.value}%
                 </span>
               </div>
@@ -1303,123 +1122,51 @@ function renderWidgetContent(id, t, isDark) {
         </CardShell>
       );
 
-    case "resourceRisk":
+    case "utilDept":
       return (
-        <CardShell title="Resource Risks" t={t}>
-          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            <div
-              style={{
-                position: "relative",
-                width: 84,
-                height: 84,
-                flexShrink: 0,
-              }}
-            >
-              <PieChart width={84} height={84}>
-                <Pie
-                  data={riskData}
-                  cx={41}
-                  cy={41}
-                  innerRadius={25}
-                  outerRadius={40}
-                  dataKey="value"
-                  startAngle={90}
-                  endAngle={-270}
-                >
-                  {riskData.map((d, i) => (
-                    <Cell key={i} fill={d.color} />
-                  ))}
-                </Pie>
-              </PieChart>
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  pointerEvents: "none",
-                }}
-              >
-                <div style={{ fontSize: 15, fontWeight: 800, color: t.text1 }}>
-                  24
-                </div>
-                <div style={{ fontSize: 7, color: t.text3 }}>Risks</div>
-              </div>
-            </div>
-            <div style={{ flex: 1 }}>
-              {riskData.map((r, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    fontSize: 10,
-                    padding: "2px 0",
-                    color: t.textSecondary,
-                  }}
-                >
-                  <span
-                    style={{ display: "flex", alignItems: "center", gap: 5 }}
-                  >
-                    <span
-                      style={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: 2,
-                        background: r.color,
-                        display: "inline-block",
-                      }}
-                    />
-                    {r.name}
-                  </span>
-                  <span style={{ fontWeight: 700, color: r.color }}>
-                    {r.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div style={{ paddingTop: 4, borderTop: `1px solid ${t.border}` }}>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: t.textSecondary,
-                marginBottom: 6,
-              }}
-            >
-              Top Risks
-            </div>
-            {topRisks.map((r, i) => (
+        <CardShell title="Utilization by Department">
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+              paddingTop: 4,
+            }}
+          >
+            {utilByDept.map((d, i) => (
               <div
                 key={i}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontSize: 9.5,
-                  color: t.text3,
-                  padding: "2px 0",
-                }}
+                style={{ display: "flex", alignItems: "center", gap: 10 }}
               >
-                <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                  <span
-                    style={{
-                      width: 5,
-                      height: 5,
-                      borderRadius: "50%",
-                      background: r.color,
-                      flexShrink: 0,
-                      display: "inline-block",
-                    }}
-                  />
-                  {r.text}
-                </span>
                 <span
-                  style={{ fontWeight: 700, color: r.color, marginLeft: 6 }}
+                  style={{ fontSize: 10.5, color: T.textSec, minWidth: 106 }}
                 >
-                  {r.count}
+                  {d.dept}
+                </span>
+                <MiniBar
+                  value={d.value}
+                  max={100}
+                  color={
+                    d.value >= 85
+                      ? T.blue
+                      : d.value >= 75
+                        ? T.teal
+                        : d.value >= 65
+                          ? T.amber
+                          : T.gray
+                  }
+                  height={10}
+                />
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: T.text,
+                    minWidth: 28,
+                    textAlign: "right",
+                  }}
+                >
+                  {d.value}%
                 </span>
               </div>
             ))}
@@ -1429,7 +1176,7 @@ function renderWidgetContent(id, t, isDark) {
 
     case "allocPortfolio":
       return (
-        <CardShell title="Allocation by Portfolio (FTE)" t={t}>
+        <CardShell title="Allocation by Portfolio (FTE)">
           <div
             style={{
               display: "flex",
@@ -1475,20 +1222,13 @@ function renderWidgetContent(id, t, isDark) {
                   pointerEvents: "none",
                 }}
               >
-                <div style={{ fontSize: 13, fontWeight: 800, color: t.text1 }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>
                   100
                 </div>
-                <div style={{ fontSize: 8, color: t.text3 }}>FTE</div>
+                <div style={{ fontSize: 8, color: T.textMuted }}>FTE</div>
               </div>
             </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 6,
-                justifyContent: "center",
-              }}
-            >
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {portfolioAlloc.map((d, i) => (
                 <div
                   key={i}
@@ -1506,15 +1246,14 @@ function renderWidgetContent(id, t, isDark) {
                       borderRadius: 2,
                       background: d.color,
                       flexShrink: 0,
+                      display: "inline-block",
                     }}
                   />
-                  <span style={{ color: t.textSecondary, flex: 1 }}>
-                    {d.name}
-                  </span>
-                  <span style={{ fontWeight: 600, color: t.text1 }}>
+                  <span style={{ color: T.textSec, flex: 1 }}>{d.name}</span>
+                  <span style={{ fontWeight: 600, color: T.text }}>
                     {d.value}
                   </span>
-                  <span style={{ color: t.text3 }}>({d.pct}%)</span>
+                  <span style={{ color: T.textFaint }}>({d.pct}%)</span>
                 </div>
               ))}
             </div>
@@ -1527,7 +1266,6 @@ function renderWidgetContent(id, t, isDark) {
         <CardShell
           title="Allocation by Function"
           subtitle="Breakdown across teams"
-          t={t}
         >
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {allocationByFn.map((item) => (
@@ -1540,10 +1278,10 @@ function renderWidgetContent(id, t, isDark) {
                     marginBottom: 4,
                   }}
                 >
-                  <span style={{ color: t.textSecondary, fontWeight: 500 }}>
+                  <span style={{ color: T.textSec, fontWeight: 500 }}>
                     {item.name}
                   </span>
-                  <span style={{ fontWeight: 700, color: t.text1 }}>
+                  <span style={{ fontWeight: 700, color: T.text }}>
                     {item.allocated}%
                   </span>
                 </div>
@@ -1551,7 +1289,7 @@ function renderWidgetContent(id, t, isDark) {
                   style={{
                     height: 7,
                     borderRadius: 99,
-                    background: t.border,
+                    background: T.borderLight,
                     overflow: "hidden",
                     display: "flex",
                   }}
@@ -1559,17 +1297,17 @@ function renderWidgetContent(id, t, isDark) {
                   <div
                     style={{
                       width: `${item.allocated}%`,
-                      background: C.blue,
+                      background: T.blue,
                       borderRadius: "99px 0 0 99px",
                     }}
                   />
                   <div
-                    style={{ width: `${item.available}%`, background: C.green }}
+                    style={{ width: `${item.available}%`, background: T.green }}
                   />
                   <div
                     style={{
                       width: `${item.bench}%`,
-                      background: C.orange,
+                      background: T.orange,
                       borderRadius: "0 99px 99px 0",
                     }}
                   />
@@ -1579,9 +1317,9 @@ function renderWidgetContent(id, t, isDark) {
           </div>
           <div style={{ display: "flex", gap: 12, marginTop: 4 }}>
             {[
-              ["Allocated", C.blue],
-              ["Available", C.green],
-              ["Bench", C.orange],
+              ["Allocated", T.blue],
+              ["Available", T.green],
+              ["Bench", T.orange],
             ].map(([l, c]) => (
               <div
                 key={l}
@@ -1590,7 +1328,7 @@ function renderWidgetContent(id, t, isDark) {
                   alignItems: "center",
                   gap: 5,
                   fontSize: 10,
-                  color: t.text3,
+                  color: T.textMuted,
                 }}
               >
                 <div
@@ -1610,11 +1348,7 @@ function renderWidgetContent(id, t, isDark) {
 
     case "forecastBar":
       return (
-        <CardShell
-          title="Forecast vs Actuals"
-          subtitle="Budget (K) comparison"
-          t={t}
-        >
+        <CardShell title="Forecast vs Actuals" subtitle="Budget (K) comparison">
           <ResponsiveContainer width="100%" height={200}>
             <BarChart
               data={forecastVsActuals}
@@ -1624,7 +1358,7 @@ function renderWidgetContent(id, t, isDark) {
             >
               <CartesianGrid
                 strokeDasharray="2 2"
-                stroke={t.gridStroke}
+                stroke={T.borderLight}
                 vertical={false}
               />
               <XAxis dataKey="month" {...axisProps} />
@@ -1637,19 +1371,19 @@ function renderWidgetContent(id, t, isDark) {
               />
               <Bar
                 dataKey="planned"
-                fill={C.blue}
+                fill={T.blue}
                 radius={[3, 3, 0, 0]}
                 name="Planned"
               />
               <Bar
                 dataKey="forecast"
-                fill={C.green}
+                fill={T.green}
                 radius={[3, 3, 0, 0]}
                 name="Forecast"
               />
               <Bar
                 dataKey="actual"
-                fill={C.purple}
+                fill={T.purple}
                 radius={[3, 3, 0, 0]}
                 name="Actuals"
               />
@@ -1660,13 +1394,13 @@ function renderWidgetContent(id, t, isDark) {
 
     case "utilTrend":
       return (
-        <CardShell title="Utilization Trend (%)" t={t}>
+        <CardShell title="Utilization Trend (%)">
           <ResponsiveContainer width="100%" height={165}>
             <AreaChart
               data={utilTrendData}
               margin={{ top: 4, right: 4, bottom: 4, left: -22 }}
             >
-              <CartesianGrid strokeDasharray="2 2" stroke={t.gridStroke} />
+              <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
               <XAxis dataKey="month" {...axisProps} />
               <YAxis
                 domain={[50, 100]}
@@ -1676,18 +1410,53 @@ function renderWidgetContent(id, t, isDark) {
               <Tooltip {...tooltipStyle} formatter={(v) => `${v}%`} />
               <defs>
                 <linearGradient id="utilG" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={C.purple} stopOpacity={0.28} />
-                  <stop offset="100%" stopColor={C.purple} stopOpacity={0.01} />
+                  <stop offset="0%" stopColor={T.purple} stopOpacity={0.28} />
+                  <stop offset="100%" stopColor={T.purple} stopOpacity={0.01} />
                 </linearGradient>
               </defs>
               <Area
                 type="monotone"
                 dataKey="rate"
-                stroke={C.purple}
+                stroke={T.purple}
                 strokeWidth={2.5}
                 fill="url(#utilG)"
-                dot={{ r: 4, fill: C.purple }}
+                dot={{ r: 4, fill: T.purple }}
                 name="Utilization"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </CardShell>
+      );
+
+    case "allocTrend":
+      return (
+        <CardShell title="Allocation Trend" subtitle="Last 6 months">
+          <ResponsiveContainer width="100%" height={155}>
+            <AreaChart
+              data={allocationTrendData}
+              margin={{ top: 4, right: 8, bottom: 4, left: -12 }}
+            >
+              <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
+              <XAxis dataKey="month" {...axisProps} />
+              <YAxis {...axisProps} />
+              <Tooltip
+                {...tooltipStyle}
+                formatter={(v) => `${Number(v).toLocaleString()} FTE`}
+              />
+              <defs>
+                <linearGradient id="allocG" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={T.blue} stopOpacity={0.2} />
+                  <stop offset="100%" stopColor={T.blue} stopOpacity={0.01} />
+                </linearGradient>
+              </defs>
+              <Area
+                type="monotone"
+                dataKey="fte"
+                stroke={T.blue}
+                strokeWidth={2.5}
+                fill="url(#allocG)"
+                dot={{ r: 3, fill: T.blue }}
+                name="Allocated FTE"
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -1696,7 +1465,7 @@ function renderWidgetContent(id, t, isDark) {
 
     case "demandPriority":
       return (
-        <CardShell title="Demand by Priority" t={t}>
+        <CardShell title="Demand by Priority">
           <div
             style={{
               display: "flex",
@@ -1715,11 +1484,7 @@ function renderWidgetContent(id, t, isDark) {
                   }}
                 >
                   <span
-                    style={{
-                      fontSize: 11,
-                      color: t.textSecondary,
-                      fontWeight: 500,
-                    }}
+                    style={{ fontSize: 11, color: T.textSec, fontWeight: 500 }}
                   >
                     {d.label}
                   </span>
@@ -1729,259 +1494,67 @@ function renderWidgetContent(id, t, isDark) {
                     {d.value}
                   </span>
                 </div>
-                <MiniBar
-                  value={d.value}
-                  max={180}
-                  color={d.color}
-                  height={9}
-                  t={t}
-                />
+                <MiniBar value={d.value} max={180} color={d.color} height={9} />
               </div>
             ))}
           </div>
         </CardShell>
       );
 
-    case "benchAvail":
+    case "forecastAcc":
       return (
-        <CardShell title="Bench Availability" t={t}>
+        <CardShell title="Forecast Accuracy" subtitle="Model performance score">
           <div
             style={{
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 10,
+              gap: 16,
+              paddingTop: 8,
             }}
           >
-            <div style={{ position: "relative", width: 100, height: 100 }}>
-              <PieChart width={100} height={100}>
-                <Pie
-                  data={[{ value: 78.4 }, { value: 21.6 }]}
-                  cx={49}
-                  cy={49}
-                  innerRadius={30}
-                  outerRadius={47}
-                  dataKey="value"
-                  startAngle={90}
-                  endAngle={-270}
-                >
-                  <Cell fill={C.green} />
-                  <Cell fill={t.border} />
-                </Pie>
-              </PieChart>
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  pointerEvents: "none",
-                }}
-              >
-                <div style={{ fontSize: 13, fontWeight: 800, color: t.text1 }}>
-                  1,842
-                </div>
-                <div style={{ fontSize: 8, color: t.text3 }}>FTE</div>
-              </div>
-            </div>
             <div
               style={{
-                width: "100%",
+                width: 96,
+                height: 96,
+                borderRadius: "50%",
+                border: `9px solid ${T.blue}`,
                 display: "flex",
                 flexDirection: "column",
-                gap: 6,
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: `0 0 0 3px rgba(59,130,246,0.15)`,
               }}
             >
-              {[
-                ["Available", C.green, "1,842", "78.4%"],
-                ["Shared", C.gray, "2,315", "21.6%"],
-              ].map(([l, c, v, p]) => (
-                <div
-                  key={l}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    fontSize: 10,
-                    color: t.textSecondary,
-                    alignItems: "center",
-                  }}
-                >
-                  <span
-                    style={{ display: "flex", alignItems: "center", gap: 5 }}
-                  >
-                    <span
-                      style={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: 2,
-                        background: c,
-                      }}
-                    />
-                    {l}
-                  </span>
-                  <span style={{ fontWeight: 700, color: c }}>
-                    {v} ({p})
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </CardShell>
-      );
-
-    case "allocTrend":
-      return (
-        <CardShell title="Allocation Trend" subtitle="Last 6 months" t={t}>
-          <ResponsiveContainer width="100%" height={155}>
-            <AreaChart
-              data={allocationTrendData}
-              margin={{ top: 4, right: 8, bottom: 4, left: -12 }}
-            >
-              <CartesianGrid strokeDasharray="2 2" stroke={t.gridStroke} />
-              <XAxis dataKey="month" {...axisProps} />
-              <YAxis {...axisProps} tickFormatter={(v) => `${v}`} />
-              <Tooltip
-                {...tooltipStyle}
-                formatter={(v) => `${Number(v).toLocaleString()} FTE`}
-              />
-              <defs>
-                <linearGradient id="allocG" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={C.blue} stopOpacity={0.2} />
-                  <stop offset="100%" stopColor={C.blue} stopOpacity={0.01} />
-                </linearGradient>
-              </defs>
-              <Area
-                type="monotone"
-                dataKey="fte"
-                stroke={C.blue}
-                strokeWidth={2.5}
-                fill="url(#allocG)"
-                dot={{ r: 3, fill: C.blue }}
-                name="Allocated FTE"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </CardShell>
-      );
-
-    case "utilDept":
-      return (
-        <CardShell title="Utilization by Department" t={t}>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 10,
-              paddingTop: 4,
-            }}
-          >
-            {utilByDept.map((d, i) => (
-              <div
-                key={i}
-                style={{ display: "flex", alignItems: "center", gap: 10 }}
+              <span
+                style={{
+                  fontSize: 24,
+                  fontWeight: 800,
+                  color: T.text,
+                  letterSpacing: "-0.03em",
+                }}
               >
-                <span
-                  style={{
-                    fontSize: 10.5,
-                    color: t.textSecondary,
-                    minWidth: 106,
-                  }}
-                >
-                  {d.dept}
-                </span>
-                <MiniBar
-                  value={d.value}
-                  max={100}
-                  color={
-                    d.value >= 85
-                      ? C.blue
-                      : d.value >= 75
-                        ? C.teal
-                        : d.value >= 65
-                          ? C.amber
-                          : C.gray
-                  }
-                  height={10}
-                  t={t}
-                />
-                <span
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: t.text1,
-                    minWidth: 28,
-                    textAlign: "right",
-                  }}
-                >
-                  {d.value}%
-                </span>
-              </div>
-            ))}
-          </div>
-        </CardShell>
-      );
-
-    case "riskAlerts":
-      return (
-        <CardShell
-          title="Risk Alerts"
-          subtitle="5 active alerts requiring attention"
-          t={t}
-        >
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {alertsData.map((a) => {
-              const col = aColors[a.variant];
-              return (
-                <div
-                  key={a.label}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "8px 10px",
-                    borderRadius: 9,
-                    background: col.bg,
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 7,
-                      fontSize: 11,
-                      color: col.text,
-                      fontWeight: 500,
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: "50%",
-                        background: col.dot,
-                      }}
-                    />
-                    {a.label}
-                  </div>
-                  <span
-                    style={{
-                      background: col.dot,
-                      color: "#fff",
-                      borderRadius: 99,
-                      padding: "1px 8px",
-                      fontSize: 10,
-                      fontWeight: 700,
-                      minWidth: 20,
-                      textAlign: "center",
-                    }}
-                  >
-                    {a.count}
-                  </span>
-                </div>
-              );
-            })}
+                74%
+              </span>
+            </div>
+            <span style={{ fontSize: 11, color: T.textMuted }}>
+              Forecast Accuracy Score
+            </span>
+            <div
+              style={{
+                background: "rgba(16,185,129,0.12)",
+                color: T.green,
+                borderRadius: 99,
+                padding: "4px 14px",
+                fontSize: 11,
+                fontWeight: 700,
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <ArrowUpRight size={12} /> +3.6% vs Last Month
+            </div>
           </div>
         </CardShell>
       );
@@ -1991,13 +1564,12 @@ function renderWidgetContent(id, t, isDark) {
         <CardShell
           title="Pending Staffing"
           subtitle="27 open staffing requests"
-          t={t}
         >
           <div
             style={{
               fontSize: 32,
               fontWeight: 800,
-              color: t.text1,
+              color: T.text,
               letterSpacing: "-0.03em",
             }}
           >
@@ -2021,7 +1593,7 @@ function renderWidgetContent(id, t, isDark) {
                     marginBottom: 4,
                   }}
                 >
-                  <span style={{ color: t.textSecondary, fontWeight: 500 }}>
+                  <span style={{ color: T.textSec, fontWeight: 500 }}>
                     {s.label}
                   </span>
                   <span style={{ fontWeight: 700, color: s.color }}>
@@ -2032,7 +1604,7 @@ function renderWidgetContent(id, t, isDark) {
                   style={{
                     height: 6,
                     borderRadius: 99,
-                    background: t.border,
+                    background: T.borderLight,
                     overflow: "hidden",
                   }}
                 >
@@ -2052,147 +1624,126 @@ function renderWidgetContent(id, t, isDark) {
         </CardShell>
       );
 
-    case "dataHealth":
-      const overall = Math.round(
-        completeness.reduce((s, i) => s + i.value, 0) / completeness.length,
-      );
+    case "resourceRisk":
       return (
-        <CardShell
-          title="Data Completeness"
-          subtitle="Resource profile quality"
-          t={t}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              margin: "8px 0",
-            }}
-          >
+        <CardShell title="Resource Risks">
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
             <div
               style={{
-                width: 80,
-                height: 80,
-                borderRadius: "50%",
-                border: `8px solid ${C.green}`,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: `0 0 0 3px ${C.greenSoft}`,
+                position: "relative",
+                width: 84,
+                height: 84,
+                flexShrink: 0,
               }}
             >
-              <span style={{ fontSize: 18, fontWeight: 800, color: t.text1 }}>
-                {overall}%
-              </span>
-              <span style={{ fontSize: 9, color: t.text3 }}>Overall</span>
+              <PieChart width={84} height={84}>
+                <Pie
+                  data={riskData}
+                  cx={41}
+                  cy={41}
+                  innerRadius={25}
+                  outerRadius={40}
+                  dataKey="value"
+                  startAngle={90}
+                  endAngle={-270}
+                >
+                  {riskData.map((d, i) => (
+                    <Cell key={i} fill={d.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  pointerEvents: "none",
+                }}
+              >
+                <div style={{ fontSize: 15, fontWeight: 800, color: T.text }}>
+                  24
+                </div>
+                <div style={{ fontSize: 7, color: T.textMuted }}>Risks</div>
+              </div>
             </div>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {completeness.map((item) => (
-              <div key={item.label}>
+            <div style={{ flex: 1 }}>
+              {riskData.map((r, i) => (
                 <div
+                  key={i}
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
-                    fontSize: 11,
-                    marginBottom: 3,
+                    fontSize: 10,
+                    padding: "2px 0",
+                    color: T.textSec,
                   }}
                 >
-                  <span style={{ color: t.textSecondary, fontWeight: 500 }}>
-                    {item.label}
+                  <span
+                    style={{ display: "flex", alignItems: "center", gap: 5 }}
+                  >
+                    <span
+                      style={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: 2,
+                        background: r.color,
+                        display: "inline-block",
+                      }}
+                    />
+                    {r.name}
                   </span>
-                  <span style={{ fontWeight: 700, color: t.text1 }}>
-                    {item.value}%
+                  <span style={{ fontWeight: 700, color: r.color }}>
+                    {r.value}
                   </span>
                 </div>
-                <div
-                  style={{
-                    height: 5,
-                    borderRadius: 99,
-                    background: t.border,
-                    overflow: "hidden",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: `${item.value}%`,
-                      height: "100%",
-                      borderRadius: 99,
-                      background:
-                        item.value >= 90
-                          ? C.green
-                          : item.value >= 85
-                            ? C.amber
-                            : C.red,
-                      transition: "width 0.5s ease",
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardShell>
-      );
-
-    case "forecastAcc":
-      return (
-        <CardShell
-          title="Forecast Accuracy"
-          subtitle="Model performance score"
-          t={t}
-        >
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 16,
-              paddingTop: 8,
-            }}
-          >
-            <div
-              style={{
-                width: 96,
-                height: 96,
-                borderRadius: "50%",
-                border: `9px solid ${C.blue}`,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: `0 0 0 3px ${C.blueSoft}`,
-              }}
-            >
-              <span
-                style={{
-                  fontSize: 24,
-                  fontWeight: 800,
-                  color: t.text1,
-                  letterSpacing: "-0.03em",
-                }}
-              >
-                74%
-              </span>
+              ))}
             </div>
-            <span style={{ fontSize: 11, color: t.text3 }}>
-              Forecast Accuracy Score
-            </span>
+          </div>
+          <div style={{ paddingTop: 4, borderTop: `1px solid ${T.border}` }}>
             <div
               style={{
-                background: C.greenSoft,
-                color: C.green,
-                borderRadius: 99,
-                padding: "4px 14px",
                 fontSize: 11,
                 fontWeight: 700,
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
+                color: T.textSec,
+                marginBottom: 6,
               }}
             >
-              <ArrowUpRight size={12} /> +3.6% vs Last Month
+              Top Risks
             </div>
+            {topRisks.map((r, i) => (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: 9.5,
+                  color: T.textMuted,
+                  padding: "2px 0",
+                }}
+              >
+                <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <span
+                    style={{
+                      width: 5,
+                      height: 5,
+                      borderRadius: "50%",
+                      background: r.color,
+                      flexShrink: 0,
+                      display: "inline-block",
+                    }}
+                  />
+                  {r.text}
+                </span>
+                <span
+                  style={{ fontWeight: 700, color: r.color, marginLeft: 6 }}
+                >
+                  {r.count}
+                </span>
+              </div>
+            ))}
           </div>
         </CardShell>
       );
@@ -2206,9 +1757,9 @@ function buildGridTemplate(rowWidgets) {
   return rowWidgets.map(() => "1fr").join(" ");
 }
 
-// ─── Main Component ────────────────────────────────────────────────────────────
+// ─── Main Component ───────────────────────────────────────────────────────────
 export default function Dashboard() {
-  const { dark, t } = useTheme();
+  const dark = useDark(); // only used to force re-render when theme changes
 
   const [showCustomize, setShowCustomize] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -2218,7 +1769,7 @@ export default function Dashboard() {
   const [customizeTab, setCustomizeTab] = useState("widgets");
   const [activeViewName, setActiveViewName] = useState("Default View");
   const [filters, setFilters] = useState({
-    bu: "All",
+    pillar: "All",
     portfolio: "All",
     region: "All",
     dept: "All",
@@ -2441,570 +1992,568 @@ export default function Dashboard() {
     return Array.from(rowMap.entries()).sort(([a], [b]) => a - b);
   }, [checkedWidgets]);
 
-  const resetBtnStyle = {
+  const resetBtnStyle: any = {
     flex: 1,
     padding: "9px 0",
     fontSize: 11,
     fontWeight: 700,
     color: "#ffffff",
-    background: "linear-gradient(135deg, #2563EB 0%, #1d4ed8 100%)",
+    background: T.blue,
     border: "none",
     borderRadius: 8,
     cursor: "pointer",
-    boxShadow: "0 2px 8px rgba(37,99,235,0.35)",
     letterSpacing: "0.03em",
-    transition: "filter 0.15s, box-shadow 0.15s, transform 0.12s",
+    transition: "filter 0.15s, transform 0.12s",
   };
 
   return (
-    <div
-      style={{
-        fontFamily: "'DM Sans', system-ui, sans-serif",
-        background: t.pageBg,
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      {showSaveModal && (
-        <SaveViewModal
-          onSave={handleSaveView}
-          onClose={() => setShowSaveModal(false)}
-          t={t}
-        />
-      )}
-      {showCalendar && (
-        <CalendarModal
-          startDate={dateStart}
-          endDate={dateEnd}
-          onApply={(s, e) => {
-            setDateStart(s);
-            setDateEnd(e);
-            setShowCalendar(false);
-          }}
-          onClose={() => setShowCalendar(false)}
-          t={t}
-        />
-      )}
-
-      {/* ── Header ── */}
+    <>
+      <GlobalStyles />
       <div
         style={{
-          background: t.panel,
-          borderBottom: `1px solid ${t.border}`,
-          padding: "10px 20px",
+          fontFamily: "system-ui, sans-serif",
+          background: T.bg,
+          minHeight: "100vh",
           display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexShrink: 0,
+          flexDirection: "column",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: 20,
-              fontWeight: 800,
-              color: t.text1,
-              letterSpacing: "-0.02em",
+        {showSaveModal && (
+          <SaveViewModal
+            onSave={handleSaveView}
+            onClose={() => setShowSaveModal(false)}
+          />
+        )}
+        {showCalendar && (
+          <CalendarModal
+            startDate={dateStart}
+            endDate={dateEnd}
+            onApply={(s, e) => {
+              setDateStart(s);
+              setDateEnd(e);
+              setShowCalendar(false);
             }}
-          >
-            Dashboard
-          </h1>
-          <div
-            style={{
-              padding: "3px 10px",
-              border: `1px solid ${t.border}`,
-              borderRadius: 8,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 5,
-            }}
-          >
-            <span style={{ fontSize: 12, color: t.text3 }}>☆</span>
-            <span style={{ fontSize: 11, color: t.text2, fontWeight: 500 }}>
-              {activeViewName}
-            </span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-            <div
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                background: C.green,
-                boxShadow: `0 0 0 3px ${C.greenSoft}`,
-              }}
-            />
-            <span
-              style={{
-                fontSize: 10,
-                fontWeight: 600,
-                color: C.green,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-              }}
-            >
-              Live
-            </span>
-          </div>
-        </div>
+            onClose={() => setShowCalendar(false)}
+          />
+        )}
 
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <button
-            onClick={() => setShowCalendar(true)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              border: `1px solid ${t.border}`,
-              borderRadius: 9,
-              padding: "6px 12px",
-              background: t.inputBg,
-              fontSize: 11,
-              color: t.text2,
-              cursor: "pointer",
-            }}
-          >
-            📅 {formatDateRange(dateStart, dateEnd)}
-          </button>
-          <button
-            onClick={() => setShowCustomize((c) => !c)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 5,
-              background: C.blue,
-              border: "none",
-              borderRadius: 9,
-              padding: "7px 16px",
-              fontSize: 12,
-              cursor: "pointer",
-              color: "#fff",
-              fontWeight: 600,
-            }}
-          >
-            ✦ Customize
-          </button>
-        </div>
-      </div>
-
-      {/* ── Filters Bar ── */}
-      <div
-        style={{
-          background: t.panel,
-          borderBottom: `1px solid ${t.border}`,
-          padding: "7px 20px",
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          flexShrink: 0,
-          flexWrap: "wrap",
-        }}
-      >
-        {filterDefs.map((f) => (
-          <div
-            key={f.key}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              border: `1px solid ${t.border}`,
-              borderRadius: 8,
-              background: t.inputBg,
-              overflow: "hidden",
-            }}
-          >
-            <span
-              style={{
-                fontSize: 10,
-                color: t.text3,
-                padding: "0 8px",
-                borderRight: `1px solid ${t.border}`,
-                fontWeight: 500,
-              }}
-            >
-              {f.label}
-            </span>
-            <select
-              value={filters[f.key]}
-              onChange={(e) =>
-                setFilters((p) => ({ ...p, [f.key]: e.target.value }))
-              }
-              style={{
-                fontSize: 11,
-                border: "none",
-                background: t.inputBg,
-                padding: "5px 8px",
-                color: t.text2,
-                cursor: "pointer",
-                outline: "none",
-              }}
-            >
-              {f.options.map((o) => (
-                <option key={o}>{o}</option>
-              ))}
-            </select>
-          </div>
-        ))}
-        <div style={{ marginLeft: "auto" }}>
-          <button
-            onClick={() => setShowSaveModal(true)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 5,
-              background: C.blueSoft,
-              border: `1px solid #bfdbfe`,
-              borderRadius: 8,
-              padding: "5px 12px",
-              fontSize: 11,
-              color: C.blue,
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            💾 Save View
-          </button>
-        </div>
-      </div>
-
-      {/* ── Main Content + Sidebar ── */}
-      <div
-        style={{ display: "flex", flex: 1, overflow: "hidden", minHeight: 0 }}
-      >
-        {/* ── Dashboard ── */}
+        {/* ── Header ── */}
         <div
           style={{
-            flex: 1,
-            overflow: "auto",
-            padding: "18px 20px",
+            background: T.surface,
+            borderBottom: `1px solid ${T.border}`,
+            padding: "10px 20px",
             display: "flex",
-            flexDirection: "column",
-            gap: 6,
-            minWidth: 0,
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexShrink: 0,
           }}
         >
-          {visibleKpiCards.length > 0 && (
-            <>
-              <SectionLabel t={t}>Key Performance Indicators</SectionLabel>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <h1
+              style={{
+                margin: 0,
+                fontSize: 20,
+                fontWeight: 800,
+                color: T.text,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Dashboard
+            </h1>
+            <div
+              style={{
+                padding: "3px 10px",
+                border: `1px solid ${T.border}`,
+                borderRadius: 8,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <span style={{ fontSize: 12, color: T.textFaint }}>☆</span>
+              <span style={{ fontSize: 11, color: T.textSec, fontWeight: 500 }}>
+                {activeViewName}
+              </span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
               <div
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: `repeat(${Math.min(visibleKpiCards.length, 8)}, minmax(0, 1fr))`,
-                  gap: 10,
-                  marginBottom: 10,
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: T.green,
+                  boxShadow: `0 0 0 3px rgba(16,185,129,0.2)`,
+                }}
+              />
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: T.green,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
                 }}
               >
-                {visibleKpiCards.map((k) => (
-                  <KpiCard key={k.id} {...k} t={t} />
-                ))}
-              </div>
-            </>
-          )}
+                Live
+              </span>
+            </div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button
+              onClick={() => setShowCalendar(true)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                border: `1px solid ${T.border}`,
+                borderRadius: 9,
+                padding: "6px 12px",
+                background: T.inputBg,
+                fontSize: 11,
+                color: T.textSec,
+                cursor: "pointer",
+              }}
+            >
+              📅 {formatDateRange(dateStart, dateEnd)}
+            </button>
+            <button
+              onClick={() => setShowCustomize((c) => !c)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                background: T.blue,
+                border: "none",
+                borderRadius: 9,
+                padding: "7px 16px",
+                fontSize: 12,
+                cursor: "pointer",
+                color: "#fff",
+                fontWeight: 600,
+              }}
+            >
+              ✦ Customize
+            </button>
+          </div>
+        </div>
 
-          {widgetRows.map(([rowNum, rowWidgets]) => {
-            const sectionLabels = {
-              1: "Capacity & Utilization",
-              2: "Allocation & Forecast",
-              3: "Trends & Demand",
-              4: "Risk & Data Health",
-            };
-            return (
-              <div key={rowNum}>
-                {sectionLabels[rowNum] && (
-                  <SectionLabel t={t}>{sectionLabels[rowNum]}</SectionLabel>
-                )}
+        {/* ── Filters Bar ── */}
+        <div
+          style={{
+            background: T.surface,
+            borderBottom: `1px solid ${T.border}`,
+            padding: "7px 20px",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            flexShrink: 0,
+            flexWrap: "wrap",
+          }}
+        >
+          {filterDefs.map((f) => (
+            <div
+              key={f.key}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                border: `1px solid ${T.border}`,
+                borderRadius: 8,
+                background: T.inputBg,
+                overflow: "hidden",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 10,
+                  color: T.textFaint,
+                  padding: "0 8px",
+                  borderRight: `1px solid ${T.border}`,
+                  fontWeight: 500,
+                }}
+              >
+                {f.label}
+              </span>
+              <select
+                value={filters[f.key]}
+                onChange={(e) =>
+                  setFilters((p) => ({ ...p, [f.key]: e.target.value }))
+                }
+                style={{
+                  fontSize: 11,
+                  border: "none",
+                  background: T.inputBg,
+                  padding: "5px 8px",
+                  color: T.textSec,
+                  cursor: "pointer",
+                  outline: "none",
+                }}
+              >
+                {f.options.map((o) => (
+                  <option key={o}>{o}</option>
+                ))}
+              </select>
+            </div>
+          ))}
+          <div style={{ marginLeft: "auto" }}>
+            <button
+              onClick={() => setShowSaveModal(true)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                background: "rgba(59,130,246,0.1)",
+                border: `1px solid rgba(59,130,246,0.3)`,
+                borderRadius: 8,
+                padding: "5px 12px",
+                fontSize: 11,
+                color: T.blue,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              💾 Save View
+            </button>
+          </div>
+        </div>
+
+        {/* ── Main Content + Sidebar ── */}
+        <div
+          style={{ display: "flex", flex: 1, overflow: "hidden", minHeight: 0 }}
+        >
+          {/* ── Dashboard ── */}
+          <div
+            style={{
+              flex: 1,
+              overflow: "auto",
+              padding: "18px 20px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 6,
+              minWidth: 0,
+            }}
+          >
+            {visibleKpiCards.length > 0 && (
+              <>
+                <DashSectionLabel>Key Performance Indicators</DashSectionLabel>
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: buildGridTemplate(rowWidgets),
-                    gap: 12,
-                    marginBottom: 6,
+                    gridTemplateColumns: `repeat(${Math.min(visibleKpiCards.length, 8)}, minmax(0, 1fr))`,
+                    gap: 10,
+                    marginBottom: 10,
                   }}
                 >
-                  {rowWidgets.map((w) => (
-                    <div key={w.id} style={{ minWidth: 0 }}>
-                      {renderWidgetContent(w.id, t, dark)}
-                    </div>
+                  {visibleKpiCards.map((k) => (
+                    <KpiCard key={k.id} {...k} />
                   ))}
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              </>
+            )}
 
-        {/* ── Customize Sidebar ── */}
-        {showCustomize && (
-          <div
-            style={{
-              width: 296,
-              minWidth: 296,
-              background: t.panel,
-              borderLeft: `1px solid ${t.border}`,
-              display: "flex",
-              flexDirection: "column",
-              flexShrink: 0,
-              overflow: "hidden",
-              transition: "width 0.2s ease",
-            }}
-          >
-            <div
-              style={{
-                padding: "14px 16px",
-                borderBottom: `1px solid ${t.border}`,
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <span style={{ fontSize: 14, fontWeight: 700, color: t.text1 }}>
-                Customize Dashboard
-              </span>
-              <button
-                onClick={() => setShowCustomize(false)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: 18,
-                  color: t.text3,
-                  lineHeight: 1,
-                }}
-              >
-                ×
-              </button>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                borderBottom: `1px solid ${t.border}`,
-                padding: "0 16px",
-              }}
-            >
-              {["widgets", "kpi"].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setCustomizeTab(tab)}
-                  style={{
-                    flex: 1,
-                    padding: "10px 0",
-                    fontSize: 12,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    background: "none",
-                    border: "none",
-                    borderBottom:
-                      customizeTab === tab
-                        ? `2px solid ${C.blue}`
-                        : "2px solid transparent",
-                    color: customizeTab === tab ? C.blue : t.text3,
-                    textTransform: "capitalize",
-                  }}
-                >
-                  {tab === "kpi" ? "KPI Cards" : "Widgets"}
-                </button>
-              ))}
-            </div>
-
-            <div
-              style={{
-                flex: 1,
-                overflow: "auto",
-                padding: "12px 16px",
-                display: "flex",
-                flexDirection: "column",
-                gap: 14,
-              }}
-            >
-              {customizeTab === "widgets" && (
-                <>
-                  <p style={{ margin: 0, fontSize: 11, color: t.text3 }}>
-                    Toggle widgets on/off and drag to reorder.
-                  </p>
+            {widgetRows.map(([rowNum, rowWidgets]) => {
+              const sectionLabels: Record<number, string> = {
+                1: "Capacity & Utilization",
+                2: "Allocation & Forecast",
+                3: "Trends & Demand",
+                4: "Risk & Data Health",
+              };
+              return (
+                <div key={rowNum}>
+                  {sectionLabels[rowNum] && (
+                    <DashSectionLabel>{sectionLabels[rowNum]}</DashSectionLabel>
+                  )}
                   <div
-                    style={{ display: "flex", flexDirection: "column", gap: 2 }}
-                    onDragEnd={clearDrag}
-                  >
-                    {widgets.map((w, i) => (
-                      <DraggableWidgetRow
-                        key={w.id}
-                        widget={w}
-                        index={i}
-                        onToggle={toggleWidget}
-                        onDragStart={handleWidgetDragStart}
-                        onDragOver={handleWidgetDragOver}
-                        onDrop={handleWidgetDrop}
-                        isDraggingOver={
-                          activeDragGroup === "widget" &&
-                          dragOverIndex === i &&
-                          draggingIndex !== i
-                        }
-                        isDragging={
-                          activeDragGroup === "widget" && draggingIndex === i
-                        }
-                        t={t}
-                      />
-                    ))}
-                  </div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button
-                      onClick={handleReset}
-                      style={resetBtnStyle}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLButtonElement).style.filter =
-                          "brightness(1.12)";
-                        (e.currentTarget as HTMLButtonElement).style.transform =
-                          "translateY(-1px)";
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLButtonElement).style.filter =
-                          "none";
-                        (e.currentTarget as HTMLButtonElement).style.transform =
-                          "translateY(0)";
-                      }}
-                    >
-                      ↺ Reset to Default
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {customizeTab === "kpi" && (
-                <>
-                  <p style={{ margin: 0, fontSize: 11, color: t.text3 }}>
-                    Toggle KPI cards on/off and drag to reorder.
-                  </p>
-                  <div
-                    style={{ display: "flex", flexDirection: "column", gap: 2 }}
-                    onDragEnd={clearDrag}
-                  >
-                    {kpiCards.map((k, i) => (
-                      <DraggableKpiRow
-                        key={k.id}
-                        kpi={k}
-                        index={i}
-                        onToggle={toggleKpi}
-                        onDragStart={handleKpiDragStart}
-                        onDragOver={handleKpiDragOver}
-                        onDrop={handleKpiDrop}
-                        isDraggingOver={
-                          activeDragGroup === "kpi" &&
-                          dragOverIndex === i &&
-                          draggingIndex !== i
-                        }
-                        isDragging={
-                          activeDragGroup === "kpi" && draggingIndex === i
-                        }
-                        t={t}
-                      />
-                    ))}
-                  </div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button
-                      onClick={handleReset}
-                      style={resetBtnStyle}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLButtonElement).style.filter =
-                          "brightness(1.12)";
-                        (e.currentTarget as HTMLButtonElement).style.transform =
-                          "translateY(-1px)";
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLButtonElement).style.filter =
-                          "none";
-                        (e.currentTarget as HTMLButtonElement).style.transform =
-                          "translateY(0)";
-                      }}
-                    >
-                      ↺ Reset to Default
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {/* Saved Views */}
-              <div>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 8,
-                  }}
-                >
-                  <div
-                    style={{ fontSize: 12, fontWeight: 700, color: t.text1 }}
-                  >
-                    Saved Views
-                  </div>
-                  <button
-                    onClick={() => setShowSaveModal(true)}
                     style={{
-                      fontSize: 10,
-                      fontWeight: 600,
-                      color: C.blue,
-                      background: C.blueSoft,
-                      border: `1px solid #bfdbfe`,
-                      borderRadius: 6,
-                      padding: "3px 8px",
-                      cursor: "pointer",
+                      display: "grid",
+                      gridTemplateColumns: buildGridTemplate(rowWidgets),
+                      gap: 12,
+                      marginBottom: 6,
                     }}
                   >
-                    + Save Current
-                  </button>
+                    {rowWidgets.map((w) => (
+                      <div key={w.id} style={{ minWidth: 0 }}>
+                        {renderWidgetContent(w.id)}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div
-                  style={{ display: "flex", flexDirection: "column", gap: 4 }}
+              );
+            })}
+          </div>
+
+          {/* ── Customize Sidebar ── */}
+          {showCustomize && (
+            <div
+              style={{
+                width: 296,
+                minWidth: 296,
+                background: T.surface,
+                borderLeft: `1px solid ${T.border}`,
+                display: "flex",
+                flexDirection: "column",
+                flexShrink: 0,
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  padding: "14px 16px",
+                  borderBottom: `1px solid ${T.border}`,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <span style={{ fontSize: 14, fontWeight: 700, color: T.text }}>
+                  Customize Dashboard
+                </span>
+                <button
+                  onClick={() => setShowCustomize(false)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: 18,
+                    color: T.textMuted,
+                    lineHeight: 1,
+                  }}
                 >
-                  {savedViews.map((v, i) => (
+                  ×
+                </button>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  borderBottom: `1px solid ${T.border}`,
+                  padding: "0 16px",
+                }}
+              >
+                {["widgets", "kpi"].map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setCustomizeTab(tab)}
+                    style={{
+                      flex: 1,
+                      padding: "10px 0",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      background: "none",
+                      border: "none",
+                      borderBottom:
+                        customizeTab === tab
+                          ? `2px solid ${T.blue}`
+                          : "2px solid transparent",
+                      color: customizeTab === tab ? T.blue : T.textMuted,
+                      textTransform: "capitalize",
+                    }}
+                  >
+                    {tab === "kpi" ? "KPI Cards" : "Widgets"}
+                  </button>
+                ))}
+              </div>
+
+              <div
+                style={{
+                  flex: 1,
+                  overflow: "auto",
+                  padding: "12px 16px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 14,
+                }}
+              >
+                {customizeTab === "widgets" && (
+                  <>
+                    <p style={{ margin: 0, fontSize: 11, color: T.textFaint }}>
+                      Toggle widgets on/off and drag to reorder.
+                    </p>
                     <div
-                      key={i}
-                      onClick={() => handleLoadView(i)}
                       style={{
                         display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        padding: "8px 12px",
-                        borderRadius: 8,
-                        cursor: "pointer",
-                        background: v.active ? t.inputBg : t.card,
-                        border: `1px solid ${v.active ? C.blue : t.border}`,
-                        transition: "background .15s, border-color .15s",
+                        flexDirection: "column",
+                        gap: 2,
                       }}
+                      onDragEnd={clearDrag}
                     >
-                      <span
-                        style={{
-                          fontSize: 11,
-                          fontWeight: v.active ? 700 : 500,
-                          color: v.active ? C.blue : t.text2,
+                      {widgets.map((w, i) => (
+                        <DraggableWidgetRow
+                          key={w.id}
+                          widget={w}
+                          index={i}
+                          onToggle={toggleWidget}
+                          onDragStart={handleWidgetDragStart}
+                          onDragOver={handleWidgetDragOver}
+                          onDrop={handleWidgetDrop}
+                          isDraggingOver={
+                            activeDragGroup === "widget" &&
+                            dragOverIndex === i &&
+                            draggingIndex !== i
+                          }
+                          isDragging={
+                            activeDragGroup === "widget" && draggingIndex === i
+                          }
+                        />
+                      ))}
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        onClick={handleReset}
+                        style={resetBtnStyle}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.filter =
+                            "brightness(1.15)";
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.filter =
+                            "none";
                         }}
                       >
-                        {v.name}
-                      </span>
+                        ↺ Reset to Default
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {customizeTab === "kpi" && (
+                  <>
+                    <p style={{ margin: 0, fontSize: 11, color: T.textFaint }}>
+                      Toggle KPI cards on/off and drag to reorder.
+                    </p>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                      }}
+                      onDragEnd={clearDrag}
+                    >
+                      {kpiCards.map((k, i) => (
+                        <DraggableKpiRow
+                          key={k.id}
+                          kpi={k}
+                          index={i}
+                          onToggle={toggleKpi}
+                          onDragStart={handleKpiDragStart}
+                          onDragOver={handleKpiDragOver}
+                          onDrop={handleKpiDrop}
+                          isDraggingOver={
+                            activeDragGroup === "kpi" &&
+                            dragOverIndex === i &&
+                            draggingIndex !== i
+                          }
+                          isDragging={
+                            activeDragGroup === "kpi" && draggingIndex === i
+                          }
+                        />
+                      ))}
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        onClick={handleReset}
+                        style={resetBtnStyle}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.filter =
+                            "brightness(1.15)";
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.filter =
+                            "none";
+                        }}
+                      >
+                        ↺ Reset to Default
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* Saved Views */}
+                <div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <div
+                      style={{ fontSize: 12, fontWeight: 700, color: T.text }}
+                    >
+                      Saved Views
+                    </div>
+                    <button
+                      onClick={() => setShowSaveModal(true)}
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 600,
+                        color: T.blue,
+                        background: "rgba(59,130,246,0.1)",
+                        border: `1px solid rgba(59,130,246,0.3)`,
+                        borderRadius: 6,
+                        padding: "3px 8px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      + Save Current
+                    </button>
+                  </div>
+                  <div
+                    style={{ display: "flex", flexDirection: "column", gap: 4 }}
+                  >
+                    {savedViews.map((v, i) => (
                       <div
+                        key={i}
+                        onClick={() => handleLoadView(i)}
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: 5,
+                          justifyContent: "space-between",
+                          padding: "8px 12px",
+                          borderRadius: 8,
+                          cursor: "pointer",
+                          background: v.active ? T.inputBg : T.surfaceAlt,
+                          border: `1px solid ${v.active ? T.blue : T.border}`,
+                          transition: "background .15s, border-color .15s",
                         }}
                       >
-                        {v.active && (
-                          <span style={{ fontSize: 13, color: C.amber }}>
-                            ★
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontWeight: v.active ? 700 : 500,
+                            color: v.active ? T.blue : T.textSec,
+                          }}
+                        >
+                          {v.name}
+                        </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 5,
+                          }}
+                        >
+                          {v.active && (
+                            <span style={{ fontSize: 13, color: T.amber }}>
+                              ★
+                            </span>
+                          )}
+                          <span style={{ fontSize: 13, color: T.textMuted }}>
+                            ⋮
                           </span>
-                        )}
-                        <span style={{ fontSize: 13, color: t.text3 }}>⋮</span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
