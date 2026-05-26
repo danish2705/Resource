@@ -1101,11 +1101,6 @@ function UtilFilterBar({ filters, setFilters }) {
             Measure workforce efficiency & workload distribution
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 13, color: T.textFaint }}>
-            Last Updated: 15/05/26 10:30 AM
-          </span>
-        </div>
       </div>
       <div
         style={{
@@ -1701,193 +1696,6 @@ function ReportDetail12() {
             gap: 12,
           }}
         >
-          {/* Billable vs Non-Billable */}
-          <div
-            style={{
-              background: T.surface,
-              border: `0.5px solid ${T.border}`,
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: T.text,
-                marginBottom: 8,
-              }}
-            >
-              4. Billable vs Non-Billable Utilization (%)
-            </div>
-            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-              {[
-                ["Billable Utilization %", T.blue],
-                ["Non-Billable Utilization %", T.green],
-              ].map(([l, c]) => (
-                <span
-                  key={l}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 3,
-                    fontSize: 9,
-                    color: T.textMuted,
-                  }}
-                >
-                  <span
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: 2,
-                      background: c,
-                      display: "inline-block",
-                    }}
-                  />
-                  {l}
-                </span>
-              ))}
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {billableNonBillableData.map((d, i) => (
-                <div
-                  key={i}
-                  style={{ display: "flex", alignItems: "center", gap: 6 }}
-                >
-                  <span
-                    style={{ fontSize: 9.5, color: T.textSec, minWidth: 105 }}
-                  >
-                    {d.dept}
-                  </span>
-                  <div
-                    style={{
-                      flex: 1,
-                      display: "flex",
-                      height: 10,
-                      borderRadius: 3,
-                      overflow: "hidden",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: `${(d.billable / (d.billable + d.nonBillable)) * 100}%`,
-                        background: T.blue,
-                      }}
-                    />
-                    <div style={{ flex: 1, background: T.green }} />
-                  </div>
-                  <span
-                    style={{
-                      fontSize: 9,
-                      color: T.textSec,
-                      minWidth: 26,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {d.total}%
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Utilization Distribution */}
-          <div
-            style={{
-              background: T.surface,
-              border: `0.5px solid ${T.border}`,
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: T.text,
-                marginBottom: 8,
-              }}
-            >
-              5. Utilization Distribution (Headcount)
-            </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginBottom: 8,
-              }}
-            >
-              <div style={{ position: "relative", width: 120, height: 120 }}>
-                <PieChart width={120} height={120}>
-                  <Pie
-                    data={[
-                      { value: 156, name: "Underutilized" },
-                      { value: 1738, name: "Optimal" },
-                      { value: 92, name: "Overutilized" },
-                    ]}
-                    cx={59}
-                    cy={59}
-                    innerRadius={36}
-                    outerRadius={54}
-                    dataKey="value"
-                    startAngle={90}
-                    endAngle={-270}
-                  >
-                    <Cell fill={T.amber} />
-                    <Cell fill={T.green} />
-                    <Cell fill={T.red} />
-                  </Pie>
-                </PieChart>
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    pointerEvents: "none",
-                  }}
-                >
-                  <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>
-                    1,986
-                  </div>
-                  <div style={{ fontSize: 8, color: T.textMuted }}>
-                    Total Resources
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-              {utilizationDistribution.map((d, i) => (
-                <div
-                  key={i}
-                  style={{ display: "flex", alignItems: "center", gap: 5 }}
-                >
-                  <div
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: 2,
-                      background: d.color,
-                      flexShrink: 0,
-                    }}
-                  />
-                  <span style={{ fontSize: 9, color: T.textSec, flex: 1 }}>
-                    {d.label}
-                  </span>
-                  <span
-                    style={{ fontSize: 10, fontWeight: 700, color: d.color }}
-                  >
-                    {d.count}
-                  </span>
-                  <span style={{ fontSize: 9, color: T.textFaint }}>
-                    ({d.pct})
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
 
           {/* Top 10 Underutilized */}
           <div
@@ -1906,7 +1714,7 @@ function ReportDetail12() {
                 marginBottom: 8,
               }}
             >
-              6. Top 10 Underutilized Resources
+              4. Top 10 Underutilized Resources
             </div>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
@@ -2015,7 +1823,7 @@ function ReportDetail12() {
                 marginBottom: 8,
               }}
             >
-              7. Top 10 Overutilized Resources
+              5. Top 10 Overutilized Resources
             </div>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
@@ -2131,7 +1939,7 @@ function ReportDetail12() {
                 marginBottom: 8,
               }}
             >
-              8. Operational vs Strategic Work (%)
+              6. Operational vs Strategic Work (%)
             </div>
             <div
               style={{
@@ -2226,7 +2034,7 @@ function ReportDetail12() {
               }}
             >
 
-              9. Utilization Heatmap by Department & Manager
+              7. Utilization Heatmap by Department
             </div>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
@@ -2381,7 +2189,7 @@ function ReportDetail12() {
                 marginBottom: 10,
               }}
             >
-              10. Key Insights
+              8. Key Insights
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {keyInsights.map((ins, i) => (
@@ -2611,46 +2419,11 @@ function ReportDetail1() {
           ))}
         </div>
 
-        {/* Leadership Insights */}
-        <div
-          style={{
-            background: "#fffbeb",
-            border: "1px solid #fde68a",
-            borderRadius: 10,
-            padding: "12px 16px",
-            display: "flex",
-            gap: 10,
-            alignItems: "flex-start",
-          }}
-        >
-          <span style={{ fontSize: 18 }}>💡</span>
-          <div>
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "#92400e",
-                marginBottom: 3,
-              }}
-            >
-              Leadership Insights
-            </div>
-            <div style={{ fontSize: 11, color: "#78350f" }}>
-              Cloud & Retail pillars show{" "}
-              <span style={{ color: T.blue, fontWeight: 700 }}>
-                12% demand increase
-              </span>
-              . Capacity shortfall expected in Q3 2026, primarily in Data
-              Engineering and QA Automation skills.
-            </div>
-          </div>
-        </div>
-
         {/* Heatmap + Capacity vs Demand */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1.05fr 1fr",
+            gridTemplateColumns: "1fr",
             gap: 12,
           }}
         >
@@ -2844,95 +2617,7 @@ function ReportDetail1() {
             </div>
           </div>
 
-          <div
-            style={{
-              background: T.surface,
-              border: `0.5px solid ${T.border}`,
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
-            <CardHeader>
-              <span>2. Capacity vs Demand Trend (FTE)</span>
-              <div style={{ display: "flex", gap: 12 }}>
-                {[
-                  ["Capacity", T.blue],
-                  ["Demand", T.orange],
-                  ["Gap", T.red],
-                ].map(([l, c]) => (
-                  <span
-                    key={l}
-                    style={{
-                      fontSize: 9,
-                      color: T.textMuted,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 3,
-                    }}
-                  >
-                    <span
-                      style={{
-                        width: 18,
-                        height: 2,
-                        background: c,
-                        display: "inline-block",
-                        borderRadius: 1,
-                      }}
-                    />{" "}
-                    {l}
-                  </span>
-                ))}
-              </div>
-            </CardHeader>
-            <ResponsiveContainer width="100%" height={260}>
-              <LineChart
-                data={execCapDemandData}
-                margin={{ top: 5, right: 10, bottom: 5, left: -10 }}
-              >
-                <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fontSize: 8, fill: T.textMuted }}
-                  interval={0}
-                  angle={-30}
-                  textAnchor="end"
-                  height={36}
-                />
-                <YAxis
-                  tick={{ fontSize: 9, fill: T.textMuted }}
-                  tickFormatter={(v) =>
-                    v < 0 ? v : `${(v / 1000).toFixed(1)}K`
-                  }
-                />
-                <Tooltip
-                  contentStyle={ttStyle}
-                  formatter={(v) => `${v.toLocaleString()} FTE`}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="Capacity"
-                  stroke={T.blue}
-                  strokeWidth={2}
-                  dot={{ r: 3 }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="Demand"
-                  stroke={T.orange}
-                  strokeWidth={2}
-                  dot={{ r: 3 }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="Gap"
-                  stroke={T.red}
-                  strokeWidth={2}
-                  dot={{ r: 3 }}
-                  strokeDasharray="4 4"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+          
         </div>
 
         {/* Demand Status + Vendor + Skills */}
@@ -2951,7 +2636,7 @@ function ReportDetail1() {
               padding: "14px 16px",
             }}
           >
-            <CardHeader>3. Demand by Status (FTE)</CardHeader>
+            <CardHeader>2. Demand by Status (FTE)</CardHeader>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <div
                 style={{
@@ -3037,7 +2722,7 @@ function ReportDetail1() {
               padding: "14px 16px",
             }}
           >
-            <CardHeader>4. Vendor Overview</CardHeader>
+            <CardHeader>3. Vendor Overview</CardHeader>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
@@ -3128,7 +2813,7 @@ function ReportDetail1() {
               padding: "14px 16px",
             }}
           >
-            <CardHeader>5. Top 5 Skills by Demand Gap (FTE)</CardHeader>
+            <CardHeader>4. Top 5 Skills by Demand Gap (FTE)</CardHeader>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
@@ -3252,7 +2937,7 @@ function ReportDetail1() {
             }}
           >
             <CardHeader>
-              6. Cross-Pillar Resource Flow (Top Borrowing)
+              5. Cross-Pillar Resource Flow (Top Borrowing)
             </CardHeader>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
@@ -3353,7 +3038,7 @@ function ReportDetail1() {
               padding: "14px 16px",
             }}
           >
-            <CardHeader>7. Projects at Staffing Risk</CardHeader>
+            <CardHeader>6. Projects at Staffing Risk</CardHeader>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
@@ -3427,7 +3112,7 @@ function ReportDetail1() {
               padding: "14px 16px",
             }}
           >
-            <CardHeader>8. Strategic Alerts</CardHeader>
+            <CardHeader>7. Strategic Alerts</CardHeader>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {strategicAlerts.map((a, i) => (
                 <div
@@ -3469,19 +3154,6 @@ function ReportDetail1() {
             </div>
             <ViewAllLink label="View All Alerts →" />
           </div>
-        </div>
-
-        <div
-          style={{
-            textAlign: "center",
-            fontSize: 10,
-            color: T.textFaint,
-            paddingTop: 8,
-            borderTop: `0.5px solid ${T.border}`,
-          }}
-        >
-          ℹ️ All metrics are based on data as of 15/05/26 10:30 AM &nbsp;|&nbsp;
-          Data refreshed daily
         </div>
       </div>
     </div>
@@ -4436,26 +4108,49 @@ function ReportDetail8() {
           </ResponsiveContainer>
         </DetailCard>
         <DetailCard>
-          <SectionLabel>Variance by Type</SectionLabel>
-          <div style={{ position: "relative", width: 200, height: 160 }}>
-            <PieChart width={200} height={160}>
-              <Pie
-                data={varianceByTypedData}
-                cx={99}
-                cy={79}
-                innerRadius={45}
-                outerRadius={70}
-                dataKey="value"
-              >
-                {[T.red, T.orange, T.amber].map((c, i) => (
-                  <Cell key={i} fill={c} />
-                ))}
-              </Pie>
-              <Tooltip contentStyle={ttStyle} formatter={(v) => `${v}%`} />
-              <Legend wrapperStyle={{ fontSize: 9, color: T.textMuted }} />
-            </PieChart>
-          </div>
-        </DetailCard>
+  <SectionLabel>Variance by Type</SectionLabel>
+
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      width: "100%",
+      height: 220,
+    }}
+  >
+    <PieChart width={260} height={200}>
+      <Pie
+        data={varianceByTypedData}
+        cx="50%"
+        cy="42%"
+        innerRadius={45}
+        outerRadius={70}
+        paddingAngle={2}
+        dataKey="value"
+      >
+        {[T.red, T.orange, T.amber].map((c, i) => (
+          <Cell key={i} fill={c} />
+        ))}
+      </Pie>
+
+      <Tooltip
+        contentStyle={ttStyle}
+        formatter={(v) => `${v}%`}
+      />
+
+      <Legend
+        verticalAlign="bottom"
+        align="center"
+        wrapperStyle={{
+          fontSize: 10,
+          color: T.textMuted,
+          paddingTop: 8,
+        }}
+      />
+    </PieChart>
+  </div>
+</DetailCard>
       </div>
       <DetailCard>
         <SectionLabel>Variance by Portfolio</SectionLabel>

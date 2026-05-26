@@ -25,7 +25,7 @@ export const DONUT_COLORS = [
 export const kpis = [
   {
     label: "Total Resources (Full Time)",
-    value: "8,532",
+    value: "92",
     delta: "+2.3%",
     deltaUp: true,
     icon: "👥",
@@ -33,7 +33,7 @@ export const kpis = [
   },
   {
     label: "Total Capacity (FTE)",
-    value: "7,427",
+    value: "88",
     delta: "+1.8%",
     deltaUp: true,
     icon: "🏗️",
@@ -41,7 +41,7 @@ export const kpis = [
   },
   {
     label: "Total Demand (FTE)",
-    value: "8,016",
+    value: "94",
     delta: "+3.6%",
     deltaUp: true,
     icon: "📋",
@@ -49,7 +49,7 @@ export const kpis = [
   },
   {
     label: "Capacity Gap (FTE)",
-    value: "-589",
+    value: "-6",
     delta: "-4.7%",
     deltaUp: false,
     icon: "📉",
@@ -65,7 +65,7 @@ export const kpis = [
   },
   {
     label: "Over Allocated (FTE)",
-    value: "312",
+    value: "12",
     delta: "-3.2%",
     deltaUp: true,
     icon: "⚠️",
@@ -73,7 +73,7 @@ export const kpis = [
   },
   {
     label: "Open Demands",
-    value: "412",
+    value: "41",
     delta: "-5.1%",
     deltaUp: true,
     icon: "📂",
@@ -88,7 +88,6 @@ export const kpis = [
     color: COLORS.green,
   },
 ];
-
 // ─── Dashboard Trend Data ─────────────────────────────────────────────────────
 
 export const capacityDemandTrend = [
@@ -498,7 +497,7 @@ export const heatmapDepts = [
 export const execKpis = [
   {
     label: "Total Capacity",
-    value: "2,986 FTE",
+    value: "88 FTE",
     delta: "+6.2% vs 11/04/26",
     up: true,
     color: COLORS.blue,
@@ -506,7 +505,7 @@ export const execKpis = [
   },
   {
     label: "Total Demand",
-    value: "3,245 FTE",
+    value: "94 FTE",
     delta: "+3.4% vs 11/04/26",
     up: true,
     color: COLORS.orange,
@@ -514,7 +513,7 @@ export const execKpis = [
   },
   {
     label: "Capacity Gap",
-    value: "-259 FTE",
+    value: "-6 FTE",
     delta: "▼ 2.8% vs 11/04/26",
     up: false,
     color: COLORS.red,
@@ -530,7 +529,7 @@ export const execKpis = [
   },
   {
     label: "Open Demands",
-    value: "412",
+    value: "41",
     delta: "▼ 5.1% vs 11/04/26",
     up: false,
     color: COLORS.blue,
@@ -538,7 +537,7 @@ export const execKpis = [
   },
   {
     label: "Overallocated Resources",
-    value: "168",
+    value: "17",
     delta: "▼ 3.6% vs 11/04/26",
     up: true,
     color: COLORS.amber,
@@ -546,15 +545,15 @@ export const execKpis = [
   },
   {
     label: "Vendor Spend",
-    value: "$14.62M",
+    value: "$8.6M",
     delta: "▲ 7.3% vs 11/04/26",
-    up: false,
+    up: true,
     color: COLORS.teal,
     icon: "💲",
   },
   {
     label: "Projects at Staffing Risk",
-    value: "23",
+    value: "9",
     delta: "▼ 4 vs 11/04/26",
     up: true,
     color: COLORS.red,
@@ -567,56 +566,55 @@ export const heatmapData = [
     pillar: "Banking",
     icon: "🏦",
     rows: [
-      { team: "Application Development", vals: [82, 84, 88, 91, 96, 104, 107] },
-      { team: "Data Engineering", vals: [78, 83, 99, 101, 106, 110, 112] },
-      { team: "QA Automation", vals: [76, 80, 92, 98, 105, 108, 111] },
-      { team: "Cloud Engineering", vals: [85, 86, 90, 93, 97, 102, 101] },
+      { team: "Application Development", vals: [82, 84, 88, 91, 96, 104] },
+      { team: "Data Engineering", vals: [78, 83, 99, 101, 106, 110] },
+      { team: "QA Automation", vals: [76, 80, 92, 98, 105, 108] },
+      { team: "Cloud Engineering", vals: [85, 86, 90, 93, 97, 102] },
     ],
   },
   {
     pillar: "Retail",
     icon: "🛒",
     rows: [
-      { team: "Application Development", vals: [81, 82, 85, 88, 93, 98, 101] },
-      { team: "Data Engineering", vals: [77, 79, 83, 86, 90, 94, 96] },
-      { team: "QA Automation", vals: [80, 83, 88, 92, 95, 99, 101] },
-      { team: "Cloud Engineering", vals: [75, 78, 82, 86, 88, 93, 95] },
+      { team: "Application Development", vals: [81, 82, 85, 88, 93, 98] },
+      { team: "Data Engineering", vals: [77, 79, 83, 86, 90, 94] },
+      { team: "QA Automation", vals: [80, 83, 88, 92, 95, 99] },
+      { team: "Cloud Engineering", vals: [75, 78, 82, 86, 88, 93] },
     ],
   },
   {
     pillar: "Healthcare",
     icon: "🏥",
     rows: [
-      { team: "Application Development", vals: [83, 85, 90, 94, 96, 102, 104] },
-      { team: "Data Engineering", vals: [78, 81, 86, 91, 97, 101, 103] },
+      { team: "Application Development", vals: [83, 85, 90, 94, 96, 102] },
+      { team: "Data Engineering", vals: [78, 81, 86, 91, 97, 101] },
     ],
   },
   {
     pillar: "Hi-tech",
     icon: "💻",
     rows: [
-      { team: "Application Development", vals: [82, 84, 88, 91, 94, 97, 100] },
-      { team: "Data Engineering", vals: [79, 82, 86, 90, 93, 96, 98] },
+      { team: "Application Development", vals: [82, 84, 88, 91, 94, 97] },
+      { team: "Data Engineering", vals: [79, 82, 86, 90, 93, 96] },
     ],
   },
   {
     pillar: "Life Sciences",
     icon: "🔬",
     rows: [
-      { team: "Application Development", vals: [77, 80, 83, 87, 92, 95, 97] },
-      { team: "Data Engineering", vals: [74, 77, 81, 84, 88, 90, 92] },
+      { team: "Application Development", vals: [77, 80, 83, 87, 92, 95] },
+      { team: "Data Engineering", vals: [74, 77, 81, 84, 88, 90] },
     ],
   },
 ];
 
 export const heatmapMonths = [
-  "01/01/26",
-  "01/02/26",
-  "01/03/26",
-  "11/04/26",
-  "11/05/26",
-  "01/06/26 (F)",
-  "01/07/26 (F)",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
 ];
 
 export const execCapDemandData = [
