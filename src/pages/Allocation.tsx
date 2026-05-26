@@ -59,7 +59,7 @@ const columns: Column<AllocationRow>[] = [
     header: "Allocation Type",
     render: (r) => {
       const color =
-        r.allocationType === "Client"
+        r.allocationType === "Project"
           ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
           : "bg-purple-500/20 text-purple-400 border border-purple-500/30";
 
@@ -217,12 +217,12 @@ export default function ResourceAllocation() {
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
 
-                <SelectItem value="Client">Client</SelectItem>
+                <SelectItem value="Project">Project</SelectItem>
 
-                <SelectItem value="Internal">Internal</SelectItem>
+                <SelectItem value="Base Business">Base Business</SelectItem>
               </SelectContent>
             </Select>
-
+            
             {/* Utilization */}
             <Select
               value={utilizationFilter}

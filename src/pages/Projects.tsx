@@ -931,15 +931,17 @@ export default function Projects() {
   const handleDialogSubmit = () => {
     if (!assignDialog) return;
 
-    const { projectId, selectedTaskIds, projectName, comments } = assignDialog;
+    const { projectId, selectedTaskIds } = assignDialog;
 
     updateProjectTasks(
       projectId,
       (tasks[projectId] ?? []).map((t) => {
         if (!selectedTaskIds.includes(t.id)) return t;
+
         const resources = t.assignedResources.includes(CURRENT_USER.name)
           ? t.assignedResources
           : [...t.assignedResources, CURRENT_USER.name];
+
         return {
           ...t,
           assignedResources: resources,
@@ -948,36 +950,13 @@ export default function Projects() {
       }),
     );
 
-    const submittedTasks = (tasks[projectId] ?? [])
-      .filter((t) => selectedTaskIds.includes(t.id))
-      .map((t, i) => ({
-        id: `TRQ-${Date.now()}-${i}`,
-        taskName: t.task,
-        taskDescription: `${t.type} task assigned by ${CURRENT_USER.name}`,
-        project: projectName,
-        taskType: t.type,
-        assignedTo: CURRENT_USER.name,
-        assignedRole: CURRENT_USER.role,
-        assignedInitials: CURRENT_USER.initials,
-        assignedColor: "#6366f1",
-        requestedBy: CURRENT_USER.name,
-        priority: "Medium" as const,
-        sprint: "Sprint 1",
-        allocation: 100,
-        status: "Pending" as const,
-        timeline: "TBD",
-        comments: comments ?? "",
-        submittedDate: new Date().toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }),
-      }));
-
     updateSelectedTasks(projectId, []);
     setAssignDialog(null);
+
     showToast("Tasks submitted for approval");
-    navigate("/task-review-approval", { state: { submittedTasks } });
+
+    // Navigate to TaskReviewApproval page
+    navigate("/task-review-approval");
   };
 
   return (
