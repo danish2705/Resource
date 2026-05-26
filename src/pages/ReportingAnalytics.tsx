@@ -100,11 +100,44 @@ import {
   utilisation,
 } from "@/mocks/ReportingAnalytics";
 
+// ─── Shared tooltip style for all Recharts ────────────────────────────────────
+const tooltipStyle = {
+  contentStyle: {
+    fontSize: 10,
+    background: "var(--color-background-primary)",
+    border: "0.5px solid var(--color-border-tertiary)",
+    color: "var(--color-text-primary)",
+  },
+};
+
 function KpiCard({ kpi }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-[10px] p-[12px_14px] flex flex-col gap-1 min-w-0">
-      <div className="flex justify-between items-start">
-        <span style={{ fontSize: 11, color: "#6b7280", lineHeight: 1.3 }}>
+    <div
+      style={{
+        background: "var(--color-background-primary)",
+        border: "1px solid var(--color-border-tertiary)",
+        borderRadius: 10,
+        padding: "12px 14px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 4,
+        minWidth: 0,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+        }}
+      >
+        <span
+          style={{
+            fontSize: 11,
+            color: "var(--color-text-tertiary)",
+            lineHeight: 1.3,
+          }}
+        >
           {kpi.label}
         </span>
         <span style={{ fontSize: 18 }}>{kpi.icon}</span>
@@ -122,7 +155,8 @@ function KpiCard({ kpi }) {
       <div
         style={{ fontSize: 11, color: kpi.deltaUp ? COLORS.green : COLORS.red }}
       >
-        {kpi.delta} <span style={{ color: "#9ca3af" }}>vs Apr 2026</span>
+        {kpi.delta}{" "}
+        <span style={{ color: "var(--color-text-tertiary)" }}>vs Apr 2026</span>
       </div>
     </div>
   );
@@ -134,7 +168,7 @@ function MiniBar({ value, max = 100, color = COLORS.blue }) {
       style={{
         flex: 1,
         height: 6,
-        background: "#f3f4f6",
+        background: "var(--color-background-secondary)",
         borderRadius: 3,
         overflow: "hidden",
       }}
@@ -188,14 +222,20 @@ function SmallDonut({ data, centerLabel, centerSub, size = 90 }) {
             style={{
               fontSize: 10,
               fontWeight: 700,
-              color: "#111",
+              color: "var(--color-text-primary)",
               lineHeight: 1,
             }}
           >
             {centerLabel}
           </div>
           {centerSub && (
-            <div style={{ fontSize: 8, color: "#6b7280", lineHeight: 1.2 }}>
+            <div
+              style={{
+                fontSize: 8,
+                color: "var(--color-text-tertiary)",
+                lineHeight: 1.2,
+              }}
+            >
               {centerSub}
             </div>
           )}
@@ -209,10 +249,10 @@ function ReportCard({ card, onView }) {
   return (
     <div
       style={{
-        background: "#fff",
-        border: "0.5px solid #e5e7eb",
+        background: "var(--color-background-primary)",
+        border: "0.5px solid var(--color-border-tertiary)",
         borderRadius: 10,
-        padding: "14px",
+        padding: 14,
         display: "flex",
         flexDirection: "column",
         gap: 10,
@@ -240,7 +280,7 @@ function ReportCard({ card, onView }) {
             style={{
               fontSize: 12,
               fontWeight: 600,
-              color: "#111",
+              color: "var(--color-text-primary)",
               lineHeight: 1.3,
             }}
           >
@@ -249,7 +289,7 @@ function ReportCard({ card, onView }) {
           <div
             style={{
               fontSize: 10,
-              color: "#9ca3af",
+              color: "var(--color-text-tertiary)",
               lineHeight: 1.4,
               marginTop: 2,
             }}
@@ -258,6 +298,7 @@ function ReportCard({ card, onView }) {
           </div>
         </div>
       </div>
+
       <div style={{ flex: 1 }}>
         {card.stats && (
           <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
@@ -267,12 +308,16 @@ function ReportCard({ card, onView }) {
                   style={{
                     fontSize: 16,
                     fontWeight: 700,
-                    color: s.color || "#111",
+                    color: s.color || "var(--color-text-primary)",
                   }}
                 >
                   {s.value}
                 </div>
-                <div style={{ fontSize: 10, color: "#6b7280" }}>{s.label}</div>
+                <div
+                  style={{ fontSize: 10, color: "var(--color-text-tertiary)" }}
+                >
+                  {s.label}
+                </div>
               </div>
             ))}
           </div>
@@ -286,7 +331,7 @@ function ReportCard({ card, onView }) {
                   display: "flex",
                   justifyContent: "space-between",
                   fontSize: 11,
-                  color: "#374151",
+                  color: "var(--color-text-secondary)",
                 }}
               >
                 <span>{e.label}</span>
@@ -299,10 +344,20 @@ function ReportCard({ card, onView }) {
           <div style={{ display: "flex", gap: 10, marginBottom: 8 }}>
             {card.summaryStats.map((s, i) => (
               <div key={i}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: "#111" }}>
+                <div
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 700,
+                    color: "var(--color-text-primary)",
+                  }}
+                >
                   {s.value}
                 </div>
-                <div style={{ fontSize: 10, color: "#6b7280" }}>{s.label}</div>
+                <div
+                  style={{ fontSize: 10, color: "var(--color-text-tertiary)" }}
+                >
+                  {s.label}
+                </div>
               </div>
             ))}
           </div>
@@ -319,11 +374,23 @@ function ReportCard({ card, onView }) {
                   fontSize: 10,
                 }}
               >
-                <span style={{ color: "#6b7280", minWidth: 90, fontSize: 9 }}>
+                <span
+                  style={{
+                    color: "var(--color-text-tertiary)",
+                    minWidth: 90,
+                    fontSize: 9,
+                  }}
+                >
                   {r.name}
                 </span>
                 <MiniBar value={r.value} color={COLORS.teal} />
-                <span style={{ color: "#111", minWidth: 28, fontWeight: 600 }}>
+                <span
+                  style={{
+                    color: "var(--color-text-primary)",
+                    minWidth: 28,
+                    fontWeight: 600,
+                  }}
+                >
                   {r.value}%
                 </span>
               </div>
@@ -347,7 +414,7 @@ function ReportCard({ card, onView }) {
                     alignItems: "center",
                     gap: 4,
                     fontSize: 9,
-                    color: "#374151",
+                    color: "var(--color-text-secondary)",
                   }}
                 >
                   <div
@@ -358,7 +425,10 @@ function ReportCard({ card, onView }) {
                       background: DONUT_COLORS[i],
                     }}
                   />
-                  {d.name} <span style={{ color: "#9ca3af" }}>{d.value}%</span>
+                  {d.name}{" "}
+                  <span style={{ color: "var(--color-text-tertiary)" }}>
+                    {d.value}%
+                  </span>
                 </div>
               ))}
             </div>
@@ -376,7 +446,13 @@ function ReportCard({ card, onView }) {
             >
               {card.highlight}
             </div>
-            <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 6 }}>
+            <div
+              style={{
+                fontSize: 10,
+                color: "var(--color-text-tertiary)",
+                marginBottom: 6,
+              }}
+            >
               Over Allocated Resources
             </div>
             {card.overList.map((r, i) => (
@@ -387,10 +463,12 @@ function ReportCard({ card, onView }) {
                   justifyContent: "space-between",
                   fontSize: 10,
                   padding: "2px 0",
-                  borderBottom: "0.5px solid #f3f4f6",
+                  borderBottom: "0.5px solid var(--color-border-tertiary)",
                 }}
               >
-                <span style={{ color: "#374151" }}>{r.name}</span>
+                <span style={{ color: "var(--color-text-secondary)" }}>
+                  {r.name}
+                </span>
                 <span style={{ fontWeight: 700, color: r.color }}>
                   {r.pct}%
                 </span>
@@ -421,7 +499,11 @@ function ReportCard({ card, onView }) {
                 <div style={{ fontSize: 14, fontWeight: 700, color: r.color }}>
                   {r.value}
                 </div>
-                <div style={{ fontSize: 10, color: "#6b7280" }}>{r.label}</div>
+                <div
+                  style={{ fontSize: 10, color: "var(--color-text-tertiary)" }}
+                >
+                  {r.label}
+                </div>
               </div>
             ))}
           </div>
@@ -431,7 +513,13 @@ function ReportCard({ card, onView }) {
             <div style={{ fontSize: 28, fontWeight: 800, color: COLORS.green }}>
               {card.compliance}%
             </div>
-            <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 6 }}>
+            <div
+              style={{
+                fontSize: 10,
+                color: "var(--color-text-tertiary)",
+                marginBottom: 6,
+              }}
+            >
               Overall Compliance
             </div>
             {card.items.map((r, i) => (
@@ -445,11 +533,18 @@ function ReportCard({ card, onView }) {
                   marginBottom: 3,
                 }}
               >
-                <span style={{ color: "#6b7280", minWidth: 120 }}>
+                <span
+                  style={{ color: "var(--color-text-tertiary)", minWidth: 120 }}
+                >
                   {r.label}
                 </span>
                 <MiniBar value={r.value} color={COLORS.green} />
-                <span style={{ fontWeight: 600, color: "#111" }}>
+                <span
+                  style={{
+                    fontWeight: 600,
+                    color: "var(--color-text-primary)",
+                  }}
+                >
                   {r.value}%
                 </span>
               </div>
@@ -460,15 +555,27 @@ function ReportCard({ card, onView }) {
           <div>
             <div style={{ display: "flex", gap: 10, marginBottom: 8 }}>
               {[
-                { l: "Total Budget", v: card.budget.total, c: "#111" },
-                { l: "Total Actual", v: card.budget.actual, c: "#111" },
+                {
+                  l: "Total Budget",
+                  v: card.budget.total,
+                  c: "var(--color-text-primary)",
+                },
+                {
+                  l: "Total Actual",
+                  v: card.budget.actual,
+                  c: "var(--color-text-primary)",
+                },
                 { l: "Variance", v: card.budget.variance, c: COLORS.red },
               ].map((b, i) => (
                 <div key={i}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: b.c }}>
                     {b.v}
                   </div>
-                  <div style={{ fontSize: 9, color: "#9ca3af" }}>{b.l}</div>
+                  <div
+                    style={{ fontSize: 9, color: "var(--color-text-tertiary)" }}
+                  >
+                    {b.l}
+                  </div>
                 </div>
               ))}
             </div>
@@ -479,7 +586,7 @@ function ReportCard({ card, onView }) {
                   display: "flex",
                   justifyContent: "space-between",
                   fontSize: 10,
-                  color: "#374151",
+                  color: "var(--color-text-secondary)",
                   padding: "2px 0",
                 }}
               >
@@ -499,7 +606,7 @@ function ReportCard({ card, onView }) {
                 gridTemplateColumns: "1fr auto auto auto",
                 gap: "3px 8px",
                 fontSize: 10,
-                color: "#6b7280",
+                color: "var(--color-text-tertiary)",
                 marginBottom: 2,
               }}
             >
@@ -517,11 +624,18 @@ function ReportCard({ card, onView }) {
                   gap: "2px 8px",
                   fontSize: 10,
                   padding: "2px 0",
-                  borderBottom: "0.5px solid #f3f4f6",
+                  borderBottom: "0.5px solid var(--color-border-tertiary)",
                 }}
               >
-                <span style={{ color: "#374151" }}>{v.name}</span>
-                <span style={{ fontWeight: 600, color: "#111" }}>
+                <span style={{ color: "var(--color-text-secondary)" }}>
+                  {v.name}
+                </span>
+                <span
+                  style={{
+                    fontWeight: 600,
+                    color: "var(--color-text-primary)",
+                  }}
+                >
                   {v.spend}
                 </span>
                 <span style={{ color: COLORS.blue, fontWeight: 700 }}>
@@ -549,7 +663,12 @@ function ReportCard({ card, onView }) {
                   >
                     {d.value}
                   </div>
-                  <div style={{ fontSize: 10, color: "#6b7280" }}>
+                  <div
+                    style={{
+                      fontSize: 10,
+                      color: "var(--color-text-tertiary)",
+                    }}
+                  >
                     {d.label}
                   </div>
                 </div>
@@ -566,14 +685,16 @@ function ReportCard({ card, onView }) {
                   marginBottom: 3,
                 }}
               >
-                <span style={{ color: "#6b7280", minWidth: 50 }}>
+                <span
+                  style={{ color: "var(--color-text-tertiary)", minWidth: 50 }}
+                >
                   {r.label}
                 </span>
                 <MiniBar
                   value={parseInt(r.pct)}
                   color={[COLORS.red, COLORS.orange, COLORS.blue][i]}
                 />
-                <span style={{ color: "#374151" }}>
+                <span style={{ color: "var(--color-text-secondary)" }}>
                   {r.value} ({r.pct})
                 </span>
               </div>
@@ -587,10 +708,19 @@ function ReportCard({ card, onView }) {
                 data={card.forecastData}
                 margin={{ top: 5, right: 5, bottom: 5, left: -20 }}
               >
-                <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-                <XAxis dataKey="month" tick={{ fontSize: 8 }} />
-                <YAxis tick={{ fontSize: 8 }} domain={[5, 11]} />
-                <Tooltip contentStyle={{ fontSize: 10 }} />
+                <CartesianGrid
+                  strokeDasharray="2 2"
+                  stroke="var(--color-border-tertiary)"
+                />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fontSize: 8, fill: "var(--color-text-tertiary)" }}
+                />
+                <YAxis
+                  tick={{ fontSize: 8, fill: "var(--color-text-tertiary)" }}
+                  domain={[5, 11]}
+                />
+                <Tooltip {...tooltipStyle} />
                 <Line
                   type="monotone"
                   dataKey="cap"
@@ -625,7 +755,13 @@ function ReportCard({ card, onView }) {
             <div style={{ fontSize: 26, fontWeight: 800, color: COLORS.teal }}>
               {card.utilOverall}%
             </div>
-            <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 6 }}>
+            <div
+              style={{
+                fontSize: 10,
+                color: "var(--color-text-tertiary)",
+                marginBottom: 6,
+              }}
+            >
               Overall Utilization
             </div>
             {card.utilByType.map((r, i) => (
@@ -639,11 +775,22 @@ function ReportCard({ card, onView }) {
                   marginBottom: 3,
                 }}
               >
-                <span style={{ color: "#6b7280", minWidth: 110, fontSize: 9 }}>
+                <span
+                  style={{
+                    color: "var(--color-text-tertiary)",
+                    minWidth: 110,
+                    fontSize: 9,
+                  }}
+                >
                   {r.label}
                 </span>
                 <MiniBar value={r.value} color={COLORS.teal} />
-                <span style={{ fontWeight: 600, color: "#111" }}>
+                <span
+                  style={{
+                    fontWeight: 600,
+                    color: "var(--color-text-primary)",
+                  }}
+                >
                   {r.value}%
                 </span>
               </div>
@@ -658,7 +805,9 @@ function ReportCard({ card, onView }) {
               >
                 {card.tsCompliance}%
               </div>
-              <div style={{ fontSize: 10, color: "#6b7280" }}>
+              <div
+                style={{ fontSize: 10, color: "var(--color-text-tertiary)" }}
+              >
                 TS Compliance
               </div>
               {card.tsBreakdown.map((r, i) => (
@@ -680,8 +829,15 @@ function ReportCard({ card, onView }) {
                       background: r.color,
                     }}
                   />
-                  <span style={{ color: "#6b7280" }}>{r.label}</span>
-                  <span style={{ fontWeight: 600, color: "#111" }}>
+                  <span style={{ color: "var(--color-text-tertiary)" }}>
+                    {r.label}
+                  </span>
+                  <span
+                    style={{
+                      fontWeight: 600,
+                      color: "var(--color-text-primary)",
+                    }}
+                  >
                     {r.pct}%
                   </span>
                 </div>
@@ -693,7 +849,11 @@ function ReportCard({ card, onView }) {
               >
                 {card.actualFTE}
               </div>
-              <div style={{ fontSize: 10, color: "#6b7280" }}>Actual FTE</div>
+              <div
+                style={{ fontSize: 10, color: "var(--color-text-tertiary)" }}
+              >
+                Actual FTE
+              </div>
             </div>
           </div>
         )}
@@ -710,7 +870,9 @@ function ReportCard({ card, onView }) {
                 >
                   {card.pending}
                 </div>
-                <div style={{ fontSize: 10, color: "#6b7280" }}>
+                <div
+                  style={{ fontSize: 10, color: "var(--color-text-tertiary)" }}
+                >
                   Pending Approvals
                 </div>
               </div>
@@ -720,7 +882,9 @@ function ReportCard({ card, onView }) {
                 >
                   {card.overdue}
                 </div>
-                <div style={{ fontSize: 10, color: "#6b7280" }}>
+                <div
+                  style={{ fontSize: 10, color: "var(--color-text-tertiary)" }}
+                >
                   Overdue Approvals
                 </div>
               </div>
@@ -733,7 +897,7 @@ function ReportCard({ card, onView }) {
                   justifyContent: "space-between",
                   fontSize: 10,
                   padding: "2px 0",
-                  color: "#374151",
+                  color: "var(--color-text-secondary)",
                 }}
               >
                 <span>{r.label}</span>
@@ -763,7 +927,9 @@ function ReportCard({ card, onView }) {
                   justifyContent: "space-between",
                 }}
               >
-                <span style={{ fontSize: 11, color: "#6b7280" }}>
+                <span
+                  style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}
+                >
                   {s.label}
                 </span>
                 <span style={{ fontSize: 14, fontWeight: 700, color: s.color }}>
@@ -786,13 +952,13 @@ function ReportCard({ card, onView }) {
               <div
                 key={i}
                 style={{
-                  background: "#f9fafb",
-                  border: "0.5px solid #e5e7eb",
+                  background: "var(--color-background-secondary)",
+                  border: "0.5px solid var(--color-border-tertiary)",
                   borderRadius: 8,
-                  padding: "10px",
+                  padding: 10,
                   textAlign: "center",
                   fontSize: 11,
-                  color: "#374151",
+                  color: "var(--color-text-secondary)",
                   fontWeight: 500,
                 }}
               >
@@ -802,6 +968,7 @@ function ReportCard({ card, onView }) {
           </div>
         )}
       </div>
+
       <button
         onClick={() => onView(card)}
         style={{
@@ -833,7 +1000,7 @@ function DetailMiniBar({ value, max = 100, color = COLORS.blue }) {
       style={{
         flex: 1,
         height: 7,
-        background: "#f3f4f6",
+        background: "var(--color-background-secondary)",
         borderRadius: 3,
         overflow: "hidden",
       }}
@@ -854,14 +1021,20 @@ function StatTile({ label, value, color }) {
   return (
     <div
       style={{
-        background: "#fff",
+        background: "var(--color-background-primary)",
         border: `1px solid ${color}33`,
         borderRadius: 10,
         padding: "12px 16px",
         borderLeft: `3px solid ${color}`,
       }}
     >
-      <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 4 }}>
+      <div
+        style={{
+          fontSize: 10,
+          color: "var(--color-text-tertiary)",
+          marginBottom: 4,
+        }}
+      >
         {label}
       </div>
       <div style={{ fontSize: 22, fontWeight: 800, color }}>{value}</div>
@@ -875,12 +1048,12 @@ function SectionLabel({ children }) {
       style={{
         fontSize: 11,
         fontWeight: 700,
-        color: "#374151",
+        color: "var(--color-text-secondary)",
         textTransform: "uppercase",
         letterSpacing: "0.06em",
         marginBottom: 10,
         marginTop: 18,
-        borderBottom: "0.5px solid #e5e7eb",
+        borderBottom: "0.5px solid var(--color-border-tertiary)",
         paddingBottom: 6,
       }}
     >
@@ -893,8 +1066,8 @@ function DetailCard({ children, style = {} }) {
   return (
     <div
       style={{
-        background: "#fff",
-        border: "0.5px solid #e5e7eb",
+        background: "var(--color-background-primary)",
+        border: "0.5px solid var(--color-border-tertiary)",
         borderRadius: 10,
         padding: "16px 18px",
         ...style,
@@ -917,8 +1090,8 @@ function DetailTable({ headers, rows }) {
                 textAlign: "left",
                 padding: "6px 8px",
                 fontSize: 10,
-                color: "#6b7280",
-                borderBottom: "0.5px solid #e5e7eb",
+                color: "var(--color-text-tertiary)",
+                borderBottom: "0.5px solid var(--color-border-tertiary)",
                 fontWeight: 600,
               }}
             >
@@ -929,9 +1102,19 @@ function DetailTable({ headers, rows }) {
       </thead>
       <tbody>
         {rows.map((row, i) => (
-          <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
+          <tr
+            key={i}
+            style={{ borderBottom: "0.5px solid var(--color-border-tertiary)" }}
+          >
             {row.map((cell, j) => (
-              <td key={j} style={{ padding: "7px 8px", fontSize: 11 }}>
+              <td
+                key={j}
+                style={{
+                  padding: "7px 8px",
+                  fontSize: 11,
+                  color: "var(--color-text-secondary)",
+                }}
+              >
                 {cell}
               </td>
             ))}
@@ -945,10 +1128,13 @@ function DetailTable({ headers, rows }) {
 // ─── Utilization Dashboard (Report #12) ─────────────────────────────────────
 
 function heatCell(val) {
-  if (val > 110) return { bg: "#fde8e8", color: COLORS.red };
+  if (val > 110)
+    return { bg: "var(--color-background-danger)", color: COLORS.red };
   if (val > 100) return { bg: "#fee2e2", color: "#c0392b" };
-  if (val >= 85) return { bg: "#e8f5e9", color: "#2e7d32" };
-  if (val >= 70) return { bg: "#e3f4fd", color: "#1565c0" };
+  if (val >= 85)
+    return { bg: "var(--color-background-success)", color: "#2e7d32" };
+  if (val >= 70)
+    return { bg: "var(--color-background-info)", color: "#1565c0" };
   return { bg: "#fff9e6", color: "#92400e" };
 }
 
@@ -958,12 +1144,11 @@ function UtilFilterBar({ filters, setFilters }) {
   return (
     <div
       style={{
-        background: "#fff",
-        borderBottom: "1px solid #e5e7eb",
+        background: "var(--color-background-primary)",
+        borderBottom: "1px solid var(--color-border-tertiary)",
         padding: "16px 20px",
       }}
     >
-      {/* Header Row */}
       <div
         style={{
           display: "flex",
@@ -977,13 +1162,12 @@ function UtilFilterBar({ filters, setFilters }) {
             style={{
               fontSize: 18,
               fontWeight: 700,
-              color: "#111827",
+              color: "var(--color-text-primary)",
               margin: 0,
             }}
           >
             4. Utilization Dashboard
           </h2>
-
           <span
             style={{
               background: "#e8f5ef",
@@ -997,18 +1181,10 @@ function UtilFilterBar({ filters, setFilters }) {
             Measure workforce efficiency & workload distribution
           </span>
         </div>
-
-        <div
-          style={{
-            fontSize: 13,
-            color: "#9ca3af",
-          }}
-        >
+        <div style={{ fontSize: 13, color: "var(--color-text-tertiary)" }}>
           Last Updated: 15/05/26 10:30 AM
         </div>
       </div>
-
-      {/* Filters Row */}
       <div
         style={{
           display: "flex",
@@ -1020,38 +1196,30 @@ function UtilFilterBar({ filters, setFilters }) {
         {UTIL_FILTER_DEFS.map((f) => (
           <div
             key={f.key}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              minWidth: 120,
-            }}
+            style={{ display: "flex", flexDirection: "column", minWidth: 120 }}
           >
             <label
               style={{
                 fontSize: 11,
-                color: "#9ca3af",
+                color: "var(--color-text-tertiary)",
                 marginBottom: 4,
               }}
             >
               {f.label}
             </label>
-
             <select
               value={filters[f.key]}
               onChange={(e) =>
-                setFilters((p) => ({
-                  ...p,
-                  [f.key]: e.target.value,
-                }))
+                setFilters((p) => ({ ...p, [f.key]: e.target.value }))
               }
               style={{
                 height: 36,
-                border: "1px solid #d1d5db",
+                border: "1px solid var(--color-border-tertiary)",
                 borderRadius: 8,
                 padding: "0 12px",
                 fontSize: 14,
-                background: "#fff",
-                color: "#374151",
+                background: "var(--color-background-primary)",
+                color: "var(--color-text-secondary)",
                 cursor: "pointer",
                 outline: "none",
               }}
@@ -1074,7 +1242,7 @@ function ReportDetail12() {
     <div
       style={{
         fontFamily: "system-ui, sans-serif",
-        background: "#f3f4f6",
+        background: "var(--color-background-tertiary)",
         minHeight: "100vh",
       }}
     >
@@ -1100,7 +1268,7 @@ function ReportDetail12() {
             <div
               key={i}
               style={{
-                background: k.bg,
+                background: "var(--color-background-primary)",
                 border: `1px solid ${k.color}22`,
                 borderRadius: 10,
                 padding: "12px 14px",
@@ -1115,7 +1283,11 @@ function ReportDetail12() {
                 }}
               >
                 <span
-                  style={{ fontSize: 10, color: "#6b7280", lineHeight: 1.3 }}
+                  style={{
+                    fontSize: 10,
+                    color: "var(--color-text-tertiary)",
+                    lineHeight: 1.3,
+                  }}
                 >
                   {k.label}
                 </span>
@@ -1138,13 +1310,16 @@ function ReportDetail12() {
                   color: k.up ? COLORS.green : COLORS.red,
                 }}
               >
-                {k.delta} <span style={{ color: "#9ca3af" }}>vs 11/04/26</span>
+                {k.delta}{" "}
+                <span style={{ color: "var(--color-text-tertiary)" }}>
+                  vs 11/04/26
+                </span>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Row 1: Trend + By Dept + By Work Type */}
+        {/* Row 1 */}
         <div
           style={{
             display: "grid",
@@ -1152,11 +1327,11 @@ function ReportDetail12() {
             gap: 12,
           }}
         >
-          {/* 1. Utilization Trend */}
+          {/* Utilization Trend */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "0.5px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -1165,7 +1340,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: "var(--color-text-primary)",
                 marginBottom: 10,
               }}
             >
@@ -1183,7 +1358,7 @@ function ReportDetail12() {
                     alignItems: "center",
                     gap: 4,
                     fontSize: 10,
-                    color: "#6b7280",
+                    color: "var(--color-text-tertiary)",
                   }}
                 >
                   <span
@@ -1199,7 +1374,13 @@ function ReportDetail12() {
                 </span>
               ))}
             </div>
-            <div style={{ fontSize: 10, color: "#9ca3af", marginBottom: 4 }}>
+            <div
+              style={{
+                fontSize: 10,
+                color: "var(--color-text-tertiary)",
+                marginBottom: 4,
+              }}
+            >
               100%
             </div>
             <ResponsiveContainer width="100%" height={180}>
@@ -1207,23 +1388,23 @@ function ReportDetail12() {
                 data={utilTrendData}
                 margin={{ top: 5, right: 10, bottom: 5, left: -15 }}
               >
-                <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
+                <CartesianGrid
+                  strokeDasharray="2 2"
+                  stroke="var(--color-border-tertiary)"
+                />
                 <XAxis
                   dataKey="month"
-                  tick={{ fontSize: 8 }}
+                  tick={{ fontSize: 8, fill: "var(--color-text-tertiary)" }}
                   angle={-20}
                   textAnchor="end"
                   height={36}
                 />
                 <YAxis
                   domain={[40, 100]}
-                  tick={{ fontSize: 9 }}
+                  tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
                   tickFormatter={(v) => `${v}%`}
                 />
-                <Tooltip
-                  contentStyle={{ fontSize: 10 }}
-                  formatter={(v) => `${v}%`}
-                />
+                <Tooltip {...tooltipStyle} formatter={(v) => `${v}%`} />
                 <Line
                   type="monotone"
                   dataKey="overall"
@@ -1244,11 +1425,11 @@ function ReportDetail12() {
             </ResponsiveContainer>
           </div>
 
-          {/* 2. Utilization by Department */}
+          {/* Utilization by Department */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "0.5px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -1257,7 +1438,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: "var(--color-text-primary)",
                 marginBottom: 10,
               }}
             >
@@ -1272,7 +1453,7 @@ function ReportDetail12() {
                     alignItems: "center",
                     gap: 3,
                     fontSize: 9,
-                    color: "#6b7280",
+                    color: "var(--color-text-tertiary)",
                   }}
                 >
                   <span
@@ -1294,7 +1475,11 @@ function ReportDetail12() {
                   style={{ display: "flex", alignItems: "center", gap: 6 }}
                 >
                   <span
-                    style={{ fontSize: 10, color: "#374151", minWidth: 110 }}
+                    style={{
+                      fontSize: 10,
+                      color: "var(--color-text-secondary)",
+                      minWidth: 110,
+                    }}
                   >
                     {d.dept}
                   </span>
@@ -1306,55 +1491,34 @@ function ReportDetail12() {
                       gap: 2,
                     }}
                   >
-                    <div
-                      style={{ display: "flex", gap: 3, alignItems: "center" }}
-                    >
+                    {[
+                      { val: d.overall, color: COLORS.blue },
+                      { val: d.billable, color: COLORS.green },
+                      { val: d.capacity, color: COLORS.orange, opacity: 0.6 },
+                    ].map((bar, bi) => (
                       <div
+                        key={bi}
                         style={{
-                          width: `${d.overall}%`,
-                          height: 6,
-                          background: COLORS.blue,
-                          borderRadius: 2,
-                          minWidth: 2,
+                          display: "flex",
+                          gap: 3,
+                          alignItems: "center",
                         }}
-                      />
-                      <span style={{ fontSize: 9, color: COLORS.blue }}>
-                        {d.overall}%
-                      </span>
-                    </div>
-                    <div
-                      style={{ display: "flex", gap: 3, alignItems: "center" }}
-                    >
-                      <div
-                        style={{
-                          width: `${d.billable}%`,
-                          height: 6,
-                          background: COLORS.green,
-                          borderRadius: 2,
-                          minWidth: 2,
-                        }}
-                      />
-                      <span style={{ fontSize: 9, color: COLORS.green }}>
-                        {d.billable}%
-                      </span>
-                    </div>
-                    <div
-                      style={{ display: "flex", gap: 3, alignItems: "center" }}
-                    >
-                      <div
-                        style={{
-                          width: `${d.capacity}%`,
-                          height: 6,
-                          background: COLORS.orange,
-                          borderRadius: 2,
-                          minWidth: 2,
-                          opacity: 0.6,
-                        }}
-                      />
-                      <span style={{ fontSize: 9, color: COLORS.orange }}>
-                        {d.capacity}%
-                      </span>
-                    </div>
+                      >
+                        <div
+                          style={{
+                            width: `${bar.val}%`,
+                            height: 6,
+                            background: bar.color,
+                            borderRadius: 2,
+                            minWidth: 2,
+                            opacity: bar.opacity,
+                          }}
+                        />
+                        <span style={{ fontSize: 9, color: bar.color }}>
+                          {bar.val}%
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
@@ -1365,7 +1529,7 @@ function ReportDetail12() {
                 gap: 4,
                 marginTop: 6,
                 fontSize: 9,
-                color: "#9ca3af",
+                color: "var(--color-text-tertiary)",
               }}
             >
               {[0, 25, 50, 75, 100].map((v) => (
@@ -1376,11 +1540,11 @@ function ReportDetail12() {
             </div>
           </div>
 
-          {/* 3. Utilization by Work Type */}
+          {/* Utilization by Work Type */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "0.5px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -1389,7 +1553,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: "var(--color-text-primary)",
                 marginBottom: 10,
               }}
             >
@@ -1430,10 +1594,18 @@ function ReportDetail12() {
                     pointerEvents: "none",
                   }}
                 >
-                  <div style={{ fontSize: 16, fontWeight: 800, color: "#111" }}>
+                  <div
+                    style={{
+                      fontSize: 16,
+                      fontWeight: 800,
+                      color: "var(--color-text-primary)",
+                    }}
+                  >
                     118K
                   </div>
-                  <div style={{ fontSize: 8, color: "#6b7280" }}>
+                  <div
+                    style={{ fontSize: 8, color: "var(--color-text-tertiary)" }}
+                  >
                     Total Hours
                   </div>
                 </div>
@@ -1454,7 +1626,13 @@ function ReportDetail12() {
                       flexShrink: 0,
                     }}
                   />
-                  <span style={{ fontSize: 9, color: "#374151", flex: 1 }}>
+                  <span
+                    style={{
+                      fontSize: 9,
+                      color: "var(--color-text-secondary)",
+                      flex: 1,
+                    }}
+                  >
                     {d.name}
                   </span>
                   <span
@@ -1468,7 +1646,7 @@ function ReportDetail12() {
           </div>
         </div>
 
-        {/* Row 2: Billable vs Non-Billable + Distribution + Under/Over-utilized */}
+        {/* Row 2 */}
         <div
           style={{
             display: "grid",
@@ -1476,11 +1654,11 @@ function ReportDetail12() {
             gap: 12,
           }}
         >
-          {/* 4. Billable vs Non-Billable */}
+          {/* Billable vs Non-Billable */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "0.5px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -1489,7 +1667,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: "var(--color-text-primary)",
                 marginBottom: 8,
               }}
             >
@@ -1507,7 +1685,7 @@ function ReportDetail12() {
                     alignItems: "center",
                     gap: 3,
                     fontSize: 9,
-                    color: "#6b7280",
+                    color: "var(--color-text-tertiary)",
                   }}
                 >
                   <span
@@ -1530,7 +1708,11 @@ function ReportDetail12() {
                   style={{ display: "flex", alignItems: "center", gap: 6 }}
                 >
                   <span
-                    style={{ fontSize: 9.5, color: "#374151", minWidth: 105 }}
+                    style={{
+                      fontSize: 9.5,
+                      color: "var(--color-text-secondary)",
+                      minWidth: 105,
+                    }}
                   >
                     {d.dept}
                   </span>
@@ -1554,7 +1736,7 @@ function ReportDetail12() {
                   <span
                     style={{
                       fontSize: 9,
-                      color: "#374151",
+                      color: "var(--color-text-secondary)",
                       minWidth: 26,
                       fontWeight: 600,
                     }}
@@ -1570,7 +1752,7 @@ function ReportDetail12() {
                 gap: 4,
                 marginTop: 6,
                 fontSize: 9,
-                color: "#9ca3af",
+                color: "var(--color-text-tertiary)",
               }}
             >
               {[0, 25, 50, 75, 100].map((v) => (
@@ -1581,11 +1763,11 @@ function ReportDetail12() {
             </div>
           </div>
 
-          {/* 5. Utilization Distribution */}
+          {/* Utilization Distribution */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "0.5px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -1594,7 +1776,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: "var(--color-text-primary)",
                 marginBottom: 8,
               }}
             >
@@ -1639,10 +1821,18 @@ function ReportDetail12() {
                     pointerEvents: "none",
                   }}
                 >
-                  <div style={{ fontSize: 13, fontWeight: 800, color: "#111" }}>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 800,
+                      color: "var(--color-text-primary)",
+                    }}
+                  >
                     1,986
                   </div>
-                  <div style={{ fontSize: 8, color: "#6b7280" }}>
+                  <div
+                    style={{ fontSize: 8, color: "var(--color-text-tertiary)" }}
+                  >
                     Total Resources
                   </div>
                 </div>
@@ -1659,11 +1849,17 @@ function ReportDetail12() {
                       width: 8,
                       height: 8,
                       borderRadius: 2,
-                      background: d.color,
                       flexShrink: 0,
+                      backgroundColor: d.color,
                     }}
                   />
-                  <span style={{ fontSize: 9, color: "#374151", flex: 1 }}>
+                  <span
+                    style={{
+                      fontSize: 9,
+                      color: "var(--color-text-secondary)",
+                      flex: 1,
+                    }}
+                  >
                     {d.label}
                   </span>
                   <span
@@ -1671,7 +1867,9 @@ function ReportDetail12() {
                   >
                     {d.count}
                   </span>
-                  <span style={{ fontSize: 9, color: "#9ca3af" }}>
+                  <span
+                    style={{ fontSize: 9, color: "var(--color-text-tertiary)" }}
+                  >
                     ({d.pct})
                   </span>
                 </div>
@@ -1679,11 +1877,11 @@ function ReportDetail12() {
             </div>
           </div>
 
-          {/* 6. Top 10 Underutilized */}
+          {/* Top 10 Underutilized */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "0.5px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -1692,7 +1890,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: "var(--color-text-primary)",
                 marginBottom: 8,
               }}
             >
@@ -1706,10 +1904,10 @@ function ReportDetail12() {
                       key={h}
                       style={{
                         fontSize: 9,
-                        color: "#6b7280",
+                        color: "var(--color-text-tertiary)",
                         padding: "4px 6px",
                         textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
+                        borderBottom: "1px solid var(--color-border-tertiary)",
                         fontWeight: 600,
                       }}
                     >
@@ -1720,12 +1918,17 @@ function ReportDetail12() {
               </thead>
               <tbody>
                 {underutilizedResources.map((r, i) => (
-                  <tr key={i} style={{ borderBottom: "0.5px solid #f9fafb" }}>
+                  <tr
+                    key={i}
+                    style={{
+                      borderBottom: "0.5px solid var(--color-border-tertiary)",
+                    }}
+                  >
                     <td
                       style={{
                         padding: "4px 6px",
                         fontSize: 10,
-                        color: "#374151",
+                        color: "var(--color-text-secondary)",
                         fontWeight: 500,
                       }}
                     >
@@ -1735,7 +1938,7 @@ function ReportDetail12() {
                       style={{
                         padding: "4px 6px",
                         fontSize: 9.5,
-                        color: "#6b7280",
+                        color: "var(--color-text-tertiary)",
                       }}
                     >
                       {r.dept}
@@ -1745,20 +1948,20 @@ function ReportDetail12() {
                         style={{
                           fontSize: 10,
                           fontWeight: 700,
+                          padding: "1px 6px",
+                          borderRadius: 3,
                           color:
                             r.util < 40
                               ? COLORS.red
                               : r.util < 50
                                 ? COLORS.orange
                                 : COLORS.amber,
-                          background:
+                          backgroundColor:
                             (r.util < 40
                               ? COLORS.red
                               : r.util < 50
                                 ? COLORS.orange
                                 : COLORS.amber) + "18",
-                          padding: "1px 6px",
-                          borderRadius: 3,
                         }}
                       >
                         {r.util}%
@@ -1769,7 +1972,7 @@ function ReportDetail12() {
                         padding: "4px 6px",
                         fontSize: 10,
                         fontWeight: 600,
-                        color: "#111",
+                        color: "var(--color-text-primary)",
                       }}
                     >
                       {r.hours}
@@ -1780,11 +1983,11 @@ function ReportDetail12() {
             </table>
           </div>
 
-          {/* 7. Top 10 Overutilized */}
+          {/* Top 10 Overutilized */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "0.5px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -1793,7 +1996,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: "var(--color-text-primary)",
                 marginBottom: 8,
               }}
             >
@@ -1807,10 +2010,10 @@ function ReportDetail12() {
                       key={h}
                       style={{
                         fontSize: 9,
-                        color: "#6b7280",
+                        color: "var(--color-text-tertiary)",
                         padding: "4px 6px",
                         textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
+                        borderBottom: "1px solid var(--color-border-tertiary)",
                         fontWeight: 600,
                       }}
                     >
@@ -1824,15 +2027,18 @@ function ReportDetail12() {
                   <tr
                     key={i}
                     style={{
-                      borderBottom: "0.5px solid #f9fafb",
-                      background: r.util >= 120 ? "#fff5f5" : "transparent",
+                      borderBottom: "0.5px solid var(--color-border-tertiary)",
+                      backgroundColor:
+                        r.util >= 120
+                          ? "var(--color-background-danger)"
+                          : "transparent",
                     }}
                   >
                     <td
                       style={{
                         padding: "4px 6px",
                         fontSize: 10,
-                        color: "#374151",
+                        color: "var(--color-text-secondary)",
                         fontWeight: 500,
                       }}
                     >
@@ -1842,7 +2048,7 @@ function ReportDetail12() {
                       style={{
                         padding: "4px 6px",
                         fontSize: 9.5,
-                        color: "#6b7280",
+                        color: "var(--color-text-tertiary)",
                       }}
                     >
                       {r.dept}
@@ -1852,16 +2058,16 @@ function ReportDetail12() {
                         style={{
                           fontSize: 10,
                           fontWeight: 700,
+                          padding: "1px 6px",
+                          borderRadius: 3,
                           color:
                             r.util >= 120
                               ? COLORS.red
                               : r.util >= 115
                                 ? "#c0392b"
                                 : COLORS.orange,
-                          background:
+                          backgroundColor:
                             (r.util >= 120 ? COLORS.red : COLORS.orange) + "18",
-                          padding: "1px 6px",
-                          borderRadius: 3,
                         }}
                       >
                         {r.util}%
@@ -1884,7 +2090,7 @@ function ReportDetail12() {
           </div>
         </div>
 
-        {/* Row 3: Operational vs Strategic + Heatmap + Key Insights */}
+        {/* Row 3 */}
         <div
           style={{
             display: "grid",
@@ -1892,11 +2098,11 @@ function ReportDetail12() {
             gap: 12,
           }}
         >
-          {/* 8. Operational vs Strategic */}
+          {/* Operational vs Strategic */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "0.5px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -1905,7 +2111,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: "var(--color-text-primary)",
                 marginBottom: 8,
               }}
             >
@@ -1946,10 +2152,18 @@ function ReportDetail12() {
                     pointerEvents: "none",
                   }}
                 >
-                  <div style={{ fontSize: 14, fontWeight: 800, color: "#111" }}>
+                  <div
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 800,
+                      color: "var(--color-text-primary)",
+                    }}
+                  >
                     118K
                   </div>
-                  <div style={{ fontSize: 8, color: "#6b7280" }}>
+                  <div
+                    style={{ fontSize: 8, color: "var(--color-text-tertiary)" }}
+                  >
                     Total Hours
                   </div>
                 </div>
@@ -1966,13 +2180,18 @@ function ReportDetail12() {
                       width: 8,
                       height: 8,
                       borderRadius: 2,
-                      background: d.color,
                       flexShrink: 0,
                       marginTop: 2,
+                      backgroundColor: d.color,
                     }}
                   />
                   <div>
-                    <div style={{ fontSize: 9, color: "#374151" }}>
+                    <div
+                      style={{
+                        fontSize: 9,
+                        color: "var(--color-text-secondary)",
+                      }}
+                    >
                       {d.label}
                     </div>
                     <div
@@ -1986,11 +2205,11 @@ function ReportDetail12() {
             </div>
           </div>
 
-          {/* 9. Utilization Heatmap */}
+          {/* Utilization Heatmap */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "0.5px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -1999,7 +2218,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: "var(--color-text-primary)",
                 marginBottom: 10,
               }}
             >
@@ -2011,10 +2230,10 @@ function ReportDetail12() {
                   <th
                     style={{
                       fontSize: 10,
-                      color: "#6b7280",
+                      color: "var(--color-text-tertiary)",
                       padding: "5px 8px",
                       textAlign: "left",
-                      borderBottom: "0.5px solid #e5e7eb",
+                      borderBottom: "1px solid var(--color-border-tertiary)",
                       fontWeight: 600,
                       minWidth: 130,
                     }}
@@ -2026,10 +2245,10 @@ function ReportDetail12() {
                       key={m}
                       style={{
                         fontSize: 9.5,
-                        color: "#374151",
+                        color: "var(--color-text-secondary)",
                         padding: "5px 8px",
                         textAlign: "center",
-                        borderBottom: "0.5px solid #e5e7eb",
+                        borderBottom: "1px solid var(--color-border-tertiary)",
                         fontWeight: 700,
                       }}
                     >
@@ -2039,10 +2258,10 @@ function ReportDetail12() {
                   <th
                     style={{
                       fontSize: 10,
-                      color: "#6b7280",
+                      color: "var(--color-text-tertiary)",
                       padding: "5px 8px",
                       textAlign: "center",
-                      borderBottom: "0.5px solid #e5e7eb",
+                      borderBottom: "1px solid var(--color-border-tertiary)",
                       fontWeight: 600,
                     }}
                   >
@@ -2057,12 +2276,18 @@ function ReportDetail12() {
                       ? { bg: "#e8f5e9", color: "#2e7d32" }
                       : { bg: "#fff4cc", color: "#92400e" };
                   return (
-                    <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
+                    <tr
+                      key={i}
+                      style={{
+                        borderBottom:
+                          "0.5px solid var(--color-border-tertiary)",
+                      }}
+                    >
                       <td
                         style={{
                           padding: "6px 8px",
                           fontSize: 11,
-                          color: "#374151",
+                          color: "var(--color-text-secondary)",
                           fontWeight: 600,
                         }}
                       >
@@ -2079,11 +2304,11 @@ function ReportDetail12() {
                               style={{
                                 fontSize: 11,
                                 fontWeight: 700,
-                                color: s.color,
-                                background: s.bg,
                                 padding: "3px 8px",
                                 borderRadius: 4,
                                 display: "inline-block",
+                                color: s.color,
+                                backgroundColor: s.bg,
                               }}
                             >
                               {v}%
@@ -2096,11 +2321,11 @@ function ReportDetail12() {
                           style={{
                             fontSize: 11,
                             fontWeight: 800,
-                            color: avgStyle.color,
-                            background: avgStyle.bg,
                             padding: "3px 8px",
                             borderRadius: 4,
                             display: "inline-block",
+                            color: avgStyle.color,
+                            backgroundColor: avgStyle.bg,
                           }}
                         >
                           {row.avg}%
@@ -2126,23 +2351,25 @@ function ReportDetail12() {
                     style={{
                       width: 10,
                       height: 10,
-                      background: l.bg,
-                      border: `1px solid ${l.color}44`,
                       borderRadius: 2,
                       display: "inline-block",
+                      backgroundColor: l.bg,
+                      border: `1px solid ${l.color}44`,
                     }}
                   />
-                  <span style={{ color: "#6b7280" }}>{l.label}</span>
+                  <span style={{ color: "var(--color-text-tertiary)" }}>
+                    {l.label}
+                  </span>
                 </span>
               ))}
             </div>
           </div>
 
-          {/* 10. Key Insights */}
+          {/* Key Insights */}
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "0.5px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -2151,7 +2378,7 @@ function ReportDetail12() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#111",
+                color: "var(--color-text-primary)",
                 marginBottom: 10,
               }}
             >
@@ -2165,9 +2392,9 @@ function ReportDetail12() {
                     display: "flex",
                     gap: 8,
                     alignItems: "flex-start",
-                    background: ins.bg,
                     borderRadius: 8,
                     padding: "8px 10px",
+                    backgroundColor: ins.bg,
                     border: `0.5px solid ${ins.color}33`,
                   }}
                 >
@@ -2177,7 +2404,7 @@ function ReportDetail12() {
                   <span
                     style={{
                       fontSize: 10.5,
-                      color: "#374151",
+                      color: "var(--color-text-secondary)",
                       lineHeight: 1.5,
                     }}
                   >
@@ -2194,9 +2421,9 @@ function ReportDetail12() {
           style={{
             textAlign: "center",
             fontSize: 10,
-            color: "#9ca3af",
+            color: "var(--color-text-tertiary)",
             paddingTop: 8,
-            borderTop: "0.5px solid #e5e7eb",
+            borderTop: "1px solid var(--color-border-tertiary)",
           }}
         >
           ℹ️ All metrics are based on data as of 15/05/26 10:30 AM &nbsp;|&nbsp;
@@ -2208,7 +2435,7 @@ function ReportDetail12() {
   );
 }
 
-// ─── Other Detail Views (unchanged) ─────────────────────────────────────────
+// ─── Helper components ────────────────────────────────────────────────────────
 
 function heatColor(val) {
   if (val >= 101) return { bg: "#fde8e8", text: COLORS.red, fw: 700 };
@@ -2223,7 +2450,7 @@ function CardHeader({ children }) {
       style={{
         fontSize: 12,
         fontWeight: 700,
-        color: "#111",
+        color: "var(--color-text-primary)",
         marginBottom: 10,
         display: "flex",
         justifyContent: "space-between",
@@ -2261,7 +2488,7 @@ function UtilBar({ value }) {
         style={{
           flex: 1,
           height: 6,
-          background: "#f3f4f6",
+          background: "var(--color-background-secondary)",
           borderRadius: 3,
           overflow: "hidden",
         }}
@@ -2270,7 +2497,7 @@ function UtilBar({ value }) {
           style={{
             width: `${Math.min(value, 100)}%`,
             height: "100%",
-            background: color,
+            backgroundColor: color,
             borderRadius: 3,
           }}
         />
@@ -2289,10 +2516,10 @@ function RiskBadge({ level }) {
       style={{
         fontSize: 10,
         fontWeight: 700,
-        color: s.color,
-        background: s.bg,
         padding: "2px 8px",
         borderRadius: 4,
+        color: s.color,
+        background: s.bg,
       }}
     >
       {level}
@@ -2300,13 +2527,14 @@ function RiskBadge({ level }) {
   );
 }
 
-// Executive filter bar with all slices
+// ─── Executive Filter Bar ─────────────────────────────────────────────────────
+
 function ExecFilterBar({ filters, setFilters }) {
   return (
     <div
       style={{
-        background: "#fff",
-        borderBottom: "1px solid #e5e7eb",
+        background: "var(--color-background-primary)",
+        borderBottom: "1px solid var(--color-border-tertiary)",
         padding: "14px 20px",
       }}
     >
@@ -2319,10 +2547,22 @@ function ExecFilterBar({ filters, setFilters }) {
         }}
       >
         <div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: "#111" }}>
+          <div
+            style={{
+              fontSize: 20,
+              fontWeight: 800,
+              color: "var(--color-text-primary)",
+            }}
+          >
             Executive Leadership Report
           </div>
-          <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
+          <div
+            style={{
+              fontSize: 11,
+              color: "var(--color-text-tertiary)",
+              marginTop: 2,
+            }}
+          >
             Strategic overview of resource planning, utilization, and
             performance
           </div>
@@ -2344,7 +2584,7 @@ function ExecFilterBar({ filters, setFilters }) {
             <label
               style={{
                 fontSize: 9,
-                color: "#9ca3af",
+                color: "var(--color-text-tertiary)",
                 fontWeight: 600,
                 textTransform: "uppercase",
                 letterSpacing: "0.05em",
@@ -2356,9 +2596,9 @@ function ExecFilterBar({ filters, setFilters }) {
               style={{
                 display: "flex",
                 alignItems: "center",
-                border: "1px solid #d1d5db",
+                border: "1px solid var(--color-border-tertiary)",
                 borderRadius: 6,
-                background: "#fff",
+                background: "var(--color-background-primary)",
                 paddingLeft: 8,
               }}
             >
@@ -2369,12 +2609,12 @@ function ExecFilterBar({ filters, setFilters }) {
                 }
                 style={{
                   fontSize: 12,
-                  border: "none",
                   background: "transparent",
                   padding: "5px 4px 5px 0",
-                  color: "#374151",
+                  color: "var(--color-text-secondary)",
                   cursor: "pointer",
                   outline: "none",
+                  border: "none",
                 }}
               >
                 {f.options.map((o) => (
@@ -2395,7 +2635,7 @@ function ReportDetail1() {
     <div
       style={{
         fontFamily: "system-ui, sans-serif",
-        background: "#f3f4f6",
+        background: "var(--color-background-tertiary)",
         minHeight: "100vh",
       }}
     >
@@ -2419,8 +2659,8 @@ function ReportDetail1() {
             <div
               key={i}
               style={{
-                background: "#fff",
-                border: "0.5px solid #e5e7eb",
+                background: "var(--color-background-primary)",
+                border: "1px solid var(--color-border-tertiary)",
                 borderRadius: 10,
                 padding: "12px 14px",
               }}
@@ -2434,7 +2674,11 @@ function ReportDetail1() {
                 }}
               >
                 <span
-                  style={{ fontSize: 10, color: "#6b7280", lineHeight: 1.3 }}
+                  style={{
+                    fontSize: 10,
+                    color: "var(--color-text-tertiary)",
+                    lineHeight: 1.3,
+                  }}
                 >
                   {k.label}
                 </span>
@@ -2444,9 +2688,9 @@ function ReportDetail1() {
                 style={{
                   fontSize: 18,
                   fontWeight: 800,
-                  color: k.color,
                   lineHeight: 1.1,
                   marginBottom: 3,
+                  color: k.color,
                 }}
               >
                 {k.value}
@@ -2462,6 +2706,7 @@ function ReportDetail1() {
             </div>
           ))}
         </div>
+
         <div
           style={{
             background: "#fffbeb",
@@ -2495,6 +2740,7 @@ function ReportDetail1() {
             </div>
           </div>
         </div>
+
         <div
           style={{
             display: "grid",
@@ -2504,8 +2750,8 @@ function ReportDetail1() {
         >
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "1px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -2524,7 +2770,7 @@ function ReportDetail1() {
                     <th
                       style={{
                         fontSize: 9,
-                        color: "#6b7280",
+                        color: "var(--color-text-tertiary)",
                         padding: "4px 6px",
                         textAlign: "left",
                         width: 36,
@@ -2535,7 +2781,7 @@ function ReportDetail1() {
                     <th
                       style={{
                         fontSize: 9,
-                        color: "#6b7280",
+                        color: "var(--color-text-tertiary)",
                         padding: "4px 6px",
                         textAlign: "left",
                         minWidth: 130,
@@ -2548,8 +2794,8 @@ function ReportDetail1() {
                         key={m}
                         style={{
                           fontSize: 8,
-                          color: "#6b7280",
-                          padding: "4px 4px",
+                          color: "var(--color-text-tertiary)",
+                          padding: "4px",
                           textAlign: "center",
                           whiteSpace: "nowrap",
                         }}
@@ -2569,8 +2815,8 @@ function ReportDetail1() {
                           style={{
                             borderTop:
                               isFirst && pi > 0
-                                ? "2px solid #e5e7eb"
-                                : "0.5px solid #f3f4f6",
+                                ? "2px solid var(--color-border-tertiary)"
+                                : "0.5px solid var(--color-border-tertiary)",
                           }}
                         >
                           {isFirst && (
@@ -2579,11 +2825,12 @@ function ReportDetail1() {
                               style={{
                                 fontSize: 10,
                                 fontWeight: 700,
-                                color: "#374151",
+                                color: "var(--color-text-secondary)",
                                 padding: "4px 6px",
-                                verticalAlign: "middle",
                                 textAlign: "center",
-                                borderRight: "1px solid #e5e7eb",
+                                borderRight:
+                                  "1px solid var(--color-border-tertiary)",
+                                verticalAlign: "middle",
                               }}
                             >
                               <div>{pillar.icon}</div>
@@ -2591,7 +2838,7 @@ function ReportDetail1() {
                                 style={{
                                   fontSize: 8,
                                   marginTop: 2,
-                                  color: "#6b7280",
+                                  color: "var(--color-text-tertiary)",
                                 }}
                               >
                                 {pillar.pillar}
@@ -2601,7 +2848,7 @@ function ReportDetail1() {
                           <td
                             style={{
                               fontSize: 9.5,
-                              color: "#374151",
+                              color: "var(--color-text-secondary)",
                               padding: "4px 6px",
                               whiteSpace: "nowrap",
                             }}
@@ -2613,20 +2860,17 @@ function ReportDetail1() {
                             return (
                               <td
                                 key={vi}
-                                style={{
-                                  padding: "3px 3px",
-                                  textAlign: "center",
-                                }}
+                                style={{ padding: "3px", textAlign: "center" }}
                               >
                                 <span
                                   style={{
                                     fontSize: 9.5,
-                                    fontWeight: fw,
-                                    color: text,
-                                    background: bg,
                                     borderRadius: 3,
                                     padding: "2px 5px",
                                     display: "inline-block",
+                                    fontWeight: fw,
+                                    color: text,
+                                    background: bg,
                                   }}
                                 >
                                   {v}%
@@ -2680,21 +2924,24 @@ function ReportDetail1() {
                     style={{
                       width: 10,
                       height: 10,
-                      background: leg.bg,
-                      border: `1px solid ${leg.color}44`,
                       borderRadius: 2,
                       display: "inline-block",
+                      backgroundColor: leg.bg,
+                      border: `1px solid ${leg.color}44`,
                     }}
                   />
-                  <span style={{ color: "#6b7280" }}>{leg.label}</span>
+                  <span style={{ color: "var(--color-text-tertiary)" }}>
+                    {leg.label}
+                  </span>
                 </span>
               ))}
             </div>
           </div>
+
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "1px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -2711,7 +2958,7 @@ function ReportDetail1() {
                     key={l}
                     style={{
                       fontSize: 9,
-                      color: "#6b7280",
+                      color: "var(--color-text-tertiary)",
                       display: "flex",
                       alignItems: "center",
                       gap: 3,
@@ -2721,11 +2968,11 @@ function ReportDetail1() {
                       style={{
                         width: 18,
                         height: 2,
-                        background: c,
                         display: "inline-block",
                         borderRadius: 1,
+                        backgroundColor: c,
                       }}
-                    />{" "}
+                    />
                     {l}
                   </span>
                 ))}
@@ -2736,23 +2983,26 @@ function ReportDetail1() {
                 data={execCapDemandData}
                 margin={{ top: 5, right: 10, bottom: 5, left: -10 }}
               >
-                <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
+                <CartesianGrid
+                  strokeDasharray="2 2"
+                  stroke="var(--color-border-tertiary)"
+                />
                 <XAxis
                   dataKey="month"
-                  tick={{ fontSize: 8 }}
+                  tick={{ fontSize: 8, fill: "var(--color-text-tertiary)" }}
                   interval={0}
                   angle={-30}
                   textAnchor="end"
                   height={36}
                 />
                 <YAxis
-                  tick={{ fontSize: 9 }}
+                  tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
                   tickFormatter={(v) =>
                     v < 0 ? v : `${(v / 1000).toFixed(1)}K`
                   }
                 />
                 <Tooltip
-                  contentStyle={{ fontSize: 10 }}
+                  {...tooltipStyle}
                   formatter={(v) => `${v.toLocaleString()} FTE`}
                 />
                 <Line
@@ -2784,6 +3034,7 @@ function ReportDetail1() {
             </ResponsiveContainer>
           </div>
         </div>
+
         <div
           style={{
             display: "grid",
@@ -2793,8 +3044,8 @@ function ReportDetail1() {
         >
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "1px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -2836,10 +3087,20 @@ function ReportDetail1() {
                     pointerEvents: "none",
                   }}
                 >
-                  <div style={{ fontSize: 16, fontWeight: 800, color: "#111" }}>
+                  <div
+                    style={{
+                      fontSize: 16,
+                      fontWeight: 800,
+                      color: "var(--color-text-primary)",
+                    }}
+                  >
                     3,245
                   </div>
-                  <div style={{ fontSize: 8, color: "#6b7280" }}>Total</div>
+                  <div
+                    style={{ fontSize: 8, color: "var(--color-text-tertiary)" }}
+                  >
+                    Total
+                  </div>
                 </div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -2853,20 +3114,25 @@ function ReportDetail1() {
                         width: 8,
                         height: 8,
                         borderRadius: 2,
-                        background: d.color,
                         flexShrink: 0,
+                        backgroundColor: d.color,
                       }}
                     />
-                    <span style={{ fontSize: 10, color: "#374151" }}>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        color: "var(--color-text-secondary)",
+                      }}
+                    >
                       {d.name}
                     </span>
                     <span
                       style={{
                         fontSize: 11,
                         fontWeight: 700,
-                        color: d.color,
                         marginLeft: "auto",
                         paddingLeft: 8,
+                        color: d.color,
                       }}
                     >
                       {d.value.toLocaleString()} ({d.pct}%)
@@ -2876,10 +3142,11 @@ function ReportDetail1() {
               </div>
             </div>
           </div>
+
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "1px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -2893,10 +3160,10 @@ function ReportDetail1() {
                       key={h}
                       style={{
                         fontSize: 9,
-                        color: "#6b7280",
+                        color: "var(--color-text-tertiary)",
                         padding: "4px 6px",
                         textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
+                        borderBottom: "1px solid var(--color-border-tertiary)",
                         fontWeight: 600,
                       }}
                     >
@@ -2907,33 +3174,38 @@ function ReportDetail1() {
               </thead>
               <tbody>
                 {vendorData.map((v, i) => (
-                  <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
+                  <tr
+                    key={i}
+                    style={{
+                      borderBottom: "0.5px solid var(--color-border-tertiary)",
+                    }}
+                  >
                     <td
                       style={{
-                        padding: "6px 6px",
+                        padding: "6px",
                         fontSize: 11,
-                        color: "#374151",
+                        color: "var(--color-text-secondary)",
                         fontWeight: 500,
                       }}
                     >
                       {v.name}
                     </td>
-                    <td style={{ padding: "6px 6px", minWidth: 90 }}>
+                    <td style={{ padding: "6px", minWidth: 90 }}>
                       <UtilBar value={v.util} />
                     </td>
                     <td
                       style={{
-                        padding: "6px 6px",
+                        padding: "6px",
                         fontSize: 11,
                         fontWeight: 600,
-                        color: "#111",
+                        color: "var(--color-text-primary)",
                       }}
                     >
                       {v.fte}
                     </td>
                     <td
                       style={{
-                        padding: "6px 6px",
+                        padding: "6px",
                         fontSize: 11,
                         color: COLORS.teal,
                         fontWeight: 600,
@@ -2943,7 +3215,7 @@ function ReportDetail1() {
                     </td>
                     <td
                       style={{
-                        padding: "6px 6px",
+                        padding: "6px",
                         fontSize: 11,
                         color: COLORS.orange,
                         fontWeight: 600,
@@ -2957,10 +3229,11 @@ function ReportDetail1() {
             </table>
             <ViewAllLink label="View All Vendors →" />
           </div>
+
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "1px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -2974,10 +3247,10 @@ function ReportDetail1() {
                       key={h}
                       style={{
                         fontSize: 9,
-                        color: "#6b7280",
+                        color: "var(--color-text-tertiary)",
                         padding: "4px 6px",
                         textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
+                        borderBottom: "1px solid var(--color-border-tertiary)",
                         fontWeight: 600,
                       }}
                     >
@@ -2988,12 +3261,17 @@ function ReportDetail1() {
               </thead>
               <tbody>
                 {skillsGapData.map((s, i) => (
-                  <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
+                  <tr
+                    key={i}
+                    style={{
+                      borderBottom: "0.5px solid var(--color-border-tertiary)",
+                    }}
+                  >
                     <td
                       style={{
-                        padding: "6px 6px",
+                        padding: "6px",
                         fontSize: 11,
-                        color: "#374151",
+                        color: "var(--color-text-secondary)",
                         fontWeight: 500,
                       }}
                     >
@@ -3001,9 +3279,9 @@ function ReportDetail1() {
                     </td>
                     <td
                       style={{
-                        padding: "6px 6px",
+                        padding: "6px",
                         fontSize: 11,
-                        color: "#111",
+                        color: "var(--color-text-primary)",
                         fontWeight: 600,
                       }}
                     >
@@ -3011,7 +3289,7 @@ function ReportDetail1() {
                     </td>
                     <td
                       style={{
-                        padding: "6px 6px",
+                        padding: "6px",
                         fontSize: 11,
                         color: COLORS.green,
                         fontWeight: 600,
@@ -3019,7 +3297,7 @@ function ReportDetail1() {
                     >
                       {s.available}
                     </td>
-                    <td style={{ padding: "6px 6px" }}>
+                    <td style={{ padding: "6px" }}>
                       <div
                         style={{
                           display: "flex",
@@ -3040,8 +3318,8 @@ function ReportDetail1() {
                             style={{
                               width: `${Math.min(Math.abs(s.gap) / 2, 100)}%`,
                               height: "100%",
-                              background: COLORS.red,
                               borderRadius: 3,
+                              backgroundColor: COLORS.red,
                             }}
                           />
                         </div>
@@ -3063,6 +3341,7 @@ function ReportDetail1() {
             <ViewAllLink label="View All Skills →" />
           </div>
         </div>
+
         <div
           style={{
             display: "grid",
@@ -3072,8 +3351,8 @@ function ReportDetail1() {
         >
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "1px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -3089,10 +3368,10 @@ function ReportDetail1() {
                       key={h}
                       style={{
                         fontSize: 9,
-                        color: "#6b7280",
+                        color: "var(--color-text-tertiary)",
                         padding: "4px 6px",
                         textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
+                        borderBottom: "1px solid var(--color-border-tertiary)",
                         fontWeight: 600,
                       }}
                     >
@@ -3103,12 +3382,17 @@ function ReportDetail1() {
               </thead>
               <tbody>
                 {crossPillarData.map((r, i) => (
-                  <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
+                  <tr
+                    key={i}
+                    style={{
+                      borderBottom: "0.5px solid var(--color-border-tertiary)",
+                    }}
+                  >
                     <td
                       style={{
                         padding: "7px 6px",
                         fontSize: 11,
-                        color: "#374151",
+                        color: "var(--color-text-secondary)",
                         fontWeight: 600,
                       }}
                     >
@@ -3118,7 +3402,7 @@ function ReportDetail1() {
                       style={{
                         padding: "7px 6px",
                         fontSize: 11,
-                        color: "#6b7280",
+                        color: "var(--color-text-tertiary)",
                       }}
                     >
                       <div
@@ -3132,8 +3416,8 @@ function ReportDetail1() {
                           style={{
                             width: 28,
                             height: 6,
-                            background: `linear-gradient(to right, ${COLORS.blue}, ${COLORS.teal})`,
                             borderRadius: 3,
+                            background: `linear-gradient(to right, ${COLORS.blue}, ${COLORS.teal})`,
                           }}
                         />
                         {r.from}
@@ -3153,7 +3437,7 @@ function ReportDetail1() {
                       style={{
                         padding: "7px 6px",
                         fontSize: 9.5,
-                        color: "#6b7280",
+                        color: "var(--color-text-tertiary)",
                       }}
                     >
                       {r.skills}
@@ -3163,10 +3447,11 @@ function ReportDetail1() {
               </tbody>
             </table>
           </div>
+
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "1px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -3180,10 +3465,10 @@ function ReportDetail1() {
                       key={h}
                       style={{
                         fontSize: 9,
-                        color: "#6b7280",
+                        color: "var(--color-text-tertiary)",
                         padding: "4px 6px",
                         textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
+                        borderBottom: "1px solid var(--color-border-tertiary)",
                         fontWeight: 600,
                       }}
                     >
@@ -3194,12 +3479,17 @@ function ReportDetail1() {
               </thead>
               <tbody>
                 {staffingRiskProjects.map((r, i) => (
-                  <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
+                  <tr
+                    key={i}
+                    style={{
+                      borderBottom: "0.5px solid var(--color-border-tertiary)",
+                    }}
+                  >
                     <td
                       style={{
                         padding: "7px 6px",
                         fontSize: 11,
-                        color: "#374151",
+                        color: "var(--color-text-secondary)",
                         fontWeight: 600,
                       }}
                     >
@@ -3209,7 +3499,7 @@ function ReportDetail1() {
                       style={{
                         padding: "7px 6px",
                         fontSize: 10,
-                        color: "#6b7280",
+                        color: "var(--color-text-tertiary)",
                       }}
                     >
                       {r.pillar}
@@ -3233,10 +3523,11 @@ function ReportDetail1() {
             </table>
             <ViewAllLink label="View All Projects →" />
           </div>
+
           <div
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "1px solid var(--color-border-tertiary)",
               borderRadius: 10,
               padding: "14px 16px",
             }}
@@ -3252,9 +3543,9 @@ function ReportDetail1() {
                     justifyContent: "space-between",
                     gap: 8,
                     padding: "8px 10px",
-                    background: a.color + "0d",
-                    border: `0.5px solid ${a.color}33`,
                     borderRadius: 8,
+                    backgroundColor: `${a.color}0d`,
+                    border: `1px solid ${a.color}33`,
                   }}
                 >
                   <div
@@ -3270,7 +3561,7 @@ function ReportDetail1() {
                     <span
                       style={{
                         fontSize: 11,
-                        color: "#374151",
+                        color: "var(--color-text-secondary)",
                         lineHeight: 1.4,
                       }}
                     >
@@ -3284,13 +3575,14 @@ function ReportDetail1() {
             <ViewAllLink label="View All Alerts →" />
           </div>
         </div>
+
         <div
           style={{
             textAlign: "center",
             fontSize: 10,
-            color: "#9ca3af",
+            color: "var(--color-text-tertiary)",
             paddingTop: 8,
-            borderTop: "0.5px solid #e5e7eb",
+            borderTop: "1px solid var(--color-border-tertiary)",
           }}
         >
           ℹ️ All metrics are based on data as of 15/05/26 10:30 AM &nbsp;|&nbsp;
@@ -3301,7 +3593,8 @@ function ReportDetail1() {
   );
 }
 
-// Generic filter bar for other reports
+// ─── Generic Filter Bar ───────────────────────────────────────────────────────
+
 function GenericFilterBar({ filters, setFilters }) {
   return (
     <div
@@ -3318,7 +3611,9 @@ function GenericFilterBar({ filters, setFilters }) {
           key={f.key}
           style={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
-          <label style={{ fontSize: 9, color: "#9ca3af" }}>{f.label}</label>
+          <label style={{ fontSize: 9, color: "var(--color-text-tertiary)" }}>
+            {f.label}
+          </label>
           <select
             value={filters[f.key]}
             onChange={(e) =>
@@ -3327,10 +3622,10 @@ function GenericFilterBar({ filters, setFilters }) {
             style={{
               fontSize: 11,
               borderRadius: 6,
-              border: "0.5px solid #d1d5db",
+              border: "1px solid var(--color-border-tertiary)",
               padding: "4px 8px",
-              background: "#fff",
-              color: "#374151",
+              background: "var(--color-background-primary)",
+              color: "var(--color-text-secondary)",
               cursor: "pointer",
             }}
           >
@@ -3345,13 +3640,13 @@ function GenericFilterBar({ filters, setFilters }) {
           <button
             key={l}
             style={{
-              background: "#fff",
-              border: "0.5px solid #d1d5db",
+              background: "var(--color-background-primary)",
+              border: "1px solid var(--color-border-tertiary)",
               borderRadius: 6,
               padding: "4px 10px",
               fontSize: 11,
               cursor: "pointer",
-              color: "#374151",
+              color: "var(--color-text-secondary)",
             }}
           >
             {l}
@@ -3363,7 +3658,7 @@ function GenericFilterBar({ filters, setFilters }) {
           marginLeft: "auto",
           marginTop: 14,
           fontSize: 10,
-          color: "#9ca3af",
+          color: "var(--color-text-tertiary)",
         }}
       >
         Last Updated: 15/05/26 10:30 AM
@@ -3372,11 +3667,10 @@ function GenericFilterBar({ filters, setFilters }) {
   );
 }
 
-// ─── Remaining detail views (using updated date format and 2026 dates) ────────
+// ─── Detail views ─────────────────────────────────────────────────────────────
 
 function ReportDetail2() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -3403,11 +3697,19 @@ function ReportDetail2() {
               data={capDemand2026}
               margin={{ top: 5, right: 5, bottom: 5, left: -15 }}
             >
-              <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-              <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-              <YAxis tick={{ fontSize: 9 }} />
+              <CartesianGrid
+                strokeDasharray="2 2"
+                stroke="var(--color-border-tertiary)"
+              />
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+              />
+              <YAxis
+                tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+              />
               <Tooltip
-                contentStyle={{ fontSize: 10 }}
+                {...tooltipStyle}
                 formatter={(v) => v.toLocaleString()}
               />
               <Bar
@@ -3416,7 +3718,12 @@ function ReportDetail2() {
                 radius={[2, 2, 0, 0]}
               />
               <Bar dataKey="Demand" fill={COLORS.teal} radius={[2, 2, 0, 0]} />
-              <Legend wrapperStyle={{ fontSize: 9 }} />
+              <Legend
+                wrapperStyle={{
+                  fontSize: 9,
+                  color: "var(--color-text-tertiary)",
+                }}
+              />
             </BarChart>
           </ResponsiveContainer>
         </DetailCard>
@@ -3431,7 +3738,11 @@ function ReportDetail2() {
                   marginBottom: 4,
                 }}
               >
-                <span style={{ fontSize: 11, color: "#374151" }}>{r.name}</span>
+                <span
+                  style={{ fontSize: 11, color: "var(--color-text-secondary)" }}
+                >
+                  {r.name}
+                </span>
                 <span style={{ fontSize: 12, fontWeight: 700, color: r.color }}>
                   {r.util}%
                 </span>
@@ -3446,7 +3757,11 @@ function ReportDetail2() {
         <DetailTable
           headers={allocationByRole}
           rows={byRoleReportDetail2.map((r) => [
-            <span style={{ color: "#374151", fontWeight: 600 }}>{r.role}</span>,
+            <span
+              style={{ color: "var(--color-text-secondary)", fontWeight: 600 }}
+            >
+              {r.role}
+            </span>,
             r.allocated.toLocaleString(),
             r.capacity.toLocaleString(),
             <span style={{ color: COLORS.green, fontWeight: 700 }}>
@@ -3462,7 +3777,6 @@ function ReportDetail2() {
 
 function ReportDetail3() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -3490,10 +3804,18 @@ function ReportDetail3() {
               data={approvalTrend}
               margin={{ top: 5, right: 5, bottom: 5, left: -15 }}
             >
-              <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-              <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-              <YAxis tick={{ fontSize: 9 }} />
-              <Tooltip contentStyle={{ fontSize: 10 }} />
+              <CartesianGrid
+                strokeDasharray="2 2"
+                stroke="var(--color-border-tertiary)"
+              />
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+              />
+              <YAxis
+                tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+              />
+              <Tooltip {...tooltipStyle} />
               <Area
                 type="monotone"
                 dataKey="Approved"
@@ -3522,17 +3844,20 @@ function ReportDetail3() {
             >
               <CartesianGrid
                 strokeDasharray="2 2"
-                stroke="#f3f4f6"
+                stroke="var(--color-border-tertiary)"
                 horizontal={false}
               />
-              <XAxis type="number" tick={{ fontSize: 9 }} />
+              <XAxis
+                type="number"
+                tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+              />
               <YAxis
                 type="category"
                 dataKey="name"
-                tick={{ fontSize: 9 }}
+                tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
                 width={90}
               />
-              <Tooltip contentStyle={{ fontSize: 10 }} />
+              <Tooltip {...tooltipStyle} />
               <Bar dataKey="value" radius={[0, 3, 3, 0]}>
                 {byType.map((_, i) => (
                   <Cell key={i} fill={DONUT_COLORS[i]} />
@@ -3553,7 +3878,11 @@ function ReportDetail3() {
             "Approval Rate",
           ]}
           rows={owners.map((r) => [
-            <span style={{ color: "#374151", fontWeight: 600 }}>{r.name}</span>,
+            <span
+              style={{ color: "var(--color-text-secondary)", fontWeight: 600 }}
+            >
+              {r.name}
+            </span>,
             r.total,
             <span style={{ color: COLORS.green, fontWeight: 600 }}>
               {r.approved}
@@ -3573,7 +3902,6 @@ function ReportDetail3() {
 
 function ReportDetail4() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -3634,10 +3962,20 @@ function ReportDetail4() {
                   pointerEvents: "none",
                 }}
               >
-                <div style={{ fontSize: 13, fontWeight: 800, color: "#111" }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 800,
+                    color: "var(--color-text-primary)",
+                  }}
+                >
                   7,115
                 </div>
-                <div style={{ fontSize: 9, color: "#6b7280" }}>Total FTE</div>
+                <div
+                  style={{ fontSize: 9, color: "var(--color-text-tertiary)" }}
+                >
+                  Total FTE
+                </div>
               </div>
             </div>
             <div>
@@ -3656,19 +3994,34 @@ function ReportDetail4() {
                       width: 8,
                       height: 8,
                       borderRadius: 2,
-                      background: DONUT_COLORS[i],
                       flexShrink: 0,
+                      backgroundColor: DONUT_COLORS[i],
                     }}
                   />
-                  <span style={{ fontSize: 10, color: "#374151", flex: 1 }}>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      color: "var(--color-text-secondary)",
+                      flex: 1,
+                    }}
+                  >
                     {d.name}
                   </span>
                   <span
-                    style={{ fontSize: 10, fontWeight: 700, color: "#111" }}
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      color: "var(--color-text-primary)",
+                    }}
                   >
                     {d.value}%
                   </span>
-                  <span style={{ fontSize: 10, color: "#9ca3af" }}>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      color: "var(--color-text-tertiary)",
+                    }}
+                  >
                     {d.fte.toLocaleString()}
                   </span>
                 </div>
@@ -3679,7 +4032,7 @@ function ReportDetail4() {
         <DetailCard>
           <SectionLabel>Allocation by Portfolio</SectionLabel>
           {byPortfolio.map((p, i) => (
-            <div key={i} style={{ marginBottom: 11 }}>
+            <div key={i} style={{ marginBottom: 12 }}>
               <div
                 style={{
                   display: "flex",
@@ -3687,7 +4040,11 @@ function ReportDetail4() {
                   marginBottom: 4,
                 }}
               >
-                <span style={{ fontSize: 10, color: "#374151" }}>{p.name}</span>
+                <span
+                  style={{ fontSize: 10, color: "var(--color-text-secondary)" }}
+                >
+                  {p.name}
+                </span>
                 <span
                   style={{
                     fontSize: 10,
@@ -3710,11 +4067,17 @@ function ReportDetail4() {
             data={allocationTrend}
             margin={{ top: 5, right: 20, bottom: 5, left: -10 }}
           >
-            <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-            <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-            <YAxis tick={{ fontSize: 9 }} />
+            <CartesianGrid
+              strokeDasharray="2 2"
+              stroke="var(--color-border-tertiary)"
+            />
+            <XAxis
+              dataKey="month"
+              tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+            />
+            <YAxis tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }} />
             <Tooltip
-              contentStyle={{ fontSize: 10 }}
+              {...tooltipStyle}
               formatter={(v) => `${v.toLocaleString()} FTE`}
             />
             <Line
@@ -3734,7 +4097,6 @@ function ReportDetail4() {
 
 function ReportDetail5() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -3765,10 +4127,17 @@ function ReportDetail5() {
           <DetailTable
             headers={["Resource", "Role", "Allocation %", "Projects"]}
             rows={overList.map((r) => [
-              <span style={{ color: "#374151", fontWeight: 600 }}>
+              <span
+                style={{
+                  color: "var(--color-text-secondary)",
+                  fontWeight: 600,
+                }}
+              >
                 {r.name}
               </span>,
-              <span style={{ color: "#6b7280" }}>{r.role}</span>,
+              <span style={{ color: "var(--color-text-tertiary)" }}>
+                {r.role}
+              </span>,
               <span
                 style={{
                   fontWeight: 800,
@@ -3797,17 +4166,20 @@ function ReportDetail5() {
               >
                 <CartesianGrid
                   strokeDasharray="2 2"
-                  stroke="#f3f4f6"
+                  stroke="var(--color-border-tertiary)"
                   horizontal={false}
                 />
-                <XAxis type="number" tick={{ fontSize: 9 }} />
+                <XAxis
+                  type="number"
+                  tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+                />
                 <YAxis
                   type="category"
                   dataKey="role"
-                  tick={{ fontSize: 9 }}
+                  tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
                   width={65}
                 />
-                <Tooltip contentStyle={{ fontSize: 10 }} />
+                <Tooltip {...tooltipStyle} />
                 <Bar
                   dataKey="count"
                   fill={COLORS.red}
@@ -3829,7 +4201,13 @@ function ReportDetail5() {
                   marginBottom: 5,
                 }}
               >
-                <span style={{ fontSize: 10, color: "#374151", minWidth: 120 }}>
+                <span
+                  style={{
+                    fontSize: 10,
+                    color: "var(--color-text-secondary)",
+                    minWidth: 120,
+                  }}
+                >
                   {p.name}
                 </span>
                 <DetailMiniBar value={p.count} max={50} color={COLORS.red} />
@@ -3854,7 +4232,6 @@ function ReportDetail5() {
 
 function ReportDetail6() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -3889,7 +4266,9 @@ function ReportDetail6() {
               "Availability %",
             ]}
             rows={byRoleReportDetail16.map((r) => [
-              <span style={{ color: "#374151" }}>{r.role}</span>,
+              <span style={{ color: "var(--color-text-secondary)" }}>
+                {r.role}
+              </span>,
               r.total.toLocaleString(),
               <span style={{ color: COLORS.green, fontWeight: 600 }}>
                 {r.avail}
@@ -3912,11 +4291,24 @@ function ReportDetail6() {
                 marginBottom: 5,
               }}
             >
-              <span style={{ fontSize: 10, color: "#374151", minWidth: 150 }}>
+              <span
+                style={{
+                  fontSize: 10,
+                  color: "var(--color-text-secondary)",
+                  minWidth: 150,
+                }}
+              >
                 {p.name}
               </span>
               <DetailMiniBar value={p.shared} max={250} color={COLORS.teal} />
-              <span className="text-[10px] font-bold min-w-[28px] text-tealCustom">
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: COLORS.teal,
+                  minWidth: 28,
+                }}
+              >
                 {p.shared}
               </span>
             </div>
@@ -3930,17 +4322,20 @@ function ReportDetail6() {
             data={availTrend}
             margin={{ top: 5, right: 20, bottom: 5, left: -10 }}
           >
-            <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-            <XAxis dataKey="month" tick={{ fontSize: 9 }} />
+            <CartesianGrid
+              strokeDasharray="2 2"
+              stroke="var(--color-border-tertiary)"
+            />
+            <XAxis
+              dataKey="month"
+              tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+            />
             <YAxis
               domain={[18, 26]}
-              tick={{ fontSize: 9 }}
+              tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
               tickFormatter={(v) => `${v}%`}
             />
-            <Tooltip
-              contentStyle={{ fontSize: 10 }}
-              formatter={(v) => `${v}%`}
-            />
+            <Tooltip {...tooltipStyle} formatter={(v) => `${v}%`} />
             <Area
               type="monotone"
               dataKey="pct"
@@ -3958,11 +4353,16 @@ function ReportDetail6() {
 
 function ReportDetail7() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div className="grid grid-cols-4 gap-[10px]">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 10,
+        }}
+      >
         <StatTile label="Overall Compliance" value="92%" color={COLORS.green} />
         <StatTile
           label="Timesheet Compliance"
@@ -3976,16 +4376,27 @@ function ReportDetail7() {
         />
         <StatTile label="Manager Approval" value="93%" color={COLORS.purple} />
       </div>
-      <div className="grid grid-cols-2 gap-[12px]">
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <DetailCard>
           <SectionLabel>Compliance by Area</SectionLabel>
           {items.map((r, i) => (
             <div key={i} style={{ marginBottom: 11 }}>
-              <div className="flex justify-between mb-[4px]">
-                <span className="text-[11px] text-gray-700">{r.label}</span>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 4,
+                }}
+              >
                 <span
-                  className="text-[11px] font-bold"
+                  style={{ fontSize: 11, color: "var(--color-text-secondary)" }}
+                >
+                  {r.label}
+                </span>
+                <span
                   style={{
+                    fontSize: 11,
+                    fontWeight: 700,
                     color: r.value >= r.target ? COLORS.green : COLORS.red,
                   }}
                 >
@@ -4027,15 +4438,38 @@ function ReportDetail7() {
             </div>
             <div>
               {nonCompReasons.map((d, i) => (
-                <div key={i} className="flex items-center gap-[6px] mb-[6px]">
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    marginBottom: 6,
+                  }}
+                >
                   <div
-                    className="w-[8px] h-[8px] rounded-[2px]"
-                    style={{ backgroundColor: d.color }}
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 2,
+                      backgroundColor: d.color,
+                    }}
                   />
-                  <span className="text-[10px] text-gray-700">{d.name}</span>
                   <span
-                    className="text-[11px] font-bold ml-[4px]"
-                    style={{ color: d.color }}
+                    style={{
+                      fontSize: 10,
+                      color: "var(--color-text-secondary)",
+                    }}
+                  >
+                    {d.name}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      marginLeft: 4,
+                      color: d.color,
+                    }}
                   >
                     {d.value}%
                   </span>
@@ -4052,17 +4486,20 @@ function ReportDetail7() {
             data={compTrend}
             margin={{ top: 5, right: 20, bottom: 5, left: -10 }}
           >
-            <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-            <XAxis dataKey="month" tick={{ fontSize: 9 }} />
+            <CartesianGrid
+              strokeDasharray="2 2"
+              stroke="var(--color-border-tertiary)"
+            />
+            <XAxis
+              dataKey="month"
+              tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+            />
             <YAxis
               domain={[85, 100]}
-              tick={{ fontSize: 9 }}
+              tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
               tickFormatter={(v) => `${v}%`}
             />
-            <Tooltip
-              contentStyle={{ fontSize: 10 }}
-              formatter={(v) => `${v}%`}
-            />
+            <Tooltip {...tooltipStyle} formatter={(v) => `${v}%`} />
             <Line
               type="monotone"
               dataKey="rate"
@@ -4080,17 +4517,24 @@ function ReportDetail7() {
 
 function ReportDetail8() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-
   return (
-    <div className="flex flex-col gap-4">
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div className="grid grid-cols-4 gap-[10px]">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 10,
+        }}
+      >
         <StatTile label="Total Budget" value="$24.80M" color={COLORS.blue} />
         <StatTile label="Total Actual" value="$20.36M" color={COLORS.teal} />
         <StatTile label="Variance" value="-$4.44M" color={COLORS.red} />
         <StatTile label="Variance %" value="-17.9%" color={COLORS.red} />
       </div>
-      <div className="grid grid-cols-[1.2fr_1fr] gap-[12px]">
+      <div
+        style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 12 }}
+      >
         <DetailCard>
           <SectionLabel>Budget vs Actual — Monthly</SectionLabel>
           <ResponsiveContainer width="100%" height={190}>
@@ -4098,13 +4542,19 @@ function ReportDetail8() {
               data={budgetMonthly}
               margin={{ top: 5, right: 10, bottom: 5, left: -10 }}
             >
-              <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-              <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-              <YAxis tick={{ fontSize: 9 }} tickFormatter={(v) => `$${v}M`} />
-              <Tooltip
-                contentStyle={{ fontSize: 10 }}
-                formatter={(v) => `$${v}M`}
+              <CartesianGrid
+                strokeDasharray="2 2"
+                stroke="var(--color-border-tertiary)"
               />
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+              />
+              <YAxis
+                tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+                tickFormatter={(v) => `$${v}M`}
+              />
+              <Tooltip {...tooltipStyle} formatter={(v) => `$${v}M`} />
               <Bar
                 dataKey="budget"
                 fill={COLORS.blue}
@@ -4137,10 +4587,7 @@ function ReportDetail8() {
                   <Cell key={i} fill={c} />
                 ))}
               </Pie>
-              <Tooltip
-                contentStyle={{ fontSize: 10 }}
-                formatter={(v) => `${v}%`}
-              />
+              <Tooltip {...tooltipStyle} formatter={(v) => `${v}%`} />
               <Legend wrapperStyle={{ fontSize: 9 }} />
             </PieChart>
           </div>
@@ -4151,7 +4598,9 @@ function ReportDetail8() {
         <DetailTable
           headers={varianceByPortfolioHeader}
           rows={portfolioVar.map((r) => [
-            <span style={{ color: "#374151" }}>{r.name}</span>,
+            <span style={{ color: "var(--color-text-secondary)" }}>
+              {r.name}
+            </span>,
             `$${r.budget}M`,
             `$${r.actual}M`,
             <span style={{ color: COLORS.red, fontWeight: 700 }}>
@@ -4169,11 +4618,16 @@ function ReportDetail8() {
 
 function ReportDetail9() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div className="grid grid-cols-4 gap-[10px]">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 10,
+        }}
+      >
         <StatTile
           label="Total Vendor Spend"
           value="$8.12M"
@@ -4187,7 +4641,9 @@ function ReportDetail9() {
         />
         <StatTile label="On-Time Delivery" value="92%" color={COLORS.purple} />
       </div>
-      <div className="grid grid-cols-[1.5fr_1fr] gap-[12px]">
+      <div
+        style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 12 }}
+      >
         <DetailCard>
           <SectionLabel>Vendor Ranking by Spend</SectionLabel>
           <DetailTable
@@ -4203,12 +4659,17 @@ function ReportDetail9() {
               <span
                 style={{
                   fontWeight: 800,
-                  color: i < 3 ? COLORS.amber : "#9ca3af",
+                  color: i < 3 ? COLORS.amber : "var(--color-text-tertiary)",
                 }}
               >
                 #{i + 1}
               </span>,
-              <span style={{ color: "#374151", fontWeight: 600 }}>
+              <span
+                style={{
+                  color: "var(--color-text-secondary)",
+                  fontWeight: 600,
+                }}
+              >
                 {v.name}
               </span>,
               `$${v.spend}M`,
@@ -4242,10 +4703,7 @@ function ReportDetail9() {
                     <Cell key={i} fill={DONUT_COLORS[i]} />
                   ))}
                 </Pie>
-                <Tooltip
-                  contentStyle={{ fontSize: 10 }}
-                  formatter={(v) => `${v}%`}
-                />
+                <Tooltip {...tooltipStyle} formatter={(v) => `${v}%`} />
                 <Legend wrapperStyle={{ fontSize: 9 }} />
               </PieChart>
             </div>
@@ -4257,13 +4715,19 @@ function ReportDetail9() {
                 data={spendTrend}
                 margin={{ top: 5, right: 10, bottom: 5, left: -10 }}
               >
-                <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-                <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-                <YAxis tick={{ fontSize: 9 }} tickFormatter={(v) => `$${v}M`} />
-                <Tooltip
-                  contentStyle={{ fontSize: 10 }}
-                  formatter={(v) => `$${v}M`}
+                <CartesianGrid
+                  strokeDasharray="2 2"
+                  stroke="var(--color-border-tertiary)"
                 />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+                />
+                <YAxis
+                  tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+                  tickFormatter={(v) => `$${v}M`}
+                />
+                <Tooltip {...tooltipStyle} formatter={(v) => `$${v}M`} />
                 <Line
                   type="monotone"
                   dataKey="spend"
@@ -4283,29 +4747,43 @@ function ReportDetail9() {
 
 function ReportDetail10() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
-
   return (
-    <div className="flex flex-col gap-4">
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div className="grid grid-cols-4 gap-[10px]">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 10,
+        }}
+      >
         <StatTile label="Open Demands" value="412" color={COLORS.red} />
         <StatTile label="In Progress (FTE)" value="186" color={COLORS.orange} />
         <StatTile label="Fulfilled (FTE)" value="226" color={COLORS.green} />
         <StatTile label="Avg Days to Fulfill" value="23" color={COLORS.teal} />
       </div>
-      <div className="grid grid-cols-2 gap-[12px]">
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <DetailCard>
           <SectionLabel>Demands by Priority</SectionLabel>
           {demandByPriority.map((d, i) => (
-            <div key={i} className="mb-[12px]">
-              <div className="flex justify-between mb-[4px]">
-                <span className="text-[11px] text-[#374151] font-semibold">
+            <div key={i} style={{ marginBottom: 12 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 4,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 11,
+                    color: "var(--color-text-secondary)",
+                    fontWeight: 600,
+                  }}
+                >
                   {d.label}
                 </span>
-                <span
-                  className="text-[11px] font-bold"
-                  style={{ color: d.color }}
-                >
+                <span style={{ fontSize: 11, fontWeight: 700, color: d.color }}>
                   {d.value} ({d.pct}%)
                 </span>
               </div>
@@ -4316,15 +4794,26 @@ function ReportDetail10() {
           {aging.map((d, i) => (
             <div
               key={i}
-              className="flex justify-between items-center py-[6px] border-b border-[#f3f4f6]"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "6px 0",
+                borderBottom: "0.5px solid var(--color-border-tertiary)",
+              }}
             >
-              <span className="text-[11px] text-gray-700">{d.range}</span>
-              <div className="flex gap-2 items-center">
-                <span style={{ fontSize: 10, color: "#6b7280" }}>{d.pct}</span>
+              <span
+                style={{ fontSize: 11, color: "var(--color-text-secondary)" }}
+              >
+                {d.range}
+              </span>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <span
-                  className="text-[16px] font-extrabold"
-                  style={{ color: d.color }}
+                  style={{ fontSize: 10, color: "var(--color-text-tertiary)" }}
                 >
+                  {d.pct}
+                </span>
+                <span style={{ fontSize: 16, fontWeight: 800, color: d.color }}>
                   {d.count}
                 </span>
               </div>
@@ -4341,17 +4830,20 @@ function ReportDetail10() {
             >
               <CartesianGrid
                 strokeDasharray="2 2"
-                stroke="#f3f4f6"
+                stroke="var(--color-border-tertiary)"
                 horizontal={false}
               />
-              <XAxis type="number" tick={{ fontSize: 9 }} />
+              <XAxis
+                type="number"
+                tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+              />
               <YAxis
                 type="category"
                 dataKey="role"
-                tick={{ fontSize: 9 }}
+                tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
                 width={65}
               />
-              <Tooltip contentStyle={{ fontSize: 10 }} />
+              <Tooltip {...tooltipStyle} />
               <Bar
                 dataKey="value"
                 fill={COLORS.blue}
@@ -4361,16 +4853,17 @@ function ReportDetail10() {
             </BarChart>
           </ResponsiveContainer>
           <SectionLabel>Demand Fulfillment Status</SectionLabel>
-          <div className="flex gap-5 mt-1">
+          <div style={{ display: "flex", gap: 20, marginTop: 4 }}>
             {demand.map((s, i) => (
               <div key={i} style={{ textAlign: "center" }}>
-                <div
-                  className="text-[20px] font-extrabold"
-                  style={{ color: s.color }}
-                >
+                <div style={{ fontSize: 20, fontWeight: 800, color: s.color }}>
                   {s.value}
                 </div>
-                <div className="text-[9px] text-gray-500">{s.label}</div>
+                <div
+                  style={{ fontSize: 9, color: "var(--color-text-tertiary)" }}
+                >
+                  {s.label}
+                </div>
               </div>
             ))}
           </div>
@@ -4382,11 +4875,16 @@ function ReportDetail10() {
 
 function ReportDetail11() {
   const [filters, setFilters] = useState(DEFAULT_EXEC_FILTERS);
-
   return (
-    <div className="flex flex-col gap-4">
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div className="grid grid-cols-3 gap-[10px]">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3,1fr)",
+          gap: 10,
+        }}
+      >
         <StatTile
           label="Forecast Capacity (Jun)"
           value="8.3K FTE"
@@ -4410,17 +4908,20 @@ function ReportDetail11() {
             data={forecastData}
             margin={{ top: 5, right: 20, bottom: 5, left: -10 }}
           >
-            <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-            <XAxis dataKey="month" tick={{ fontSize: 9 }} />
+            <CartesianGrid
+              strokeDasharray="2 2"
+              stroke="var(--color-border-tertiary)"
+            />
+            <XAxis
+              dataKey="month"
+              tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+            />
             <YAxis
               domain={[4, 12]}
-              tick={{ fontSize: 9 }}
+              tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
               tickFormatter={(v) => `${v}K`}
             />
-            <Tooltip
-              contentStyle={{ fontSize: 10 }}
-              formatter={(v) => `${v}K FTE`}
-            />
+            <Tooltip {...tooltipStyle} formatter={(v) => `${v}K FTE`} />
             <Line
               type="monotone"
               dataKey="cap"
@@ -4450,13 +4951,18 @@ function ReportDetail11() {
           </LineChart>
         </ResponsiveContainer>
       </DetailCard>
-      <div className="grid grid-cols-2 gap-[12px]">
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <DetailCard>
           <SectionLabel>Gap Analysis by Month</SectionLabel>
           <DetailTable
             headers={["Month", "Capacity (K)", "Demand (K)", "Gap (K)", "Risk"]}
             rows={forecastData.map((r) => [
-              <span style={{ fontWeight: 600, color: "#374151" }}>
+              <span
+                style={{
+                  fontWeight: 600,
+                  color: "var(--color-text-secondary)",
+                }}
+              >
                 {r.month}
               </span>,
               r.cap,
@@ -4485,14 +4991,29 @@ function ReportDetail11() {
           {planning.map((r, i) => (
             <div
               key={i}
-              className="flex justify-between items-center py-[7px] border-b border-[#f3f4f6]"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "7px 0",
+                borderBottom: "0.5px solid var(--color-border-tertiary)",
+              }}
             >
-              <span className="text-[11px] text-gray-700 flex-1">
+              <span
+                style={{
+                  fontSize: 11,
+                  color: "var(--color-text-secondary)",
+                  flex: 1,
+                }}
+              >
                 {r.action}
               </span>
               <span
-                className="text-[10px] font-bold px-2 py-[2px] rounded"
                 style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  padding: "2px 8px",
+                  borderRadius: 4,
                   color: r.color,
                   backgroundColor: `${r.color}18`,
                 }}
@@ -4509,7 +5030,6 @@ function ReportDetail11() {
 
 function ReportDetail13() {
   const [filters, setFilters] = useState(DEFAULT_EXEC_FILTERS);
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
@@ -4533,10 +5053,18 @@ function ReportDetail13() {
               data={tsData}
               margin={{ top: 5, right: 10, bottom: 5, left: -10 }}
             >
-              <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-              <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-              <YAxis tick={{ fontSize: 9 }} />
-              <Tooltip contentStyle={{ fontSize: 10 }} />
+              <CartesianGrid
+                strokeDasharray="2 2"
+                stroke="var(--color-border-tertiary)"
+              />
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+              />
+              <YAxis
+                tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+              />
+              <Tooltip {...tooltipStyle} />
               <Bar
                 dataKey="planned"
                 fill={COLORS.blue}
@@ -4555,8 +5083,22 @@ function ReportDetail13() {
         </DetailCard>
         <DetailCard>
           <SectionLabel>Timesheet Breakdown</SectionLabel>
-          <div className="flex gap-4 items-center mb-[14px]">
-            <div className="relative w-[120px] h-[120px] shrink-0">
+          <div
+            style={{
+              display: "flex",
+              gap: 16,
+              alignItems: "center",
+              marginBottom: 14,
+            }}
+          >
+            <div
+              style={{
+                position: "relative",
+                width: 120,
+                height: 120,
+                flexShrink: 0,
+              }}
+            >
               <PieChart width={120} height={120}>
                 <Pie
                   data={[
@@ -4588,13 +5130,32 @@ function ReportDetail13() {
                 ["Under", "10%", COLORS.orange],
                 ["Absent", "4%", COLORS.gray],
               ].map(([l, v, c]) => (
-                <div key={l} className="flex items-center gap-[8px] mb-[6px]">
+                <div
+                  key={l}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    marginBottom: 6,
+                  }}
+                >
                   <div
-                    className="w-[8px] h-[8px] rounded-[2px]"
-                    style={{ backgroundColor: c }}
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 2,
+                      backgroundColor: c,
+                    }}
                   />
-                  <span style={{ fontSize: 11, color: "#374151" }}>{l}</span>
-                  <span className="text-[12px] font-bold" style={{ color: c }}>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: "var(--color-text-secondary)",
+                    }}
+                  >
+                    {l}
+                  </span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: c }}>
                     {v}
                   </span>
                 </div>
@@ -4603,15 +5164,36 @@ function ReportDetail13() {
           </div>
           <SectionLabel>Compliance by Department</SectionLabel>
           {compliance.map((d, i) => (
-            <div key={i} className="flex items-center gap-[8px] mb-[5px]">
-              <span className="text-[10px] text-gray-700 min-w-[130px]">
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 5,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 10,
+                  color: "var(--color-text-secondary)",
+                  minWidth: 130,
+                }}
+              >
                 {d.dept}
               </span>
               <DetailMiniBar
                 value={d.v}
                 color={d.v >= 95 ? COLORS.green : COLORS.orange}
               />
-              <span className="text-[10px] font-bold text-[#111] min-w-[30px]">
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: "var(--color-text-primary)",
+                  minWidth: 30,
+                }}
+              >
                 {d.v}%
               </span>
             </div>
@@ -4625,9 +5207,15 @@ function ReportDetail13() {
 function ReportDetail14() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
   return (
-    <div className="flex flex-col gap-4">
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div className="grid grid-cols-4 gap-[10px]">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 10,
+        }}
+      >
         <StatTile label="Pending Approvals" value="27" color={COLORS.orange} />
         <StatTile label="Overdue Approvals" value="12" color={COLORS.red} />
         <StatTile
@@ -4641,25 +5229,36 @@ function ReportDetail14() {
           color={COLORS.teal}
         />
       </div>
-      <div className="grid grid-cols-2 gap-[12px]">
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <DetailCard>
           <SectionLabel>Pending Approvals by Type</SectionLabel>
           {pendingApprovals.map((r, i) => (
             <div
               key={i}
-              className="flex justify-between items-center py-[10px] border-b border-[#f3f4f6]"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "10px 0",
+                borderBottom: "0.5px solid var(--color-border-tertiary)",
+              }}
             >
-              <div className="flex items-center gap-[8px]">
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div
-                  className="w-[9px] h-[9px] rounded-full"
-                  style={{ backgroundColor: r.color }}
+                  style={{
+                    width: 9,
+                    height: 9,
+                    borderRadius: "50%",
+                    backgroundColor: r.color,
+                  }}
                 />
-                <span className="text-xs text-gray-700">{r.label}</span>
+                <span
+                  style={{ fontSize: 12, color: "var(--color-text-secondary)" }}
+                >
+                  {r.label}
+                </span>
               </div>
-              <span
-                className="text-[20px] font-extrabold"
-                style={{ color: r.color }}
-              >
+              <span style={{ fontSize: 20, fontWeight: 800, color: r.color }}>
                 {r.value}
               </span>
             </div>
@@ -4672,10 +5271,18 @@ function ReportDetail14() {
               data={data}
               margin={{ top: 5, right: 10, bottom: 5, left: -10 }}
             >
-              <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-              <XAxis dataKey="stage" tick={{ fontSize: 9 }} />
-              <YAxis tick={{ fontSize: 9 }} />
-              <Tooltip contentStyle={{ fontSize: 10 }} />
+              <CartesianGrid
+                strokeDasharray="2 2"
+                stroke="var(--color-border-tertiary)"
+              />
+              <XAxis
+                dataKey="stage"
+                tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+              />
+              <YAxis
+                tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }}
+              />
+              <Tooltip {...tooltipStyle} />
               <Bar dataKey="count" radius={[3, 3, 0, 0]}>
                 {[COLORS.blue, COLORS.orange, COLORS.green, COLORS.red].map(
                   (c, i) => (
@@ -4692,11 +5299,19 @@ function ReportDetail14() {
         <DetailTable
           headers={header}
           rows={rows.map((r) => [
-            <span className="text-blueCustom font-mono text-[10px]">
+            <span
+              style={{
+                color: COLORS.blue,
+                fontFamily: "monospace",
+                fontSize: 10,
+              }}
+            >
               {r.id}
             </span>,
             r.type,
-            <span className="text-gray-500">{r.req}</span>,
+            <span style={{ color: "var(--color-text-tertiary)" }}>
+              {r.req}
+            </span>,
             <span
               style={{
                 color: r.days >= 12 ? COLORS.red : COLORS.orange,
@@ -4706,8 +5321,11 @@ function ReportDetail14() {
               {r.days} days
             </span>,
             <span
-              className="text-[10px] font-bold px-2 py-[2px] rounded"
               style={{
+                fontSize: 10,
+                fontWeight: 700,
+                padding: "2px 8px",
+                borderRadius: 4,
                 color: r.col,
                 backgroundColor: `${r.col}18`,
               }}
@@ -4725,32 +5343,62 @@ function ReportDetail15() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
   const allReports = reportCards.filter((r) => !r.hub);
   return (
-    <div className="flex flex-col gap-4">
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div className="grid grid-cols-4 gap-[10px]">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 10,
+        }}
+      >
         <StatTile label="Total Reports" value="14" color={COLORS.blue} />
         <StatTile label="Scheduled Reports" value="8" color={COLORS.teal} />
         <StatTile label="Favorites" value="5" color={COLORS.amber} />
         <StatTile label="Recently Viewed" value="7" color={COLORS.purple} />
       </div>
-      <div className="grid grid-cols-4 gap-[8px]">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 8,
+        }}
+      >
         {reportDetails15.map((type, i) => (
           <div
             key={i}
-            className="bg-white border border-gray-200 rounded-[10px] p-[12px] text-center"
+            style={{
+              background: "var(--color-background-primary)",
+              border: "1px solid var(--color-border-tertiary)",
+              borderRadius: 10,
+              padding: 12,
+              textAlign: "center",
+            }}
           >
             <div
-              className="text-[13px] font-bold"
-              style={{ color: DONUT_COLORS[i % DONUT_COLORS.length] }}
+              style={{
+                fontSize: 13,
+                fontWeight: 700,
+                color: DONUT_COLORS[i % DONUT_COLORS.length],
+              }}
             >
               {type}
             </div>
-            <div className="text-[20px] font-black text-[#111] mt-[2px]">
+            <div
+              style={{
+                fontSize: 20,
+                fontWeight: 900,
+                color: "var(--color-text-primary)",
+                marginTop: 2,
+              }}
+            >
               {type === "All"
                 ? allReports.length
                 : Math.floor(Math.random() * 3) + 1}
             </div>
-            <div style={{ fontSize: 10, color: "#9ca3af" }}>reports</div>
+            <div style={{ fontSize: 10, color: "var(--color-text-tertiary)" }}>
+              reports
+            </div>
           </div>
         ))}
       </div>
@@ -4759,14 +5407,38 @@ function ReportDetail15() {
         <DetailTable
           headers={["#", "Report", "Description", "Last Run", "Status"]}
           rows={allReports.map((r) => [
-            <span className="text-gray-400 font-semibold">{r.num}</span>,
-            <div className="flex items-center gap-[6px]">
-              <span className="text-[14px]">{r.icon}</span>
-              <span className="text-[#374151] font-semibold">{r.title}</span>
+            <span
+              style={{ color: "var(--color-text-tertiary)", fontWeight: 600 }}
+            >
+              {r.num}
+            </span>,
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 14 }}>{r.icon}</span>
+              <span
+                style={{
+                  color: "var(--color-text-secondary)",
+                  fontWeight: 600,
+                }}
+              >
+                {r.title}
+              </span>
             </div>,
-            <span className="text-[#9ca3af]">{r.desc}</span>,
-            <span className="text-[#6b7280]">15/05/26</span>,
-            <span className="text-[10px] font-bold text-greenCustom bg-greenCustom/10 px-2 py-[2px] rounded">
+            <span style={{ color: "var(--color-text-tertiary)" }}>
+              {r.desc}
+            </span>,
+            <span style={{ color: "var(--color-text-tertiary)" }}>
+              15/05/26
+            </span>,
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: COLORS.green,
+                backgroundColor: COLORS.green + "18",
+                padding: "2px 8px",
+                borderRadius: 4,
+              }}
+            >
               Active
             </span>,
           ])}
@@ -4802,13 +5474,41 @@ export default function ReportingAnalytics() {
 
   if (activeReport) {
     const DetailView = DETAIL_VIEWS[activeReport.num];
-    if (activeReport.num === 1) {
+
+    // Reports 1 and 12 render their own full-page layout with custom headers
+    if (activeReport.num === 1 || activeReport.num === 12) {
       return (
-        <div className="[font-family:system-ui,sans-serif] bg-[#f3f4f6] min-h-screen">
-          <div className="bg-white border-b border-gray-200 px-5 py-[10px] flex items-center gap-[10px]">
+        <div
+          style={{
+            fontFamily: "system-ui, sans-serif",
+            background: "var(--color-background-tertiary)",
+            minHeight: "100vh",
+          }}
+        >
+          <div
+            style={{
+              background: "var(--color-background-primary)",
+              borderBottom: "1px solid var(--color-border-tertiary)",
+              padding: "10px 20px",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+            }}
+          >
             <button
               onClick={() => setActiveReport(null)}
-              className="bg-white border border-gray-200 rounded-lg px-[14px] py-[6px] text-[13px] cursor-pointer text-[#374151] flex items-center gap-[6px]"
+              style={{
+                background: "var(--color-background-primary)",
+                border: "1px solid var(--color-border-tertiary)",
+                borderRadius: 8,
+                padding: "6px 14px",
+                fontSize: 13,
+                cursor: "pointer",
+                color: "var(--color-text-secondary)",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
             >
               ← Back
             </button>
@@ -4817,34 +5517,36 @@ export default function ReportingAnalytics() {
         </div>
       );
     }
-    if (activeReport.num === 12) {
-      return (
-        <div className="[font-family:system-ui,sans-serif] bg-[#f3f4f6] min-h-screen">
-          <div className="bg-white border-b border-gray-200 px-5 py-[10px] flex items-center gap-[10px]">
-            <button
-              onClick={() => setActiveReport(null)}
-              className="bg-white border border-gray-200 rounded-lg px-[14px] py-[6px] text-[13px] cursor-pointer flex items-center gap-[6px] text-[#374151]"
-            >
-              ← Back
-            </button>
-          </div>
-          <DetailView />
-        </div>
-      );
-    }
+
     return (
-      <div className="w-full min-h-screen bg-[#f9fafb] text-black p-5 [font-family:system-ui,sans-serif]">
-        <div className="flex items-center gap-3 mb-5">
+      <div
+        style={{
+          width: "100%",
+          minHeight: "100vh",
+          background: "var(--color-background-tertiary)",
+          color: "var(--color-text-primary)",
+          padding: 20,
+          fontFamily: "system-ui, sans-serif",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            marginBottom: 20,
+          }}
+        >
           <button
             onClick={() => setActiveReport(null)}
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
+              background: "var(--color-background-primary)",
+              border: "0.5px solid var(--color-border-tertiary)",
               borderRadius: 8,
               padding: "6px 14px",
               fontSize: 13,
               cursor: "pointer",
-              color: "#374151",
+              color: "var(--color-text-secondary)",
               display: "flex",
               alignItems: "center",
               gap: 6,
@@ -4852,12 +5554,21 @@ export default function ReportingAnalytics() {
           >
             ← Back
           </button>
-          <h2 className="m-0 text-[16px] font-semibold text-[#111]">
+          <h2
+            style={{
+              margin: 0,
+              fontSize: 16,
+              fontWeight: 600,
+              color: "var(--color-text-primary)",
+            }}
+          >
             {activeReport.num}. {activeReport.title}
           </h2>
           <span
-            className="text-[11px] rounded-md px-[10px] py-[3px]"
             style={{
+              fontSize: 11,
+              borderRadius: 6,
+              padding: "3px 10px",
               backgroundColor: `${activeReport.color}18`,
               color: activeReport.color,
             }}
@@ -4871,12 +5582,31 @@ export default function ReportingAnalytics() {
   }
 
   return (
-    <div className="bg-[#f3f4f6] min-h-screen px-5 py-4 [font-family:system-ui,-apple-system,sans-serif]">
-      <div className="text-[13px] font-bold text-[#111] mb-[10px]">
+    <div
+      style={{
+        background: "var(--color-background-tertiary)",
+        minHeight: "100vh",
+        padding: "16px 20px",
+        fontFamily: "system-ui, -apple-system, sans-serif",
+      }}
+    >
+      <div
+        style={{
+          fontSize: 13,
+          fontWeight: 700,
+          color: "var(--color-text-primary)",
+          marginBottom: 10,
+        }}
+      >
         Resource Management Reports
       </div>
-
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+          gap: 16,
+        }}
+      >
         {reportCards.map((card) => (
           <ReportCard key={card.num} card={card} onView={setActiveReport} />
         ))}
