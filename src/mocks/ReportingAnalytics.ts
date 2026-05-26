@@ -88,22 +88,23 @@ export const kpis = [
     color: COLORS.green,
   },
 ];
+
 // ─── Dashboard Trend Data ─────────────────────────────────────────────────────
 
 export const capacityDemandTrend = [
-  { month: "Jan", Capacity: 7100, Demand: 7300, Gap: -200 },
-  { month: "Feb", Capacity: 7200, Demand: 7500, Gap: -300 },
-  { month: "Mar", Capacity: 7300, Demand: 7700, Gap: -400 },
-  { month: "Apr", Capacity: 7700, Demand: 7800, Gap: -100 },
-  { month: "May", Capacity: 7350, Demand: 8000, Gap: -650 },
+  { month: "Jan 2026", Capacity: 71, Demand: 73, Gap: -2 },
+  { month: "Feb 2026", Capacity: 72, Demand: 75, Gap: -3 },
+  { month: "Mar 2026", Capacity: 73, Demand: 77, Gap: -4 },
+  { month: "Apr 2026", Capacity: 77, Demand: 78, Gap: -1 },
+  { month: "May 2026", Capacity: 74, Demand: 80, Gap: -6 },
 ];
 
 export const utilizationTrend = [
-  { month: "Jan", rate: 76 },
-  { month: "Feb", rate: 78 },
-  { month: "Mar", rate: 80 },
-  { month: "Apr", rate: 81 },
-  { month: "May", rate: 83 },
+  { month: "Jan 2026", rate: 76 },
+  { month: "Feb 2026", rate: 78 },
+  { month: "Mar 2026", rate: 80 },
+  { month: "Apr 2026", rate: 81 },
+  { month: "May 2026", rate: 83 },
 ];
 
 export const workforceRisks = [
@@ -159,7 +160,7 @@ export const reportCards = [
     title: "Executive Leadership Report",
     desc: "Enterprise view of performance, risks, gaps & portfolio readiness",
     execStats: [
-      { label: "Capacity Gap", value: "-589 FTE", color: COLORS.red },
+      { label: "Capacity Gap", value: "-6 FTE", color: COLORS.red },
       { label: "Workforce Risk", value: "High", color: COLORS.red },
       { label: "Portfolio Readiness", value: "78%", color: COLORS.green },
     ],
@@ -171,14 +172,14 @@ export const reportCards = [
     title: "Resource Management Dashboard",
     desc: "Overview of capacity, demand, allocation & utilization",
     barData: [
-      { name: "Engineering", value: 85, cap: 3240 },
-      { name: "Consulting", value: 81, cap: 2190 },
-      { name: "Data & Analytics", value: 84, cap: 1305 },
-      { name: "Products", value: 79, cap: 692 },
+      { name: "Engineering", value: 85, cap: 74 },
+      { name: "Consulting", value: 81, cap: 62 },
+      { name: "Data & Analytics", value: 84, cap: 48 },
+      { name: "Products", value: 79, cap: 32 },
     ],
     summaryStats: [
-      { label: "Capacity", value: "7,427" },
-      { label: "Demand", value: "8,016" },
+      { label: "Capacity", value: "74" },
+      { label: "Demand", value: "80" },
       { label: "Utilization", value: "83%" },
     ],
     icon: "🏢",
@@ -189,14 +190,14 @@ export const reportCards = [
     title: "Resource Planning Dashboard",
     desc: "Real-time view of planning inputs, owners & visibility across organization",
     stats: [
-      { label: "Planning Inputs", value: "1,245" },
-      { label: "Approved", value: "864", color: COLORS.green },
-      { label: "Pending", value: "381", color: COLORS.orange },
+      { label: "Planning Inputs", value: "86" },
+      { label: "Approved", value: "64", color: COLORS.green },
+      { label: "Pending", value: "22", color: COLORS.orange },
     ],
     extra: [
-      { label: "Sarah Johnson", value: "235" },
-      { label: "Michael Lee", value: "188" },
-      { label: "Emily Davis", value: "176" },
+      { label: "Sarah Johnson", value: "35" },
+      { label: "Michael Lee", value: "28" },
+      { label: "Emily Davis", value: "23" },
     ],
     icon: "📊",
     color: COLORS.blue,
@@ -213,7 +214,7 @@ export const reportCards = [
       { name: "AI Platform", value: 8 },
       { name: "Others", value: 38 },
     ],
-    centerLabel: "7,115 FTE",
+    centerLabel: "71 FTE",
     centerSub: "Total Allocated",
     icon: "🥧",
     color: COLORS.purple,
@@ -223,13 +224,13 @@ export const reportCards = [
     title: "Resource Over-Allocation Report",
     desc: "Report for showing resources over-allocation",
     overList: [
-      { name: "John Smith", pct: 132, color: COLORS.red },
-      { name: "Priya Patel", pct: 128, color: COLORS.red },
-      { name: "Ravi Kumar", pct: 118, color: COLORS.orange },
-      { name: "Anita Desai", pct: 116, color: COLORS.orange },
-      { name: "Carlos M.", pct: 112, color: COLORS.amber },
+      { name: "John Smith", pct: 98, color: COLORS.red },
+      { name: "Priya Patel", pct: 95, color: COLORS.red },
+      { name: "Ravi Kumar", pct: 92, color: COLORS.orange },
+      { name: "Anita Desai", pct: 89, color: COLORS.orange },
+      { name: "Carlos M.", pct: 85, color: COLORS.amber },
     ],
-    highlight: "312 FTE",
+    highlight: "31 FTE",
     icon: "🚨",
     color: COLORS.red,
   },
@@ -238,9 +239,9 @@ export const reportCards = [
     title: "Resource Availability & Shared Resources",
     desc: "Report for showing resources shared across projects with availability",
     availability: {
-      available: "1,842 FTE",
-      shared: "2,315 FTE",
-      bench: "1,842 (24.8%)",
+      available: "18 FTE",
+      shared: "23 FTE",
+      bench: "18 (24.8%)",
     },
     icon: "🔗",
     color: COLORS.teal,
@@ -298,14 +299,14 @@ export const reportCards = [
     title: "Demand Management Dashboard",
     desc: "Track workforce demand, fulfillment progress & staffing gaps",
     demandStats: [
-      { label: "Open Demands", value: "412", color: COLORS.red },
-      { label: "In Progress", value: "186", color: COLORS.orange },
-      { label: "Fulfilled", value: "226", color: COLORS.green },
+      { label: "Open Demands", value: "41", color: COLORS.red },
+      { label: "In Progress", value: "18", color: COLORS.orange },
+      { label: "Fulfilled", value: "23", color: COLORS.green },
     ],
     demandByPriority: [
-      { label: "High", value: 156, pct: "38%" },
-      { label: "Medium", value: 164, pct: "40%" },
-      { label: "Low", value: 92, pct: "22%" },
+      { label: "High", value: 16, pct: "38%" },
+      { label: "Medium", value: 16, pct: "40%" },
+      { label: "Low", value: 9, pct: "22%" },
     ],
     icon: "📋",
     color: COLORS.blue,
@@ -315,12 +316,12 @@ export const reportCards = [
     title: "Forecasting & Capacity Planning",
     desc: "Forecast demand vs capacity & identify future gaps",
     forecastData: [
-      { month: "Jan", cap: 8.0, demand: 8.9, gap: -0.9 },
-      { month: "Feb", cap: 8.3, demand: 9.1, gap: -0.8 },
-      { month: "Mar", cap: 8.5, demand: 9.3, gap: -0.8 },
-      { month: "Apr", cap: 6.9, demand: 8.7, gap: -1.8 },
-      { month: "May", cap: 6.9, demand: 8.8, gap: -0.9 },
-      { month: "Jun", cap: 7.5, demand: 8.4, gap: -0.9 },
+      { month: "Jan 2026", cap: 8.0, demand: 8.9, gap: -0.9 },
+      { month: "Feb 2026", cap: 8.3, demand: 9.1, gap: -0.8 },
+      { month: "Mar 2026", cap: 8.5, demand: 9.3, gap: -0.8 },
+      { month: "Apr 2026", cap: 6.9, demand: 8.7, gap: -1.8 },
+      { month: "May 2026", cap: 6.9, demand: 8.8, gap: -0.9 },
+      { month: "Jun 2026", cap: 7.5, demand: 8.4, gap: -0.9 },
     ],
     icon: "🔮",
     color: COLORS.purple,
@@ -349,7 +350,7 @@ export const reportCards = [
       { label: "Over", pct: 20, color: COLORS.red },
       { label: "Under", pct: 10, color: COLORS.orange },
     ],
-    actualFTE: "2,850",
+    actualFTE: "85",
     icon: "⏱️",
     color: COLORS.blue,
   },
@@ -416,29 +417,29 @@ export const riskTopItems = [
 // ─── Utilization Dashboard (Report #12) ──────────────────────────────────────
 
 export const utilTrendData = [
-  { month: "01/01/26", overall: 73.1, billable: 58.2 },
-  { month: "01/02/26", overall: 74.0, billable: 59.1 },
-  { month: "01/03/26", overall: 75.6, billable: 60.3 },
-  { month: "01/04/26", overall: 76.8, billable: 61.0 },
-  { month: "11/04/26", overall: 75.6, billable: 59.3 },
-  { month: "11/05/26", overall: 78.2, billable: 62.4 },
+  { month: "Jan 2026", overall: 73, billable: 58 },
+  { month: "Feb 2026", overall: 74, billable: 59 },
+  { month: "Mar 2026", overall: 76, billable: 60 },
+  { month: "Apr 2026", overall: 77, billable: 61 },
+  { month: "Apr 2026 (2)", overall: 76, billable: 59 },
+  { month: "May 2026", overall: 78, billable: 62 },
 ];
 
 export const utilByDeptData = [
-  { dept: "Delivery", overall: 66.7, billable: 88.1, capacity: 92 },
-  { dept: "Technology", overall: 65.1, billable: 83.2, capacity: 88 },
-  { dept: "Business Support", overall: 50.2, billable: 78.4, capacity: 82 },
-  { dept: "Operations", overall: 48.5, billable: 76.8, capacity: 79 },
-  { dept: "Finance", overall: 41.6, billable: 73.2, capacity: 75 },
-  { dept: "HR", overall: 38.7, billable: 70.1, capacity: 71 },
+  { dept: "Delivery", overall: 67, billable: 88, capacity: 92 },
+  { dept: "Technology", overall: 65, billable: 83, capacity: 88 },
+  { dept: "Business Support", overall: 50, billable: 78, capacity: 82 },
+  { dept: "Operations", overall: 49, billable: 77, capacity: 79 },
+  { dept: "Finance", overall: 42, billable: 73, capacity: 75 },
+  { dept: "HR", overall: 39, billable: 70, capacity: 71 },
 ];
 
 export const utilByWorkType = [
-  { name: "Project Delivery", value: 47.9, hours: 56500, color: COLORS.blue },
-  { name: "Support / BAU", value: 24.1, hours: 28400, color: COLORS.green },
-  { name: "Internal / Admin", value: 14.4, hours: 17000, color: COLORS.orange },
-  { name: "Training", value: 7.7, hours: 9100, color: COLORS.purple },
-  { name: "Other", value: 5.9, hours: 7000, color: COLORS.gray },
+  { name: "Project Delivery", value: 48, hours: 56500, color: COLORS.blue },
+  { name: "Support / BAU", value: 24, hours: 28400, color: COLORS.green },
+  { name: "Internal / Admin", value: 14, hours: 17000, color: COLORS.orange },
+  { name: "Training", value: 8, hours: 9100, color: COLORS.purple },
+  { name: "Other", value: 6, hours: 7000, color: COLORS.gray },
 ];
 
 export const billableNonBillableData = [
@@ -464,16 +465,16 @@ export const underutilizedResources = [
 ];
 
 export const overutilizedResources = [
-  { name: "Amit Kumar", dept: "Delivery", util: 128, overtime: 42 },
-  { name: "Sneha Joshi", dept: "Delivery", util: 122, overtime: 36 },
-  { name: "Deepak Yadav", dept: "Technology", util: 118, overtime: 32 },
-  { name: "Pooja Mehta", dept: "Technology", util: 116, overtime: 28 },
-  { name: "Varun Joshi", dept: "Operations", util: 115, overtime: 26 },
-  { name: "Rakesh Patel", dept: "Delivery", util: 112, overtime: 24 },
-  { name: "Meera Nair", dept: "Business Support", util: 110, overtime: 20 },
-  { name: "Karan Malhotra", dept: "Delivery", util: 108, overtime: 18 },
-  { name: "Isha Verma", dept: "Technology", util: 106, overtime: 16 },
-  { name: "Sunil Rao", dept: "Operations", util: 105, overtime: 16 },
+  { name: "Amit Kumar", dept: "Delivery", util: 98, overtime: 42 },
+  { name: "Sneha Joshi", dept: "Delivery", util: 95, overtime: 36 },
+  { name: "Deepak Yadav", dept: "Technology", util: 93, overtime: 32 },
+  { name: "Pooja Mehta", dept: "Technology", util: 91, overtime: 28 },
+  { name: "Varun Joshi", dept: "Operations", util: 90, overtime: 26 },
+  { name: "Rakesh Patel", dept: "Delivery", util: 89, overtime: 24 },
+  { name: "Meera Nair", dept: "Business Support", util: 87, overtime: 20 },
+  { name: "Karan Malhotra", dept: "Delivery", util: 86, overtime: 18 },
+  { name: "Isha Verma", dept: "Technology", util: 84, overtime: 16 },
+  { name: "Sunil Rao", dept: "Operations", util: 83, overtime: 16 },
 ];
 
 export const heatmapManagers = [
@@ -484,12 +485,12 @@ export const heatmapManagers = [
 ];
 
 export const heatmapDepts = [
-  { dept: "Delivery", vals: [92, 95, 88, 96], avg: 82.6 },
-  { dept: "Technology", vals: [88, 112, 80, 92], avg: 80.3 },
-  { dept: "Business Support", vals: [65, 82, 70, 91], avg: 77.1 },
-  { dept: "Operations", vals: [66, 78, 72, 83], avg: 74.9 },
-  { dept: "Finance", vals: [58, 69, 76, 82], avg: 72.4 },
-  { dept: "HR", vals: [55, 64, 68, 72], avg: 69.8 },
+  { dept: "Delivery", vals: [92, 95, 88, 96], avg: 83 },
+  { dept: "Technology", vals: [88, 99, 80, 92], avg: 80 },
+  { dept: "Business Support", vals: [65, 82, 70, 91], avg: 77 },
+  { dept: "Operations", vals: [66, 78, 72, 83], avg: 75 },
+  { dept: "Finance", vals: [58, 69, 76, 82], avg: 72 },
+  { dept: "HR", vals: [55, 64, 68, 72], avg: 70 },
 ];
 
 // ─── Executive Report (Report #1) ─────────────────────────────────────────────
@@ -498,7 +499,7 @@ export const execKpis = [
   {
     label: "Total Capacity",
     value: "88 FTE",
-    delta: "+6.2% vs 11/04/26",
+    delta: "+6.2% vs Apr 2026",
     up: true,
     color: COLORS.blue,
     icon: "👥",
@@ -506,7 +507,7 @@ export const execKpis = [
   {
     label: "Total Demand",
     value: "94 FTE",
-    delta: "+3.4% vs 11/04/26",
+    delta: "+3.4% vs Apr 2026",
     up: true,
     color: COLORS.orange,
     icon: "📋",
@@ -514,7 +515,7 @@ export const execKpis = [
   {
     label: "Capacity Gap",
     value: "-6 FTE",
-    delta: "▼ 2.8% vs 11/04/26",
+    delta: "▼ 2.8% vs Apr 2026",
     up: false,
     color: COLORS.red,
     icon: "📉",
@@ -522,7 +523,7 @@ export const execKpis = [
   {
     label: "Utilization Rate",
     value: "82%",
-    delta: "▲ 2.3 pp vs 11/04/26",
+    delta: "▲ 2.3 pp vs Apr 2026",
     up: true,
     color: COLORS.purple,
     icon: "📈",
@@ -530,7 +531,7 @@ export const execKpis = [
   {
     label: "Open Demands",
     value: "41",
-    delta: "▼ 5.1% vs 11/04/26",
+    delta: "▼ 5.1% vs Apr 2026",
     up: false,
     color: COLORS.blue,
     icon: "📂",
@@ -538,7 +539,7 @@ export const execKpis = [
   {
     label: "Overallocated Resources",
     value: "17",
-    delta: "▼ 3.6% vs 11/04/26",
+    delta: "▼ 3.6% vs Apr 2026",
     up: true,
     color: COLORS.amber,
     icon: "⚠️",
@@ -546,7 +547,7 @@ export const execKpis = [
   {
     label: "Vendor Spend",
     value: "$8.6M",
-    delta: "▲ 7.3% vs 11/04/26",
+    delta: "▲ 7.3% vs Apr 2026",
     up: true,
     color: COLORS.teal,
     icon: "💲",
@@ -554,7 +555,7 @@ export const execKpis = [
   {
     label: "Projects at Staffing Risk",
     value: "9",
-    delta: "▼ 4 vs 11/04/26",
+    delta: "▼ 4 vs Apr 2026",
     up: true,
     color: COLORS.red,
     icon: "🚨",
@@ -566,10 +567,10 @@ export const heatmapData = [
     pillar: "Banking",
     icon: "🏦",
     rows: [
-      { team: "Application Development", vals: [82, 84, 88, 91, 96, 104] },
-      { team: "Data Engineering", vals: [78, 83, 99, 101, 106, 110] },
-      { team: "QA Automation", vals: [76, 80, 92, 98, 105, 108] },
-      { team: "Cloud Engineering", vals: [85, 86, 90, 93, 97, 102] },
+      { team: "Application Development", vals: [82, 84, 88, 91, 96, 99] },
+      { team: "Data Engineering", vals: [78, 83, 95, 98, 99, 99] },
+      { team: "QA Automation", vals: [76, 80, 92, 98, 99, 99] },
+      { team: "Cloud Engineering", vals: [85, 86, 90, 93, 97, 99] },
     ],
   },
   {
@@ -586,8 +587,8 @@ export const heatmapData = [
     pillar: "Healthcare",
     icon: "🏥",
     rows: [
-      { team: "Application Development", vals: [83, 85, 90, 94, 96, 102] },
-      { team: "Data Engineering", vals: [78, 81, 86, 91, 97, 101] },
+      { team: "Application Development", vals: [83, 85, 90, 94, 96, 99] },
+      { team: "Data Engineering", vals: [78, 81, 86, 91, 97, 99] },
     ],
   },
   {
@@ -618,69 +619,69 @@ export const heatmapMonths = [
 ];
 
 export const execCapDemandData = [
-  { month: "01/08/25", Capacity: 2600, Demand: 2850, Gap: -250 },
-  { month: "01/09/25", Capacity: 2680, Demand: 2920, Gap: -240 },
-  { month: "01/10/25", Capacity: 2720, Demand: 2970, Gap: -250 },
-  { month: "01/11/25", Capacity: 2760, Demand: 3010, Gap: -250 },
-  { month: "01/12/25", Capacity: 2810, Demand: 3060, Gap: -250 },
-  { month: "01/01/26", Capacity: 2850, Demand: 3100, Gap: -250 },
-  { month: "01/02/26", Capacity: 2890, Demand: 3140, Gap: -250 },
-  { month: "01/03/26", Capacity: 2930, Demand: 3180, Gap: -250 },
-  { month: "11/04/26", Capacity: 2960, Demand: 3215, Gap: -255 },
-  { month: "11/05/26", Capacity: 2986, Demand: 3245, Gap: -259 },
-  { month: "01/06/26 (F)", Capacity: 3040, Demand: 3340, Gap: -300 },
-  { month: "01/07/26 (F)", Capacity: 3020, Demand: 3380, Gap: -360 },
+  { month: "Aug 2025", Capacity: 26, Demand: 29, Gap: -3 },
+  { month: "Sep 2025", Capacity: 27, Demand: 29, Gap: -2 },
+  { month: "Oct 2025", Capacity: 27, Demand: 30, Gap: -3 },
+  { month: "Nov 2025", Capacity: 28, Demand: 30, Gap: -2 },
+  { month: "Dec 2025", Capacity: 28, Demand: 31, Gap: -3 },
+  { month: "Jan 2026", Capacity: 29, Demand: 31, Gap: -2 },
+  { month: "Feb 2026", Capacity: 29, Demand: 31, Gap: -2 },
+  { month: "Mar 2026", Capacity: 29, Demand: 32, Gap: -3 },
+  { month: "Apr 2026", Capacity: 30, Demand: 32, Gap: -2 },
+  { month: "May 2026", Capacity: 30, Demand: 32, Gap: -2 },
+  { month: "Jun 2026 (F)", Capacity: 30, Demand: 33, Gap: -3 },
+  { month: "Jul 2026 (F)", Capacity: 30, Demand: 34, Gap: -4 },
 ];
 
 export const demandStatusData = [
-  { name: "Approved", value: 1558, pct: 48, color: COLORS.green },
-  { name: "Pending Approval", value: 864, pct: 27, color: COLORS.orange },
-  { name: "Draft", value: 496, pct: 15, color: COLORS.blue },
-  { name: "Rejected", value: 327, pct: 10, color: COLORS.red },
+  { name: "Approved", value: 47, pct: 48, color: COLORS.green },
+  { name: "Pending Approval", value: 27, pct: 27, color: COLORS.orange },
+  { name: "Draft", value: 15, pct: 15, color: COLORS.blue },
+  { name: "Rejected", value: 10, pct: 10, color: COLORS.red },
 ];
 
 export const vendorData = [
   {
     name: "Ascendion Global",
     util: 86,
-    fte: 685,
+    fte: 68,
     spend: "$5.24M",
     demands: 92,
   },
-  { name: "Collabera", util: 79, fte: 542, spend: "$3.86M", demands: 76 },
-  { name: "UX Reactor", util: 83, fte: 418, spend: "$2.91M", demands: 58 },
-  { name: "Hycoo", util: 75, fte: 312, spend: "$1.72M", demands: 36 },
-  { name: "Moodys NWC", util: 71, fte: 256, spend: "$0.89M", demands: 28 },
+  { name: "Collabera", util: 79, fte: 54, spend: "$3.86M", demands: 76 },
+  { name: "UX Reactor", util: 83, fte: 42, spend: "$2.91M", demands: 58 },
+  { name: "Hycoo", util: 75, fte: 31, spend: "$1.72M", demands: 36 },
+  { name: "Moodys NWC", util: 71, fte: 26, spend: "$0.89M", demands: 28 },
 ];
 
 export const skillsGapData = [
-  { skill: "QA Automation", demand: 325, available: 198, gap: -127 },
-  { skill: "Data Engineering", demand: 512, available: 348, gap: -164 },
-  { skill: "Cloud Engineering", demand: 418, available: 285, gap: -133 },
-  { skill: "React", demand: 278, available: 203, gap: -75 },
-  { skill: "Project Management", demand: 165, available: 124, gap: -41 },
+  { skill: "QA Automation", demand: 32, available: 20, gap: -12 },
+  { skill: "Data Engineering", demand: 51, available: 35, gap: -16 },
+  { skill: "Cloud Engineering", demand: 42, available: 29, gap: -13 },
+  { skill: "React", demand: 28, available: 20, gap: -8 },
+  { skill: "Project Management", demand: 17, available: 12, gap: -5 },
 ];
 
 export const crossPillarData = [
   {
     borrowing: "Retail",
     from: "Banking",
-    fte: 128,
+    fte: 13,
     skills: "QA Automation, BA",
   },
   {
     borrowing: "Healthcare",
     from: "Hi-tech",
-    fte: 96,
+    fte: 10,
     skills: "Cloud Engineering",
   },
   {
     borrowing: "Life Sciences",
     from: "Banking",
-    fte: 78,
+    fte: 8,
     skills: "Data Engineering",
   },
-  { borrowing: "Retail", from: "Hi-tech", fte: 64, skills: "DevOps, Cloud" },
+  { borrowing: "Retail", from: "Hi-tech", fte: 6, skills: "DevOps, Cloud" },
 ];
 
 export const staffingRiskProjects = [
@@ -714,25 +715,25 @@ export const staffingRiskProjects = [
 export const strategicAlerts = [
   {
     icon: "⚠️",
-    text: "Projected capacity gap of 259 FTE in Jun 2026",
+    text: "Projected capacity gap of 6 FTE in Jun 2026",
     level: "High",
     color: COLORS.red,
   },
   {
     icon: "ℹ️",
-    text: "168 resources are over allocated (>100%)",
+    text: "17 resources are over allocated (>100%)",
     level: "Medium",
     color: COLORS.orange,
   },
   {
     icon: "ℹ️",
-    text: "12 projects at staffing risk",
+    text: "9 projects at staffing risk",
     level: "Medium",
     color: COLORS.orange,
   },
   {
     icon: "ℹ️",
-    text: "412 demands pending approval",
+    text: "41 demands pending approval",
     level: "Info",
     color: COLORS.blue,
   },
@@ -747,19 +748,19 @@ export const strategicAlerts = [
 // ─── Report #2 ────────────────────────────────────────────────────────────────
 
 export const capDemand2026 = [
-  { month: "01/01/26", Capacity: 7100, Demand: 7300, Gap: -200 },
-  { month: "01/02/26", Capacity: 7200, Demand: 7500, Gap: -300 },
-  { month: "01/03/26", Capacity: 7300, Demand: 7700, Gap: -400 },
-  { month: "11/04/26", Capacity: 7700, Demand: 7800, Gap: -100 },
-  { month: "11/05/26", Capacity: 7427, Demand: 8016, Gap: -589 },
+  { month: "Jan 2026", Capacity: 71, Demand: 73, Gap: -2 },
+  { month: "Feb 2026", Capacity: 72, Demand: 75, Gap: -3 },
+  { month: "Mar 2026", Capacity: 73, Demand: 77, Gap: -4 },
+  { month: "Apr 2026", Capacity: 77, Demand: 78, Gap: -1 },
+  { month: "May 2026", Capacity: 74, Demand: 80, Gap: -6 },
 ];
 
 export const utilTrend2026 = [
-  { month: "01/01/26", rate: 76 },
-  { month: "01/02/26", rate: 78 },
-  { month: "01/03/26", rate: 80 },
-  { month: "11/04/26", rate: 81 },
-  { month: "11/05/26", rate: 83 },
+  { month: "Jan 2026", rate: 76 },
+  { month: "Feb 2026", rate: 78 },
+  { month: "Mar 2026", rate: 80 },
+  { month: "Apr 2026", rate: 81 },
+  { month: "May 2026", rate: 83 },
 ];
 
 // ─── Filter Definitions ───────────────────────────────────────────────────────
@@ -769,11 +770,11 @@ export const UTIL_FILTER_DEFS = [
     label: "Time Period",
     key: "timePeriod",
     options: [
-      "11/05/26",
-      "11/04/26",
-      "01/03/26",
-      "01/02/26",
-      "01/01/26",
+      "May 2026",
+      "Apr 2026",
+      "Mar 2026",
+      "Feb 2026",
+      "Jan 2026",
       "Q1 2026",
       "Q2 2026",
     ],
@@ -844,11 +845,11 @@ export const EXEC_FILTER_DEFS = [
     label: "Time Period",
     key: "timePeriod",
     options: [
-      "11/05/26",
-      "11/04/26",
-      "01/03/26",
-      "01/02/26",
-      "01/01/26",
+      "May 2026",
+      "Apr 2026",
+      "Mar 2026",
+      "Feb 2026",
+      "Jan 2026",
       "Q1 2026",
       "Q2 2026",
     ],
@@ -916,11 +917,11 @@ export const GENERIC_FILTER_DEFS = [
     label: "Date Range",
     key: "date",
     options: [
-      "11/05/26",
-      "11/04/26",
-      "01/03/26",
-      "01/02/26",
-      "01/01/26",
+      "May 2026",
+      "Apr 2026",
+      "Mar 2026",
+      "Feb 2026",
+      "Jan 2026",
       "Q1 2026",
       "Q2 2026",
     ],
@@ -989,7 +990,7 @@ export const GENERIC_FILTER_DEFS = [
 export const utilKpiTiles = [
   {
     label: "Overall Utilization %",
-    value: "78.2%",
+    value: "78%",
     delta: "▲ 2.6%",
     up: true,
     color: COLORS.blue,
@@ -998,7 +999,7 @@ export const utilKpiTiles = [
   },
   {
     label: "Billable Utilization %",
-    value: "62.4%",
+    value: "62%",
     delta: "▲ 3.1%",
     up: true,
     color: COLORS.green,
@@ -1007,7 +1008,7 @@ export const utilKpiTiles = [
   },
   {
     label: "Non-Billable Utilization %",
-    value: "15.8%",
+    value: "16%",
     delta: "▼ 0.5%",
     up: false,
     color: COLORS.purple,
@@ -1016,7 +1017,7 @@ export const utilKpiTiles = [
   },
   {
     label: "Operational Work %",
-    value: "46.3%",
+    value: "46%",
     delta: "▲ 1.8%",
     up: true,
     color: COLORS.orange,
@@ -1025,7 +1026,7 @@ export const utilKpiTiles = [
   },
   {
     label: "Strategic Work %",
-    value: "31.9%",
+    value: "32%",
     delta: "▲ 2.3%",
     up: true,
     color: COLORS.teal,
@@ -1034,8 +1035,8 @@ export const utilKpiTiles = [
   },
   {
     label: "Underutilized (<60%)",
-    value: "156",
-    delta: "▼ 12",
+    value: "16",
+    delta: "▼ 2",
     up: true,
     color: "#6b7280",
     icon: "👤",
@@ -1043,8 +1044,8 @@ export const utilKpiTiles = [
   },
   {
     label: "Overutilized (>100%)",
-    value: "92",
-    delta: "▲ 8",
+    value: "9",
+    delta: "▲ 1",
     up: false,
     color: COLORS.red,
     icon: "🔥",
@@ -1055,7 +1056,7 @@ export const utilKpiTiles = [
 // ─── Default Filter States ────────────────────────────────────────────────────
 
 export const DEFAULT_UTIL_FILTERS = {
-  timePeriod: "11/05/26",
+  timePeriod: "May 2026",
   pillar: "All",
   team: "All",
   project: "All",
@@ -1064,7 +1065,7 @@ export const DEFAULT_UTIL_FILTERS = {
 };
 
 export const DEFAULT_EXEC_FILTERS = {
-  timePeriod: "11/05/26",
+  timePeriod: "May 2026",
   pillar: "All",
   team: "All",
   project: "All",
@@ -1073,7 +1074,7 @@ export const DEFAULT_EXEC_FILTERS = {
 };
 
 export const DEFAULT_GENERIC_FILTERS = {
-  date: "11/05/26",
+  date: "May 2026",
   pillar: "All",
   team: "All",
   project: "All",
@@ -1086,25 +1087,25 @@ export const keyInsights = [
     icon: "📈",
     color: COLORS.green,
     bg: "#eaf3e0",
-    text: "Overall utilization increased by 2.6% compared to 11/04/26.",
+    text: "Overall utilization increased by 2.6% compared to Apr 2026.",
   },
   {
     icon: "⚠️",
     color: COLORS.red,
     bg: "#fde8e8",
-    text: "92 resources are overutilized (>100%). Immediate attention required.",
+    text: "9 resources are overutilized (>100%). Immediate attention required.",
   },
   {
     icon: "👥",
     color: COLORS.orange,
     bg: "#fef4e6",
-    text: "156 resources are underutilized (<60%). Consider reallocation.",
+    text: "16 resources are underutilized (<60%). Consider reallocation.",
   },
   {
     icon: "🎯",
     color: COLORS.blue,
     bg: "#e8f0fb",
-    text: "Strategic work accounts for 31.9% of total effort. Continue to focus on strategic initiatives.",
+    text: "Strategic work accounts for 32% of total effort. Continue to focus on strategic initiatives.",
   },
 ];
 
@@ -1152,26 +1153,26 @@ export const operational = [
 export const utilizationDistribution = [
   {
     label: "Underutilized (<60%)",
-    count: 156,
+    count: 16,
     pct: "7.9%",
     color: COLORS.amber,
   },
   {
     label: "Optimal (60%–100%)",
-    count: 1738,
+    count: 67,
     pct: "87.4%",
     color: COLORS.green,
   },
   {
     label: "Overutilized (>100%)",
-    count: 92,
+    count: 9,
     pct: "4.7%",
     color: COLORS.red,
   },
 ];
 
 export const main = {
-  date: "11/05/26",
+  date: "May 2026",
   portfolio: "All",
   bu: "All",
   region: "All",
@@ -1232,9 +1233,9 @@ export const rows = [
 ];
 
 export const data = [
-  { stage: "Submitted", count: 186 },
+  { stage: "Submitted", count: 86 },
   { stage: "In Review", count: 27 },
-  { stage: "Approved", count: 160 },
+  { stage: "Approved", count: 60 },
   { stage: "Rejected", count: 12 },
 ];
 
@@ -1254,21 +1255,21 @@ export const compliance = [
 ];
 
 export const tsData = [
-  { month: "Jan", planned: 2600, actual: 2450 },
-  { month: "Feb", planned: 2650, actual: 2500 },
-  { month: "Mar", planned: 2700, actual: 2550 },
-  { month: "Apr", planned: 2800, actual: 2750 },
-  { month: "May", planned: 2850, actual: 2850 },
+  { month: "Jan 2026", planned: 26, actual: 25 },
+  { month: "Feb 2026", planned: 27, actual: 25 },
+  { month: "Mar 2026", planned: 27, actual: 26 },
+  { month: "Apr 2026", planned: 28, actual: 28 },
+  { month: "May 2026", planned: 29, actual: 29 },
 ];
 
 export const planning = [
   {
-    action: "Hire 200 developers for Aug gap",
+    action: "Hire 20 developers for Aug gap",
     priority: "Critical",
     color: COLORS.red,
   },
   {
-    action: "Cross-train 150 analysts from other BUs",
+    action: "Cross-train 15 analysts from other BUs",
     priority: "High",
     color: COLORS.orange,
   },
@@ -1290,48 +1291,48 @@ export const planning = [
 ];
 
 export const forecastData = [
-  { month: "Jan", cap: 8.0, demand: 8.9, gap: -0.9 },
-  { month: "Feb", cap: 8.3, demand: 9.1, gap: -0.8 },
-  { month: "Mar", cap: 8.5, demand: 9.3, gap: -0.8 },
-  { month: "Apr", cap: 6.9, demand: 8.7, gap: -1.8 },
-  { month: "May", cap: 6.9, demand: 8.8, gap: -0.9 },
-  { month: "Jun", cap: 7.5, demand: 8.4, gap: -0.9 },
+  { month: "Jan 2026", cap: 8.0, demand: 8.9, gap: -0.9 },
+  { month: "Feb 2026", cap: 8.3, demand: 9.1, gap: -0.8 },
+  { month: "Mar 2026", cap: 8.5, demand: 9.3, gap: -0.8 },
+  { month: "Apr 2026", cap: 6.9, demand: 8.7, gap: -1.8 },
+  { month: "May 2026", cap: 6.9, demand: 8.8, gap: -0.9 },
+  { month: "Jun 2026", cap: 7.5, demand: 8.4, gap: -0.9 },
 ];
 
 export const demand = [
-  { label: "Open", value: 412, color: COLORS.red },
-  { label: "In Progress", value: 186, color: COLORS.orange },
-  { label: "Fulfilled", value: 226, color: COLORS.green },
-  { label: "Staffing Gap", value: -18, color: COLORS.red },
+  { label: "Open", value: 41, color: COLORS.red },
+  { label: "In Progress", value: 18, color: COLORS.orange },
+  { label: "Fulfilled", value: 23, color: COLORS.green },
+  { label: "Staffing Gap", value: -4, color: COLORS.red },
 ];
 
 export const byRole = [
-  { role: "Developers", value: 156 },
-  { role: "Consultants", value: 92 },
-  { role: "Analysts", value: 108 },
-  { role: "Testers", value: 100 },
-  { role: "Architects", value: 28 },
+  { role: "Developers", value: 16 },
+  { role: "Consultants", value: 9 },
+  { role: "Analysts", value: 11 },
+  { role: "Testers", value: 10 },
+  { role: "Architects", value: 3 },
 ];
 
 export const aging = [
-  { range: "0–15 Days", count: 142, pct: "34.5%", color: COLORS.green },
-  { range: "16–30 Days", count: 113, pct: "27.4%", color: COLORS.teal },
-  { range: "31–40 Days", count: 96, pct: "23.3%", color: COLORS.orange },
-  { range: ">40 Days", count: 61, pct: "14.8%", color: COLORS.red },
+  { range: "0–15 Days", count: 14, pct: "34.5%", color: COLORS.green },
+  { range: "16–30 Days", count: 11, pct: "27.4%", color: COLORS.teal },
+  { range: "31–40 Days", count: 10, pct: "23.3%", color: COLORS.orange },
+  { range: ">40 Days", count: 6, pct: "14.8%", color: COLORS.red },
 ];
 
 export const demandByPriority = [
-  { label: "High", value: 156, pct: 38, color: COLORS.red },
-  { label: "Medium", value: 164, pct: 40, color: COLORS.orange },
-  { label: "Low", value: 92, pct: 22, color: COLORS.blue },
+  { label: "High", value: 16, pct: 38, color: COLORS.red },
+  { label: "Medium", value: 16, pct: 40, color: COLORS.orange },
+  { label: "Low", value: 9, pct: 22, color: COLORS.blue },
 ];
 
 export const spendTrend = [
-  { month: "Jan", spend: 6.84 },
-  { month: "Feb", spend: 5.84 },
-  { month: "Mar", spend: 5.98 },
-  { month: "Apr", spend: 7.1 },
-  { month: "May", spend: 8.1 },
+  { month: "Jan 2026", spend: 6.84 },
+  { month: "Feb 2026", spend: 5.84 },
+  { month: "Mar 2026", spend: 5.98 },
+  { month: "Apr 2026", spend: 7.1 },
+  { month: "May 2026", spend: 8.1 },
 ];
 
 export const spendByCat = [
@@ -1477,11 +1478,11 @@ export const portfolioVar = [
 ];
 
 export const budgetMonthly = [
-  { month: "Jan", budget: 4.4, actual: 4.9, variance: -0.5 },
-  { month: "Feb", budget: 4.3, actual: 4.7, variance: -0.4 },
-  { month: "Mar", budget: 5.1, actual: 5.6, variance: -0.5 },
-  { month: "Apr", budget: 5.4, actual: 5.8, variance: -0.4 },
-  { month: "May", budget: 5.4, actual: 5.6, variance: -0.2 },
+  { month: "Jan 2026", budget: 4.4, actual: 4.9, variance: -0.5 },
+  { month: "Feb 2026", budget: 4.3, actual: 4.7, variance: -0.4 },
+  { month: "Mar 2026", budget: 5.1, actual: 5.6, variance: -0.5 },
+  { month: "Apr 2026", budget: 5.4, actual: 5.8, variance: -0.4 },
+  { month: "May 2026", budget: 5.4, actual: 5.6, variance: -0.2 },
 ];
 
 export const nonCompReasons = [
@@ -1493,13 +1494,13 @@ export const nonCompReasons = [
 ];
 
 export const compTrend = [
-  { month: "Jan", rate: 90 },
-  { month: "Feb", rate: 91 },
-  { month: "Mar", rate: 90 },
-  { month: "Apr", rate: 92 },
-  { month: "May", rate: 92 },
+  { month: "Jan 2026", rate: 90 },
+  { month: "Feb 2026", rate: 91 },
+  { month: "Mar 2026", rate: 90 },
+  { month: "Apr 2026", rate: 92 },
+  { month: "May 2026", rate: 92 },
 ];
-  
+
 export const items = [
   { label: "Timesheet Submission", value: 96, target: 95 },
   { label: "Allocation Adherence", value: 91, target: 90 },
@@ -1507,32 +1508,32 @@ export const items = [
   { label: "Data Quality", value: 88, target: 90 },
   { label: "Skill Certification", value: 90, target: 85 },
 ];
-  
+
 export const availTrend = [
-  { month: "Jan", pct: 23.1 },
-  { month: "Feb", pct: 22.4 },
-  { month: "Mar", pct: 22.4 },
-  { month: "Apr", pct: 21.1 },
-  { month: "May", pct: 21.6 },
+  { month: "Jan 2026", pct: 23 },
+  { month: "Feb 2026", pct: 22 },
+  { month: "Mar 2026", pct: 22 },
+  { month: "Apr 2026", pct: 21 },
+  { month: "May 2026", pct: 22 },
 ];
 
 export const sharedProjects = [
-  { name: "Cloud Migration", shared: 245 },
-  { name: "Data Warehouse", shared: 198 },
-  { name: "Mobile App Revamp", shared: 176 },
-  { name: "ERP Implementation", shared: 164 },
-  { name: "DevOps Implementation", shared: 142 },
-  { name: "Analytics Dashboard", shared: 138 },
-  { name: "Customer Portal", shared: 116 },
-  { name: "Security Upgrade", shared: 98 },
-  { name: "Automation Testing", shared: 66 },
+  { name: "Cloud Migration", shared: 24 },
+  { name: "Data Warehouse", shared: 20 },
+  { name: "Mobile App Revamp", shared: 18 },
+  { name: "ERP Implementation", shared: 16 },
+  { name: "DevOps Implementation", shared: 14 },
+  { name: "Analytics Dashboard", shared: 14 },
+  { name: "Customer Portal", shared: 12 },
+  { name: "Security Upgrade", shared: 10 },
+  { name: "Automation Testing", shared: 7 },
 ];
-  
+
 export const byRoleReportDetail16 = [
-  { role: "Developers", total: 4520, avail: 875, pct: "19.4%" },
-  { role: "Consultants", total: 1850, avail: 410, pct: "22.2%" },
-  { role: "Analysts", total: 1210, avail: 245, pct: "20.2%" },
-  { role: "Testers", total: 700, avail: 155, pct: "22.1%" },
-  { role: "Architects", total: 252, avail: 57, pct: "22.6%" },
-  { role: "Others", total: 112, avail: 7, pct: "24.1%" },
+  { role: "Developers", total: 45, avail: 9, pct: "19.4%" },
+  { role: "Consultants", total: 19, avail: 4, pct: "22.2%" },
+  { role: "Analysts", total: 12, avail: 2, pct: "20.2%" },
+  { role: "Testers", total: 7, avail: 2, pct: "22.1%" },
+  { role: "Architects", total: 3, avail: 1, pct: "22.6%" },
+  { role: "Others", total: 6, avail: 1, pct: "24.1%" },
 ];
