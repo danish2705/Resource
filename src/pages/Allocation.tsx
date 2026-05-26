@@ -162,9 +162,9 @@ export default function ResourceAllocation() {
   }, [search, allocationTypeFilter, projectFilter, utilizationFilter]);
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
+    <div className="h-[calc(100vh-110px)] flex flex-col">
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="shrink-0">
           <CardTitle className="text-base">Allocation Details</CardTitle>
 
           <p className="text-sm text-muted-foreground">
@@ -173,9 +173,9 @@ export default function ResourceAllocation() {
           </p>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="flex flex-col flex-1 min-h-0">
           {/* Filters */}
-          <div className="flex flex-wrap items-center gap-3 mb-4">
+          <div className="shrink-0 flex flex-wrap items-center gap-3 mb-4">
             {/* Search */}
             <div className="relative flex-1 min-w-[240px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -249,13 +249,13 @@ export default function ResourceAllocation() {
           </div>
 
           {/* Table */}
-          <div className="h-[600px] overflow-y-auto border rounded-md">
-            <DataTable
-            data={filteredData}
-            columns={columns}
-            pageSize={50}
-            />
-          </div>
+          <div className="flex-1 min-h-0">
+  <DataTable
+    data={filteredData}
+    columns={columns}
+    pageSize={50}
+  />
+</div>
         </CardContent>
       </Card>
     </div>
