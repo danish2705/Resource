@@ -9,7 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoutes";
 
 import LoginPage from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
-import MyDashboard from "@/pages/Mydashboard";
+import Mydashboard from "@/pages/Mydashboard";
 import DemandSummary from "@/pages/DemandSummary";
 import CreateDemand from "@/pages/CreateDemand";
 import ResourceAllocation from "@/pages/Allocation";
@@ -24,6 +24,7 @@ import AuditLog from "@/pages/AuditLog";
 import TaskReviewApproval from "@/pages/TaskReviewApproval";
 
 import { useAuth } from "@/auth/useAuth";
+
 
 const queryClient = new QueryClient();
 
@@ -65,7 +66,7 @@ const App = () => (
                       path="/my-dashboard"
                       element={
                         <ProtectedRoute permission="view_dashboard">
-                          <MyDashboard />
+                          <Mydashboard />
                         </ProtectedRoute>
                       }
                     />
@@ -187,6 +188,8 @@ const App = () => (
                         </ProtectedRoute>
                       }
                     />
+
+                    <Route path="/mydashboard" element={<Mydashboard />} />
                     {/* Fallback Route */}
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>

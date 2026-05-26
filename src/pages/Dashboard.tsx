@@ -10,232 +10,202 @@ import {
   TrendingUp, AlertTriangle, ClipboardCheck,
   Activity, Zap, ArrowUpRight, ArrowDownRight,
 } from "lucide-react";
-
-// ─── Design tokens ─────────────────────────────────────────────────────────────
-const C = {
-  blue:       "#2563EB",
-  blueSoft:   "#DBEAFE",
-  teal:       "#0D9488",
-  orange:     "#EA580C",
-  orangeSoft: "#FFEDD5",
-  red:        "#DC2626",
-  redSoft:    "#FEE2E2",
-  purple:     "#7C3AED",
-  purpleSoft: "#EDE9FE",
-  green:      "#16A34A",
-  greenSoft:  "#DCFCE7",
-  amber:      "#D97706",
-  amberSoft:  "#FEF3C7",
-  gray:       "#6B7280",
-  indigo:     "#4F46E5",
-  sky:        "#0284C7",
-};
+import { C, capacityTrendData, utilizationData, riskData, topRisks, portfolioAlloc, utilTrendData, utilByDept, allocationByFn, forecastVsActuals, demandByPriority, allocationTrendData, alertsData, staffingData, completeness } from "@/mocks/dashboard.ts";
 
 // ─── Theme hook ────────────────────────────────────────────────────────────────
 function useTheme() {
-  const [isDark, setIsDark] = useState(false);
-
+  const [dark, setDark] = useState(false);
   useEffect(() => {
-    const check = () => {
-      const html = document.documentElement;
-      const body = document.body;
-      setIsDark(
-        html.classList.contains("dark") ||
-        body.classList.contains("dark") ||
-        html.getAttribute("data-theme") === "dark" ||
-        body.getAttribute("data-theme") === "dark" ||
-        window.matchMedia("(prefers-color-scheme: dark)").matches
-      );
-    };
-    check();
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    mq.addEventListener("change", check);
-    const observer = new MutationObserver(check);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme"] });
-    observer.observe(document.body, { attributes: true, attributeFilter: ["class", "data-theme"] });
-    return () => { mq.removeEventListener("change", check); observer.disconnect(); };
+    setDark(mq.matches);
+    const h = (e) => setDark(e.matches);
+    mq.addEventListener("change", h);
+    return () => mq.removeEventListener("change", h);
   }, []);
-
-  const t = isDark ? {
-    pageBg: "#0b1120", panelBg: "#131c2e", cardBg: "#1a2540",
-    border: "#243050", inputBg: "#0f1728", hoverBg: "#1b2d52",
-    textPrimary: "#f0f4ff", textSecondary: "#c4cfe8", textMuted: "#6c7fa8",
-    tableHeader: "#131c2e", tooltipBg: "#1a2540",
-    overlay: "rgba(0,0,0,0.7)", selectBg: "#0f1728",
-    dragChecked: "#1b2d52", dragCheckedBorder: "#2563EB",
-    dragUnchecked: "#1a2540", savedActive: "#1b2d52", savedActiveBorder: "#2563EB",
-    badgeInProgress: { bg: "#1b2d52", color: C.blue },
-    badgeOpen:       { bg: "#0d2a1a", color: C.green },
-    badgeNotStarted: { bg: "#1a2540", color: "#6c7fa8" },
-    gridStroke: "#243050", axisColor: "#6c7fa8",
-    sectionLabel: "#6c7fa8",
-    accentLine: "#243050",
-  } : {
-    pageBg: "#fafafa", panelBg: "#ffffff", cardBg: "#ffffff",
-    border: "#e2e8f4", inputBg: "#f7f9fd", hoverBg: "#eff4ff",
-    textPrimary: "#0d1526", textSecondary: "#374151", textMuted: "#64748b",
-    tableHeader: "#f7f9fd", tooltipBg: "#ffffff",
-    overlay: "rgba(13,21,38,0.5)", selectBg: "transparent",
-    dragChecked: "#eff4ff", dragCheckedBorder: "#bfdbfe",
-    dragUnchecked: "#f7f9fd", savedActive: "#eff4ff", savedActiveBorder: "#bfdbfe",
-    badgeInProgress: { bg: "#dbeafe", color: C.blue },
-    badgeOpen:       { bg: "#dcfce7", color: C.green },
-    badgeNotStarted: { bg: "#f3f4f6", color: C.gray },
-    gridStroke: "#eef2fa", axisColor: "#94a3b8",
-    sectionLabel: "#0c0d0e",
-    accentLine: "#e2e8f4",
-  };
-
-  return { isDark, t, setIsDark };
+ 
+  const t = dark
+    ? {
+        // base tokens
+        pageBg: "#181818", panel: "#222222", card: "#2a2a2a",
+        border: "#3a3a3a", inputBg: "#1e1e1e",
+        text1: "#f0f0f0", text2: "#b0b0b0", text3: "#666666",
+        grid: "#333333", axis: "#777777",
+        tableHead: "#1e1e1e",
+        // component aliases
+        cardBg: "#2a2a2a",
+        textSecondary: "#b0b0b0",
+        axisColor: "#777777",
+        gridStroke: "#333333",
+        tooltipBg: "#1e293b",
+        tableHeader: "#1e1e1e",
+        sectionLabel: "#888888",
+        overlay: "rgba(0,0,0,0.6)",
+        hoverBg: "#333333",
+        dragChecked: "#1e2a3a", dragCheckedBorder: C.blue,
+        dragUnchecked: "#2a2a2a",
+        // alerts
+        alertRed:    { bg: "rgba(220,38,38,.12)",   text: "#fca5a5", dot: "#ef4444" },
+        alertOrange: { bg: "rgba(234,88,12,.12)",    text: "#fdba74", dot: "#f97316" },
+        alertAmber:  { bg: "rgba(217,119,6,.12)",    text: "#fcd34d", dot: "#f59e0b" },
+        // badges (both old and new key names)
+        badgeIP:  { bg: "#1e3a5f", color: C.blue  },
+        badgeO:   { bg: "#14351f", color: C.green },
+        badgeNS:  { bg: "#2a2a2a", color: C.gray  },
+        badgeInProgress: { bg: "#1e3a5f", color: C.blue  },
+        badgeOpen:       { bg: "#14351f", color: C.green },
+        badgeNotStarted: { bg: "#2a2a2a", color: C.gray  },
+        trackBg: "#3a3a3a",
+      }
+    : {
+        // base tokens
+        pageBg: "#f5f5f4", panel: "#ffffff", card: "#ffffff",
+        border: "#e5e7eb", inputBg: "#f9fafb",
+        text1: "#111827", text2: "#374151", text3: "#9ca3af",
+        grid: "#f3f4f6", axis: "#9ca3af",
+        tableHead: "#f9fafb",
+        // component aliases
+        cardBg: "#ffffff",
+        textSecondary: "#374151",
+        axisColor: "#9ca3af",
+        gridStroke: "#f3f4f6",
+        tooltipBg: "#ffffff",
+        tableHeader: "#f9fafb",
+        sectionLabel: "#9ca3af",
+        overlay: "rgba(0,0,0,0.3)",
+        hoverBg: "#f3f4f6",
+        dragChecked: "#eff6ff", dragCheckedBorder: C.blue,
+        dragUnchecked: "#f9fafb",
+        // alerts
+        alertRed:    { bg: "rgba(220,38,38,.07)",   text: "#b91c1c", dot: "#ef4444" },
+        alertOrange: { bg: "rgba(234,88,12,.07)",    text: "#c2410c", dot: "#f97316" },
+        alertAmber:  { bg: "rgba(217,119,6,.07)",    text: "#b45309", dot: "#f59e0b" },
+        // badges (both old and new key names)
+        badgeIP:  { bg: "#dbeafe", color: "#1d4ed8" },
+        badgeO:   { bg: "#dcfce7", color: "#15803d" },
+        badgeNS:  { bg: "#f3f4f6", color: C.gray   },
+        badgeInProgress: { bg: "#dbeafe", color: "#1d4ed8" },
+        badgeOpen:       { bg: "#dcfce7", color: "#15803d" },
+        badgeNotStarted: { bg: "#f3f4f6", color: C.gray   },
+        trackBg: "#e5e7eb",
+      };
+  return { dark, t };
 }
-
-// ─── Chart Data ────────────────────────────────────────────────────────────────
-const capDemandData = [
-  { month: "Dec '23", Capacity: 7100, Demand: 7500, Gap: -200 },
-  { month: "Jan '24", Capacity: 7200, Demand: 7500, Gap: -300 },
-  { month: "Feb '24", Capacity: 7300, Demand: 7700, Gap: -400 },
-  { month: "Mar '24", Capacity: 7400, Demand: 7600, Gap: -200 },
-  { month: "Apr '24", Capacity: 7400, Demand: 8100, Gap: -700 },
-  { month: "May '24", Capacity: 7400, Demand: 8000, Gap: -600 },
-];
-const utilTrendData = [
-  { month: "Dec '23", rate: 76 }, { month: "Jan '24", rate: 78 },
-  { month: "Feb '24", rate: 79 }, { month: "Mar '24", rate: 80 },
-  { month: "Apr '24", rate: 81 }, { month: "May '24", rate: 83 },
-];
-const allocationTrendData = [
-  { month: "Dec '23", fte: 6200 }, { month: "Jan '24", fte: 6400 },
-  { month: "Feb '24", fte: 6600 }, { month: "Mar '24", fte: 6800 },
-  { month: "Apr '24", fte: 7000 }, { month: "May '24", fte: 7100 },
-];
-const capacityTrendData = [
-  { month: "Jan", capacity: 2200, allocated: 1500, available: 700 },
-  { month: "Feb", capacity: 2400, allocated: 1700, available: 700 },
-  { month: "Mar", capacity: 2600, allocated: 1750, available: 850 },
-  { month: "Apr", capacity: 2500, allocated: 1680, available: 820, forecast: 2400 },
-  { month: "May", capacity: 2580, allocated: 1780, available: 800, forecast: 2500 },
-  { month: "Jun", capacity: 2520, allocated: 1600, available: 920, forecast: 2721 },
-];
-const portfolioAlloc = [
-  { name: "Digital Transformation", value: 2346, pct: 33.0, color: C.blue   },
-  { name: "Product Engineering",    value: 1842, pct: 25.9, color: C.teal   },
-  { name: "Cloud Services",         value: 1396, pct: 19.6, color: C.orange },
-  { name: "Data & Analytics",       value: 1030, pct: 14.5, color: C.purple },
-  { name: "Business Applications",  value: 601,  pct: 8.4,  color: C.green  },
-];
-const utilizationData = [
-  { name: "Optimal",       value: 54, color: C.blue   },
-  { name: "High",          value: 22, color: C.orange },
-  { name: "Underutilized", value: 16, color: C.green  },
-  { name: "Overallocated", value: 8,  color: C.red    },
-];
-const riskData = [
-  { name: "High Risk",     value: 7, color: C.red    },
-  { name: "Medium Risk",   value: 8, color: C.orange },
-  { name: "Low Risk",      value: 6, color: C.amber  },
-  { name: "Informational", value: 3, color: C.blue   },
-];
-const topRisks = [
-  { text: "Critical skill shortage in Data Engineering", count: 5, color: C.red    },
-  { text: "Over allocation in Mobile Projects",          count: 4, color: C.red    },
-  { text: "Open high priority demands",                  count: 4, color: C.orange },
-  { text: "Key resource attrition risk",                 count: 3, color: C.green  },
-  { text: "Timesheets pending submission",               count: 3, color: C.blue   },
-];
-const demandByPriority = [
-  { label: "High",        value: 156, color: C.red    },
-  { label: "Medium",      value: 146, color: C.orange },
-  { label: "Low",         value: 92,  color: C.green  },
-  { label: "Not Started", value: 18,  color: C.gray   },
-];
-const recentDemands = [
-  { id: "DM-1248", name: "AI Platform Implementation", priority: "High",   skills: "Python, ML, Azure",          fte: 15, by: "Arjun N.",   date: "Jun 15, 2024", status: "In Progress" },
-  { id: "DM-1251", name: "Mobile App Revamp",          priority: "High",   skills: "React Native, iOS, Android",  fte: 12, by: "Priya S.",   date: "Jun 20, 2024", status: "Open"        },
-  { id: "DM-1256", name: "Data Warehouse Migration",   priority: "Medium", skills: "SQL, ETL, Azure",             fte: 8,  by: "Karthik R.", date: "Jul 05, 2024", status: "Open"        },
-  { id: "DM-1260", name: "Cloud Optimization",         priority: "Medium", skills: "AWS, DevOps",                 fte: 6,  by: "Vimal K.",   date: "Jul 10, 2024", status: "Not Started" },
-];
-const utilByDept = [
-  { dept: "Engineering",      value: 89 },
-  { dept: "Consulting",       value: 85 },
-  { dept: "Data & Analytics", value: 83 },
-  { dept: "Cloud Services",   value: 79 },
-  { dept: "Product",          value: 75 },
-  { dept: "Business Ops",     value: 60 },
-];
-const allocationByFn = [
-  { name: "Engineering",     allocated: 78, available: 14, bench: 8  },
-  { name: "Product",         allocated: 74, available: 16, bench: 10 },
-  { name: "Architecture",    allocated: 81, available: 11, bench: 8  },
-  { name: "Data",            allocated: 72, available: 17, bench: 11 },
-  { name: "QA",              allocated: 76, available: 14, bench: 10 },
-  { name: "Operations",      allocated: 68, available: 17, bench: 15 },
-  { name: "Shared Services", allocated: 63, available: 22, bench: 15 },
-];
-const heatmap = [
-  { skill: "Cloud Engineering",    may: "#22C55E", jun: "#86EFAC", jul: "#FDE047" },
-  { skill: "Data Engineering",     may: "#86EFAC", jun: "#FDE047", jul: "#F97316" },
-  { skill: "Software Engineering", may: "#FDE047", jun: "#F97316", jul: "#EF4444" },
-  { skill: "QA Automation",        may: "#FDE047", jun: "#FB923C", jul: "#EF4444" },
-  { skill: "DevOps",               may: "#FB923C", jun: "#EF4444", jul: "#B91C1C" },
-];
-const completeness = [
-  { label: "Skills",             value: 95 },
-  { label: "Allocation Data",    value: 93 },
-  { label: "Manager Assignment", value: 91 },
-  { label: "Timesheet Data",     value: 89 },
-  { label: "Certifications",     value: 85 },
-];
-const alertsData = [
-  { label: "Overallocated Resources", count: 2, variant: "red"    },
-  { label: "Missing Timesheets",      count: 1, variant: "orange" },
-  { label: "Expiring Contracts",      count: 1, variant: "amber"  },
-  { label: "Critical Skill Shortage", count: 1, variant: "red"    },
-];
-const staffingData = [
-  { label: "High Priority",   count: 12, color: C.red    },
-  { label: "Medium Priority", count: 10, color: C.orange },
-  { label: "Low Priority",    count: 5,  color: C.green  },
-];
-const forecastVsActuals = [
-  { month: "Jan", planned: 115, forecast: 100, actual: 95  },
-  { month: "Feb", planned: 118, forecast: 102, actual: 98  },
-  { month: "Mar", planned: 120, forecast: 108, actual: 99  },
-  { month: "Apr", planned: 125, forecast: 115, actual: 104 },
-  { month: "May", planned: 126, forecast: 112, actual: 100 },
-  { month: "Jun", planned: 127, forecast: 118, actual: 98  },
-];
 
 // ─── KPI Cards Data ────────────────────────────────────────────────────────────
 const DEFAULT_KPI_CARDS = [
-  { id: "kpi_resources",   icon: Users,          iconBg: C.blueSoft,   iconColor: C.blue,   label: "Total Resources (FTE)",    value: "8,532", vsLabel: "vs Apr 2024", delta: "2.3%", deltaUp: true,  valueColor: C.blue,   checked: true },
-  { id: "kpi_capacity",    icon: Gauge,          iconBg: C.greenSoft,  iconColor: C.green,  label: "Total Capacity (FTE)",     value: "7,427", vsLabel: "vs Apr 2024", delta: "1.8%", deltaUp: true,  valueColor: C.green,  checked: true },
-  { id: "kpi_demand",      icon: TrendingUp,     iconBg: C.orangeSoft, iconColor: C.orange, label: "Total Demand (FTE)",       value: "8,016", vsLabel: "vs Apr 2024", delta: "3.6%", deltaUp: true,  valueColor: C.orange, checked: true },
-  { id: "kpi_gap",         icon: AlertTriangle,  iconBg: C.redSoft,    iconColor: C.red,    label: "Capacity Gap (FTE)",       value: "-589",  vsLabel: "vs Apr 2024", delta: "4.7%", deltaUp: false, valueColor: C.red,    checked: true },
-  { id: "kpi_util",        icon: PieChartIcon,   iconBg: C.purpleSoft, iconColor: C.purple, label: "Utilization Rate",         value: "83%",   vsLabel: "vs Apr 2024", delta: "2pp",  deltaUp: true,  valueColor: C.purple, checked: true },
-  { id: "kpi_bench",       icon: UserX,          iconBg: C.amberSoft,  iconColor: C.amber,  label: "Bench Resources",          value: "335",   vsLabel: "vs Apr 2024", delta: "5.6%", deltaUp: true,  valueColor: C.amber,  checked: true },
-  { id: "kpi_opendemand",  icon: UserCheck,      iconBg: "#e0f2fe",    iconColor: C.sky,    label: "Open Demands",             value: "412",   vsLabel: "vs Apr 2024", delta: "5.1%", deltaUp: false, valueColor: C.sky,    checked: true }
+  {
+    id: "kpi_resources",
+    icon: Users,
+    iconBg: C.blueSoft,
+    iconColor: C.blue,
+    label: "Total Resources (FTE)",
+    value: "86",
+    vsLabel: "vs Apr 2025",
+    delta: "2.3%",
+    deltaUp: true,
+    valueColor: C.blue,
+    checked: true,
+  },
+  {
+    id: "kpi_capacity",
+    icon: Gauge,
+    iconBg: C.greenSoft,
+    iconColor: C.green,
+    label: "Total Capacity (FTE)",
+    value: "74",
+    vsLabel: "vs Apr 2025",
+    delta: "1.8%",
+    deltaUp: true,
+    valueColor: C.green,
+    checked: true,
+  },
+  {
+    id: "kpi_demand",
+    icon: TrendingUp,
+    iconBg: C.orangeSoft,
+    iconColor: C.orange,
+    label: "Total Demand (FTE)",
+    value: "80",
+    vsLabel: "vs Apr 2025",
+    delta: "3.6%",
+    deltaUp: true,
+    valueColor: C.orange,
+    checked: true,
+  },
+  {
+    id: "kpi_gap",
+    icon: AlertTriangle,
+    iconBg: C.redSoft,
+    iconColor: C.red,
+    label: "Capacity Gap (FTE)",
+    value: "-6",
+    vsLabel: "vs Apr 2025",
+    delta: "4.7%",
+    deltaUp: false,
+    valueColor: C.red,
+    checked: true,
+  },
+  {
+    id: "kpi_util",
+    icon: PieChartIcon,
+    iconBg: C.purpleSoft,
+    iconColor: C.purple,
+    label: "Utilization Rate",
+    value: "83%",
+    vsLabel: "vs Apr 2025",
+    delta: "2pp",
+    deltaUp: true,
+    valueColor: C.purple,
+    checked: true,
+  },
+  {
+    id: "kpi_bench",
+    icon: UserX,
+    iconBg: C.amberSoft,
+    iconColor: C.amber,
+    label: "Bench Resources",
+    value: "12",
+    vsLabel: "vs Apr 2025",
+    delta: "5.6%",
+    deltaUp: true,
+    valueColor: C.amber,
+    checked: true,
+  },
+  {
+    id: "kpi_opendemand",
+    icon: UserCheck,
+    iconBg: "#e0f2fe",
+    iconColor: C.sky,
+    label: "Open Demands",
+    value: "27",
+    vsLabel: "vs Apr 2025",
+    delta: "5.1%",
+    deltaUp: false,
+    valueColor: C.sky,
+    checked: true,
+  },
 ];
 
 // ─── Widgets ───────────────────────────────────────────────────────────────────
+// Only the 12 required charts in exact order; removed widgets keep their
+// renderWidgetContent cases intact so no functionality is lost.
 const DEFAULT_WIDGETS = [
-  { id: "capDemandBar",   label: "Capacity vs Demand Trend",      checked: true,  row: 1, colSpan: "1.4fr" },
-  { id: "capTrendLine",   label: "Capacity & Demand Line",        checked: true,  row: 1, colSpan: "1.4fr" },
-  { id: "utilDonut",      label: "Utilization Distribution",      checked: true,  row: 1, colSpan: "0.9fr" },
-  { id: "resourceRisk",   label: "Resource Risks",                checked: true,  row: 1, colSpan: "0.9fr" },
-  { id: "allocPortfolio", label: "Allocation by Portfolio",       checked: true,  row: 2, colSpan: "1fr"   },
-  { id: "allocByFn",      label: "Allocation by Function",        checked: true,  row: 2, colSpan: "1fr"   },
-  { id: "skillHeatmap",   label: "Skill Demand Heatmap",          checked: true,  row: 2, colSpan: "1fr"   },
-  { id: "forecastBar",    label: "Forecast vs Actuals",           checked: true,  row: 2, colSpan: "1fr"   },
-  { id: "utilTrend",      label: "Utilization Trend",             checked: true,  row: 3, colSpan: "1fr"   },
-  { id: "demandPriority", label: "Demand by Priority",            checked: true,  row: 3, colSpan: "0.7fr" },
-  { id: "benchAvail",     label: "Bench Availability",            checked: true,  row: 3, colSpan: "0.7fr" },
-  { id: "allocTrend",     label: "Allocation Trend",              checked: true,  row: 3, colSpan: "1fr"   },
-  { id: "recentDemands",  label: "Recent Demands",                checked: true,  row: 4, colSpan: "2fr"   },
-  { id: "utilDept",       label: "Utilization by Department",     checked: true,  row: 4, colSpan: "1fr"   },
-  { id: "riskAlerts",     label: "Risk Alerts",                   checked: true,  row: 4, colSpan: "1fr"   },
-  { id: "staffing",       label: "Pending Staffing",              checked: true,  row: 5, colSpan: "1fr"   },
-  { id: "dataHealth",     label: "Data Completeness",             checked: true,  row: 5, colSpan: "1fr"   },
-  { id: "forecastAcc",    label: "Forecast Accuracy",             checked: true,  row: 5, colSpan: "1fr"   },
+  // Row 1 — Capacity & Utilization
+  { id: "capTrendLine",   label: "Capacity & Demand Trend",    checked: true, row: 1, colSpan: "1fr" },
+  { id: "utilDonut",      label: "Utilization Distribution",   checked: true, row: 1, colSpan: "1fr" },
+  { id: "utilDept",       label: "Utilization by Department",  checked: true, row: 1, colSpan: "1fr" },
+  // Row 2 — Allocation & Forecast
+  { id: "allocPortfolio", label: "Allocation by Portfolio",    checked: true, row: 2, colSpan: "1fr" },
+  { id: "allocByFn",      label: "Allocation by Function",     checked: true, row: 2, colSpan: "1fr" },
+  { id: "forecastBar",    label: "Forecast vs Actuals",        checked: true, row: 2, colSpan: "1fr" },
+  // Row 3 — Trends & Demand
+  { id: "utilTrend",      label: "Utilization Trend (%)",      checked: true, row: 3, colSpan: "1fr" },
+  { id: "allocTrend",     label: "Allocation Trend",           checked: true, row: 3, colSpan: "1fr" },
+  { id: "demandPriority", label: "Demand by Priority",         checked: true, row: 3, colSpan: "1fr" },
+  // Row 4 — Risk & Data Health
+  { id: "forecastAcc",    label: "Forecast Accuracy",          checked: true, row: 4, colSpan: "1fr" },
+  { id: "staffing",       label: "Pending Staffing",           checked: true, row: 4, colSpan: "1fr" },
+  { id: "resourceRisk",   label: "Resource Risks",             checked: true, row: 4, colSpan: "1fr" },
 ];
 
 const INITIAL_SAVED_VIEWS = [
@@ -299,8 +269,8 @@ function CardShell({ title, subtitle, children, t }: any) {
   return (
     <div style={{ background: t.cardBg, borderRadius: 14, border: `1px solid ${t.border}`, padding: "18px 18px 16px", display: "flex", flexDirection: "column", gap: 10, height: "100%", boxSizing: "border-box", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
       <div>
-        <div style={{ fontSize: 13, fontWeight: 700, color: t.textPrimary }}>{title}</div>
-        {subtitle && <div style={{ fontSize: 11, color: t.textMuted, marginTop: 2 }}>{subtitle}</div>}
+        <div style={{ fontSize: 13, fontWeight: 700, color: t.text1 }}>{title}</div>
+        {subtitle && <div style={{ fontSize: 11, color: t.text3, marginTop: 2 }}>{subtitle}</div>}
       </div>
       {children}
     </div>
@@ -326,8 +296,8 @@ function KpiCard({ icon: Icon, iconBg, iconColor, label, value, valueColor, vsLa
         <Icon size={16} color={iconColor} />
       </div>
       <div style={{ fontSize: 22, fontWeight: 800, color: valueColor, lineHeight: 1, marginBottom: 4, letterSpacing: "-0.02em" }}>{value}</div>
-      <div style={{ fontSize: 10, color: t.textMuted, lineHeight: 1.4, marginBottom: 6, minHeight: 28 }}>{label}</div>
-      <div style={{ fontSize: 10, color: t.textMuted, display: "flex", alignItems: "center", gap: 3 }}>
+      <div style={{ fontSize: 10, color: t.text3, lineHeight: 1.4, marginBottom: 6, minHeight: 28 }}>{label}</div>
+      <div style={{ fontSize: 10, color: t.text3, display: "flex", alignItems: "center", gap: 3 }}>
         {deltaUp ? <ArrowUpRight size={11} color={C.green} /> : <ArrowDownRight size={11} color={C.red} />}
         <span style={{ color: deltaUp ? C.green : C.red, fontWeight: 700 }}>{delta}</span>
         <span>{vsLabel}</span>
@@ -360,8 +330,8 @@ function CalendarModal({ startDate, endDate, onApply, onClose, t }: any) {
     <div style={{ position:"fixed", inset:0, background:t.overlay, zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center" }}>
       <div style={{ background:t.cardBg, borderRadius:16, boxShadow:"0 20px 60px rgba(0,0,0,0.18)", width:360, padding:28, border:`1px solid ${t.border}` }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
-          <span style={{ fontSize:16, fontWeight:700, color:t.textPrimary }}>Select Date Range</span>
-          <button onClick={onClose} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:t.textMuted, lineHeight:1 }}>×</button>
+          <span style={{ fontSize:16, fontWeight:700, color:t.text1 }}>Select Date Range</span>
+          <button onClick={onClose} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:t.text3, lineHeight:1 }}>×</button>
         </div>
         <div style={{ display:"flex", flexDirection:"column", gap:14, marginBottom:16 }}>
           {[["Start Date", start, setStart], ["End Date", end, setEnd]].map(([label, val, setter]: any) => (
@@ -370,13 +340,13 @@ function CalendarModal({ startDate, endDate, onApply, onClose, t }: any) {
               <input type="date" value={val} onChange={e => { setter(e.target.value); setError(""); }}
                 style={{ width:"100%", boxSizing:"border-box", padding:"10px 12px", fontSize:13,
                   border:`1px solid ${error ? C.red : t.border}`, borderRadius:8, outline:"none",
-                  color:t.textPrimary, background:t.inputBg }} />
+                  color:t.text1, background:t.inputBg }} />
             </div>
           ))}
         </div>
         {error && <div style={{ fontSize:11, color:C.red, marginBottom:12 }}>{error}</div>}
         <div style={{ display:"flex", gap:8, justifyContent:"flex-end" }}>
-          <button onClick={onClose} style={{ padding:"8px 20px", fontSize:12, fontWeight:600, color:t.textMuted, background:t.inputBg, border:`1px solid ${t.border}`, borderRadius:8, cursor:"pointer" }}>Cancel</button>
+          <button onClick={onClose} style={{ padding:"8px 20px", fontSize:12, fontWeight:600, color:t.text3, background:t.inputBg, border:`1px solid ${t.border}`, borderRadius:8, cursor:"pointer" }}>Cancel</button>
           <button onClick={handleApply} style={{ padding:"8px 24px", fontSize:12, fontWeight:600, color:"#fff", background:C.blue, border:"none", borderRadius:8, cursor:"pointer" }}>Apply</button>
         </div>
       </div>
@@ -391,18 +361,18 @@ function SaveViewModal({ onSave, onClose, t }) {
     <div style={{ position: "fixed", inset: 0, background: t.overlay, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ background: t.cardBg, borderRadius: 16, boxShadow: "0 20px 60px rgba(0,0,0,0.2)", width: 400, padding: 28, border: `1px solid ${t.border}` }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <span style={{ fontSize: 16, fontWeight: 700, color: t.textPrimary }}>Save View</span>
-          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: t.textMuted }}>×</button>
+          <span style={{ fontSize: 16, fontWeight: 700, color: t.text1 }}>Save View</span>
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: t.text3 }}>×</button>
         </div>
         <label style={{ fontSize: 12, fontWeight: 600, color: t.textSecondary, display: "block", marginBottom: 6 }}>Report Name</label>
         <input autoFocus value={name} onChange={e => { setName(e.target.value); setError(""); }}
           onKeyDown={e => e.key === "Enter" && (name.trim() ? onSave(name.trim()) : setError("Please enter a report name."))}
           placeholder="e.g. My Custom View"
-          style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", fontSize: 13, border: `1px solid ${error ? C.red : t.border}`, borderRadius: 8, outline: "none", color: t.textPrimary, background: t.inputBg }} />
+          style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", fontSize: 13, border: `1px solid ${error ? C.red : t.border}`, borderRadius: 8, outline: "none", color: t.text1, background: t.inputBg }} />
         {error && <div style={{ fontSize: 11, color: C.red, marginTop: 4 }}>{error}</div>}
-        <div style={{ fontSize: 11, color: t.textMuted, margin: "16px 0" }}>Saves your current widget & KPI selection as a named view.</div>
+        <div style={{ fontSize: 11, color: t.text3, margin: "16px 0" }}>Saves your current widget & KPI selection as a named view.</div>
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-          <button onClick={onClose} style={{ padding: "8px 20px", fontSize: 12, fontWeight: 600, color: t.textMuted, background: t.inputBg, border: `1px solid ${t.border}`, borderRadius: 8, cursor: "pointer" }}>Cancel</button>
+          <button onClick={onClose} style={{ padding: "8px 20px", fontSize: 12, fontWeight: 600, color: t.text3, background: t.inputBg, border: `1px solid ${t.border}`, borderRadius: 8, cursor: "pointer" }}>Cancel</button>
           <button onClick={() => name.trim() ? onSave(name.trim()) : setError("Please enter a report name.")}
             style={{ padding: "8px 24px", fontSize: 12, fontWeight: 600, color: "#fff", background: C.blue, border: "none", borderRadius: 8, cursor: "pointer" }}>Save</button>
         </div>
@@ -423,7 +393,7 @@ function DraggableWidgetRow({ widget, index, onToggle, onDragStart, onDragOver, 
         <input type="checkbox" checked={widget.checked} onChange={() => onToggle(widget.id)} style={{ accentColor: C.blue, width: 14, height: 14 }} />
         <span style={{ fontSize: 11, color: t.textSecondary, fontWeight: 500 }}>{widget.label}</span>
       </label>
-      <span style={{ fontSize: 14, color: t.textMuted, cursor: "grab" }}>⠿</span>
+      <span style={{ fontSize: 14, color: t.text3, cursor: "grab" }}>⠿</span>
     </div>
   );
 }
@@ -440,7 +410,7 @@ function DraggableKpiRow({ kpi, index, onToggle, onDragStart, onDragOver, onDrop
         <Icon size={12} color={kpi.iconColor} />
         <span style={{ fontSize: 11, color: t.textSecondary, fontWeight: 500 }}>{kpi.label}</span>
       </label>
-      <span style={{ fontSize: 14, color: t.textMuted, cursor: "grab" }}>⠿</span>
+      <span style={{ fontSize: 14, color: t.text3, cursor: "grab" }}>⠿</span>
     </div>
   );
 }
@@ -448,29 +418,23 @@ function DraggableKpiRow({ kpi, index, onToggle, onDragStart, onDragOver, onDrop
 // ─── Widget Content Renderer ───────────────────────────────────────────────────
 function renderWidgetContent(id, t, isDark) {
   const axisProps = { tick: { fontSize: 9, fill: t.axisColor } };
-  const tooltipStyle = { contentStyle: { fontSize: 10, background: t.tooltipBg, border: `1px solid ${t.border}`, color: t.textPrimary, borderRadius: 8 } };
+  const tooltipStyle = { contentStyle: { fontSize: 10, background: t.tooltipBg, border: `1px solid ${t.border}`, color: t.text1, borderRadius: 8 } };
   const aColors = isDark ? alertColorsDark : alertColors;
 
   switch (id) {
     case "capDemandBar":
       return (
-        <CardShell title="Capacity vs Demand Trend (FTE)" subtitle="Dec 2023 – May 2024" t={t}>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            {[["Capacity", C.blue], ["Demand", C.orange], ["Gap", C.red]].map(([l, c]) => (
-              <span key={l} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 9, color: t.textMuted }}>
-                <span style={{ width: 18, height: 3, background: c, display: "inline-block", borderRadius: 2 }} />{l}
-              </span>
-            ))}
-          </div>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={capDemandData} margin={{ top: 4, right: 4, bottom: 4, left: -18 }}>
-              <CartesianGrid strokeDasharray="2 2" stroke={t.gridStroke} />
+        <CardShell title="Capacity vs Demand Trend" subtitle="Jan – Jun 2026" t={t}>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={capacityTrendData} barSize={10} barCategoryGap="28%" margin={{ top: 4, right: 8, bottom: 4, left: -12 }}>
+              <CartesianGrid strokeDasharray="2 2" stroke={t.gridStroke} vertical={false} />
               <XAxis dataKey="month" {...axisProps} />
-              <YAxis {...axisProps} tickFormatter={v => v < 0 ? `${v}` : `${(v/1000).toFixed(1)}K`} />
-              <Tooltip {...tooltipStyle} formatter={v => `${Number(v).toLocaleString()} FTE`} />
-              <Bar dataKey="Capacity" fill={C.blue}   radius={[3,3,0,0]} />
-              <Bar dataKey="Demand"   fill={C.orange} radius={[3,3,0,0]} />
-              <Bar dataKey="Gap"      fill={C.red}    radius={[3,3,0,0]} />
+              <YAxis {...axisProps} />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend iconType="circle" iconSize={7} wrapperStyle={{ fontSize: 9, paddingTop: 8 }} />
+              <Bar dataKey="capacity"  fill={C.blue}   radius={[3,3,0,0]} name="Total Capacity" />
+              <Bar dataKey="allocated" fill={C.green}  radius={[3,3,0,0]} name="Allocated" />
+              <Bar dataKey="available" fill={C.orange} radius={[3,3,0,0]} name="Available" />
             </BarChart>
           </ResponsiveContainer>
         </CardShell>
@@ -508,8 +472,8 @@ function renderWidgetContent(id, t, isDark) {
               </PieChart>
             </ResponsiveContainer>
             <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: t.textPrimary }}>78.4%</div>
-              <div style={{ fontSize: 9, color: t.textMuted }}>Utilization</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: t.text1 }}>78.4%</div>
+              <div style={{ fontSize: 9, color: t.text3 }}>Utilization</div>
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
@@ -519,7 +483,7 @@ function renderWidgetContent(id, t, isDark) {
                   <div style={{ width: 7, height: 7, borderRadius: "50%", background: item.color }} />
                   <span style={{ color: t.textSecondary }}>{item.name}</span>
                 </div>
-                <span style={{ fontWeight: 700, color: t.textPrimary }}>{item.value}%</span>
+                <span style={{ fontWeight: 700, color: t.text1 }}>{item.value}%</span>
               </div>
             ))}
           </div>
@@ -537,8 +501,8 @@ function renderWidgetContent(id, t, isDark) {
                 </Pie>
               </PieChart>
               <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                <div style={{ fontSize: 15, fontWeight: 800, color: t.textPrimary }}>24</div>
-                <div style={{ fontSize: 7, color: t.textMuted }}>Risks</div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: t.text1 }}>24</div>
+                <div style={{ fontSize: 7, color: t.text3 }}>Risks</div>
               </div>
             </div>
             <div style={{ flex: 1 }}>
@@ -555,7 +519,7 @@ function renderWidgetContent(id, t, isDark) {
           <div style={{ paddingTop: 4, borderTop: `1px solid ${t.border}` }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: t.textSecondary, marginBottom: 6 }}>Top Risks</div>
             {topRisks.map((r, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 9.5, color: t.textMuted, padding: "2px 0" }}>
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 9.5, color: t.text3, padding: "2px 0" }}>
                 <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
                   <span style={{ width: 5, height: 5, borderRadius: "50%", background: r.color, flexShrink: 0, display: "inline-block" }} />
                   {r.text}
@@ -570,25 +534,122 @@ function renderWidgetContent(id, t, isDark) {
     case "allocPortfolio":
       return (
         <CardShell title="Allocation by Portfolio (FTE)" t={t}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ position: "relative", width: 100, height: 100, flexShrink: 0 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 18,
+              width: "100%",
+              minHeight: 220,
+            }}
+          >
+            <div
+              style={{
+                position: "relative",
+                width: 100,
+                height: 100,
+                flexShrink: 0,
+              }}
+            >
               <PieChart width={100} height={100}>
-                <Pie data={portfolioAlloc} cx={49} cy={49} innerRadius={28} outerRadius={47} dataKey="value" startAngle={90} endAngle={-270}>
-                  {portfolioAlloc.map((d, i) => <Cell key={i} fill={d.color} />)}
+                <Pie
+                  data={portfolioAlloc}
+                  cx={49}
+                  cy={49}
+                  innerRadius={28}
+                  outerRadius={47}
+                  dataKey="value"
+                  startAngle={90}
+                  endAngle={-270}
+                >
+                  {portfolioAlloc.map((d, i) => (
+                    <Cell key={i} fill={d.color} />
+                  ))}
                 </Pie>
               </PieChart>
-              <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: t.textPrimary }}>7,115</div>
-                <div style={{ fontSize: 8, color: t.textMuted }}>FTE</div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  pointerEvents: "none",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 800,
+                    color: t.text1,
+                  }}
+                >
+                  100
+                </div>
+
+                <div
+                  style={{
+                    fontSize: 8,
+                    color: t.text3,
+                  }}
+                >
+                  FTE
+                </div>
               </div>
             </div>
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 5 }}>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 6,
+                justifyContent: "center",
+              }}
+            >
               {portfolioAlloc.map((d, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 9.5 }}>
-                  <span style={{ width: 7, height: 7, borderRadius: 2, background: d.color, flexShrink: 0 }} />
-                  <span style={{ color: t.textSecondary, flex: 1 }}>{d.name}</span>
-                  <span style={{ fontWeight: 600, color: t.textPrimary }}>{d.value.toLocaleString()}</span>
-                  <span style={{ color: t.textMuted }}>({d.pct}%)</span>
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 5,
+                    fontSize: 9.5,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 7,
+                      height: 7,
+                      borderRadius: 2,
+                      background: d.color,
+                      flexShrink: 0,
+                    }}
+                  />
+
+                  <span
+                    style={{
+                      color: t.textSecondary,
+                      flex: 1,
+                    }}
+                  >
+                    {d.name}
+                  </span>
+
+                  <span
+                    style={{
+                      fontWeight: 600,
+                      color: t.text1,
+                    }}
+                  >
+                    {d.value}
+                  </span>
+
+                  <span style={{ color: t.text3 }}>
+                    ({d.pct}%)
+                  </span>
                 </div>
               ))}
             </div>
@@ -604,7 +665,7 @@ function renderWidgetContent(id, t, isDark) {
               <div key={item.name}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 4 }}>
                   <span style={{ color: t.textSecondary, fontWeight: 500 }}>{item.name}</span>
-                  <span style={{ fontWeight: 700, color: t.textPrimary }}>{item.allocated}%</span>
+                  <span style={{ fontWeight: 700, color: t.text1 }}>{item.allocated}%</span>
                 </div>
                 <div style={{ height: 7, borderRadius: 99, background: t.border, overflow: "hidden", display: "flex" }}>
                   <div style={{ width: `${item.allocated}%`, background: C.blue,   borderRadius: "99px 0 0 99px" }} />
@@ -616,37 +677,8 @@ function renderWidgetContent(id, t, isDark) {
           </div>
           <div style={{ display: "flex", gap: 12, marginTop: 4 }}>
             {[["Allocated", C.blue], ["Available", C.green], ["Bench", C.orange]].map(([l, c]) => (
-              <div key={l} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10, color: t.textMuted }}>
+              <div key={l} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10, color: t.text3 }}>
                 <div style={{ width: 7, height: 7, borderRadius: "50%", background: c }} />{l}
-              </div>
-            ))}
-          </div>
-        </CardShell>
-      );
-
-    case "skillHeatmap":
-      return (
-        <CardShell title="Demand vs Capacity" subtitle="Skill availability heatmap" t={t}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 52px 52px 52px", gap: 6, fontSize: 10, color: t.textMuted, fontWeight: 600, marginBottom: 6 }}>
-            <span>Skill</span>
-            {["May", "Jun", "Jul"].map(m => <span key={m} style={{ textAlign: "center" }}>{m}</span>)}
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {heatmap.map(row => (
-              <div key={row.skill} style={{ display: "grid", gridTemplateColumns: "1fr 52px 52px 52px", gap: 6, alignItems: "center" }}>
-                <span style={{ fontSize: 10.5, color: t.textSecondary, fontWeight: 500 }}>{row.skill}</span>
-                {["may", "jun", "jul"].map(m => (
-                  <div key={m} style={{ height: 28, borderRadius: 7, background: row[m], opacity: 0.85, transition: "opacity 0.2s" }}
-                    onMouseEnter={e => e.currentTarget.style.opacity = "1"}
-                    onMouseLeave={e => e.currentTarget.style.opacity = "0.85"} />
-                ))}
-              </div>
-            ))}
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 6, paddingTop: 6, borderTop: `1px solid ${t.border}` }}>
-            {[["Healthy", "#22C55E"], ["Moderate", "#FDE047"], ["High Risk", "#F97316"], ["Critical", "#EF4444"]].map(([l, c]) => (
-              <div key={l} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 9.5, color: t.textMuted }}>
-                <div style={{ width: 8, height: 8, borderRadius: 2, background: c }} />{l}
               </div>
             ))}
           </div>
@@ -675,7 +707,7 @@ function renderWidgetContent(id, t, isDark) {
       return (
         <CardShell title="Utilization Trend (%)" t={t}>
           <ResponsiveContainer width="100%" height={165}>
-            <LineChart data={utilTrendData} margin={{ top: 4, right: 4, bottom: 4, left: -22 }}>
+            <AreaChart data={utilTrendData} margin={{ top: 4, right: 4, bottom: 4, left: -22 }}>
               <CartesianGrid strokeDasharray="2 2" stroke={t.gridStroke} />
               <XAxis dataKey="month" {...axisProps} />
               <YAxis domain={[50, 100]} {...axisProps} tickFormatter={v => `${v}%`} />
@@ -687,7 +719,7 @@ function renderWidgetContent(id, t, isDark) {
                 </linearGradient>
               </defs>
               <Area type="monotone" dataKey="rate" stroke={C.purple} strokeWidth={2.5} fill="url(#utilG)" dot={{ r: 4, fill: C.purple }} name="Utilization" />
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
         </CardShell>
       );
@@ -720,8 +752,8 @@ function renderWidgetContent(id, t, isDark) {
                 </Pie>
               </PieChart>
               <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: t.textPrimary }}>1,842</div>
-                <div style={{ fontSize: 8, color: t.textMuted }}>FTE</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: t.text1 }}>1,842</div>
+                <div style={{ fontSize: 8, color: t.text3 }}>FTE</div>
               </div>
             </div>
             <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 6 }}>
@@ -740,10 +772,10 @@ function renderWidgetContent(id, t, isDark) {
       return (
         <CardShell title="Allocation Trend" subtitle="Last 6 months" t={t}>
           <ResponsiveContainer width="100%" height={155}>
-            <LineChart data={allocationTrendData} margin={{ top: 4, right: 8, bottom: 4, left: -12 }}>
+            <AreaChart data={allocationTrendData} margin={{ top: 4, right: 8, bottom: 4, left: -12 }}>
               <CartesianGrid strokeDasharray="2 2" stroke={t.gridStroke} />
               <XAxis dataKey="month" {...axisProps} />
-              <YAxis {...axisProps} tickFormatter={v => `${(v/1000).toFixed(1)}K`} />
+              <YAxis {...axisProps} tickFormatter={v => `${v}`} />
               <Tooltip {...tooltipStyle} formatter={v => `${Number(v).toLocaleString()} FTE`} />
               <defs>
                 <linearGradient id="allocG" x1="0" y1="0" x2="0" y2="1">
@@ -752,39 +784,8 @@ function renderWidgetContent(id, t, isDark) {
                 </linearGradient>
               </defs>
               <Area type="monotone" dataKey="fte" stroke={C.blue} strokeWidth={2.5} fill="url(#allocG)" dot={{ r: 3, fill: C.blue }} name="Allocated FTE" />
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
-        </CardShell>
-      );
-
-    case "recentDemands":
-      return (
-        <CardShell title="Recent Demands" t={t}>
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ background: t.tableHeader }}>
-                  {["Demand ID","Demand Name","Priority","Required Skills","FTE","Requested By","Target Date","Status"].map(h => (
-                    <th key={h} style={{ textAlign: "left", padding: "6px 8px", fontSize: 9, color: t.textMuted, fontWeight: 600, borderBottom: `1px solid ${t.border}`, whiteSpace: "nowrap" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {recentDemands.map((r, i) => (
-                  <tr key={i} style={{ borderBottom: `1px solid ${t.border}` }}>
-                    <td style={{ padding: "7px 8px", fontSize: 10, color: C.blue, fontWeight: 600, whiteSpace: "nowrap" }}>{r.id}</td>
-                    <td style={{ padding: "7px 8px", fontSize: 11, color: t.textPrimary, fontWeight: 500 }}>{r.name}</td>
-                    <td style={{ padding: "7px 8px" }}>{priorityBadge(r.priority)}</td>
-                    <td style={{ padding: "7px 8px", fontSize: 10, color: t.textMuted }}>{r.skills}</td>
-                    <td style={{ padding: "7px 8px", fontSize: 11, fontWeight: 700, color: t.textPrimary, textAlign: "center" }}>{r.fte}</td>
-                    <td style={{ padding: "7px 8px", fontSize: 10, color: t.textSecondary }}>{r.by}</td>
-                    <td style={{ padding: "7px 8px", fontSize: 10, color: t.textMuted, whiteSpace: "nowrap" }}>{r.date}</td>
-                    <td style={{ padding: "7px 8px" }}>{statusBadge(r.status, t)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
         </CardShell>
       );
 
@@ -796,7 +797,7 @@ function renderWidgetContent(id, t, isDark) {
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: 10.5, color: t.textSecondary, minWidth: 106 }}>{d.dept}</span>
                 <MiniBar value={d.value} max={100} color={d.value >= 85 ? C.blue : d.value >= 75 ? C.teal : d.value >= 65 ? C.amber : C.gray} height={10} t={t} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: t.textPrimary, minWidth: 28, textAlign: "right" }}>{d.value}%</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: t.text1, minWidth: 28, textAlign: "right" }}>{d.value}%</span>
               </div>
             ))}
           </div>
@@ -826,7 +827,7 @@ function renderWidgetContent(id, t, isDark) {
     case "staffing":
       return (
         <CardShell title="Pending Staffing" subtitle="27 open staffing requests" t={t}>
-          <div style={{ fontSize: 32, fontWeight: 800, color: t.textPrimary, letterSpacing: "-0.03em" }}>27</div>
+          <div style={{ fontSize: 32, fontWeight: 800, color: t.text1, letterSpacing: "-0.03em" }}>27</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 4 }}>
             {staffingData.map(s => (
               <div key={s.label}>
@@ -849,8 +850,8 @@ function renderWidgetContent(id, t, isDark) {
         <CardShell title="Data Completeness" subtitle="Resource profile quality" t={t}>
           <div style={{ display: "flex", justifyContent: "center", margin: "8px 0" }}>
             <div style={{ width: 80, height: 80, borderRadius: "50%", border: `8px solid ${C.green}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: `0 0 0 3px ${C.greenSoft}` }}>
-              <span style={{ fontSize: 18, fontWeight: 800, color: t.textPrimary }}>{overall}%</span>
-              <span style={{ fontSize: 9, color: t.textMuted }}>Overall</span>
+              <span style={{ fontSize: 18, fontWeight: 800, color: t.text1 }}>{overall}%</span>
+              <span style={{ fontSize: 9, color: t.text3 }}>Overall</span>
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -858,7 +859,7 @@ function renderWidgetContent(id, t, isDark) {
               <div key={item.label}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 3 }}>
                   <span style={{ color: t.textSecondary, fontWeight: 500 }}>{item.label}</span>
-                  <span style={{ fontWeight: 700, color: t.textPrimary }}>{item.value}%</span>
+                  <span style={{ fontWeight: 700, color: t.text1 }}>{item.value}%</span>
                 </div>
                 <div style={{ height: 5, borderRadius: 99, background: t.border, overflow: "hidden" }}>
                   <div style={{ width: `${item.value}%`, height: "100%", borderRadius: 99, background: item.value >= 90 ? C.green : item.value >= 85 ? C.amber : C.red, transition: "width 0.5s ease" }} />
@@ -874,9 +875,9 @@ function renderWidgetContent(id, t, isDark) {
         <CardShell title="Forecast Accuracy" subtitle="Model performance score" t={t}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, paddingTop: 8 }}>
             <div style={{ width: 96, height: 96, borderRadius: "50%", border: `9px solid ${C.blue}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: `0 0 0 3px ${C.blueSoft}` }}>
-              <span style={{ fontSize: 24, fontWeight: 800, color: t.textPrimary, letterSpacing: "-0.03em" }}>74%</span>
+              <span style={{ fontSize: 24, fontWeight: 800, color: t.text1, letterSpacing: "-0.03em" }}>74%</span>
             </div>
-            <span style={{ fontSize: 11, color: t.textMuted }}>Forecast Accuracy Score</span>
+            <span style={{ fontSize: 11, color: t.text3 }}>Forecast Accuracy Score</span>
             <div style={{ background: C.greenSoft, color: C.green, borderRadius: 99, padding: "4px 14px", fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
               <ArrowUpRight size={12} /> +3.6% vs Last Month
             </div>
@@ -890,12 +891,14 @@ function renderWidgetContent(id, t, isDark) {
 }
 
 function buildGridTemplate(rowWidgets) {
-  return rowWidgets.map(w => w.colSpan).join(" ");
+  // Use equal 1fr columns for all rows — ensures stable reflow when
+  // the customize sidebar opens/closes without layout shift.
+  return rowWidgets.map(() => "1fr").join(" ");
 }
 
 // ─── Main Component ────────────────────────────────────────────────────────────
-export default function CombinedDashboard() {
-  const { isDark, t, setIsDark } = useTheme();
+export default function Dashboard() {
+   const { dark, t } = useTheme();
 
   const [showCustomize, setShowCustomize]   = useState(false);
   const [showCalendar, setShowCalendar]     = useState(false);
@@ -957,6 +960,13 @@ export default function CombinedDashboard() {
     });
     setActiveViewName(name);
     setShowSaveModal(false);
+    // Pass saved view metadata to MyDashboard before navigating
+    (window as any).__newSavedView = {
+      name,
+      widgetCount: ws.filter(w => w.checked).length,
+      kpiCount: ks.filter(k => k.checked).length,
+    };
+    window.location.href = "/mydashboard";
   }, [widgets, kpiCards]);
 
   const handleLoadView = useCallback(index => {
@@ -968,7 +978,7 @@ export default function CombinedDashboard() {
   }, [savedViews]);
 
   const filterDefs = [
-    { label: "Business Unit", key: "bu",           options: ["All", "Engineering", "Consulting", "Products", "Operations"] },
+    { label: "Pillars", key: "pillar",           options: ["All", "Hi-tech", "Retail", "Banking", "Healthcare", "Life Sciences"] },
     { label: "Portfolio",     key: "portfolio",    options: ["All", "Digital Transformation", "Cloud Services", "Data & Analytics", "Product Engineering"] },
     { label: "Region",        key: "region",       options: ["All", "APAC", "EMEA", "AMER"] },
     { label: "Department",    key: "dept",         options: ["All", "Data Engineering", "QA Automation", "Cloud Engineering", "Application Development"] },
@@ -998,12 +1008,12 @@ export default function CombinedDashboard() {
       )}
 
       {/* ── Header ── */}
-      <div style={{ background: t.panelBg, borderBottom: `1px solid ${t.border}`, padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+      <div style={{ background: t.panel, borderBottom: `1px solid ${t.border}`, padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: t.textPrimary, letterSpacing: "-0.02em" }}>Dashboard</h1>
+          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: t.text1, letterSpacing: "-0.02em" }}>Dashboard</h1>
           <div style={{ padding: "3px 10px", border: `1px solid ${t.border}`, borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
-            <span style={{ fontSize: 12, color: t.textMuted }}>☆</span>
-            <span style={{ fontSize: 11, color: t.textSecondary, fontWeight: 500 }}>{activeViewName}</span>
+            <span style={{ fontSize: 12, color: t.text3 }}>☆</span>
+            <span style={{ fontSize: 11, color: t.text2, fontWeight: 500 }}>{activeViewName}</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.green, boxShadow: `0 0 0 3px ${C.greenSoft}` }} />
@@ -1012,7 +1022,7 @@ export default function CombinedDashboard() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <button onClick={() => setShowCalendar(true)}
-            style={{ display: "flex", alignItems: "center", gap: 6, border: `1px solid ${t.border}`, borderRadius: 9, padding: "6px 12px", background: t.inputBg, fontSize: 11, color: t.textSecondary, cursor: "pointer" }}>
+            style={{ display: "flex", alignItems: "center", gap: 6, border: `1px solid ${t.border}`, borderRadius: 9, padding: "6px 12px", background: t.inputBg, fontSize: 11, color: t.text2, cursor: "pointer" }}>
             📅 {formatDateRange(dateStart, dateEnd)}
           </button>
           <button onClick={() => setShowCustomize(c => !c)}
@@ -1023,12 +1033,12 @@ export default function CombinedDashboard() {
       </div>
 
       {/* ── Filters Bar ── */}
-      <div style={{ background: t.panelBg, borderBottom: `1px solid ${t.border}`, padding: "7px 20px", display: "flex", alignItems: "center", gap: 8, flexShrink: 0, flexWrap: "wrap" }}>
+      <div style={{ background: t.panel, borderBottom: `1px solid ${t.border}`, padding: "7px 20px", display: "flex", alignItems: "center", gap: 8, flexShrink: 0, flexWrap: "wrap" }}>
         {filterDefs.map(f => (
           <div key={f.key} style={{ display: "flex", alignItems: "center", border: `1px solid ${t.border}`, borderRadius: 8, background: t.inputBg, overflow: "hidden" }}>
-            <span style={{ fontSize: 10, color: t.textMuted, padding: "0 8px", borderRight: `1px solid ${t.border}`, fontWeight: 500 }}>{f.label}</span>
+            <span style={{ fontSize: 10, color: t.text3, padding: "0 8px", borderRight: `1px solid ${t.border}`, fontWeight: 500 }}>{f.label}</span>
             <select value={filters[f.key]} onChange={e => setFilters(p => ({ ...p, [f.key]: e.target.value }))}
-              style={{ fontSize: 11, border: "none", background: t.selectBg, padding: "5px 8px", color: t.textSecondary, cursor: "pointer", outline: "none" }}>
+              style={{ fontSize: 11, border: "none", background: t.inputBg, padding: "5px 8px", color: t.text2, cursor: "pointer", outline: "none" }}>
               {f.options.map(o => <option key={o}>{o}</option>)}
             </select>
           </div>
@@ -1042,10 +1052,10 @@ export default function CombinedDashboard() {
       </div>
 
       {/* ── Main Content + Sidebar ── */}
-      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+      <div style={{ display: "flex", flex: 1, overflow: "hidden", minHeight: 0 }}>
 
         {/* ── Dashboard ── */}
-        <div style={{ flex: 1, overflow: "auto", padding: "18px 20px", display: "flex", flexDirection: "column", gap: 6 }}>
+        <div style={{ flex: 1, overflow: "auto", padding: "18px 20px", display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
 
           {/* KPI Section */}
           {visibleKpiCards.length > 0 && (
@@ -1064,8 +1074,7 @@ export default function CombinedDashboard() {
               1: "Capacity & Utilization",
               2: "Allocation & Forecast",
               3: "Trends & Demand",
-              4: "Demands & Department Health",
-              5: "Risk & Data Health",
+              4: "Risk & Data Health",
             };
             return (
               <div key={rowNum}>
@@ -1073,7 +1082,7 @@ export default function CombinedDashboard() {
                 <div style={{ display: "grid", gridTemplateColumns: buildGridTemplate(rowWidgets), gap: 12, marginBottom: 6 }}>
                   {rowWidgets.map(w => (
                     <div key={w.id} style={{ minWidth: 0 }}>
-                      {renderWidgetContent(w.id, t, isDark)}
+                      {renderWidgetContent(w.id, t, dark)}
                     </div>
                   ))}
                 </div>
@@ -1085,10 +1094,10 @@ export default function CombinedDashboard() {
 
         {/* ── Customize Sidebar ── */}
         {showCustomize && (
-          <div style={{ width: 296, background: t.panelBg, borderLeft: `1px solid ${t.border}`, display: "flex", flexDirection: "column", flexShrink: 0, overflow: "hidden" }}>
+          <div style={{ width: 296, minWidth: 296, background: t.panel, borderLeft: `1px solid ${t.border}`, display: "flex", flexDirection: "column", flexShrink: 0, overflow: "hidden", transition: "width 0.2s ease" }}>
             <div style={{ padding: "14px 16px", borderBottom: `1px solid ${t.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: t.textPrimary }}>Customize Dashboard</span>
-              <button onClick={() => setShowCustomize(false)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 18, color: t.textMuted, lineHeight: 1 }}>×</button>
+              <span style={{ fontSize: 14, fontWeight: 700, color: t.text1 }}>Customize Dashboard</span>
+              <button onClick={() => setShowCustomize(false)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 18, color: t.text3, lineHeight: 1 }}>×</button>
             </div>
 
             <div style={{ display: "flex", borderBottom: `1px solid ${t.border}`, padding: "0 16px" }}>
@@ -1096,7 +1105,7 @@ export default function CombinedDashboard() {
                 <button key={tab} onClick={() => setCustomizeTab(tab)}
                   style={{ flex: 1, padding: "10px 0", fontSize: 12, fontWeight: 600, cursor: "pointer", background: "none", border: "none",
                     borderBottom: customizeTab === tab ? `2px solid ${C.blue}` : "2px solid transparent",
-                    color: customizeTab === tab ? C.blue : t.textMuted, textTransform: "capitalize" }}>
+                    color: customizeTab === tab ? C.blue : t.text3, textTransform: "capitalize" }}>
                   {tab === "kpi" ? "KPI Cards" : "Widgets"}
                 </button>
               ))}
@@ -1106,7 +1115,7 @@ export default function CombinedDashboard() {
 
               {customizeTab === "widgets" && (
                 <>
-                  <p style={{ margin: 0, fontSize: 11, color: t.textMuted }}>Toggle widgets on/off and drag to reorder.</p>
+                  <p style={{ margin: 0, fontSize: 11, color: t.text3 }}>Toggle widgets on/off and drag to reorder.</p>
                   <div style={{ display: "flex", flexDirection: "column", gap: 2 }} onDragEnd={clearDrag}>
                     {widgets.map((w, i) => (
                       <DraggableWidgetRow key={w.id} widget={w} index={i} onToggle={toggleWidget}
@@ -1116,14 +1125,30 @@ export default function CombinedDashboard() {
                     ))}
                   </div>
                   <div style={{ display: "flex", gap: 8 }}>
-                    <button onClick={handleReset} style={{ flex: 1, padding: "8px", fontSize: 11, fontWeight: 600, color: t.textMuted, background: t.inputBg, border: `1px solid ${t.border}`, borderRadius: 8, cursor: "pointer" }}>Reset</button>
+                    <button
+                      onClick={handleReset}
+                      style={{
+                        flex: 1, padding: "9px 0", fontSize: 11, fontWeight: 700,
+                        color: "#ffffff",
+                        background: "linear-gradient(135deg, #2563EB 0%, #1d4ed8 100%)",
+                        border: "none",
+                        borderRadius: 8, cursor: "pointer",
+                        boxShadow: "0 2px 8px rgba(37,99,235,0.35)",
+                        letterSpacing: "0.03em",
+                        transition: "filter 0.15s, box-shadow 0.15s, transform 0.12s",
+                      }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1.12)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 14px rgba(37,99,235,0.5)"; (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)"; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.filter = "none"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 2px 8px rgba(37,99,235,0.35)"; (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; }}
+                      onMouseDown={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0) scale(0.98)"; }}
+                      onMouseUp={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px) scale(1)"; }}
+                    >↺ Reset to Default</button>
                   </div>
                 </>
               )}
 
               {customizeTab === "kpi" && (
                 <>
-                  <p style={{ margin: 0, fontSize: 11, color: t.textMuted }}>Toggle KPI cards on/off and drag to reorder.</p>
+                  <p style={{ margin: 0, fontSize: 11, color: t.text3 }}>Toggle KPI cards on/off and drag to reorder.</p>
                   <div style={{ display: "flex", flexDirection: "column", gap: 2 }} onDragEnd={clearDrag}>
                     {kpiCards.map((k, i) => (
                       <DraggableKpiRow key={k.id} kpi={k} index={i} onToggle={toggleKpi}
@@ -1133,7 +1158,23 @@ export default function CombinedDashboard() {
                     ))}
                   </div>
                   <div style={{ display: "flex", gap: 8 }}>
-                    <button onClick={handleReset} style={{ flex: 1, padding: "8px", fontSize: 11, fontWeight: 600, color: t.textMuted, background: t.inputBg, border: `1px solid ${t.border}`, borderRadius: 8, cursor: "pointer" }}>Reset</button>
+                    <button
+                      onClick={handleReset}
+                      style={{
+                        flex: 1, padding: "9px 0", fontSize: 11, fontWeight: 700,
+                        color: "#ffffff",
+                        background: "linear-gradient(135deg, #2563EB 0%, #1d4ed8 100%)",
+                        border: "none",
+                        borderRadius: 8, cursor: "pointer",
+                        boxShadow: "0 2px 8px rgba(37,99,235,0.35)",
+                        letterSpacing: "0.03em",
+                        transition: "filter 0.15s, box-shadow 0.15s, transform 0.12s",
+                      }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1.12)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 14px rgba(37,99,235,0.5)"; (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)"; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.filter = "none"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 2px 8px rgba(37,99,235,0.35)"; (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; }}
+                      onMouseDown={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0) scale(0.98)"; }}
+                      onMouseUp={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px) scale(1)"; }}
+                    >↺ Reset to Default</button>
                   </div>
                 </>
               )}
@@ -1141,7 +1182,7 @@ export default function CombinedDashboard() {
               {/* Saved Views */}
               <div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: t.textPrimary }}>Saved Views</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: t.text1 }}>Saved Views</div>
                   <button onClick={() => setShowSaveModal(true)}
                     style={{ fontSize: 10, fontWeight: 600, color: C.blue, background: C.blueSoft, border: `1px solid #bfdbfe`, borderRadius: 6, padding: "3px 8px", cursor: "pointer" }}>
                     + Save Current
@@ -1152,13 +1193,13 @@ export default function CombinedDashboard() {
                     <div key={i} onClick={() => handleLoadView(i)}
                       style={{ display: "flex", alignItems: "center", justifyContent: "space-between",
                         padding: "8px 12px", borderRadius: 8, cursor: "pointer",
-                        background: v.active ? t.savedActive : t.dragUnchecked,
-                        border: `1px solid ${v.active ? t.savedActiveBorder : t.border}`,
+                        background: v.active ? t.inputBg : t.card,
+                        border: `1px solid ${v.active ? C.blue : t.border}`,
                         transition: "background .15s, border-color .15s" }}>
-                      <span style={{ fontSize: 11, fontWeight: v.active ? 700 : 500, color: v.active ? C.blue : t.textSecondary }}>{v.name}</span>
+                      <span style={{ fontSize: 11, fontWeight: v.active ? 700 : 500, color: v.active ? C.blue : t.text2 }}>{v.name}</span>
                       <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                         {v.active && <span style={{ fontSize: 13, color: C.amber }}>★</span>}
-                        <span style={{ fontSize: 13, color: t.textMuted }}>⋮</span>
+                        <span style={{ fontSize: 13, color: t.text3 }}>⋮</span>
                       </div>
                     </div>
                   ))}

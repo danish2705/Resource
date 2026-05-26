@@ -1,26 +1,10 @@
 import type { Config } from "tailwindcss";
-import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
-  content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}",
-  ],
+  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
-    colors: {
-      blueCustom: "#378ADD",
-      greenCustom: "#639922",
-      orangeCustom: "#BA7517",
-      redCustom: "#E24B4A",
-      purpleCustom: "#7F77DD",
-      tealCustom: "#1D9E75",
-      grayCustom: "#888780",
-      amberCustom: "#EF9F27",
-    },
     container: {
       center: true,
       padding: "2rem",
@@ -120,5 +104,5 @@ export default {
       },
     },
   },
-  plugins: [tailwindcssAnimate],
+  plugins: [require("tailwindcss-animate")],
 } satisfies Config;
