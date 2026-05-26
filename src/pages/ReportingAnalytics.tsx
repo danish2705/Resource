@@ -154,35 +154,7 @@ function DarkModeToggle() {
     document.documentElement.classList.contains("dark"),
   );
 
-  // const toggle = () => {
-  //   const next = !dark;
-  //   setDark(next);
-  //   if (next) document.documentElement.classList.add("dark");
-  //   else document.documentElement.classList.remove("dark");
-  // };
-
-  // return (
-  //   <button
-  //     onClick={toggle}
-  //     title={dark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-  //     style={{
-  //       display: "flex",
-  //       alignItems: "center",
-  //       gap: 6,
-  //       padding: "6px 14px",
-  //       borderRadius: 8,
-  //       border: "1px solid var(--ra-border)",
-  //       background: "var(--ra-surface)",
-  //       color: "var(--ra-text-sec)",
-  //       fontSize: 13,
-  //       fontWeight: 500,
-  //       cursor: "pointer",
-  //       whiteSpace: "nowrap",
-  //     }}
-  //   >
-  //     {dark ? "☀️ Light" : "🌙 Dark"}
-  //   </button>
-  // );
+  
 }
 
 // ─── Token shorthands ─────────────────────────────────────────────────────────
