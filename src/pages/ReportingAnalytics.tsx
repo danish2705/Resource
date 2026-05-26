@@ -1,4 +1,65 @@
-
+import {
+  aging,
+  availTrend,
+  billableNonBillableData,
+  budgetMonthly,
+  byRole,
+  byRoleReportDetail16,
+  capDemand2026,
+  COLORS,
+  compliance,
+  compTrend,
+  crossPillarData,
+  data,
+  DEFAULT_EXEC_FILTERS,
+  DEFAULT_GENERIC_FILTERS,
+  DEFAULT_UTIL_FILTERS,
+  demand,
+  demandByPriority,
+  demandStatusData,
+  DONUT_COLORS,
+  EXEC_FILTER_DEFS,
+  execCapDemandData,
+  execKpis,
+  forecastData,
+  GENERIC_FILTER_DEFS,
+  header,
+  heatmapData,
+  heatmapDepts,
+  heatmapManagers,
+  heatmapMonths,
+  items,
+  keyInsights,
+  main,
+  nonCompReasons,
+  operational,
+  overutilizedResources,
+  pendingApprovals,
+  planning,
+  portfolioVar,
+  reportCards,
+  reportDetails15,
+  rows,
+  sharedProjects,
+  skillsGapData,
+  spendByCat,
+  spendTrend,
+  staffingRiskProjects,
+  strategicAlerts,
+  tsData,
+  underutilizedResources,
+  UTIL_FILTER_DEFS,
+  utilByDeptData,
+  utilByWorkType,
+  utilization,
+  utilizationDistribution,
+  utilKpiTiles,
+  utilTrendData,
+  varianceByPortfolioHeader,
+  varianceByTypedData,
+  vendorData,
+  vendors,
+} from "@/mocks/ReportingAnalytics";
 import { useState, useEffect } from "react";
 import {
   BarChart,
@@ -17,71 +78,6 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-
-import {
-  COLORS,
-  UTIL_FILTER_DEFS,
-  DEFAULT_UTIL_FILTERS,
-  DEFAULT_EXEC_FILTERS,
-  DEFAULT_GENERIC_FILTERS,
-  EXEC_FILTER_DEFS,
-  demandStatusData,
-  capDemand2026,
-  utilTrend2026,
-  skillsGapData,
-  vendorData,
-  strategicAlerts,
-  staffingRiskProjects,
-  crossPillarData,
-  execCapDemandData,
-  heatmapMonths,
-  DONUT_COLORS,
-  heatmapData,
-  execKpis,
-  heatmapDepts,
-  heatmapManagers,
-  overutilizedResources,
-  underutilizedResources,
-  billableNonBillableData,
-  reportCards,
-  utilByWorkType,
-  main,
-  utilKpiTiles,
-  riskTopItems,
-  utilTrendData,
-  utilByDeptData,
-  GENERIC_FILTER_DEFS,
-  keyInsights,
-  utilization,
-  operational,
-  utilizationDistribution,
-  reportDetails15,
-  header,
-  rows,
-  data,
-  pendingApprovals,
-  compliance,
-  tsData,
-  planning,
-  forecastData,
-  demand,
-  demandByPriority,
-  aging,
-  byRole,
-  vendors,
-  spendByCat,
-  spendTrend,
-  varianceByPortfolioHeader,
-  varianceByTypedData,
-  budgetMonthly,
-  portfolioVar,
-  items,
-  nonCompReasons,
-  compTrend,
-  byRoleReportDetail16,
-  sharedProjects,
-  availTrend,
-} from "@/mocks/ReportingAnalytics";
 
 // ─── CSS custom properties (light + dark) ────────────────────────────────────
 
@@ -153,8 +149,6 @@ function DarkModeToggle() {
   const [dark, setDark] = useState(() =>
     document.documentElement.classList.contains("dark"),
   );
-
-  
 }
 
 // ─── Token shorthands ─────────────────────────────────────────────────────────
@@ -1111,7 +1105,6 @@ function UtilFilterBar({ filters, setFilters }) {
           <span style={{ fontSize: 13, color: T.textFaint }}>
             Last Updated: 15/05/26 10:30 AM
           </span>
-          <DarkModeToggle />
         </div>
       </div>
       <div
@@ -1176,7 +1169,6 @@ function ExecFilterBar({ filters, setFilters }) {
             performance
           </div>
         </div>
-        <DarkModeToggle />
       </div>
       <div
         style={{
@@ -1707,9 +1699,196 @@ function ReportDetail12() {
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
             gap: 12,
-            alignItems: "stretch",
           }}
         >
+          {/* Billable vs Non-Billable */}
+          <div
+            style={{
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
+              borderRadius: 10,
+              padding: "14px 16px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: T.text,
+                marginBottom: 8,
+              }}
+            >
+              4. Billable vs Non-Billable Utilization (%)
+            </div>
+            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+              {[
+                ["Billable Utilization %", T.blue],
+                ["Non-Billable Utilization %", T.green],
+              ].map(([l, c]) => (
+                <span
+                  key={l}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 3,
+                    fontSize: 9,
+                    color: T.textMuted,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 2,
+                      background: c,
+                      display: "inline-block",
+                    }}
+                  />
+                  {l}
+                </span>
+              ))}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {billableNonBillableData.map((d, i) => (
+                <div
+                  key={i}
+                  style={{ display: "flex", alignItems: "center", gap: 6 }}
+                >
+                  <span
+                    style={{ fontSize: 9.5, color: T.textSec, minWidth: 105 }}
+                  >
+                    {d.dept}
+                  </span>
+                  <div
+                    style={{
+                      flex: 1,
+                      display: "flex",
+                      height: 10,
+                      borderRadius: 3,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: `${(d.billable / (d.billable + d.nonBillable)) * 100}%`,
+                        background: T.blue,
+                      }}
+                    />
+                    <div style={{ flex: 1, background: T.green }} />
+                  </div>
+                  <span
+                    style={{
+                      fontSize: 9,
+                      color: T.textSec,
+                      minWidth: 26,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {d.total}%
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Utilization Distribution */}
+          <div
+            style={{
+              background: T.surface,
+              border: `0.5px solid ${T.border}`,
+              borderRadius: 10,
+              padding: "14px 16px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: T.text,
+                marginBottom: 8,
+              }}
+            >
+              5. Utilization Distribution (Headcount)
+            </div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginBottom: 8,
+              }}
+            >
+              <div style={{ position: "relative", width: 120, height: 120 }}>
+                <PieChart width={120} height={120}>
+                  <Pie
+                    data={[
+                      { value: 156, name: "Underutilized" },
+                      { value: 1738, name: "Optimal" },
+                      { value: 92, name: "Overutilized" },
+                    ]}
+                    cx={59}
+                    cy={59}
+                    innerRadius={36}
+                    outerRadius={54}
+                    dataKey="value"
+                    startAngle={90}
+                    endAngle={-270}
+                  >
+                    <Cell fill={T.amber} />
+                    <Cell fill={T.green} />
+                    <Cell fill={T.red} />
+                  </Pie>
+                </PieChart>
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    pointerEvents: "none",
+                  }}
+                >
+                  <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>
+                    1,986
+                  </div>
+                  <div style={{ fontSize: 8, color: T.textMuted }}>
+                    Total Resources
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              {utilizationDistribution.map((d, i) => (
+                <div
+                  key={i}
+                  style={{ display: "flex", alignItems: "center", gap: 5 }}
+                >
+                  <div
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 2,
+                      background: d.color,
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span style={{ fontSize: 9, color: T.textSec, flex: 1 }}>
+                    {d.label}
+                  </span>
+                  <span
+                    style={{ fontSize: 10, fontWeight: 700, color: d.color }}
+                  >
+                    {d.count}
+                  </span>
+                  <span style={{ fontSize: 9, color: T.textFaint }}>
+                    ({d.pct})
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Top 10 Underutilized */}
           <div
             style={{
@@ -2046,7 +2225,8 @@ function ReportDetail12() {
                 marginBottom: 10,
               }}
             >
-              9. Utilization Heatmap by Department
+>>>>>>>>> Temporary merge branch 2
+              9. Utilization Heatmap by Department & Manager
             </div>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
@@ -2062,7 +2242,7 @@ function ReportDetail12() {
                       minWidth: 130,
                     }}
                   >
-                    Department / Month
+                    Department / Manager
                   </th>
                   {heatmapManagers.map((m) => (
                     <th
@@ -5186,9 +5366,7 @@ export default function ReportingAnalytics() {
             >
               {activeReport.desc}
             </span>
-            <div style={{ marginLeft: "auto" }}>
-              <DarkModeToggle />
-            </div>
+            <div style={{ marginLeft: "auto" }}></div>
           </div>
           {DetailView ? <DetailView /> : null}
         </div>
@@ -5219,7 +5397,6 @@ export default function ReportingAnalytics() {
           <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>
             Resource Management Reports
           </div>
-          <DarkModeToggle />
         </div>
         <div
           style={{

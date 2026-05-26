@@ -1538,4 +1538,3 @@ export const byRoleReportDetail16 = [
   { role: "Architects", total: 252, avail: 57, pct: "22.6%" },
   { role: "Others", total: 112, avail: 7, pct: "24.1%" },
 ];
-  
