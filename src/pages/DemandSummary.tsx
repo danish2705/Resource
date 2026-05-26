@@ -268,7 +268,6 @@ export default function DemandSummary() {
     // openAllocation is stable (defined above, no deps that change);
     // demands is intentionally in the dep array so we retry if the store
     // hasn't hydrated yet on the very first render.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, demands]);
 
   // ── Filtered data ──

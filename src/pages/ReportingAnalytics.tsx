@@ -1,3 +1,65 @@
+import {
+  aging,
+  availTrend,
+  billableNonBillableData,
+  budgetMonthly,
+  byRole,
+  byRoleReportDetail16,
+  capDemand2026,
+  COLORS,
+  compliance,
+  compTrend,
+  crossPillarData,
+  data,
+  DEFAULT_EXEC_FILTERS,
+  DEFAULT_GENERIC_FILTERS,
+  DEFAULT_UTIL_FILTERS,
+  demand,
+  demandByPriority,
+  demandStatusData,
+  DONUT_COLORS,
+  EXEC_FILTER_DEFS,
+  execCapDemandData,
+  execKpis,
+  forecastData,
+  GENERIC_FILTER_DEFS,
+  header,
+  heatmapData,
+  heatmapDepts,
+  heatmapManagers,
+  heatmapMonths,
+  items,
+  keyInsights,
+  main,
+  nonCompReasons,
+  operational,
+  overutilizedResources,
+  pendingApprovals,
+  planning,
+  portfolioVar,
+  reportCards,
+  reportDetails15,
+  rows,
+  sharedProjects,
+  skillsGapData,
+  spendByCat,
+  spendTrend,
+  staffingRiskProjects,
+  strategicAlerts,
+  tsData,
+  underutilizedResources,
+  UTIL_FILTER_DEFS,
+  utilByDeptData,
+  utilByWorkType,
+  utilization,
+  utilizationDistribution,
+  utilKpiTiles,
+  utilTrendData,
+  varianceByPortfolioHeader,
+  varianceByTypedData,
+  vendorData,
+  vendors,
+} from "@/mocks/ReportingAnalytics";
 import { useState, useEffect } from "react";
 import {
   BarChart,
@@ -1043,7 +1105,6 @@ function UtilFilterBar({ filters, setFilters }) {
           <span style={{ fontSize: 13, color: T.textFaint }}>
             Last Updated: 15/05/26 10:30 AM
           </span>
-          <DarkModeToggle />
         </div>
       </div>
       <div
@@ -1108,7 +1169,6 @@ function ExecFilterBar({ filters, setFilters }) {
             performance
           </div>
         </div>
-        <DarkModeToggle />
       </div>
       <div
         style={{
@@ -5305,9 +5365,7 @@ export default function ReportingAnalytics() {
             >
               {activeReport.desc}
             </span>
-            <div style={{ marginLeft: "auto" }}>
-              <DarkModeToggle />
-            </div>
+            <div style={{ marginLeft: "auto" }}></div>
           </div>
           {DetailView ? <DetailView /> : null}
         </div>
@@ -5338,7 +5396,6 @@ export default function ReportingAnalytics() {
           <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>
             Resource Management Reports
           </div>
-          <DarkModeToggle />
         </div>
         <div
           style={{
