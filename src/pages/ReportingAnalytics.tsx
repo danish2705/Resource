@@ -1705,198 +1705,11 @@ function ReportDetail12() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "0.9fr 0.65fr 1fr 1fr",
+            gridTemplateColumns: "1fr 1fr",
             gap: 12,
+            alignItems: "stretch",
           }}
         >
-          {/* Billable vs Non-Billable */}
-          <div
-            style={{
-              background: T.surface,
-              border: `0.5px solid ${T.border}`,
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: T.text,
-                marginBottom: 8,
-              }}
-            >
-              4. Billable vs Non-Billable Utilization (%)
-            </div>
-            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-              {[
-                ["Billable Utilization %", T.blue],
-                ["Non-Billable Utilization %", T.green],
-              ].map(([l, c]) => (
-                <span
-                  key={l}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 3,
-                    fontSize: 9,
-                    color: T.textMuted,
-                  }}
-                >
-                  <span
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: 2,
-                      background: c,
-                      display: "inline-block",
-                    }}
-                  />
-                  {l}
-                </span>
-              ))}
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {billableNonBillableData.map((d, i) => (
-                <div
-                  key={i}
-                  style={{ display: "flex", alignItems: "center", gap: 6 }}
-                >
-                  <span
-                    style={{ fontSize: 9.5, color: T.textSec, minWidth: 105 }}
-                  >
-                    {d.dept}
-                  </span>
-                  <div
-                    style={{
-                      flex: 1,
-                      display: "flex",
-                      height: 10,
-                      borderRadius: 3,
-                      overflow: "hidden",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: `${(d.billable / (d.billable + d.nonBillable)) * 100}%`,
-                        background: T.blue,
-                      }}
-                    />
-                    <div style={{ flex: 1, background: T.green }} />
-                  </div>
-                  <span
-                    style={{
-                      fontSize: 9,
-                      color: T.textSec,
-                      minWidth: 26,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {d.total}%
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Utilization Distribution */}
-          <div
-            style={{
-              background: T.surface,
-              border: `0.5px solid ${T.border}`,
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: T.text,
-                marginBottom: 8,
-              }}
-            >
-              5. Utilization Distribution (Headcount)
-            </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginBottom: 8,
-              }}
-            >
-              <div style={{ position: "relative", width: 120, height: 120 }}>
-                <PieChart width={120} height={120}>
-                  <Pie
-                    data={[
-                      { value: 156, name: "Underutilized" },
-                      { value: 1738, name: "Optimal" },
-                      { value: 92, name: "Overutilized" },
-                    ]}
-                    cx={59}
-                    cy={59}
-                    innerRadius={36}
-                    outerRadius={54}
-                    dataKey="value"
-                    startAngle={90}
-                    endAngle={-270}
-                  >
-                    <Cell fill={T.amber} />
-                    <Cell fill={T.green} />
-                    <Cell fill={T.red} />
-                  </Pie>
-                </PieChart>
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    pointerEvents: "none",
-                  }}
-                >
-                  <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>
-                    1,986
-                  </div>
-                  <div style={{ fontSize: 8, color: T.textMuted }}>
-                    Total Resources
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-              {utilizationDistribution.map((d, i) => (
-                <div
-                  key={i}
-                  style={{ display: "flex", alignItems: "center", gap: 5 }}
-                >
-                  <div
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: 2,
-                      background: d.color,
-                      flexShrink: 0,
-                    }}
-                  />
-                  <span style={{ fontSize: 9, color: T.textSec, flex: 1 }}>
-                    {d.label}
-                  </span>
-                  <span
-                    style={{ fontSize: 10, fontWeight: 700, color: d.color }}
-                  >
-                    {d.count}
-                  </span>
-                  <span style={{ fontSize: 9, color: T.textFaint }}>
-                    ({d.pct})
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Top 10 Underutilized */}
           <div
             style={{
@@ -2233,7 +2046,7 @@ function ReportDetail12() {
                 marginBottom: 10,
               }}
             >
-              9. Utilization Heatmap by Department & Manager
+              9. Utilization Heatmap by Department
             </div>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
@@ -2249,7 +2062,7 @@ function ReportDetail12() {
                       minWidth: 130,
                     }}
                   >
-                    Department / Manager
+                    Department / Month
                   </th>
                   {heatmapManagers.map((m) => (
                     <th

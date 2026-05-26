@@ -478,10 +478,10 @@ export const overutilizedResources = [
 ];
 
 export const heatmapManagers = [
-  "Amit Kumar",
-  "Rajesh Kumar",
-  "Neha Iyer",
-  "Vikram Singh",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
 ];
 
 export const heatmapDepts = [

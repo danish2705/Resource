@@ -60,14 +60,24 @@ interface NavItem {
   permission?: Permission;
 }
 
-const mainItems: NavItem[] = [
+const dashboardSubItems: NavItem[] = [
   {
-    title: "Dashboard",
+    title: "Default Dashboard",
     url: "/",
     icon: LayoutDashboard,
     end: true,
     permission: "view_dashboard",
   },
+  {
+    title: "My Dashboards",
+    url: "/mydashboard",
+    icon: LayoutDashboard,
+    end: true,
+    permission: "view_dashboard",
+  },
+];
+
+const mainItems: NavItem[] = [
   {
     title: "Resource Information",
     url: "/resources",
@@ -179,6 +189,13 @@ export function AppSidebar() {
     location.pathname.startsWith("/task-review-approval");
 
   const [projectOpen, setProjectOpen] = useState(projectActive);
+
+  const dashboardActive =
+  location.pathname === "/" ||
+  location.pathname.startsWith("/mydashboard");
+
+const [dashboardOpen, setDashboardOpen] =
+  useState(dashboardActive);
 
   const linkBase =
     "flex items-center gap-2 w-full transition-colors rounded-md";
@@ -397,8 +414,75 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {/* Main Items */}
 
+              {/* Dashboard */}
+
+              {can("view_dashboard") ? (
+                <Collapsible
+                  open={collapsed ? false : dashboardOpen}
+                  onOpenChange={setDashboardOpen}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton
+                        tooltip="Dashboard"
+                        className={
+                          dashboardActive
+                            ? linkActive
+                            : linkInactive
+                        }
+                      >
+                        <LayoutDashboard className="h-4 w-4 shrink-0" />
+
+                        {!collapsed && (
+                          <>
+                            <span>Dashboard</span>
+
+                            <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                          </>
+                        )}
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+
+                    {!collapsed && (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {dashboardSubItems.map(renderSubItem)}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    )}
+                  </SidebarMenuItem>
+                </Collapsible>
+              ) : (
+                <SidebarMenuItem>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div
+                        className={`${linkBase} ${linkDisabled} px-2 py-1.5 text-sm text-sidebar-foreground/60`}
+                      >
+                        <LayoutDashboard className="h-4 w-4 shrink-0" />
+
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1">
+                              Dashboard
+                            </span>
+
+                            <Lock className="h-3 w-3 ml-auto opacity-60" />
+                          </>
+                        )}
+                      </div>
+                    </TooltipTrigger>
+
+                    <TooltipContent side="right" className="text-xs">
+                      You don't have access to Dashboard
+                    </TooltipContent>
+                  </Tooltip>
+                </SidebarMenuItem>
+              )}
+
+              {/* Main Items */}
               {mainItems.map(renderNavItem)}
 
               {/* Demand Management */}

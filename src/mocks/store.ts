@@ -147,6 +147,7 @@ export const mockDemands: Demand[] = Array.from({ length: 47 }, (_, i) => ({
   budgetCode: budgetCodes[i % budgetCodes.length],
   pillar: pillars[i % pillars.length],
   allocationPercent: Math.floor(Math.random() * 15),
+  resourceCount: Math.floor(Math.random() * 8) + 1,
   status: statuses[i % statuses.length],
   comments: "",
   identified: i % 2 === 0,
