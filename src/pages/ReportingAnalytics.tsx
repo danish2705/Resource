@@ -1582,32 +1582,12 @@ function ReportDetail12() {
           </div>
 
           {/* 5. Utilization Distribution */}
-          <div
-            style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "#111",
-                marginBottom: 8,
-              }}
-            >
+          <div className="bg-white border border-gray-200 rounded-[10px] px-[16px] py-[14px]">
+            <div className="text-[12px] font-bold text-[#111] mb-2">
               5. Utilization Distribution (Headcount)
             </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginBottom: 8,
-              }}
-            >
-              <div style={{ position: "relative", width: 120, height: 120 }}>
+            <div className="flex justify-center mb-[8px]">
+              <div className="relative w-[120px] h-[120px]">
                 <PieChart width={120} height={120}>
                   <Pie
                     data={[
@@ -1628,46 +1608,29 @@ function ReportDetail12() {
                     <Cell fill={COLORS.red} />
                   </Pie>
                 </PieChart>
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    pointerEvents: "none",
-                  }}
-                >
-                  <div style={{ fontSize: 13, fontWeight: 800, color: "#111" }}>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <div className="text-[13px] font-extrabold text-[#111]">
                     1,986
                   </div>
-                  <div style={{ fontSize: 8, color: "#6b7280" }}>
+                  <div className="text-[8px] text-gray-500">
                     Total Resources
                   </div>
                 </div>
               </div>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            <div className="flex flex-col gap-[5px]">
               {utilizationDistribution.map((d, i) => (
-                <div
-                  key={i}
-                  style={{ display: "flex", alignItems: "center", gap: 5 }}
-                >
+                <div key={i} className="flex items-center gap-[5px]">
                   <div
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: 2,
-                      background: d.color,
-                      flexShrink: 0,
-                    }}
+                    className="w-[8px] h-[8px] rounded-[2px] shrink-0"
+                    style={{ backgroundColor: d.color }}
                   />
-                  <span style={{ fontSize: 9, color: "#374151", flex: 1 }}>
+                  <span className="text-[9px] text-gray-700 flex-1">
                     {d.label}
                   </span>
                   <span
-                    style={{ fontSize: 10, fontWeight: 700, color: d.color }}
+                    className="text-[10px] font-bold"
+                    style={{ color: d.color }}
                   >
                     {d.count}
                   </span>
@@ -1680,38 +1643,17 @@ function ReportDetail12() {
           </div>
 
           {/* 6. Top 10 Underutilized */}
-          <div
-            style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "#111",
-                marginBottom: 8,
-              }}
-            >
+          <div className="bg-white border border-gray-200 rounded-[10px] px-[16px] py-[14px]">
+            <div className="text-[12px] font-bold text-[#111] mb-[8px]">
               6. Top 10 Underutilized Resources
             </div>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table className="w-full border-collapse">
               <thead>
                 <tr>
                   {report10UnderUtilized.map((h) => (
                     <th
                       key={h}
-                      style={{
-                        fontSize: 9,
-                        color: "#6b7280",
-                        padding: "4px 6px",
-                        textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
-                        fontWeight: 600,
-                      }}
+                      className="text-[9px] text-[#6b7280] px-[6px] py-[4px] text-left border-b border-gray-200 font-semibold"
                     >
                       {h}
                     </th>
@@ -1720,58 +1662,35 @@ function ReportDetail12() {
               </thead>
               <tbody>
                 {underutilizedResources.map((r, i) => (
-                  <tr key={i} style={{ borderBottom: "0.5px solid #f9fafb" }}>
-                    <td
-                      style={{
-                        padding: "4px 6px",
-                        fontSize: 10,
-                        color: "#374151",
-                        fontWeight: 500,
-                      }}
-                    >
+                  <tr key={i} className="border-b border-[#f9fafb]">
+                    <td className="px-[6px] py-[4px] text-[10px] text-[#374151] font-medium">
                       {r.name}
                     </td>
-                    <td
-                      style={{
-                        padding: "4px 6px",
-                        fontSize: 9.5,
-                        color: "#6b7280",
-                      }}
-                    >
+                    <td className="px-[6px] py-[4px] text-[9.5px] text-[#6b7280]">
                       {r.dept}
                     </td>
                     <td style={{ padding: "4px 6px" }}>
                       <span
+                        className="text-[10px] font-bold px-[6px] py-[1px] rounded-[3px]"
                         style={{
-                          fontSize: 10,
-                          fontWeight: 700,
                           color:
                             r.util < 40
                               ? COLORS.red
                               : r.util < 50
                                 ? COLORS.orange
                                 : COLORS.amber,
-                          background:
+                          backgroundColor:
                             (r.util < 40
                               ? COLORS.red
                               : r.util < 50
                                 ? COLORS.orange
                                 : COLORS.amber) + "18",
-                          padding: "1px 6px",
-                          borderRadius: 3,
                         }}
                       >
                         {r.util}%
                       </span>
                     </td>
-                    <td
-                      style={{
-                        padding: "4px 6px",
-                        fontSize: 10,
-                        fontWeight: 600,
-                        color: "#111",
-                      }}
-                    >
+                    <td className="px-[6px] py-[4px] text-[10px] font-semibold text-[#111]">
                       {r.hours}
                     </td>
                   </tr>
@@ -1781,38 +1700,17 @@ function ReportDetail12() {
           </div>
 
           {/* 7. Top 10 Overutilized */}
-          <div
-            style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "#111",
-                marginBottom: 8,
-              }}
-            >
+          <div className="bg-white border border-gray-200 rounded-[10px] px-[16px] py-[14px]">
+            <div className="text-[12px] font-bold text-[#111] mb-2">
               7. Top 10 Overutilized Resources
             </div>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table className="w-full border-collapse">
               <thead>
                 <tr>
                   {report10.map((h) => (
                     <th
                       key={h}
-                      style={{
-                        fontSize: 9,
-                        color: "#6b7280",
-                        padding: "4px 6px",
-                        textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
-                        fontWeight: 600,
-                      }}
+                      className="text-[9px] text-[#6b7280] px-[6px] py-[4px] text-left border-b border-gray-200 font-semibold"
                     >
                       {h}
                     </th>
@@ -1823,58 +1721,36 @@ function ReportDetail12() {
                 {overutilizedResources.map((r, i) => (
                   <tr
                     key={i}
+                    className="border-b border-[#f9fafb]"
                     style={{
-                      borderBottom: "0.5px solid #f9fafb",
-                      background: r.util >= 120 ? "#fff5f5" : "transparent",
+                      backgroundColor:
+                        r.util >= 120 ? "#fff5f5" : "transparent",
                     }}
                   >
-                    <td
-                      style={{
-                        padding: "4px 6px",
-                        fontSize: 10,
-                        color: "#374151",
-                        fontWeight: 500,
-                      }}
-                    >
+                    <td className="px-[6px] py-[4px] text-[10px] text-[#374151] font-medium">
                       {r.name}
                     </td>
-                    <td
-                      style={{
-                        padding: "4px 6px",
-                        fontSize: 9.5,
-                        color: "#6b7280",
-                      }}
-                    >
+                    <td className="px-[6px] py-[4px] text-[9.5px] text-gray-500">
                       {r.dept}
                     </td>
                     <td style={{ padding: "4px 6px" }}>
                       <span
+                        className="text-[10px] font-bold px-[6px] py-[1px] rounded-[3px]"
                         style={{
-                          fontSize: 10,
-                          fontWeight: 700,
                           color:
                             r.util >= 120
                               ? COLORS.red
                               : r.util >= 115
                                 ? "#c0392b"
                                 : COLORS.orange,
-                          background:
+                          backgroundColor:
                             (r.util >= 120 ? COLORS.red : COLORS.orange) + "18",
-                          padding: "1px 6px",
-                          borderRadius: 3,
                         }}
                       >
                         {r.util}%
                       </span>
                     </td>
-                    <td
-                      style={{
-                        padding: "4px 6px",
-                        fontSize: 10,
-                        fontWeight: 700,
-                        color: COLORS.red,
-                      }}
-                    >
+                    <td className="px-[6px] py-[4px] text-[10px] font-bold text-redCustom">
                       {r.overtime}
                     </td>
                   </tr>
@@ -1885,40 +1761,14 @@ function ReportDetail12() {
         </div>
 
         {/* Row 3: Operational vs Strategic + Heatmap + Key Insights */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "0.55fr 1.6fr 0.65fr",
-            gap: 12,
-          }}
-        >
+        <div className="grid grid-cols-[0.55fr_1.6fr_0.65fr] gap-[12px]">
           {/* 8. Operational vs Strategic */}
-          <div
-            style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "#111",
-                marginBottom: 8,
-              }}
-            >
+          <div className="bg-white border border-gray-200 rounded-[10px] px-[16px] py-[14px]">
+            <div className="text-[12px] font-bold text-[#111] mb-2">
               8. Operational vs Strategic Work (%)
             </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginBottom: 10,
-              }}
-            >
-              <div style={{ position: "relative", width: 130, height: 130 }}>
+            <div className="flex justify-center mb-[10px]">
+              <div className="relative w-[130px] h-[130px]">
                 <PieChart width={130} height={130}>
                   <Pie
                     data={operationData}
@@ -1935,48 +1785,26 @@ function ReportDetail12() {
                     <Cell fill={COLORS.purple} />
                   </Pie>
                 </PieChart>
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    pointerEvents: "none",
-                  }}
-                >
-                  <div style={{ fontSize: 14, fontWeight: 800, color: "#111" }}>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <div className="text-[14px] font-extrabold text-[#111]">
                     118K
                   </div>
-                  <div style={{ fontSize: 8, color: "#6b7280" }}>
-                    Total Hours
-                  </div>
+                  <div className="text-[8px] text-gray-500">Total Hours</div>
                 </div>
               </div>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <div className="flex flex-col gap-[6px]">
               {operational.map((d, i) => (
-                <div
-                  key={i}
-                  style={{ display: "flex", alignItems: "flex-start", gap: 5 }}
-                >
+                <div key={i} className="flex items-start gap-[5px]">
                   <div
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: 2,
-                      background: d.color,
-                      flexShrink: 0,
-                      marginTop: 2,
-                    }}
+                    className="w-[8px] h-[8px] rounded-[2px] shrink-0 mt-[2px]"
+                    style={{ backgroundColor: d.color }}
                   />
                   <div>
-                    <div style={{ fontSize: 9, color: "#374151" }}>
-                      {d.label}
-                    </div>
+                    <div className="text-[9px] text-gray-700">{d.label}</div>
                     <div
-                      style={{ fontSize: 10, fontWeight: 700, color: d.color }}
+                      className="text-[10px] font-bold"
+                      style={{ color: d.color }}
                     >
                       {d.hours}
                     </div>
@@ -1987,65 +1815,25 @@ function ReportDetail12() {
           </div>
 
           {/* 9. Utilization Heatmap */}
-          <div
-            style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "#111",
-                marginBottom: 10,
-              }}
-            >
+          <div className="bg-white border border-gray-200 rounded-[10px] px-[16px] py-[14px]">
+            <div className="text-[12px] font-bold text-[#111] mb-[10px]">
               9. Utilization Heatmap by Department & Manager
             </div>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table className="w-full border-collapse">
               <thead>
                 <tr>
-                  <th
-                    style={{
-                      fontSize: 10,
-                      color: "#6b7280",
-                      padding: "5px 8px",
-                      textAlign: "left",
-                      borderBottom: "0.5px solid #e5e7eb",
-                      fontWeight: 600,
-                      minWidth: 130,
-                    }}
-                  >
+                  <th className="text-[10px] text-[#6b7280] px-[8px] py-[5px] text-left border-b border-gray-200 font-semibold min-w-[130px]">
                     Department / Manager
                   </th>
                   {heatmapManagers.map((m) => (
                     <th
                       key={m}
-                      style={{
-                        fontSize: 9.5,
-                        color: "#374151",
-                        padding: "5px 8px",
-                        textAlign: "center",
-                        borderBottom: "0.5px solid #e5e7eb",
-                        fontWeight: 700,
-                      }}
+                      className="text-[9.5px] text-[#374151] px-[8px] py-[5px] text-center border-b border-gray-200 font-bold"
                     >
                       {m}
                     </th>
                   ))}
-                  <th
-                    style={{
-                      fontSize: 10,
-                      color: "#6b7280",
-                      padding: "5px 8px",
-                      textAlign: "center",
-                      borderBottom: "0.5px solid #e5e7eb",
-                      fontWeight: 600,
-                    }}
-                  >
+                  <th className="text-[10px] text-[#6b7280] px-[8px] py-[5px] text-center border-b border-gray-200 font-semibold">
                     Department Avg
                   </th>
                 </tr>
@@ -2057,33 +1845,19 @@ function ReportDetail12() {
                       ? { bg: "#e8f5e9", color: "#2e7d32" }
                       : { bg: "#fff4cc", color: "#92400e" };
                   return (
-                    <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
-                      <td
-                        style={{
-                          padding: "6px 8px",
-                          fontSize: 11,
-                          color: "#374151",
-                          fontWeight: 600,
-                        }}
-                      >
+                    <tr key={i} className="border-b border-[#f3f4f6]">
+                      <td className="px-[8px] py-[6px] text-[11px] text-[#374151] font-semibold">
                         {row.dept}
                       </td>
                       {row.vals.map((v, j) => {
                         const s = heatCell(v);
                         return (
-                          <td
-                            key={j}
-                            style={{ padding: "4px 6px", textAlign: "center" }}
-                          >
+                          <td key={j} className="px-[6px] py-[4px] text-center">
                             <span
+                              className="text-[11px] font-bold px-[8px] py-[3px] rounded inline-block"
                               style={{
-                                fontSize: 11,
-                                fontWeight: 700,
                                 color: s.color,
-                                background: s.bg,
-                                padding: "3px 8px",
-                                borderRadius: 4,
-                                display: "inline-block",
+                                backgroundColor: s.bg,
                               }}
                             >
                               {v}%
@@ -2091,16 +1865,12 @@ function ReportDetail12() {
                           </td>
                         );
                       })}
-                      <td style={{ padding: "4px 6px", textAlign: "center" }}>
+                      <td className="px-[6px] py-[4px] text-center">
                         <span
+                          className="text-[11px] font-extrabold px-[8px] py-[3px] rounded inline-block"
                           style={{
-                            fontSize: 11,
-                            fontWeight: 800,
                             color: avgStyle.color,
-                            background: avgStyle.bg,
-                            padding: "3px 8px",
-                            borderRadius: 4,
-                            display: "inline-block",
+                            backgroundColor: avgStyle.bg,
                           }}
                         >
                           {row.avg}%
@@ -2111,25 +1881,17 @@ function ReportDetail12() {
                 })}
               </tbody>
             </table>
-            <div style={{ display: "flex", gap: 14, marginTop: 10 }}>
+            <div className="flex gap-[14px] mt-[10px]">
               {utilization.map((l, i) => (
                 <span
                   key={i}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                    fontSize: 9,
-                  }}
+                  className="flex items-center gap-[4px] text-[9px]"
                 >
                   <span
+                    className="w-[10px] h-[10px] rounded-[2px] inline-block"
                     style={{
-                      width: 10,
-                      height: 10,
-                      background: l.bg,
+                      backgroundColor: l.bg,
                       border: `1px solid ${l.color}44`,
-                      borderRadius: 2,
-                      display: "inline-block",
                     }}
                   />
                   <span style={{ color: "#6b7280" }}>{l.label}</span>
@@ -2139,48 +1901,24 @@ function ReportDetail12() {
           </div>
 
           {/* 10. Key Insights */}
-          <div
-            style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "#111",
-                marginBottom: 10,
-              }}
-            >
+          <div className="bg-white border border-gray-200 rounded-[10px] px-[16px] py-[14px]">
+            <div className="text-[12px] font-bold text-[#111] mb-[10px]">
               10. Key Insights
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div className="flex flex-col gap-[10px]">
               {keyInsights.map((ins, i) => (
                 <div
                   key={i}
+                  className="flex gap-[8px] items-start rounded-[8px] px-[10px] py-[8px]"
                   style={{
-                    display: "flex",
-                    gap: 8,
-                    alignItems: "flex-start",
-                    background: ins.bg,
-                    borderRadius: 8,
-                    padding: "8px 10px",
+                    backgroundColor: ins.bg,
                     border: `0.5px solid ${ins.color}33`,
                   }}
                 >
                   <span style={{ fontSize: 16, flexShrink: 0 }}>
                     {ins.icon}
                   </span>
-                  <span
-                    style={{
-                      fontSize: 10.5,
-                      color: "#374151",
-                      lineHeight: 1.5,
-                    }}
-                  >
+                  <span className="text-[10.5px] text-[#374151] leading-[1.5]">
                     {ins.text}
                   </span>
                 </div>
@@ -2190,15 +1928,7 @@ function ReportDetail12() {
         </div>
 
         {/* Footer */}
-        <div
-          style={{
-            textAlign: "center",
-            fontSize: 10,
-            color: "#9ca3af",
-            paddingTop: 8,
-            borderTop: "0.5px solid #e5e7eb",
-          }}
-        >
+        <div className="text-center text-[10px] text-[#9ca3af] pt-2 border-t border-gray-200">
           ℹ️ All metrics are based on data as of 15/05/26 10:30 AM &nbsp;|&nbsp;
           Historical data available from 01/01/26 &nbsp;|&nbsp; Data refreshed
           daily
@@ -2219,17 +1949,7 @@ function heatColor(val) {
 
 function CardHeader({ children }) {
   return (
-    <div
-      style={{
-        fontSize: 12,
-        fontWeight: 700,
-        color: "#111",
-        marginBottom: 10,
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
+    <div className="text-[12px] font-bold text-[#111] mb-[10px] flex justify-between items-center">
       {children}
     </div>
   );
@@ -2237,15 +1957,8 @@ function CardHeader({ children }) {
 
 function ViewAllLink({ label = "View All →" }) {
   return (
-    <div style={{ marginTop: 8 }}>
-      <span
-        style={{
-          fontSize: 11,
-          color: COLORS.blue,
-          fontWeight: 600,
-          cursor: "pointer",
-        }}
-      >
+    <div className="mt-[8px]">
+      <span className="text-[11px] text-blueCustom font-semibold cursor-pointer">
         {label}
       </span>
     </div>
@@ -2256,22 +1969,13 @@ function UtilBar({ value }) {
   const color =
     value >= 101 ? COLORS.red : value >= 95 ? "#a16207" : COLORS.green;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-      <div
-        style={{
-          flex: 1,
-          height: 6,
-          background: "#f3f4f6",
-          borderRadius: 3,
-          overflow: "hidden",
-        }}
-      >
+    <div className="flex items-center gap-[4px]">
+      <div className="flex-1 h-[6px] bg-[#f3f4f6] rounded-[3px] overflow-hidden">
         <div
+          className="h-full rounded-[3px]"
           style={{
             width: `${Math.min(value, 100)}%`,
-            height: "100%",
-            background: color,
-            borderRadius: 3,
+            backgroundColor: color,
           }}
         />
       </div>
@@ -2286,13 +1990,10 @@ function RiskBadge({ level }) {
   const s = map[level] || map.Info;
   return (
     <span
+      className="text-[10px] font-bold px-[8px] py-[2px] rounded"
       style={{
-        fontSize: 10,
-        fontWeight: 700,
         color: s.color,
         background: s.bg,
-        padding: "2px 8px",
-        borderRadius: 4,
       }}
     >
       {level}
@@ -2303,79 +2004,34 @@ function RiskBadge({ level }) {
 // Executive filter bar with all slices
 function ExecFilterBar({ filters, setFilters }) {
   return (
-    <div
-      style={{
-        background: "#fff",
-        borderBottom: "1px solid #e5e7eb",
-        padding: "14px 20px",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          marginBottom: 12,
-        }}
-      >
+    <div className="bg-white border-b border-gray-200 px-[20px] py-[14px]">
+      <div className="flex items-start justify-between mb-[12px]">
         <div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: "#111" }}>
+          <div className="text-[20px] font-extrabold text-black">
             Executive Leadership Report
           </div>
-          <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
+          <div className="text-[11px] text-gray-500 mt-[2px]">
             Strategic overview of resource planning, utilization, and
             performance
           </div>
         </div>
       </div>
-      <div
-        style={{
-          display: "flex",
-          gap: 10,
-          flexWrap: "wrap",
-          alignItems: "flex-end",
-        }}
-      >
+      <div className="flex gap-[10px] flex-wrap items-end">
         {EXEC_FILTER_DEFS.map((f) => (
           <div
             key={f.key}
             style={{ display: "flex", flexDirection: "column", gap: 3 }}
           >
-            <label
-              style={{
-                fontSize: 9,
-                color: "#9ca3af",
-                fontWeight: 600,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-              }}
-            >
+            <label className="text-[9px] text-[#9ca3af] font-semibold uppercase tracking-[0.05em]">
               {f.label}
             </label>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                border: "1px solid #d1d5db",
-                borderRadius: 6,
-                background: "#fff",
-                paddingLeft: 8,
-              }}
-            >
+            <div className="flex items-center border border-gray-300 rounded-md bg-white pl-2">
               <select
                 value={filters[f.key]}
                 onChange={(e) =>
                   setFilters((p) => ({ ...p, [f.key]: e.target.value }))
                 }
-                style={{
-                  fontSize: 12,
-                  border: "none",
-                  background: "transparent",
-                  padding: "5px 4px 5px 0",
-                  color: "#374151",
-                  cursor: "pointer",
-                  outline: "none",
-                }}
+                className="text-[12px] bg-transparent px-0 pr-[4px] py-[5px] text-[#374151] cursor-pointer outline-none border-none"
               >
                 {f.options.map((o) => (
                   <option key={o}>{o}</option>
@@ -2392,102 +2048,45 @@ function ExecFilterBar({ filters, setFilters }) {
 function ReportDetail1() {
   const [execFilters, setExecFilters] = useState(DEFAULT_EXEC_FILTERS);
   return (
-    <div
-      style={{
-        fontFamily: "system-ui, sans-serif",
-        background: "#f3f4f6",
-        minHeight: "100vh",
-      }}
-    >
+    <div className="[font-family:system-ui,sans-serif] bg-[#f3f4f6] min-h-screen">
       <ExecFilterBar filters={execFilters} setFilters={setExecFilters} />
-      <div
-        style={{
-          padding: "16px 20px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-        }}
-      >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(8,1fr)",
-            gap: 8,
-          }}
-        >
+      <div className="px-[20px] py-[16px] flex flex-col gap-3">
+        <div className="grid grid-cols-8 gap-[8px]">
           {execKpis.map((k, i) => (
             <div
               key={i}
-              style={{
-                background: "#fff",
-                border: "0.5px solid #e5e7eb",
-                borderRadius: 10,
-                padding: "12px 14px",
-              }}
+              className="bg-white border border-gray-200 rounded-[10px] px-[14px] py-[12px]"
             >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  marginBottom: 4,
-                }}
-              >
-                <span
-                  style={{ fontSize: 10, color: "#6b7280", lineHeight: 1.3 }}
-                >
+              <div className="flex justify-between items-start mb-[4px]">
+                <span className="text-[10px] text-gray-500 leading-[1.3]">
                   {k.label}
                 </span>
-                <span style={{ fontSize: 16 }}>{k.icon}</span>
+                <span className="text-[16px]">{k.icon}</span>
               </div>
               <div
-                style={{
-                  fontSize: 18,
-                  fontWeight: 800,
-                  color: k.color,
-                  lineHeight: 1.1,
-                  marginBottom: 3,
-                }}
+                className="text-[18px] font-extrabold leading-[1.1] mb-[3px]"
+                style={{ color: k.color }}
               >
                 {k.value}
               </div>
               <div
-                style={{
-                  fontSize: 10,
-                  color: k.up ? COLORS.green : COLORS.red,
-                }}
+                className="text-[10px]"
+                style={{ color: k.up ? COLORS.green : COLORS.red }}
               >
                 {k.delta}
               </div>
             </div>
           ))}
         </div>
-        <div
-          style={{
-            background: "#fffbeb",
-            border: "1px solid #fde68a",
-            borderRadius: 10,
-            padding: "12px 16px",
-            display: "flex",
-            gap: 10,
-            alignItems: "flex-start",
-          }}
-        >
-          <span style={{ fontSize: 18 }}>💡</span>
+        <div className="bg-[#fffbeb] border border-[#fde68a] rounded-[10px] px-[16px] py-[12px] flex gap-[10px] items-start">
+          <span className="text-[18px]">💡</span>
           <div>
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "#92400e",
-                marginBottom: 3,
-              }}
-            >
+            <div className="text-[12px] font-bold text-[#92400e] mb-[3px]">
               Leadership Insights
             </div>
-            <div style={{ fontSize: 11, color: "#78350f" }}>
+            <div className="text-[11px] text-[#78350f]">
               Cloud & Retail pillars show{" "}
-              <span style={{ color: COLORS.blue, fontWeight: 700 }}>
+              <span className="text-blueCustom font-bold">
                 12% demand increase
               </span>
               . Capacity shortfall expected in Q3 2026, primarily in Data
@@ -2495,64 +2094,23 @@ function ReportDetail1() {
             </div>
           </div>
         </div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1.05fr 1fr",
-            gap: 12,
-          }}
-        >
-          <div
-            style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
+        <div className="grid grid-cols-[1.05fr_1fr] gap-[12px]">
+          <div className="bg-white border border-gray-200 rounded-[10px] px-[16px] py-[14px]">
             <CardHeader>1. Capacity Heatmap (Utilization %)</CardHeader>
             <div style={{ overflowX: "auto" }}>
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  minWidth: 520,
-                }}
-              >
+              <table className="w-full border-collapse min-w-[520px]">
                 <thead>
                   <tr>
-                    <th
-                      style={{
-                        fontSize: 9,
-                        color: "#6b7280",
-                        padding: "4px 6px",
-                        textAlign: "left",
-                        width: 36,
-                      }}
-                    >
+                    <th className="text-[9px] text-gray-500 px-[6px] py-[4px] text-left w-[36px]">
                       Pillar
                     </th>
-                    <th
-                      style={{
-                        fontSize: 9,
-                        color: "#6b7280",
-                        padding: "4px 6px",
-                        textAlign: "left",
-                        minWidth: 130,
-                      }}
-                    >
+                    <th className="text-[9px] text-gray-500 px-[6px] py-[4px] text-left min-w-[130px]">
                       Team / Skill Set
                     </th>
                     {heatmapMonths.map((m) => (
                       <th
                         key={m}
-                        style={{
-                          fontSize: 8,
-                          color: "#6b7280",
-                          padding: "4px 4px",
-                          textAlign: "center",
-                          whiteSpace: "nowrap",
-                        }}
+                        className="text-[8px] text-gray-500 px-[4px] py-[4px] text-center whitespace-nowrap"
                       >
                         {m}
                       </th>
@@ -2576,36 +2134,15 @@ function ReportDetail1() {
                           {isFirst && (
                             <td
                               rowSpan={pillar.rows.length}
-                              style={{
-                                fontSize: 10,
-                                fontWeight: 700,
-                                color: "#374151",
-                                padding: "4px 6px",
-                                verticalAlign: "middle",
-                                textAlign: "center",
-                                borderRight: "1px solid #e5e7eb",
-                              }}
+                              className="text-[10px] font-bold text-[#374151] px-[6px] py-[4px] align-middle text-center border-r border-gray-200"
                             >
                               <div>{pillar.icon}</div>
-                              <div
-                                style={{
-                                  fontSize: 8,
-                                  marginTop: 2,
-                                  color: "#6b7280",
-                                }}
-                              >
+                              <div className="text-[8px] mt-[2px] text-gray-500">
                                 {pillar.pillar}
                               </div>
                             </td>
                           )}
-                          <td
-                            style={{
-                              fontSize: 9.5,
-                              color: "#374151",
-                              padding: "4px 6px",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
+                          <td className="text-[9.5px] text-gray-700 px-[6px] py-[4px] whitespace-nowrap">
                             {row.team}
                           </td>
                           {row.vals.map((v, vi) => {
@@ -2613,20 +2150,14 @@ function ReportDetail1() {
                             return (
                               <td
                                 key={vi}
-                                style={{
-                                  padding: "3px 3px",
-                                  textAlign: "center",
-                                }}
+                                className="px-[3px] py-[3px] text-center"
                               >
                                 <span
+                                  className="text-[9.5px] rounded-[3px] px-[5px] py-[2px] inline-block"
                                   style={{
-                                    fontSize: 9.5,
                                     fontWeight: fw,
                                     color: text,
                                     background: bg,
-                                    borderRadius: 3,
-                                    padding: "2px 5px",
-                                    display: "inline-block",
                                   }}
                                 >
                                   {v}%
@@ -2641,14 +2172,7 @@ function ReportDetail1() {
                 </tbody>
               </table>
             </div>
-            <div
-              style={{
-                display: "flex",
-                gap: 12,
-                marginTop: 10,
-                flexWrap: "wrap",
-              }}
-            >
+            <div className="flex gap-[12px] mt-[10px] flex-wrap">
               {[
                 {
                   label: "Underutilized (<70%)",
@@ -2669,39 +2193,24 @@ function ReportDetail1() {
               ].map((leg, i) => (
                 <span
                   key={i}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                    fontSize: 9,
-                  }}
+                  className="flex items-center gap-[4px] text-[9px]"
                 >
                   <span
+                    className="w-[10px] h-[10px] rounded-[2px] inline-block"
                     style={{
-                      width: 10,
-                      height: 10,
-                      background: leg.bg,
+                      backgroundColor: leg.bg,
                       border: `1px solid ${leg.color}44`,
-                      borderRadius: 2,
-                      display: "inline-block",
                     }}
                   />
-                  <span style={{ color: "#6b7280" }}>{leg.label}</span>
+                  <span className="text-gray-500">{leg.label}</span>
                 </span>
               ))}
             </div>
           </div>
-          <div
-            style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
+          <div className="bg-white border border-gray-200 rounded-[10px] px-[16px] py-[14px]">
             <CardHeader>
               <span>2. Capacity vs Demand Trend (FTE)</span>
-              <div style={{ display: "flex", gap: 12 }}>
+              <div className="flex gap-[12px]">
                 {[
                   ["Capacity", COLORS.blue],
                   ["Demand", COLORS.orange],
@@ -2709,22 +2218,11 @@ function ReportDetail1() {
                 ].map(([l, c]) => (
                   <span
                     key={l}
-                    style={{
-                      fontSize: 9,
-                      color: "#6b7280",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 3,
-                    }}
+                    className="text-[9px] text-[#6b7280] flex items-center gap-[3px]"
                   >
                     <span
-                      style={{
-                        width: 18,
-                        height: 2,
-                        background: c,
-                        display: "inline-block",
-                        borderRadius: 1,
-                      }}
+                      className="w-[18px] h-[2px] inline-block rounded-[1px]"
+                      style={{ backgroundColor: c }}
                     />{" "}
                     {l}
                   </span>
@@ -2784,31 +2282,11 @@ function ReportDetail1() {
             </ResponsiveContainer>
           </div>
         </div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "0.7fr 1.1fr 1fr",
-            gap: 12,
-          }}
-        >
-          <div
-            style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
+        <div className="grid grid-cols-[0.7fr_1.1fr_1fr] gap-[12px]">
+          <div className="bg-white border border-gray-200 rounded-[10px] px-[16px] py-[14px]">
             <CardHeader>3. Demand by Status (FTE)</CardHeader>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <div
-                style={{
-                  position: "relative",
-                  width: 120,
-                  height: 120,
-                  flexShrink: 0,
-                }}
-              >
+            <div className="flex items-center gap-4">
+              <div className="relative w-[120px] h-[120px] shrink-0">
                 <PieChart width={120} height={120}>
                   <Pie
                     data={demandStatusData}
@@ -2825,49 +2303,24 @@ function ReportDetail1() {
                     ))}
                   </Pie>
                 </PieChart>
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    pointerEvents: "none",
-                  }}
-                >
-                  <div style={{ fontSize: 16, fontWeight: 800, color: "#111" }}>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <div className="text-[16px] font-extrabold text-black">
                     3,245
                   </div>
-                  <div style={{ fontSize: 8, color: "#6b7280" }}>Total</div>
+                  <div className="text-[8px] text-gray-500">Total</div>
                 </div>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div className="flex flex-col gap-[6px]">
                 {demandStatusData.map((d, i) => (
-                  <div
-                    key={i}
-                    style={{ display: "flex", alignItems: "center", gap: 6 }}
-                  >
+                  <div key={i} className="flex items-center gap-[6px]">
                     <div
-                      style={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: 2,
-                        background: d.color,
-                        flexShrink: 0,
-                      }}
+                      className="w-[8px] h-[8px] rounded-[2px] shrink-0"
+                      style={{ backgroundColor: d.color }}
                     />
-                    <span style={{ fontSize: 10, color: "#374151" }}>
-                      {d.name}
-                    </span>
+                    <span className="text-[10px] text-gray-700">{d.name}</span>
                     <span
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: d.color,
-                        marginLeft: "auto",
-                        paddingLeft: 8,
-                      }}
+                      className="text-[11px] font-bold ml-auto pl-2"
+                      style={{ color: d.color }}
                     >
                       {d.value.toLocaleString()} ({d.pct}%)
                     </span>
@@ -2876,14 +2329,7 @@ function ReportDetail1() {
               </div>
             </div>
           </div>
-          <div
-            style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
+          <div className="bg-white border border-gray-200 rounded-[10px] px-[16px] py-[14px]">
             <CardHeader>4. Vendor Overview</CardHeader>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
@@ -2891,14 +2337,7 @@ function ReportDetail1() {
                   {vendorOverview.map((h) => (
                     <th
                       key={h}
-                      style={{
-                        fontSize: 9,
-                        color: "#6b7280",
-                        padding: "4px 6px",
-                        textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
-                        fontWeight: 600,
-                      }}
+                      className="text-[9px] text-[#6b7280] px-[6px] py-[4px] text-left border-b border-gray-200 font-semibold"
                     >
                       {h}
                     </th>
@@ -2907,48 +2346,20 @@ function ReportDetail1() {
               </thead>
               <tbody>
                 {vendorData.map((v, i) => (
-                  <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
-                    <td
-                      style={{
-                        padding: "6px 6px",
-                        fontSize: 11,
-                        color: "#374151",
-                        fontWeight: 500,
-                      }}
-                    >
+                  <tr key={i} className="border-b border-[#f3f4f6]">
+                    <td className="px-[6px] py-[6px] text-[11px] text-gray-700 font-medium">
                       {v.name}
                     </td>
-                    <td style={{ padding: "6px 6px", minWidth: 90 }}>
+                    <td className="px-[6px] py-[6px] min-w-[90px]">
                       <UtilBar value={v.util} />
                     </td>
-                    <td
-                      style={{
-                        padding: "6px 6px",
-                        fontSize: 11,
-                        fontWeight: 600,
-                        color: "#111",
-                      }}
-                    >
+                    <td className="px-[6px] py-[6px] text-[11px] font-semibold text-black">
                       {v.fte}
                     </td>
-                    <td
-                      style={{
-                        padding: "6px 6px",
-                        fontSize: 11,
-                        color: COLORS.teal,
-                        fontWeight: 600,
-                      }}
-                    >
+                    <td className="px-[6px] py-[6px] text-[11px] text-tealCustom font-semibold">
                       {v.spend}
                     </td>
-                    <td
-                      style={{
-                        padding: "6px 6px",
-                        fontSize: 11,
-                        color: COLORS.orange,
-                        fontWeight: 600,
-                      }}
-                    >
+                    <td className="px-[6px] py-[6px] text-[11px] text-orangeCustom font-semibold">
                       {v.demands}
                     </td>
                   </tr>
@@ -2957,29 +2368,15 @@ function ReportDetail1() {
             </table>
             <ViewAllLink label="View All Vendors →" />
           </div>
-          <div
-            style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
+          <div className="bg-white border border-gray-200 rounded-[10px] px-[16px] py-[14px]">
             <CardHeader>5. Top 5 Skills by Demand Gap (FTE)</CardHeader>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table className="w-full border-collapse">
               <thead>
                 <tr>
                   {top5.map((h) => (
                     <th
                       key={h}
-                      style={{
-                        fontSize: 9,
-                        color: "#6b7280",
-                        padding: "4px 6px",
-                        textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
-                        fontWeight: 600,
-                      }}
+                      className="text-[9px] text-[#6b7280] px-[6px] py-[4px] text-left border-b border-gray-200 font-semibold"
                     >
                       {h}
                     </th>
@@ -2989,69 +2386,26 @@ function ReportDetail1() {
               <tbody>
                 {skillsGapData.map((s, i) => (
                   <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
-                    <td
-                      style={{
-                        padding: "6px 6px",
-                        fontSize: 11,
-                        color: "#374151",
-                        fontWeight: 500,
-                      }}
-                    >
+                    <td className="px-[6px] py-[6px] text-[11px] text-gray-700 font-medium">
                       {s.skill}
                     </td>
-                    <td
-                      style={{
-                        padding: "6px 6px",
-                        fontSize: 11,
-                        color: "#111",
-                        fontWeight: 600,
-                      }}
-                    >
+                    <td className="px-[6px] py-[6px] text-[11px] text-black font-semibold">
                       {s.demand}
                     </td>
-                    <td
-                      style={{
-                        padding: "6px 6px",
-                        fontSize: 11,
-                        color: COLORS.green,
-                        fontWeight: 600,
-                      }}
-                    >
+                    <td className="px-[6px] py-[6px] text-[11px] text-greenCustom font-semibold">
                       {s.available}
                     </td>
-                    <td style={{ padding: "6px 6px" }}>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 6,
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: 40,
-                            height: 6,
-                            background: "#fee2e2",
-                            borderRadius: 3,
-                            overflow: "hidden",
-                          }}
-                        >
+                    <td className="px-[6px] py-[6px]">
+                      <div className="flex items-center gap-[6px]">
+                        <div className="w-[40px] h-[6px] bg-[#fee2e2] rounded-[3px] overflow-hidden">
                           <div
+                            className="h-full rounded-[3px] bg-redCustom"
                             style={{
                               width: `${Math.min(Math.abs(s.gap) / 2, 100)}%`,
-                              height: "100%",
-                              background: COLORS.red,
-                              borderRadius: 3,
                             }}
                           />
                         </div>
-                        <span
-                          style={{
-                            fontSize: 11,
-                            fontWeight: 700,
-                            color: COLORS.red,
-                          }}
-                        >
+                        <span className="text-[11px] font-bold text-redCustom">
                           {s.gap}
                         </span>
                       </div>
@@ -3063,38 +2417,18 @@ function ReportDetail1() {
             <ViewAllLink label="View All Skills →" />
           </div>
         </div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "0.9fr 1.1fr 0.9fr",
-            gap: 12,
-          }}
-        >
-          <div
-            style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
+        <div className="grid grid-cols-[0.9fr_1.1fr_0.9fr] gap-[12px]">
+          <div className="bg-white border border-gray-200 rounded-[10px] px-[16px] py-[14px]">
             <CardHeader>
               6. Cross-Pillar Resource Flow (Top Borrowing)
             </CardHeader>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table className="w-full border-collapse">
               <thead>
                 <tr>
                   {crossPillar.map((h) => (
                     <th
                       key={h}
-                      style={{
-                        fontSize: 9,
-                        color: "#6b7280",
-                        padding: "4px 6px",
-                        textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
-                        fontWeight: 600,
-                      }}
+                      className="text-[9px] text-[#6b7280] px-[6px] py-[4px] text-left border-b border-gray-200 font-semibold"
                     >
                       {h}
                     </th>
@@ -3104,58 +2438,24 @@ function ReportDetail1() {
               <tbody>
                 {crossPillarData.map((r, i) => (
                   <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
-                    <td
-                      style={{
-                        padding: "7px 6px",
-                        fontSize: 11,
-                        color: "#374151",
-                        fontWeight: 600,
-                      }}
-                    >
+                    <td className="px-[6px] py-[7px] text-[11px] text-gray-700 font-semibold">
                       {r.borrowing}
                     </td>
-                    <td
-                      style={{
-                        padding: "7px 6px",
-                        fontSize: 11,
-                        color: "#6b7280",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 4,
-                        }}
-                      >
+                    <td className="px-[6px] py-[7px] text-[11px] text-gray-500">
+                      <div className="flex items-center gap-[4px]">
                         <div
+                          className="w-[28px] h-[6px] rounded-[3px]"
                           style={{
-                            width: 28,
-                            height: 6,
                             background: `linear-gradient(to right, ${COLORS.blue}, ${COLORS.teal})`,
-                            borderRadius: 3,
                           }}
                         />
                         {r.from}
                       </div>
                     </td>
-                    <td
-                      style={{
-                        padding: "7px 6px",
-                        fontSize: 12,
-                        fontWeight: 800,
-                        color: COLORS.blue,
-                      }}
-                    >
+                    <td className="px-[6px] py-[7px] text-[12px] font-extrabold text-blueCustom">
                       {r.fte}
                     </td>
-                    <td
-                      style={{
-                        padding: "7px 6px",
-                        fontSize: 9.5,
-                        color: "#6b7280",
-                      }}
-                    >
+                    <td className="px-[6px] py-[7px] text-[9.5px] text-gray-500">
                       {r.skills}
                     </td>
                   </tr>
@@ -3163,14 +2463,7 @@ function ReportDetail1() {
               </tbody>
             </table>
           </div>
-          <div
-            style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
+          <div className="bg-white border border-gray-200 rounded-[10px] px-[16px] py-[14px]">
             <CardHeader>7. Projects at Staffing Risk</CardHeader>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
@@ -3178,14 +2471,7 @@ function ReportDetail1() {
                   {["Project", "Pillar", "Risk Level", "Gap (FTE)"].map((h) => (
                     <th
                       key={h}
-                      style={{
-                        fontSize: 9,
-                        color: "#6b7280",
-                        padding: "4px 6px",
-                        textAlign: "left",
-                        borderBottom: "0.5px solid #e5e7eb",
-                        fontWeight: 600,
-                      }}
+                      className="text-[9px] text-[#6b7280] px-[6px] py-[4px] text-left border-b border-gray-200 font-semibold"
                     >
                       {h}
                     </th>
@@ -3195,36 +2481,16 @@ function ReportDetail1() {
               <tbody>
                 {staffingRiskProjects.map((r, i) => (
                   <tr key={i} style={{ borderBottom: "0.5px solid #f3f4f6" }}>
-                    <td
-                      style={{
-                        padding: "7px 6px",
-                        fontSize: 11,
-                        color: "#374151",
-                        fontWeight: 600,
-                      }}
-                    >
+                    <td className="px-[6px] py-[7px] text-[11px] text-gray-700 font-semibold">
                       {r.project}
                     </td>
-                    <td
-                      style={{
-                        padding: "7px 6px",
-                        fontSize: 10,
-                        color: "#6b7280",
-                      }}
-                    >
+                    <td className="px-[6px] py-[7px] text-[10px] text-gray-500">
                       {r.pillar}
                     </td>
-                    <td style={{ padding: "7px 6px" }}>
+                    <td className="px-[6px] py-[7px]">
                       <RiskBadge level={r.risk} />
                     </td>
-                    <td
-                      style={{
-                        padding: "7px 6px",
-                        fontSize: 12,
-                        fontWeight: 800,
-                        color: COLORS.red,
-                      }}
-                    >
+                    <td className="px-[6px] py-[7px] text-[12px] font-extrabold text-redCustom">
                       {r.gap}
                     </td>
                   </tr>
@@ -3233,47 +2499,23 @@ function ReportDetail1() {
             </table>
             <ViewAllLink label="View All Projects →" />
           </div>
-          <div
-            style={{
-              background: "#fff",
-              border: "0.5px solid #e5e7eb",
-              borderRadius: 10,
-              padding: "14px 16px",
-            }}
-          >
+          <div className="bg-white border border-gray-200 rounded-[10px] px-[16px] py-[14px]">
             <CardHeader>8. Strategic Alerts</CardHeader>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div className="flex flex-col gap-[8px]">
               {strategicAlerts.map((a, i) => (
                 <div
                   key={i}
+                  className="flex items-start justify-between gap-2 px-[10px] py-[8px] rounded-lg"
                   style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    justifyContent: "space-between",
-                    gap: 8,
-                    padding: "8px 10px",
-                    background: a.color + "0d",
-                    border: `0.5px solid ${a.color}33`,
-                    borderRadius: 8,
+                    backgroundColor: `${a.color}0d`,
+                    border: `1px solid ${a.color}33`,
                   }}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: 6,
-                    }}
-                  >
-                    <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>
+                  <div className="flex items-start gap-[6px]">
+                    <span className="text-[14px] shrink-0 mt-[1px]">
                       {a.icon}
                     </span>
-                    <span
-                      style={{
-                        fontSize: 11,
-                        color: "#374151",
-                        lineHeight: 1.4,
-                      }}
-                    >
+                    <span className="text-[11px] text-[#374151] leading-[1.4]">
                       {a.text}
                     </span>
                   </div>
@@ -3284,15 +2526,7 @@ function ReportDetail1() {
             <ViewAllLink label="View All Alerts →" />
           </div>
         </div>
-        <div
-          style={{
-            textAlign: "center",
-            fontSize: 10,
-            color: "#9ca3af",
-            paddingTop: 8,
-            borderTop: "0.5px solid #e5e7eb",
-          }}
-        >
+        <div className="text-center text-[10px] text-[#9ca3af] pt-2 border-t border-gray-200">
           ℹ️ All metrics are based on data as of 15/05/26 10:30 AM &nbsp;|&nbsp;
           Data refreshed daily
         </div>
@@ -3304,35 +2538,16 @@ function ReportDetail1() {
 // Generic filter bar for other reports
 function GenericFilterBar({ filters, setFilters }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: 8,
-        alignItems: "center",
-        marginBottom: 16,
-        flexWrap: "wrap",
-      }}
-    >
+    <div className="flex gap-[8px] items-center mb-[16px] flex-wrap">
       {GENERIC_FILTER_DEFS.map((f) => (
-        <div
-          key={f.key}
-          style={{ display: "flex", flexDirection: "column", gap: 2 }}
-        >
-          <label style={{ fontSize: 9, color: "#9ca3af" }}>{f.label}</label>
+        <div key={f.key} className="flex flex-col gap-[2px]">
+          <label className="text-[9px] text-gray-400">{f.label}</label>
           <select
             value={filters[f.key]}
             onChange={(e) =>
               setFilters((p) => ({ ...p, [f.key]: e.target.value }))
             }
-            style={{
-              fontSize: 11,
-              borderRadius: 6,
-              border: "0.5px solid #d1d5db",
-              padding: "4px 8px",
-              background: "#fff",
-              color: "#374151",
-              cursor: "pointer",
-            }}
+            className="text-[11px] rounded-md border border-gray-300 px-[8px] py-[4px] bg-white text-[#374151] cursor-pointer"
           >
             {f.options.map((o) => (
               <option key={o}>{o}</option>
@@ -3340,32 +2555,17 @@ function GenericFilterBar({ filters, setFilters }) {
           </select>
         </div>
       ))}
-      <div style={{ display: "flex", gap: 6, marginTop: 14 }}>
+      <div className="flex gap-[6px] mt-[14px]">
         {["Filters", "Refresh", "Export"].map((l) => (
           <button
             key={l}
-            style={{
-              background: "#fff",
-              border: "0.5px solid #d1d5db",
-              borderRadius: 6,
-              padding: "4px 10px",
-              fontSize: 11,
-              cursor: "pointer",
-              color: "#374151",
-            }}
+            className="bg-white border border-gray-300 rounded-md px-[10px] py-[4px] text-[11px] cursor-pointer text-[#374151]"
           >
             {l}
           </button>
         ))}
       </div>
-      <div
-        style={{
-          marginLeft: "auto",
-          marginTop: 14,
-          fontSize: 10,
-          color: "#9ca3af",
-        }}
-      >
+      <div className="ml-auto mt-[14px] text-[10px] text-gray-400">
         Last Updated: 15/05/26 10:30 AM
       </div>
     </div>
@@ -3378,24 +2578,16 @@ function ReportDetail2() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="flex flex-col gap-4">
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(5,1fr)",
-          gap: 10,
-        }}
-      >
+      <div className="grid grid-cols-5 gap-[10px]">
         <StatTile label="Total Capacity" value="7,427" color={COLORS.blue} />
         <StatTile label="Total Demand" value="8,016" color={COLORS.orange} />
         <StatTile label="Allocated (FTE)" value="7,115" color={COLORS.teal} />
         <StatTile label="Utilization" value="83%" color={COLORS.purple} />
         <StatTile label="Capacity Gap" value="-589" color={COLORS.red} />
       </div>
-      <div
-        style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 12 }}
-      >
+      <div className="grid grid-cols-[1.3fr_1fr] gap-[12px]">
         <DetailCard>
           <SectionLabel>Capacity vs Demand Trend</SectionLabel>
           <ResponsiveContainer width="100%" height={190}>
@@ -3424,15 +2616,12 @@ function ReportDetail2() {
           <SectionLabel>Utilization by Business Unit</SectionLabel>
           {buUtil.map((r, i) => (
             <div key={i} style={{ marginBottom: 12 }}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: 4,
-                }}
-              >
-                <span style={{ fontSize: 11, color: "#374151" }}>{r.name}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: r.color }}>
+              <div className="flex justify-between mb-[4px]">
+                <span className="text-[11px] text-gray-700">{r.name}</span>
+                <span
+                  className="text-[12px] font-bold"
+                  style={{ color: r.color }}
+                >
                   {r.util}%
                 </span>
               </div>
@@ -3446,13 +2635,11 @@ function ReportDetail2() {
         <DetailTable
           headers={allocationByRole}
           rows={byRoleReportDetail2.map((r) => [
-            <span style={{ color: "#374151", fontWeight: 600 }}>{r.role}</span>,
+            <span className="text-gray-700 font-semibold">{r.role}</span>,
             r.allocated.toLocaleString(),
             r.capacity.toLocaleString(),
-            <span style={{ color: COLORS.green, fontWeight: 700 }}>
-              {r.util}
-            </span>,
-            <span style={{ color: COLORS.red, fontWeight: 700 }}>{r.gap}</span>,
+            <span className="text-greenCustom font-bold">{r.util}</span>,
+            <span className="text-redCustom font-bold">{r.gap}</span>,
           ])}
         />
       </DetailCard>
@@ -3464,15 +2651,9 @@ function ReportDetail3() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="flex flex-col gap-4">
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4,1fr)",
-          gap: 10,
-        }}
-      >
+      <div className="grid grid-cols-4 gap-[10px]">
         <StatTile
           label="Total Planning Inputs"
           value="1,245"
@@ -3553,17 +2734,15 @@ function ReportDetail3() {
             "Approval Rate",
           ]}
           rows={owners.map((r) => [
-            <span style={{ color: "#374151", fontWeight: 600 }}>{r.name}</span>,
+            <span className="text-gray-700 font-semibold">{r.name}</span>,
             r.total,
-            <span style={{ color: COLORS.green, fontWeight: 600 }}>
+            <span className="text-greenCustom font-semibold">
               {r.approved}
             </span>,
-            <span style={{ color: COLORS.orange, fontWeight: 600 }}>
+            <span className="text-orangeCustom font-semibold">
               {r.pending}
             </span>,
-            <span style={{ color: COLORS.blue, fontWeight: 700 }}>
-              {r.rate}
-            </span>,
+            <span className="text-blueCustom font-bold">{r.rate}</span>,
           ])}
         />
       </DetailCard>
@@ -3575,15 +2754,9 @@ function ReportDetail4() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="flex flex-col gap-4">
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3,1fr)",
-          gap: 10,
-        }}
-      >
+      <div className="grid grid-cols-3 gap-[10px]">
         <StatTile
           label="Total Allocated (FTE)"
           value="7,115"
@@ -3592,18 +2765,11 @@ function ReportDetail4() {
         <StatTile label="Active Projects" value="124" color={COLORS.teal} />
         <StatTile label="Avg Allocation %" value="81%" color={COLORS.purple} />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div className="grid grid-cols-2 gap-[12px]">
         <DetailCard>
           <SectionLabel>Allocation by Project (Top 6)</SectionLabel>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div
-              style={{
-                position: "relative",
-                width: 160,
-                height: 160,
-                flexShrink: 0,
-              }}
-            >
+          <div className="flex items-center gap-4">
+            <div className="relative w-[160px] h-[160px] shrink-0">
               <PieChart width={160} height={160}>
                 <Pie
                   data={donutData}
@@ -3623,52 +2789,27 @@ function ReportDetail4() {
                   ))}
                 </Pie>
               </PieChart>
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  pointerEvents: "none",
-                }}
-              >
-                <div style={{ fontSize: 13, fontWeight: 800, color: "#111" }}>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <div className="text-[13px] font-extrabold text-[#111]">
                   7,115
                 </div>
-                <div style={{ fontSize: 9, color: "#6b7280" }}>Total FTE</div>
+                <div className="text-[9px] text-gray-500">Total FTE</div>
               </div>
             </div>
             <div>
               {donutData.map((d, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    marginBottom: 6,
-                  }}
-                >
+                <div key={i} className="flex items-center gap-[6px] mb-[6px]">
                   <div
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: 2,
-                      background: DONUT_COLORS[i],
-                      flexShrink: 0,
-                    }}
+                    className="w-[8px] h-[8px] rounded-[2px] shrink-0"
+                    style={{ backgroundColor: DONUT_COLORS[i] }}
                   />
-                  <span style={{ fontSize: 10, color: "#374151", flex: 1 }}>
+                  <span className="text-[10px] text-gray-700 flex-1">
                     {d.name}
                   </span>
-                  <span
-                    style={{ fontSize: 10, fontWeight: 700, color: "#111" }}
-                  >
+                  <span className="text-[10px] font-bold text-black">
                     {d.value}%
                   </span>
-                  <span style={{ fontSize: 10, color: "#9ca3af" }}>
+                  <span className="text-[10px] text-gray-400">
                     {d.fte.toLocaleString()}
                   </span>
                 </div>
@@ -3679,21 +2820,12 @@ function ReportDetail4() {
         <DetailCard>
           <SectionLabel>Allocation by Portfolio</SectionLabel>
           {byPortfolio.map((p, i) => (
-            <div key={i} style={{ marginBottom: 11 }}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: 4,
-                }}
-              >
-                <span style={{ fontSize: 10, color: "#374151" }}>{p.name}</span>
+            <div key={i} className="mb-3">
+              <div className="flex justify-between mb-[4px]">
+                <span className="text-[10px] text-gray-700">{p.name}</span>
                 <span
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: DONUT_COLORS[i],
-                  }}
+                  className="text-[10px] font-bold"
+                  style={{ color: DONUT_COLORS[i] }}
                 >
                   {p.fte.toLocaleString()} ({p.pct}%)
                 </span>
@@ -3736,15 +2868,9 @@ function ReportDetail5() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="flex flex-col gap-4">
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3,1fr)",
-          gap: 10,
-        }}
-      >
+      <div className="grid grid-cols-3 gap-[10px]">
         <StatTile
           label="Over Allocated Resources"
           value="312 FTE"
@@ -3757,18 +2883,14 @@ function ReportDetail5() {
         />
         <StatTile label="Projects Impacted" value="47" color={COLORS.amber} />
       </div>
-      <div
-        style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 12 }}
-      >
+      <div className="grid grid-cols-[1.4fr_1fr] gap-[12px]">
         <DetailCard>
           <SectionLabel>Over-Allocated Resources (Top 10)</SectionLabel>
           <DetailTable
             headers={["Resource", "Role", "Allocation %", "Projects"]}
             rows={overList.map((r) => [
-              <span style={{ color: "#374151", fontWeight: 600 }}>
-                {r.name}
-              </span>,
-              <span style={{ color: "#6b7280" }}>{r.role}</span>,
+              <span className="text-gray-700 font-semibold">{r.name}</span>,
+              <span className="text-gray-500">{r.role}</span>,
               <span
                 style={{
                   fontWeight: 800,
@@ -3786,7 +2908,7 @@ function ReportDetail5() {
             ])}
           />
         </DetailCard>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div className="flex flex-col gap-[12px]">
           <DetailCard>
             <SectionLabel>Over Allocation by Role</SectionLabel>
             <ResponsiveContainer width="100%" height={150}>
@@ -3820,27 +2942,12 @@ function ReportDetail5() {
           <DetailCard>
             <SectionLabel>Over Allocation by Project</SectionLabel>
             {byProject.map((p, i) => (
-              <div
-                key={i}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  marginBottom: 5,
-                }}
-              >
-                <span style={{ fontSize: 10, color: "#374151", minWidth: 120 }}>
+              <div key={i} className="flex items-center gap-[6px] mb-[5px]">
+                <span className="text-[10px] text-gray-700 min-w-[120px]">
                   {p.name}
                 </span>
                 <DetailMiniBar value={p.count} max={50} color={COLORS.red} />
-                <span
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: COLORS.red,
-                    minWidth: 22,
-                  }}
-                >
+                <span className="text-[10px] font-bold text-redCustom min-w-[22px]">
                   {p.count}
                 </span>
               </div>
@@ -3856,15 +2963,9 @@ function ReportDetail6() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="flex flex-col gap-4">
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4,1fr)",
-          gap: 10,
-        }}
-      >
+      <div className="grid grid-cols-4 gap-[10px]">
         <StatTile
           label="Total Resources (FTE)"
           value="8,532"
@@ -3878,7 +2979,7 @@ function ReportDetail6() {
           color={COLORS.gray}
         />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div className="grid grid-cols-2 gap-[12px]">
         <DetailCard>
           <SectionLabel>Availability by Role</SectionLabel>
           <DetailTable
@@ -3889,30 +2990,18 @@ function ReportDetail6() {
               "Availability %",
             ]}
             rows={byRoleReportDetail16.map((r) => [
-              <span style={{ color: "#374151" }}>{r.role}</span>,
+              <span className="text-gray-700">{r.role}</span>,
               r.total.toLocaleString(),
-              <span style={{ color: COLORS.green, fontWeight: 600 }}>
-                {r.avail}
-              </span>,
-              <span style={{ color: COLORS.teal, fontWeight: 700 }}>
-                {r.pct}
-              </span>,
+              <span className="text-greenCustom font-semibold">{r.avail}</span>,
+              <span className="text-tealCustom font-bold">{r.pct}</span>,
             ])}
           />
         </DetailCard>
         <DetailCard>
           <SectionLabel>Shared Resources by Project (Top 9)</SectionLabel>
           {sharedProjects.map((p, i) => (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                marginBottom: 5,
-              }}
-            >
-              <span style={{ fontSize: 10, color: "#374151", minWidth: 150 }}>
+            <div key={i} className="flex items-center gap-[8px] mb-[5px]">
+              <span className="text-[10px] text-gray-700 min-w-[150px]">
                 {p.name}
               </span>
               <DetailMiniBar value={p.shared} max={250} color={COLORS.teal} />
@@ -3960,7 +3049,7 @@ function ReportDetail7() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="flex flex-col gap-4">
       <GenericFilterBar filters={filters} setFilters={setFilters} />
       <div className="grid grid-cols-4 gap-[10px]">
         <StatTile label="Overall Compliance" value="92%" color={COLORS.green} />
@@ -4001,15 +3090,8 @@ function ReportDetail7() {
         </DetailCard>
         <DetailCard>
           <SectionLabel>Non-Compliance by Reason</SectionLabel>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div
-              style={{
-                position: "relative",
-                width: 130,
-                height: 130,
-                flexShrink: 0,
-              }}
-            >
+          <div className="flex items-center gap-4">
+            <div className="relative w-[130px] h-[130px] shrink-0">
               <PieChart width={130} height={130}>
                 <Pie
                   data={nonCompReasons}
@@ -4123,7 +3205,7 @@ function ReportDetail8() {
         </DetailCard>
         <DetailCard>
           <SectionLabel>Variance by Type</SectionLabel>
-          <div style={{ position: "relative", width: 200, height: 160 }}>
+          <div className="relative w-[200px] h-[160px]">
             <PieChart width={200} height={160}>
               <Pie
                 data={varianceByTypedData}
@@ -4171,7 +3253,7 @@ function ReportDetail9() {
   const [filters, setFilters] = useState(DEFAULT_GENERIC_FILTERS);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="flex flex-col gap-4">
       <GenericFilterBar filters={filters} setFilters={setFilters} />
       <div className="grid grid-cols-4 gap-[10px]">
         <StatTile
