@@ -91,19 +91,19 @@ export const kpis = [
 // ─── Dashboard Trend Data ─────────────────────────────────────────────────────
 
 export const capacityDemandTrend = [
-  { month: "01/01/26", Capacity: 7100, Demand: 7300, Gap: -200 },
-  { month: "01/02/26", Capacity: 7200, Demand: 7500, Gap: -300 },
-  { month: "01/03/26", Capacity: 7300, Demand: 7700, Gap: -400 },
-  { month: "01/04/26", Capacity: 7700, Demand: 7800, Gap: -100 },
-  { month: "01/05/26", Capacity: 7350, Demand: 8000, Gap: -650 },
+  { month: "Jan", Capacity: 7100, Demand: 7300, Gap: -200 },
+  { month: "Feb", Capacity: 7200, Demand: 7500, Gap: -300 },
+  { month: "Mar", Capacity: 7300, Demand: 7700, Gap: -400 },
+  { month: "Apr", Capacity: 7700, Demand: 7800, Gap: -100 },
+  { month: "May", Capacity: 7350, Demand: 8000, Gap: -650 },
 ];
 
 export const utilizationTrend = [
-  { month: "01/01/26", rate: 76 },
-  { month: "01/02/26", rate: 78 },
-  { month: "01/03/26", rate: 80 },
-  { month: "01/04/26", rate: 81 },
-  { month: "01/05/26", rate: 83 },
+  { month: "Jan", rate: 76 },
+  { month: "Feb", rate: 78 },
+  { month: "Mar", rate: 80 },
+  { month: "Apr", rate: 81 },
+  { month: "May", rate: 83 },
 ];
 
 export const workforceRisks = [
@@ -315,12 +315,12 @@ export const reportCards = [
     title: "Forecasting & Capacity Planning",
     desc: "Forecast demand vs capacity & identify future gaps",
     forecastData: [
-      { month: "01/05/26", cap: 8.0, demand: 8.9, gap: -0.9 },
-      { month: "01/06/26", cap: 8.3, demand: 9.1, gap: -0.8 },
-      { month: "01/07/26", cap: 8.5, demand: 9.3, gap: -0.8 },
-      { month: "01/08/26", cap: 6.9, demand: 8.7, gap: -1.8 },
-      { month: "01/09/26", cap: 6.9, demand: 8.8, gap: -0.9 },
-      { month: "01/10/26", cap: 7.5, demand: 8.4, gap: -0.9 },
+      { month: "Jan", cap: 8.0, demand: 8.9, gap: -0.9 },
+      { month: "Feb", cap: 8.3, demand: 9.1, gap: -0.8 },
+      { month: "Mar", cap: 8.5, demand: 9.3, gap: -0.8 },
+      { month: "Apr", cap: 6.9, demand: 8.7, gap: -1.8 },
+      { month: "May", cap: 6.9, demand: 8.8, gap: -0.9 },
+      { month: "Jun", cap: 7.5, demand: 8.4, gap: -0.9 },
     ],
     icon: "🔮",
     color: COLORS.purple,
@@ -1254,11 +1254,11 @@ export const compliance = [
 ];
 
 export const tsData = [
-  { month: "01/01/26", planned: 2600, actual: 2450 },
-  { month: "01/02/26", planned: 2650, actual: 2500 },
-  { month: "01/03/26", planned: 2700, actual: 2550 },
-  { month: "11/04/26", planned: 2800, actual: 2750 },
-  { month: "11/05/26", planned: 2850, actual: 2850 },
+  { month: "Jan", planned: 2600, actual: 2450 },
+  { month: "Feb", planned: 2650, actual: 2500 },
+  { month: "Mar", planned: 2700, actual: 2550 },
+  { month: "Apr", planned: 2800, actual: 2750 },
+  { month: "May", planned: 2850, actual: 2850 },
 ];
 
 export const planning = [
@@ -1290,12 +1290,12 @@ export const planning = [
 ];
 
 export const forecastData = [
-  { month: "11/05/26", cap: 8.0, demand: 8.9, gap: -0.9 },
-  { month: "01/06/26", cap: 8.3, demand: 9.1, gap: -0.8 },
-  { month: "01/07/26", cap: 8.5, demand: 9.3, gap: -0.8 },
-  { month: "01/08/26", cap: 6.9, demand: 8.7, gap: -1.8 },
-  { month: "01/09/26", cap: 6.9, demand: 8.8, gap: -0.9 },
-  { month: "01/10/26", cap: 7.5, demand: 8.4, gap: -0.9 },
+  { month: "Jan", cap: 8.0, demand: 8.9, gap: -0.9 },
+  { month: "Feb", cap: 8.3, demand: 9.1, gap: -0.8 },
+  { month: "Mar", cap: 8.5, demand: 9.3, gap: -0.8 },
+  { month: "Apr", cap: 6.9, demand: 8.7, gap: -1.8 },
+  { month: "May", cap: 6.9, demand: 8.8, gap: -0.9 },
+  { month: "Jun", cap: 7.5, demand: 8.4, gap: -0.9 },
 ];
 
 export const demand = [
@@ -1327,11 +1327,11 @@ export const demandByPriority = [
 ];
 
 export const spendTrend = [
-  { month: "01/01/26", spend: 6.84 },
-  { month: "01/02/26", spend: 5.84 },
-  { month: "01/03/26", spend: 5.98 },
-  { month: "11/04/26", spend: 7.1 },
-  { month: "11/05/26", spend: 8.1 },
+  { month: "Jan", spend: 6.84 },
+  { month: "Feb", spend: 5.84 },
+  { month: "Mar", spend: 5.98 },
+  { month: "Apr", spend: 7.1 },
+  { month: "May", spend: 8.1 },
 ];
 
 export const spendByCat = [
@@ -1477,11 +1477,11 @@ export const portfolioVar = [
 ];
 
 export const budgetMonthly = [
-  { month: "01/01/26", budget: 4.4, actual: 4.9, variance: -0.5 },
-  { month: "01/02/26", budget: 4.3, actual: 4.7, variance: -0.4 },
-  { month: "01/03/26", budget: 5.1, actual: 5.6, variance: -0.5 },
-  { month: "11/04/26", budget: 5.4, actual: 5.8, variance: -0.4 },
-  { month: "11/05/26", budget: 5.4, actual: 5.6, variance: -0.2 },
+  { month: "Jan", budget: 4.4, actual: 4.9, variance: -0.5 },
+  { month: "Feb", budget: 4.3, actual: 4.7, variance: -0.4 },
+  { month: "Mar", budget: 5.1, actual: 5.6, variance: -0.5 },
+  { month: "Apr", budget: 5.4, actual: 5.8, variance: -0.4 },
+  { month: "May", budget: 5.4, actual: 5.6, variance: -0.2 },
 ];
 
 export const nonCompReasons = [
@@ -1493,11 +1493,11 @@ export const nonCompReasons = [
 ];
 
 export const compTrend = [
-  { month: "01/01/26", rate: 90 },
-  { month: "01/02/26", rate: 91 },
-  { month: "01/03/26", rate: 90 },
-  { month: "11/04/26", rate: 92 },
-  { month: "11/05/26", rate: 92 },
+  { month: "Jan", rate: 90 },
+  { month: "Feb", rate: 91 },
+  { month: "Mar", rate: 90 },
+  { month: "Apr", rate: 92 },
+  { month: "May", rate: 92 },
 ];
   
 export const items = [
@@ -1509,11 +1509,11 @@ export const items = [
 ];
   
 export const availTrend = [
-  { month: "01/01/26", pct: 23.1 },
-  { month: "01/02/26", pct: 22.4 },
-  { month: "01/03/26", pct: 22.4 },
-  { month: "11/04/26", pct: 21.1 },
-  { month: "11/05/26", pct: 21.6 },
+  { month: "Jan", pct: 23.1 },
+  { month: "Feb", pct: 22.4 },
+  { month: "Mar", pct: 22.4 },
+  { month: "Apr", pct: 21.1 },
+  { month: "May", pct: 21.6 },
 ];
 
 export const sharedProjects = [

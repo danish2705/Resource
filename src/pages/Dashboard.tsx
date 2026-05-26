@@ -1954,7 +1954,7 @@ export default function Dashboard() {
     {
       label: "Region",
       key: "region",
-      options: ["All", "APAC", "EMEA", "AMER"],
+      options: ["All", "APAC", "EMEA", "NA"],
     },
     {
       label: "Department",
