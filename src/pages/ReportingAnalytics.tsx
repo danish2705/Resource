@@ -3916,14 +3916,7 @@ function ReportDetail6() {
                 {p.name}
               </span>
               <DetailMiniBar value={p.shared} max={250} color={COLORS.teal} />
-              <span
-                style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  color: COLORS.teal,
-                  minWidth: 28,
-                }}
-              >
+              <span className="text-[10px] font-bold min-w-[28px] text-tealCustom">
                 {p.shared}
               </span>
             </div>
@@ -3969,13 +3962,7 @@ function ReportDetail7() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <GenericFilterBar filters={filters} setFilters={setFilters} />
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4,1fr)",
-          gap: 10,
-        }}
-      >
+      <div className="grid grid-cols-4 gap-[10px]">
         <StatTile label="Overall Compliance" value="92%" color={COLORS.green} />
         <StatTile
           label="Timesheet Compliance"
