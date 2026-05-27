@@ -497,7 +497,7 @@ export const heatmapDepts = [
 
 export const execKpis = [
   {
-    label: "Total Capacity",
+    label: "Total Capacity ",
     value: "74 FTE",
     delta: "+6.2% vs Jan 2026",
     up: true,
