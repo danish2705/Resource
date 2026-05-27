@@ -100,12 +100,12 @@ const statusStyles: Record<ReviewStatus, BadgeStyle> = {
     label: "RM Rejected",
   },
   "PMO Approved": {
-    bg: "bg-green-50",
-    text: "text-green-700",
-    border: "border-green-200",
-    icon: <CheckCheck className="h-3 w-3" />,
-    label: "Fully Approved",
-  },
+  bg: "bg-blue-50",
+  text: "text-blue-700",
+  border: "border-blue-200",
+  icon: <ChevronRight className="h-3 w-3" />,
+  label: "Pending PMO",
+},
   "PMO Rejected": {
     bg: "bg-red-50",
     text: "text-red-600",
@@ -114,12 +114,12 @@ const statusStyles: Record<ReviewStatus, BadgeStyle> = {
     label: "PMO Rejected",
   },
   Approved: {
-    bg: "bg-green-50",
-    text: "text-green-700",
-    border: "border-green-200",
-    icon: <CheckCircle2 className="h-3 w-3" />,
-    label: "Approved",
-  },
+  bg: "bg-amber-50",
+  text: "text-amber-700",
+  border: "border-amber-200",
+  icon: <Clock className="h-3 w-3" />,
+  label: "Pending RM",
+},
   Rejected: {
     bg: "bg-red-50",
     text: "text-red-600",
@@ -612,16 +612,46 @@ export default function ResourceReview() {
                             {style.label}
                           </span>
                           <div className="flex items-center gap-1 mt-0.5">
-                            <div
-                              className={`h-1.5 w-5 rounded-full ${req.approvalHistory.find((a) => a.role === "Resource Manager")?.decision === "Approved" ? "bg-green-500" : req.approvalHistory.find((a) => a.role === "Resource Manager")?.decision === "Rejected" ? "bg-red-400" : stage === "rm" ? "bg-amber-400" : "bg-muted"}`}
-                            />
-                            <div
-                              className={`h-0.5 w-2 ${req.approvalHistory.find((a) => a.role === "Resource Manager")?.decision === "Approved" ? "bg-green-300" : "bg-muted"}`}
-                            />
-                            <div
-                              className={`h-1.5 w-5 rounded-full ${req.approvalHistory.find((a) => a.role === "PMO")?.decision === "Approved" ? "bg-green-500" : req.approvalHistory.find((a) => a.role === "PMO")?.decision === "Rejected" ? "bg-red-400" : stage === "pmo" ? "bg-blue-400" : "bg-muted"}`}
-                            />
-                          </div>
+  {/* Pending RM + Approved */}
+  {(req.status === "Pending" ||
+    req.status === "Awaiting Approval" ||
+    req.status === "Approved") && (
+    <>
+      <div className="h-1.5 w-5 rounded-full bg-amber-400" />
+      <div className="h-0.5 w-2 bg-muted" />
+      <div className="h-1.5 w-5 rounded-full bg-muted" />
+    </>
+  )}
+
+  {/* Pending PMO + Fully Approved */}
+  {(req.status === "RM Approved" ||
+    req.status === "PMO Approved") && (
+    <>
+      <div className="h-1.5 w-5 rounded-full bg-blue-400" />
+      <div className="h-0.5 w-2 bg-blue-300" />
+      <div className="h-1.5 w-5 rounded-full bg-blue-400" />
+    </>
+  )}
+
+  {/* RM Rejected */}
+  {req.status === "RM Rejected" && (
+    <>
+      <div className="h-1.5 w-5 rounded-full bg-red-400" />
+      <div className="h-0.5 w-2 bg-muted" />
+      <div className="h-1.5 w-5 rounded-full bg-muted" />
+    </>
+  )}
+
+  {/* PMO Rejected */}
+  {req.status === "PMO Rejected" && (
+    <>
+      <div className="h-1.5 w-5 rounded-full bg-red-400" />
+      <div className="h-0.5 w-2 bg-red-300" />
+      <div className="h-1.5 w-5 rounded-full bg-red-400" />
+    </>
+  )}
+</div>
+  {/* Stage 1 */}
                         </div>
                       </TableCell>
                       <TableCell className="pr-6">

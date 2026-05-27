@@ -526,27 +526,51 @@ function TaskPanel({
                   <td className="p-3 text-xs font-medium whitespace-nowrap">
                     {task.task}
                   </td>
+                  <td className="p-3 min-w-[180px]">
+  <select
+    value={task.assignedResources[0] || ""}
+    onChange={(e) => {
+      const selectedPerson = e.target.value;
+
+      const updatedTasks = tasks.map((t) =>
+        t.id === task.id
+          ? {
+              ...t,
+              assignedResources: selectedPerson
+                ? [selectedPerson]
+                : [],
+              status: selectedPerson
+                ? "Assigned"
+                : "Not Assigned",
+            }
+          : t
+      );
+
+      onTasksChange(updatedTasks);
+    }}
+    className="w-full h-8 px-2 text-xs border border-border rounded-md bg-background"
+  >
+    <option value="">Select Resource</option>
+
+    {project.resources.map((resource) => (
+      <option
+        key={resource.resourceId}
+        value={resource.resourceName}
+      >
+        {resource.resourceName}
+      </option>
+    ))}
+  </select>
+</td>
                   <td className="p-3">
-                    {task.assignedResources.length === 0 ? (
-                      <span className="text-xs text-muted-foreground italic">
-                        Unassigned
-                      </span>
-                    ) : (
-                      <div className="flex flex-wrap gap-1">
-                        {task.assignedResources.map((name) => (
-                          <span
-                            key={name}
-                            className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-500/20 text-blue-700 dark:text-blue-300 border border-blue-500/30"
-                          >
-                            {name}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </td>
-                  <td className="p-3">
-                    <TaskStatusBadge status={task.status} />
-                  </td>
+  <TaskStatusBadge
+    status={
+      task.assignedResources.length > 0
+        ? "Assigned"
+        : "Not Assigned"
+    }
+  />
+</td>
                 </tr>
               ))}
             </tbody>
@@ -561,7 +585,7 @@ function TaskPanel({
           className="inline-flex items-center gap-1.5 h-8 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
         >
           <UserCheck className="w-3.5 h-3.5" />
-          Assign To Me
+          Assign
         </button>
       </div>
     </div>

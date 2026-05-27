@@ -5,7 +5,7 @@ export interface AllocationRow {
   project: string;
   role: string;
   pillar: "Hi-tech" | "Retail" | "Banking" | "Healthcare" | "Life Sciences"; // ADD THIS
-  allocationType: "Client" | "Internal";
+  allocationType: "Project" | "Base Business";
   allocationPercentage: number;
   hoursPerWeek: number;
   startDate: string;
@@ -21,7 +21,7 @@ export const allocations: AllocationRow[] = [
     resource: "Priya Sharma",
     project: "Cloud Migration Phase 1",
     pillar: "Hi-tech", // Cloud project → Hi-tech
-    allocationType: "Client",
+    allocationType: "Project",
     allocationPercentage: 80,
     hoursPerWeek: 32,
     startDate: "2026-01-15",
@@ -35,7 +35,7 @@ export const allocations: AllocationRow[] = [
     role: "Frontend Developer",
     project: "Cloud Migration Phase 1",
     pillar: "Hi-tech",
-    allocationType: "Client",
+    allocationType: "Project",
     allocationPercentage: 100,
     hoursPerWeek: 40,
     startDate: "2026-01-15",
@@ -49,7 +49,7 @@ export const allocations: AllocationRow[] = [
     role: "Data Engineer",
     project: "Data Platform Modernisation",
     pillar: "Banking", // Data/Finance project → Banking
-    allocationType: "Client",
+    allocationType: "Project",
     allocationPercentage: 100,
     hoursPerWeek: 40,
     startDate: "2026-02-01",
@@ -63,7 +63,7 @@ export const allocations: AllocationRow[] = [
     role: "DevSecOps Lead",
     project: "DevSecOps Pipeline Setup",
     pillar: "Hi-tech", // DevSecOps → Hi-techs
-    allocationType: "Internal",
+    allocationType: "Base Business",
     allocationPercentage: 80,
     hoursPerWeek: 32,
     startDate: "2026-03-01",
@@ -77,7 +77,7 @@ export const allocations: AllocationRow[] = [
     role: "Dilivery Manager",
     project: "Cloud Migration Phase 1",
     pillar: "Hi-tech",
-    allocationType: "Client",
+    allocationType: "Project",
     allocationPercentage: 60,
     hoursPerWeek: 24,
     startDate: "2026-01-15",
@@ -91,7 +91,7 @@ export const allocations: AllocationRow[] = [
     role: "Cloud Engineer",
     project: "Identity & Access Management",
     pillar: "Healthcare", // IAM for HealthGroup → Healthcare
-    allocationType: "Client",
+    allocationType: "Project",
     allocationPercentage: 100,
     hoursPerWeek: 40,
     startDate: "2026-02-15",
@@ -105,7 +105,7 @@ export const allocations: AllocationRow[] = [
     role: "UI Developer",
     project: "Analytics Dashboard Suite",
     pillar: "Retail", // RetailCo client → Retail
-    allocationType: "Internal",
+    allocationType: "Base Business",
     allocationPercentage: 20,
     hoursPerWeek: 8,
     startDate: "2026-01-20",
@@ -119,7 +119,7 @@ export const allocations: AllocationRow[] = [
     role: "Security Reviewer",
     project: "DevSecOps Pipeline Setup",
     pillar: "Hi-tech",
-    allocationType: "Internal",
+    allocationType: "Base Business",
     allocationPercentage: 50,
     hoursPerWeek: 10,
     startDate: "2026-03-01",
@@ -133,7 +133,7 @@ export const allocations: AllocationRow[] = [
     role: "Cloud Engineer",
     project: "Cloud Migration Phase 1",
     pillar: "Hi-tech",
-    allocationType: "Client",
+    allocationType: "Project",
     allocationPercentage: 100,
     hoursPerWeek: 40,
     startDate: "2026-01-15",
@@ -147,7 +147,7 @@ export const allocations: AllocationRow[] = [
     role: "ML Engineer",
     project: "ML Forecasting Engine",
     pillar: "Life Sciences", // ML/Research → Life Sciences
-    allocationType: "Client",
+    allocationType: "Project",
     allocationPercentage: 80,
     hoursPerWeek: 32,
     startDate: "2026-05-01",
