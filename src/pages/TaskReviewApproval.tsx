@@ -65,7 +65,7 @@ const MOCK_TASKS: TaskRequest[] = [
     timeline: "Nov 1 – Nov 22, 2024",
     comments:
       "Critical path item. Needs to be completed before UI development begins.",
-    submittedDate: "Oct 28, 2024",
+    submittedDate: "2026-01-12",
   },
   {
     id: "TRQ-002",
@@ -85,7 +85,7 @@ const MOCK_TASKS: TaskRequest[] = [
     status: "Approved",
     timeline: "Nov 5 – Nov 18, 2024",
     comments: "Aligned with release schedule. Must finish before UAT.",
-    submittedDate: "Oct 25, 2024",
+    submittedDate: "2026-01-15",
   },
   {
     id: "TRQ-003",
@@ -105,7 +105,7 @@ const MOCK_TASKS: TaskRequest[] = [
     status: "Approved",
     timeline: "Oct 21 – Nov 8, 2024",
     comments: "Dependency for all downstream services. Priority escalated.",
-    submittedDate: "Oct 18, 2024",
+    submittedDate: "2026-01-18",
   },
   {
     id: "TRQ-004",
@@ -126,7 +126,7 @@ const MOCK_TASKS: TaskRequest[] = [
     timeline: "Nov 12 – Nov 25, 2024",
     comments:
       "Scope needs clarification. Please resubmit with updated requirements.",
-    submittedDate: "Oct 30, 2024",
+    submittedDate: "2026-01-20",
   },
   {
     id: "TRQ-005",
@@ -146,7 +146,7 @@ const MOCK_TASKS: TaskRequest[] = [
     status: "Pending",
     timeline: "Nov 4 – Nov 29, 2024",
     comments: "Requires DBA sign-off. Schema diagram attached.",
-    submittedDate: "Oct 29, 2024",
+    submittedDate: "2026-01-22",
   },
   {
     id: "TRQ-006",
@@ -166,7 +166,7 @@ const MOCK_TASKS: TaskRequest[] = [
     status: "Approved",
     timeline: "Oct 28 – Nov 10, 2024",
     comments: "Foundation for all deployment automation.",
-    submittedDate: "Oct 20, 2024",
+    submittedDate: "2026-01-24",
   },
   {
     id: "TRQ-007",
@@ -186,7 +186,7 @@ const MOCK_TASKS: TaskRequest[] = [
     status: "Pending",
     timeline: "Nov 6 – Nov 27, 2024",
     comments: "Design tokens finalized. Ready to begin development.",
-    submittedDate: "Oct 31, 2024",
+    submittedDate: "2026-01-26",
   },
   {
     id: "TRQ-008",
@@ -207,7 +207,7 @@ const MOCK_TASKS: TaskRequest[] = [
     timeline: "Nov 10 – Nov 28, 2024",
     comments:
       "Resource conflict with Sprint 4 deliverables. Reschedule to Sprint 6.",
-    submittedDate: "Oct 27, 2024",
+    submittedDate: "2026-01-28",
   },
   {
     id: "TRQ-009",
@@ -227,7 +227,7 @@ const MOCK_TASKS: TaskRequest[] = [
     status: "Pending",
     timeline: "Nov 15 – Nov 30, 2024",
     comments: "Coordinate with API team for accuracy review.",
-    submittedDate: "Nov 1, 2024",
+    submittedDate: "2026-01-30",
   },
   {
     id: "TRQ-010",
@@ -247,7 +247,7 @@ const MOCK_TASKS: TaskRequest[] = [
     status: "Approved",
     timeline: "Nov 3 – Nov 20, 2024",
     comments: "Use production-mirror environment for accurate results.",
-    submittedDate: "Oct 26, 2024",
+    submittedDate: "2026-02-02",
   },
   {
     id: "TRQ-011",
@@ -268,7 +268,7 @@ const MOCK_TASKS: TaskRequest[] = [
     timeline: "Oct 22 – Nov 5, 2024",
     comments:
       "Architecture review board approved. Proceed with implementation.",
-    submittedDate: "Oct 15, 2024",
+    submittedDate: "2026-02-04",
   },
   {
     id: "TRQ-012",
@@ -288,7 +288,7 @@ const MOCK_TASKS: TaskRequest[] = [
     status: "Pending",
     timeline: "Nov 8 – Nov 26, 2024",
     comments: "Blocked until schema migration (TRQ-005) is complete.",
-    submittedDate: "Oct 31, 2024",
+    submittedDate: "2026-02-06",
   },
 ];
 
@@ -1043,25 +1043,27 @@ export default function TaskReviewApproval() {
             style={{ tableLayout: "fixed", minWidth: "960px" }}
           >
             <colgroup>
-              <col style={{ width: "160px" }} />
-              <col style={{ width: "155px" }} />
-              <col style={{ width: "100px" }} />
-              <col style={{ width: "150px" }} />
-              <col style={{ width: "140px" }} />
-              <col style={{ width: "100px" }} />
-              <col style={{ width: "155px" }} />
-            </colgroup>
+  <col style={{ width: "160px" }} />
+  <col style={{ width: "155px" }} />
+  <col style={{ width: "100px" }} />
+  <col style={{ width: "150px" }} />
+  <col style={{ width: "120px" }} />
+  <col style={{ width: "140px" }} />
+  <col style={{ width: "100px" }} />
+  <col style={{ width: "155px" }} />
+</colgroup>
             <thead className="sticky top-0 z-20 bg-muted/40">
               <tr className="border-b border-border bg-muted/40">
                 {[
-                  "Task",
-                  "Project",
-                  "Task Type",
-                  "Assigned To",
-                  "Allocation",
-                  "Status",
-                  "Actions",
-                ].map((col) => (
+  "Task",
+  "Project",
+  "Task Type",
+  "Assigned To",
+  "Date Submitted",
+  "Allocation",
+  "Status",
+  "Actions",
+].map((col) => (
                   <th
                     key={col}
                     className="sticky top-0 z-20 bg-muted/40 text-left px-3 py-2.5 text-xs font-semibold text-muted-foreground tracking-wider whitespace-nowrap"
@@ -1075,7 +1077,7 @@ export default function TaskReviewApproval() {
               {filtered.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="px-3 py-10 text-center text-sm text-muted-foreground"
                   >
                     No tasks match your current filters.
@@ -1132,6 +1134,13 @@ export default function TaskReviewApproval() {
                         </div>
                       </div>
                     </td>
+
+                    {/* Date Submitted */}
+<td className="px-3 py-2.5">
+  <span className="text-xs text-muted-foreground whitespace-nowrap">
+    {task.submittedDate}
+  </span>
+</td>
 
                     {/* Allocation */}
                     <td className="px-3 py-2.5">
