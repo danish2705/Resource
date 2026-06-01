@@ -5,7 +5,7 @@ import { useAuth } from "@/auth/useAuth";
 import { hasPermission } from "@/auth/rbac";
 import { useActiveValues } from "@/store/useMasterData";
 import type { Demand } from "@/store/useStore";
-import { ResourceDialog } from "@/pages/Resource";
+import ResourceDialog from "@/pages/Resource";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
