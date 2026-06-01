@@ -196,7 +196,7 @@ export const resources: Resource[] = [
 
     employeeType: "Full Time",
 
-    availableAfter: "2027-08-02",
+    availableAfter: "2026-05-29",
 
     skills: ["Agile", "PMO", "Stakeholder Mgmt"],
 
@@ -229,7 +229,7 @@ export const resources: Resource[] = [
 
     employeeType: "Full Time",
 
-    availableAfter: "2026-05-18",
+    availableAfter: "2026-05-29",
 
     skills: ["ML", "Python", "TensorFlow"],
 
@@ -477,7 +477,7 @@ export const resources: Resource[] = [
 
     employeeType: "Contractor",
 
-    availableAfter: "2026-06-15",
+    availableAfter: "2026-04-15",
 
     skills: ["Selenium", "Test Automation", "JIRA"],
 
