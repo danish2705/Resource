@@ -18,279 +18,8 @@ import {
   BarChart3,
   Filter,
 } from "lucide-react";
+import { TaskStatus, TaskRequest, MOCK_TASKS } from "../mocks/taskApproval";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type TaskStatus = "Pending" | "Approved" | "Rejected";
-
-interface TaskRequest {
-  id: string;
-  taskName: string;
-  taskDescription: string;
-  project: string;
-  taskType: string;
-  assignedTo: string;
-  assignedRole: string;
-  assignedInitials: string;
-  assignedColor: string;
-  requestedBy: string;
-  priority: "High" | "Medium" | "Low";
-  sprint: string;
-  allocation: number;
-  status: TaskStatus;
-  timeline: string;
-  comments: string;
-  submittedDate: string;
-}
-
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-
-const MOCK_TASKS: TaskRequest[] = [
-  {
-    id: "TRQ-001",
-    taskName: "API Integration",
-    taskDescription:
-      "Design and implement RESTful API integration between the legacy system and new microservices architecture. Includes authentication, rate limiting, and error handling.",
-    project: "Data Modernization – ASPAC",
-    taskType: "Development",
-    assignedTo: "Rachel Morgan",
-    assignedRole: "Cloud Architect",
-    assignedInitials: "RM",
-    assignedColor: "#6366f1",
-    requestedBy: "Anurag Vaishy",
-    priority: "High",
-    sprint: "Sprint 3",
-    allocation: 100,
-    status: "Pending",
-    timeline: "Nov 1 – Nov 22, 2024",
-    comments:
-      "Critical path item. Needs to be completed before UI development begins.",
-    submittedDate: "2026-01-12",
-  },
-  {
-    id: "TRQ-002",
-    taskName: "Regression Testing",
-    taskDescription:
-      "Full regression test suite execution covering all core modules after the latest sprint changes. Includes automated and manual test cases.",
-    project: "Cloud Migration Phase 2",
-    taskType: "Testing",
-    assignedTo: "James Whitfield",
-    assignedRole: "QA Engineer",
-    assignedInitials: "JW",
-    assignedColor: "#0ea5e9",
-    requestedBy: "Anurag Vaishy",
-    priority: "High",
-    sprint: "Sprint 4",
-    allocation: 75,
-    status: "Approved",
-    timeline: "Nov 5 – Nov 18, 2024",
-    comments: "Aligned with release schedule. Must finish before UAT.",
-    submittedDate: "2026-01-15",
-  },
-  {
-    id: "TRQ-003",
-    taskName: "Authentication Setup",
-    taskDescription:
-      "Implement OAuth 2.0 + SAML SSO for enterprise identity provider integration. Covers token management, session handling, and MFA flows.",
-    project: "Enterprise Security Platform",
-    taskType: "Development",
-    assignedTo: "Priya Nair",
-    assignedRole: "Security Engineer",
-    assignedInitials: "PN",
-    assignedColor: "#10b981",
-    requestedBy: "Anurag Vaishy",
-    priority: "High",
-    sprint: "Sprint 2",
-    allocation: 100,
-    status: "Approved",
-    timeline: "Oct 21 – Nov 8, 2024",
-    comments: "Dependency for all downstream services. Priority escalated.",
-    submittedDate: "2026-01-18",
-  },
-  {
-    id: "TRQ-004",
-    taskName: "Security Review",
-    taskDescription:
-      "Comprehensive security audit of the payment processing module. Includes penetration testing, OWASP compliance check, and vulnerability assessment.",
-    project: "FinTech Core Upgrade",
-    taskType: "QA",
-    assignedTo: "Derek Okafor",
-    assignedRole: "Security Analyst",
-    assignedInitials: "DO",
-    assignedColor: "#f59e0b",
-    requestedBy: "Anurag Vaishy",
-    priority: "Medium",
-    sprint: "Sprint 5",
-    allocation: 50,
-    status: "Rejected",
-    timeline: "Nov 12 – Nov 25, 2024",
-    comments:
-      "Scope needs clarification. Please resubmit with updated requirements.",
-    submittedDate: "2026-01-20",
-  },
-  {
-    id: "TRQ-005",
-    taskName: "Database Schema Migration",
-    taskDescription:
-      "Migrate existing PostgreSQL schema to the new normalized structure. Includes data validation, rollback scripts, and zero-downtime migration strategy.",
-    project: "Data Modernization – ASPAC",
-    taskType: "Architecture",
-    assignedTo: "Sofia Reyes",
-    assignedRole: "Data Architect",
-    assignedInitials: "SR",
-    assignedColor: "#8b5cf6",
-    requestedBy: "Anurag Vaishy",
-    priority: "High",
-    sprint: "Sprint 3",
-    allocation: 100,
-    status: "Pending",
-    timeline: "Nov 4 – Nov 29, 2024",
-    comments: "Requires DBA sign-off. Schema diagram attached.",
-    submittedDate: "2026-01-22",
-  },
-  {
-    id: "TRQ-006",
-    taskName: "CI/CD Pipeline Setup",
-    taskDescription:
-      "Configure automated build, test, and deployment pipelines using GitHub Actions. Includes staging and production environment configurations.",
-    project: "Cloud Migration Phase 2",
-    taskType: "Development",
-    assignedTo: "Marcus Chen",
-    assignedRole: "DevOps Engineer",
-    assignedInitials: "MC",
-    assignedColor: "#ec4899",
-    requestedBy: "Anurag Vaishy",
-    priority: "Medium",
-    sprint: "Sprint 2",
-    allocation: 75,
-    status: "Approved",
-    timeline: "Oct 28 – Nov 10, 2024",
-    comments: "Foundation for all deployment automation.",
-    submittedDate: "2026-01-24",
-  },
-  {
-    id: "TRQ-007",
-    taskName: "UI Component Library",
-    taskDescription:
-      "Build reusable Storybook component library with Tailwind CSS. Includes design tokens, accessibility compliance, and documentation.",
-    project: "Digital Experience Platform",
-    taskType: "Development",
-    assignedTo: "Aisha Patel",
-    assignedRole: "Frontend Engineer",
-    assignedInitials: "AP",
-    assignedColor: "#14b8a6",
-    requestedBy: "Anurag Vaishy",
-    priority: "Medium",
-    sprint: "Sprint 4",
-    allocation: 100,
-    status: "Pending",
-    timeline: "Nov 6 – Nov 27, 2024",
-    comments: "Design tokens finalized. Ready to begin development.",
-    submittedDate: "2026-01-26",
-  },
-  {
-    id: "TRQ-008",
-    taskName: "Performance Optimization",
-    taskDescription:
-      "Profile and optimize critical API endpoints. Target: reduce P95 latency from 800ms to under 200ms using caching, query optimization, and CDN.",
-    project: "Enterprise Security Platform",
-    taskType: "Development",
-    assignedTo: "Thomas Bauer",
-    assignedRole: "Backend Engineer",
-    assignedInitials: "TB",
-    assignedColor: "#f97316",
-    requestedBy: "Anurag Vaishy",
-    priority: "High",
-    sprint: "Sprint 5",
-    allocation: 75,
-    status: "Rejected",
-    timeline: "Nov 10 – Nov 28, 2024",
-    comments:
-      "Resource conflict with Sprint 4 deliverables. Reschedule to Sprint 6.",
-    submittedDate: "2026-01-28",
-  },
-  {
-    id: "TRQ-009",
-    taskName: "API Documentation",
-    taskDescription:
-      "Write comprehensive OpenAPI 3.0 documentation for all public endpoints. Includes code examples, authentication guide, and Postman collection.",
-    project: "Data Modernization – ASPAC",
-    taskType: "Documentation",
-    assignedTo: "Elena Vasquez",
-    assignedRole: "Technical Writer",
-    assignedInitials: "EV",
-    assignedColor: "#64748b",
-    requestedBy: "Anurag Vaishy",
-    priority: "Low",
-    sprint: "Sprint 5",
-    allocation: 50,
-    status: "Pending",
-    timeline: "Nov 15 – Nov 30, 2024",
-    comments: "Coordinate with API team for accuracy review.",
-    submittedDate: "2026-01-30",
-  },
-  {
-    id: "TRQ-010",
-    taskName: "Load Testing",
-    taskDescription:
-      "Execute load and stress testing scenarios for the payment gateway. Target: 10,000 concurrent users with sub-500ms response times.",
-    project: "FinTech Core Upgrade",
-    taskType: "Testing",
-    assignedTo: "Kevin Strand",
-    assignedRole: "QA Lead",
-    assignedInitials: "KS",
-    assignedColor: "#0284c7",
-    requestedBy: "Anurag Vaishy",
-    priority: "High",
-    sprint: "Sprint 4",
-    allocation: 100,
-    status: "Approved",
-    timeline: "Nov 3 – Nov 20, 2024",
-    comments: "Use production-mirror environment for accurate results.",
-    submittedDate: "2026-02-02",
-  },
-  {
-    id: "TRQ-011",
-    taskName: "Microservices Architecture",
-    taskDescription:
-      "Design and document the microservices decomposition strategy for the monolithic application. Includes service boundaries, communication patterns, and data ownership.",
-    project: "Cloud Migration Phase 2",
-    taskType: "Architecture",
-    assignedTo: "Rachel Morgan",
-    assignedRole: "Cloud Architect",
-    assignedInitials: "RM",
-    assignedColor: "#6366f1",
-    requestedBy: "Anurag Vaishy",
-    priority: "High",
-    sprint: "Sprint 2",
-    allocation: 100,
-    status: "Approved",
-    timeline: "Oct 22 – Nov 5, 2024",
-    comments:
-      "Architecture review board approved. Proceed with implementation.",
-    submittedDate: "2026-02-04",
-  },
-  {
-    id: "TRQ-012",
-    taskName: "Data Validation Framework",
-    taskDescription:
-      "Build automated data quality validation pipeline. Includes schema checks, referential integrity, business rule validation, and alerting.",
-    project: "Data Modernization – ASPAC",
-    taskType: "Development",
-    assignedTo: "Sofia Reyes",
-    assignedRole: "Data Architect",
-    assignedInitials: "SR",
-    assignedColor: "#8b5cf6",
-    requestedBy: "Anurag Vaishy",
-    priority: "Medium",
-    sprint: "Sprint 4",
-    allocation: 75,
-    status: "Pending",
-    timeline: "Nov 8 – Nov 26, 2024",
-    comments: "Blocked until schema migration (TRQ-005) is complete.",
-    submittedDate: "2026-02-06",
-  },
-];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -471,7 +200,7 @@ function TaskDetailsDialog({
           {/* Requested by */}
           <div>
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-              Requested By
+              Assigned By
             </h3>
             <div className="flex items-center gap-3 bg-muted/40 border border-border rounded-xl p-3">
               <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
@@ -808,11 +537,10 @@ export default function TaskReviewApproval() {
       {/* ── Page Header ── */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
-          <FileText className="h-5 w-5 text-primary" />
           <div>
-            <h1 className="text-lg font-semibold text-foreground tracking-tight">
+            <h2 className="text-lg font-semibold text-foreground tracking-tight">
               Task Review
-            </h1>
+            </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
               Project Manager approval for submitted task assignments
             </p>
@@ -882,6 +610,7 @@ export default function TaskReviewApproval() {
           </div>
         </div>
       </div>
+      </div>
 
       {/* ── KPI Cards ── */}
       <div className="grid grid-cols-3 gap-3">
@@ -892,11 +621,11 @@ export default function TaskReviewApproval() {
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider leading-tight">
                 Pending PM Approval
               </p>
-              <p className="text-2xl font-bold text-foreground mt-1">
+              <p className="text-xl font-bold text-foreground mt-1">
                 {kpi.pending}
               </p>
             </div>
-            <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center flex-shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center flex-shrink-0">
               <Clock className="w-4 h-4 text-amber-500" />
             </div>
           </div>
@@ -928,11 +657,11 @@ export default function TaskReviewApproval() {
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider leading-tight">
                 Approved
               </p>
-              <p className="text-2xl font-bold text-foreground mt-1">
+              <p className="text-xl font-bold text-foreground mt-1">
                 {kpi.approved}
               </p>
             </div>
-            <div className="w-9 h-9 rounded-lg bg-green-500/15 flex items-center justify-center flex-shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-green-500/15 flex items-center justify-center flex-shrink-0">
               <CheckCircle2 className="w-4 h-4 text-green-500" />
             </div>
           </div>
@@ -964,11 +693,11 @@ export default function TaskReviewApproval() {
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider leading-tight">
                 Rejected
               </p>
-              <p className="text-2xl font-bold text-foreground mt-1">
+              <p className="text-xl font-bold text-foreground mt-1">
                 {kpi.rejected}
               </p>
             </div>
-            <div className="w-9 h-9 rounded-lg bg-red-500/15 flex items-center justify-center flex-shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-red-500/15 flex items-center justify-center flex-shrink-0">
               <XCircle className="w-4 h-4 text-red-500" />
             </div>
           </div>
@@ -992,8 +721,6 @@ export default function TaskReviewApproval() {
             Returned for revision
           </p>
         </div>
-      </div>
-
       </div>
 
       {/* ── Table Card ── */}

@@ -539,9 +539,9 @@ function TaskPanel({
               assignedResources: selectedPerson
                 ? [selectedPerson]
                 : [],
-              status: selectedPerson
+              status: (selectedPerson
                 ? "Assigned"
-                : "Not Assigned",
+                : "Not Assigned") as TaskStatus,
             }
           : t
       );
@@ -995,75 +995,85 @@ export default function Projects() {
 
         <CardContent className="flex flex-col flex-1 min-h-0">
           <div className="flex flex-col flex-1 min-h-0 gap-4">
-            {/* Search */}
-            <div className="shrink-0 flex items-center bg-card border border-border rounded-lg px-3 h-12 gap-2">
-              <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <input
-                value={filters.search}
-                onChange={(e) => setFilter("search")(e.target.value)}
-                placeholder="Search project, client or ID..."
-                className="bg-transparent outline-none w-full text-sm"
-              />
-              {filters.search && (
-                <button onClick={() => setFilter("search")("")}>
-                  <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
-                </button>
-              )}
-              <span className="text-xs text-muted-foreground ml-auto whitespace-nowrap pl-3 border-l border-border">
-                {filtered.length} result{filtered.length !== 1 ? "s" : ""}
-              </span>
-            </div>
+            {/* Search + Filters */}
+            <div className="shrink-0 flex items-center gap-3">
+              {/* Search */}
+              <div className="flex-1 flex items-center bg-card border border-border rounded-lg px-3 h-12 gap-2 min-w-[350px]">
+                <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
 
-            {/* Filters */}
-            <div className="shrink-0 flex flex-wrap items-center gap-2">
-              <FilterSelect
-                label="All Statuses"
-                value={filters.status}
-                onChange={setFilter("status")}
-                options={[
-                  { label: "All Statuses", value: "" },
-                  { label: "Active", value: "Active" },
-                  { label: "Planning", value: "Planning" },
-                ]}
-              />
-              <FilterSelect
-                label="All Priorities"
-                value={filters.priority}
-                onChange={setFilter("priority")}
-                options={[
-                  { label: "All Priorities", value: "" },
-                  { label: "High", value: "High" },
-                  { label: "Medium", value: "Medium" },
-                  { label: "Low", value: "Low" },
-                ]}
-              />
-              <FilterSelect
-                label="All Clients"
-                value={filters.client}
-                onChange={setFilter("client")}
-                options={[
-                  { label: "All Clients", value: "" },
-                  ...uniqueClients.map((c) => ({ label: c, value: c })),
-                ]}
-              />
-              <FilterSelect
-                label="All Progress"
-                value={filters.progressRange}
-                onChange={setFilter("progressRange")}
-                options={PROGRESS_RANGES}
-              />
-              {activeFilterCount > 0 && (
-                <button
-                  onClick={clearFilters}
-                  className="flex items-center gap-1.5 h-10 px-3 rounded-lg border border-border/60 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-colors"
-                >
-                  <X className="h-3 w-3" />
-                  Clear
-                  <span className="bg-muted rounded-full px-1.5 py-0.5 text-[10px] font-semibold">
-                    {activeFilterCount}
-                  </span>
-                </button>
-              )}
+                <input
+                  value={filters.search}
+                  onChange={(e) => setFilter("search")(e.target.value)}
+                  placeholder="Search project, client or ID..."
+                  className="bg-transparent outline-none w-full text-sm"
+                />
+
+                {filters.search && (
+                  <button onClick={() => setFilter("search")("")}>
+                    <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                  </button>
+                )}
+
+                <span className="text-xs text-muted-foreground whitespace-nowrap pl-3 border-l border-border">
+                  {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+
+              {/* Filters */}
+              <div className="flex items-center gap-2 flex-nowrap">
+                <FilterSelect
+                  label="All Statuses"
+                  value={filters.status}
+                  onChange={setFilter("status")}
+                  options={[
+                    { label: "All Statuses", value: "" },
+                    { label: "Active", value: "Active" },
+                    { label: "Planning", value: "Planning" },
+                  ]}
+                />
+
+                <FilterSelect
+                  label="All Priorities"
+                  value={filters.priority}
+                  onChange={setFilter("priority")}
+                  options={[
+                    { label: "All Priorities", value: "" },
+                    { label: "High", value: "High" },
+                    { label: "Medium", value: "Medium" },
+                    { label: "Low", value: "Low" },
+                  ]}
+                />
+
+                <FilterSelect
+                  label="All Clients"
+                  value={filters.client}
+                  onChange={setFilter("client")}
+                  options={[
+                    { label: "All Clients", value: "" },
+                    ...uniqueClients.map((c) => ({ label: c, value: c })),
+                  ]}
+                />
+
+                <FilterSelect
+                  label="All Progress"
+                  value={filters.progressRange}
+                  onChange={setFilter("progressRange")}
+                  options={PROGRESS_RANGES}
+                />
+
+                {activeFilterCount > 0 && (
+                  <button
+                    onClick={clearFilters}
+                    className="flex items-center gap-1.5 h-10 px-3 rounded-lg border border-border/60 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-colors whitespace-nowrap"
+                  >
+                    <X className="h-3 w-3" />
+                    Clear
+                    <span className="bg-muted rounded-full px-1.5 py-0.5 text-[10px] font-semibold">
+                      {activeFilterCount}
+                    </span>
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Table */}
