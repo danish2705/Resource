@@ -45,7 +45,7 @@ import {
   completeness,
 } from "@/mocks/dashboard.ts";
 
-// ─── CSS custom properties — exact same system as ReportingAnalytics ──────────
+// ─── CSS custom properties — exact same system as ReportingAnalytics ──vfgbv────────
 function GlobalStyles() {
   return (
     <style>{`
@@ -2077,47 +2077,8 @@ export default function Dashboard() {
                 {activeViewName}
               </span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-              <div
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  background: T.green,
-                  boxShadow: `0 0 0 3px rgba(16,185,129,0.2)`,
-                }}
-              />
-              <span
-                style={{
-                  fontSize: 10,
-                  fontWeight: 600,
-                  color: T.green,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                }}
-              >
-                Live
-              </span>
-            </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <button
-              onClick={() => setShowCalendar(true)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                border: `1px solid ${T.border}`,
-                borderRadius: 9,
-                padding: "6px 12px",
-                background: T.inputBg,
-                fontSize: 11,
-                color: T.textSec,
-                cursor: "pointer",
-              }}
-            >
-              📅 {formatDateRange(dateStart, dateEnd)}
-            </button>
             <button
               onClick={() => setShowCustomize((c) => !c)}
               style={{
@@ -2149,13 +2110,14 @@ export default function Dashboard() {
             alignItems: "center",
             gap: 8,
             flexShrink: 0,
-            flexWrap: "wrap",
           }}
         >
           {filterDefs.map((f) => (
             <div
               key={f.key}
               style={{
+                flex: 1,
+                minWidth: 160,
                 display: "flex",
                 alignItems: "center",
                 border: `1px solid ${T.border}`,
@@ -2171,16 +2133,22 @@ export default function Dashboard() {
                   padding: "0 8px",
                   borderRight: `1px solid ${T.border}`,
                   fontWeight: 500,
+                  whiteSpace: "nowrap",
                 }}
               >
                 {f.label}
               </span>
+
               <select
                 value={filters[f.key]}
                 onChange={(e) =>
-                  setFilters((p) => ({ ...p, [f.key]: e.target.value }))
+                  setFilters((p) => ({
+                    ...p,
+                    [f.key]: e.target.value,
+                  }))
                 }
                 style={{
+                  flex: 1.2,
                   fontSize: 11,
                   border: "none",
                   background: T.inputBg,
@@ -2188,6 +2156,7 @@ export default function Dashboard() {
                   color: T.textSec,
                   cursor: "pointer",
                   outline: "none",
+                  minWidth: 0,
                 }}
               >
                 {f.options.map((o) => (
@@ -2196,26 +2165,68 @@ export default function Dashboard() {
               </select>
             </div>
           ))}
-          <div style={{ marginLeft: "auto" }}>
-            <button
-              onClick={() => setShowSaveModal(true)}
+
+          {/* Time Period */}
+          <button
+            onClick={() => setShowCalendar(true)}
+            style={{
+              flex: 1,
+              minWidth: 240,
+              display: "flex",
+              alignItems: "center",
+              border: `1px solid ${T.border}`,
+              borderRadius: 8,
+              background: T.inputBg,
+              height: 26,
+              padding: "0 10px",
+              cursor: "pointer",
+            }}
+          >
+            <span
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 5,
-                background: "rgba(59,130,246,0.1)",
-                border: `1px solid rgba(59,130,246,0.3)`,
-                borderRadius: 8,
-                padding: "5px 12px",
-                fontSize: 11,
-                color: T.blue,
-                fontWeight: 600,
-                cursor: "pointer",
+                fontSize: 10,
+                color: T.textFaint,
+                fontWeight: 500,
+                whiteSpace: "nowrap",
               }}
             >
-              💾 Save View
-            </button>
-          </div>
+              Time Period
+            </span>
+
+            <div
+              style={{
+                width: 1,
+                height: 16,
+                background: T.border,
+                margin: "0 10px",
+                flexShrink: 0,
+              }}
+            />
+
+            <span
+              style={{
+                flex: 1,
+                textAlign: "left",
+                fontSize: 11,
+                color: T.textSec,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {formatDateRange(dateStart, dateEnd)}
+            </span>
+
+            <span
+              style={{
+                marginLeft: 8,
+                fontSize: 14,
+                flexShrink: 0,
+              }}
+            >
+              📅
+            </span>
+          </button>
         </div>
 
         {/* ── Main Content + Sidebar ── */}

@@ -332,61 +332,29 @@ function LayoutContent({
           >
             {/* REFRESH */}
 
-            <div className="relative group">
-              <button
-                onClick={
-                  handleRefresh
-                }
-                className="
-                  rounded-md
-                  p-2
-                  transition-all
-                  duration-150
-                  ease-out
-                  hover:bg-muted
-                "
-                aria-label="Refresh"
-              >
-                <RefreshCw className="h-5 w-5 text-muted-foreground" />
-              </button>
-
-              <div className="absolute right-0 top-full z-50 mt-1 hidden group-hover:block">
-                <div
-                  className="
-                    whitespace-nowrap
-                    rounded-md
-                    border
-                    bg-popover
-                    px-3
-                    py-2
-                    text-xs
-                    text-popover-foreground
-                    shadow-md
-                  "
-                >
-                  Last updated:
-                  {" "}
-                  {formatLastUpdated(
-                    lastUpdated,
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* SETTINGS */}
-
             <button
+              onClick={handleRefresh}
               className="
-                rounded-md
-                p-2
-                transition-all
-                duration-150
-                ease-out
+                flex items-center gap-2
+                h-10 px-4
+                rounded-lg
+                border border-border
+                bg-background
                 hover:bg-muted
+                transition-colors
               "
-              aria-label="Settings"
+              aria-label="Refresh"
             >
-              <Settings className="h-5 w-5 text-muted-foreground" />
+              <RefreshCw className="h-4 w-4 text-muted-foreground" />
+
+              <div className="flex flex-col items-start leading-tight">
+                <span className="text-[10px] text-muted-foreground">
+                  Last Synced
+                </span>
+                <span className="text-xs font-medium text-foreground">
+                  {formatLastUpdated(lastUpdated)}
+                </span>
+              </div>
             </button>
 
             {/* USER MENU */}
