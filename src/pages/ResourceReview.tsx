@@ -366,7 +366,9 @@ export default function ResourceReview() {
 
   const handleDecision = (decision: "Approved" | "Rejected") => {
     if (!selected) return;
+    const isSuperAdmin = user?.role === "super_admin";
     if (
+      !isSuperAdmin &&
       user?.role === "pmo" &&
       (selected.status === "Pending" || selected.status === "Awaiting Approval")
     ) {
@@ -381,7 +383,9 @@ export default function ResourceReview() {
         ? "rm"
         : user?.role === "pmo"
           ? "pmo"
-          : null;
+          : user?.role === "super_admin"
+            ? getApprovalStage(selected.status)
+            : null;
     const stage = stageFromRole ?? getApprovalStage(selected.status);
     setSubmitting(true);
     setTimeout(() => {
@@ -589,8 +593,9 @@ export default function ResourceReview() {
                   const style = statusStyles[req.status];
                   const stage = getApprovalStage(req.status);
                   const canAct = stage !== "done";
-
+                  const isSuperAdmin = user?.role === "super_admin";
                   const canApprove =
+                    isSuperAdmin ||
                     (user?.role === "resource_manager" && stage === "rm") ||
                     (user?.role === "pmo" && stage === "pmo");
                   return (
