@@ -368,6 +368,12 @@ function ResourcePanel({
                 <th className="p-3 text-xs font-medium text-muted-foreground">
                   Tasks
                 </th>
+                <th className="p-3 text-xs font-medium text-muted-foreground">
+                  Start Date
+                </th>
+                <th className="p-3 text-xs font-medium text-muted-foreground">
+                  End Date
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -418,6 +424,12 @@ function ResourcePanel({
                             ))
                           )}
                         </div>
+                      </td>
+                      <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">
+                        {resource.allocationStart}
+                      </td>
+                      <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">
+                        {resource.allocationEnd}
                       </td>
                     </tr>
                   );

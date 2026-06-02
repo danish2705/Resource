@@ -2,6 +2,8 @@ export interface ProjectResource {
   resourceId: string;
   resourceName: string;
   designation: string;
+  allocationStart: string;
+  allocationEnd: string;
 }
 
 export interface Project {
@@ -39,8 +41,8 @@ export const projectData: Project[] = [
     priority: "High",
     budget: "$250,000",
     budgetHrs: "2,800",
-    start: "15 Jan 2025",
-    end: "30 June 2026",
+    start: "2025-01-15",
+    end: "2026-06-30",
     teamSize: "4 resources",
     progress: 42,
     resources: [
@@ -48,24 +50,33 @@ export const projectData: Project[] = [
         resourceId: "RID-1001",
         resourceName: "Tracey Warren",
         designation: "Cloud Architect",
+        allocationStart: "2025-01-15",
+        allocationEnd: "2025-12-31",
       },
       {
         resourceId: "RID-1004",
         resourceName: "Kiran Patel",
         designation: "Frontend Developer",
+        allocationStart: "2025-02-01",
+        allocationEnd: "2026-03-31",
       },
       {
         resourceId: "RID-1005",
         resourceName: "Miranda Ford",
         designation: "Delivery Manager",
+        allocationStart: "2025-01-15",
+        allocationEnd: "2026-06-30",
       },
       {
         resourceId: "RID-1009",
         resourceName: "Seth Green",
         designation: "Cloud Engineer",
+        allocationStart: "2025-07-01",
+        allocationEnd: "2026-05-31",
       },
     ],
   },
+
   {
     id: "P-002",
     project: "Data Platform Modernisation",
@@ -75,8 +86,8 @@ export const projectData: Project[] = [
     priority: "High",
     budget: "$180,000",
     budgetHrs: "2,000",
-    start: "1 Feb 2026",
-    end: "31 July 2026",
+    start: "2026-02-01",
+    end: "2026-07-31",
     teamSize: "1 resource",
     progress: 28,
     resources: [
@@ -84,9 +95,12 @@ export const projectData: Project[] = [
         resourceId: "RID-1002",
         resourceName: "Arjun Mehta",
         designation: "Data Engineer",
+        allocationStart: "2026-02-01",
+        allocationEnd: "2026-07-31",
       },
     ],
   },
+
   {
     id: "P-003",
     project: "DevSecOps Pipeline Setup",
@@ -96,8 +110,8 @@ export const projectData: Project[] = [
     priority: "Medium",
     budget: "$95,000",
     budgetHrs: "1,100",
-    start: "1 Mar 2025",
-    end: "31 May 2027",
+    start: "2025-03-01",
+    end: "2027-05-31",
     teamSize: "2 resources",
     progress: 65,
     resources: [
@@ -105,14 +119,19 @@ export const projectData: Project[] = [
         resourceId: "RID-1003",
         resourceName: "Sneha Iyer",
         designation: "DevSecOps Lead",
+        allocationStart: "2025-03-01",
+        allocationEnd: "2026-12-31",
       },
       {
         resourceId: "RID-1008",
         resourceName: "Dev Krishnan",
         designation: "Security Reviewer",
+        allocationStart: "2025-06-01",
+        allocationEnd: "2027-05-31",
       },
     ],
   },
+
   {
     id: "P-004",
     project: "Analytics Dashboard Suite",
@@ -122,8 +141,8 @@ export const projectData: Project[] = [
     priority: "Medium",
     budget: "$70,000",
     budgetHrs: "800",
-    start: "20 Jan 2026",
-    end: "30 Apr 2026",
+    start: "2026-01-20",
+    end: "2026-04-30",
     teamSize: "1 resource",
     progress: 88,
     resources: [
@@ -131,9 +150,12 @@ export const projectData: Project[] = [
         resourceId: "RID-1004",
         resourceName: "Kiran Patel",
         designation: "UI Developer",
+        allocationStart: "2026-01-20",
+        allocationEnd: "2026-04-15",
       },
     ],
   },
+
   {
     id: "P-005",
     project: "API Integration Gateway",
@@ -143,12 +165,13 @@ export const projectData: Project[] = [
     priority: "Low",
     budget: "$50,000",
     budgetHrs: "600",
-    start: "1 Apr 2026",
-    end: "15 June 2026",
+    start: "2026-04-01",
+    end: "2026-06-15",
     teamSize: "0 resources",
     progress: 0,
     resources: [],
   },
+
   {
     id: "P-006",
     project: "Identity & Access Management",
@@ -158,8 +181,8 @@ export const projectData: Project[] = [
     priority: "High",
     budget: "$120,000",
     budgetHrs: "1,400",
-    start: "15 Dec 2025",
-    end: "15 Aug 2026",
+    start: "2025-12-15",
+    end: "2026-08-15",
     teamSize: "1 resource",
     progress: 35,
     resources: [
@@ -167,9 +190,12 @@ export const projectData: Project[] = [
         resourceId: "RID-1007",
         resourceName: "Meera Joshi",
         designation: "Cloud Engineer",
+        allocationStart: "2025-12-15",
+        allocationEnd: "2026-08-15",
       },
     ],
   },
+
   {
     id: "P-007",
     project: "ML Forecasting Engine",
@@ -179,8 +205,8 @@ export const projectData: Project[] = [
     priority: "Medium",
     budget: "$90,000",
     budgetHrs: "1,000",
-    start: "1 May 2026",
-    end: "30 Sept 2027",
+    start: "2026-05-01",
+    end: "2027-09-30",
     teamSize: "1 resource",
     progress: 0,
     resources: [
@@ -188,6 +214,8 @@ export const projectData: Project[] = [
         resourceId: "RID-1006",
         resourceName: "Rohit Nair",
         designation: "ML Engineer",
+        allocationStart: "2026-05-01",
+        allocationEnd: "2027-03-31",
       },
     ],
   },
