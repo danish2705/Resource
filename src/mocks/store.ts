@@ -6,7 +6,7 @@ import type {
   WorklistItem,
   AuditEntry,
   LifecycleState,
-} from "@/types";
+} from "@/Types";
 
 // ─── Seed lookup arrays ───────────────────────────────────────────────────────
 
