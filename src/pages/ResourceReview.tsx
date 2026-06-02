@@ -541,35 +541,35 @@ export default function ResourceReview() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="sticky top-0 z-20 bg-muted/40 pl-6">
+                  <TableHead className="sticky top-0 z-20 bg-background pl-6">
                     Resource
                   </TableHead>
 
-                  <TableHead className="sticky top-0 z-20 bg-muted/40">
+                  <TableHead className="sticky top-0 z-20 bg-background">
                     Project
                   </TableHead>
 
-                  <TableHead className="sticky top-0 z-20 bg-muted/40">
+                  <TableHead className="sticky top-0 z-20 bg-background">
                     Role
                   </TableHead>
 
-                  <TableHead className="sticky top-0 z-20 bg-muted/40">
+                  <TableHead className="sticky top-0 z-20 bg-background">
                     Requested By
                   </TableHead>
 
-                  <TableHead className="sticky top-0 z-20 bg-muted/40">
+                  <TableHead className="sticky top-0 z-20 bg-background">
                     Allocation
                   </TableHead>
 
-                  <TableHead className="sticky top-0 z-20 bg-muted/40">
+                  <TableHead className="sticky top-0 z-20 bg-background">
                     Forecast
                   </TableHead>
 
-                  <TableHead className="sticky top-0 z-20 bg-muted/40">
+                  <TableHead className="sticky top-0 z-20 bg-background">
                     Approval Stage
                   </TableHead>
 
-                  <TableHead className="sticky top-0 z-20 bg-muted/40 text-right pr-6">
+                  <TableHead className="sticky top-0 z-20 bg-background text-center min-w-[300px]">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -688,52 +688,56 @@ export default function ResourceReview() {
                           {/* Stage 1 */}
                         </div>
                       </TableCell>
-                      <TableCell className="pr-6">
-                        <div className="flex items-center justify-end gap-2">
-                          {canAct && (
-                            <>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-8 px-3 text-xs text-green-700 border-green-300 hover:bg-green-50 hover:text-green-800"
-                                disabled={!canApprove}
-                                onClick={() => openAction(req, "approve")}
-                              >
-                                <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
-                                Approve
-                              </Button>
+                     <TableCell>
+  <div className="flex items-center justify-center gap-1">
+    {canAct && (
+      <>
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-8 px-3 text-xs text-green-700 border-green-300 hover:bg-green-50 hover:text-green-800"
+          disabled={!canApprove}
+          onClick={() => openAction(req, "approve")}
+        >
+          <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+          Approve
+        </Button>
 
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-8 px-3 text-xs text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
-                                disabled={!canApprove}
-                                onClick={() => openAction(req, "reject")}
-                              >
-                                <XCircle className="h-3.5 w-3.5 mr-1" />
-                                Reject
-                              </Button>
-                            </>
-                          )}
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-8 px-3 text-xs text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
+          disabled={!canApprove}
+          onClick={() => openAction(req, "reject")}
+        >
+          <XCircle className="h-3.5 w-3.5 mr-1" />
+          Reject
+        </Button>
+      </>
+    )}
 
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            title="View email"
-                            onClick={() => setMailPreview(req)}
-                          >
-                            <Eye className="h-3.5 w-3.5 " />
-                          </Button>
+    <div className="flex items-center gap-0.5">
+      <Button
+        size="sm"
+        variant="ghost"
+        className="h-8 w-8 p-0"
+        title="View email"
+        onClick={() => setMailPreview(req)}
+      >
+        <Eye className="h-3.5 w-3.5" />
+      </Button>
 
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => openAction(req, "view")}
-                          >
-                            Details
-                          </Button>
-                        </div>
-                      </TableCell>
+      <Button
+        size="sm"
+        variant="ghost"
+        className="h-8 px-2"
+        onClick={() => openAction(req, "view")}
+      >
+        Details
+      </Button>
+    </div>
+  </div>
+</TableCell>
                     </TableRow>
                   );
                 })}
