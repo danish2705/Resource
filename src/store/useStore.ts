@@ -312,7 +312,7 @@ export const useStore = create<AppState>()(
           const newAuditEntry: AuditEntry | null = demand
             ? {
                 id: `audit-${Date.now()}`,
-                timestamp: new Date().toLocaleString(),
+                timestamp: new Date().toISOString().split("T")[0],
                 user: "admin@company.com",
                 entity: "Demand",
                 entityId: id,
