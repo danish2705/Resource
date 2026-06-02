@@ -48,7 +48,6 @@ export interface Demand {
   estimatedRate: number;
   currentYearForecast: number;
   resourceName: string;
-  workstream: string;
   subTeam: string;
   startDate: string;
   endDate: string;

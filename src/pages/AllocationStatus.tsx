@@ -152,7 +152,6 @@ function ViewDetailsModal({
               <Field label="Project Role" value={demand.projectRole || "—"} />
               <Field label="Pillar" value={demand.pillar} />
               <Field label="Budget Code" value={demand.budgetCode} />
-              <Field label="Workstream" value={demand.workstream || "—"} />
               <Field label="Start Date" value={formatDate(demand.startDate)} />
               <Field label="End Date" value={formatDate(demand.endDate)} />
             </div>
@@ -339,7 +338,6 @@ export default function AllocationStatus() {
       portfolio: d.portfolio,
       program: d.program,
       projectRole: d.projectRole,
-      workstream: d.workstream,
       startDate: d.startDate,
       endDate: d.endDate,
       comments: d.comments,

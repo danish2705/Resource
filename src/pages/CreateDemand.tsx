@@ -52,7 +52,6 @@ export type DemandForm = {
   estimatedRate: number;
   currentYearForecast: number;
   resourceName: string;
-  workstream: string;
   subTeam: string;
   startDate: string;
   endDate: string;
@@ -79,7 +78,7 @@ export const emptyDemand: DemandForm = {
   portfolio: "", program: "", projectName: "", projectRole: "",
   budgetCode: "", pillar: "", allocationPercent: 0, status: "Pending",
   comments: "", identified: false, estimatedRate: 0, currentYearForecast: 0,
-  resourceName: "", workstream: "", subTeam: "", startDate: "", endDate: "",
+  resourceName: "", subTeam: "", startDate: "", endDate: "",
   type: "Internal", vendorName: "", country: "Sydney",
   resourceCount: 0,
   allocation: { current: 0, y2027: 0, y2028: 0, y2029: 0, y2030: 0 },
@@ -326,7 +325,7 @@ function ImportDemandModal({
                           )}
                         </div>
                       </th>
-                      {["Project Name", "Project Role", "Pillar", "Budget Code", "Resource", "Type"].map((h) => (
+                      {["Project Name", "Project Role", "Pillar", "JIRA Code", "Resource", "Type"].map((h) => (
                         <th key={h} className="px-3 py-2 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
@@ -518,10 +517,6 @@ function DemandFormPanel({
                 <Input value={form.budgetCode} onChange={(e) => set({ budgetCode: e.target.value })} placeholder="e.g. BC-1001" />
               </div>
               <div>
-                <Label>Workstream</Label>
-                <Input value={form.workstream} onChange={(e) => set({ workstream: e.target.value })} />
-              </div>
-              <div>
                 <Label>Start Date *</Label>
                 <Input type="date" value={form.startDate} onChange={(e) => set({ startDate: e.target.value })} />
               </div>
@@ -675,7 +670,7 @@ export default function CreateDemand() {
       status: demand.status, comments: demand.comments,
       identified: demand.identified, estimatedRate: demand.estimatedRate,
       currentYearForecast: demand.currentYearForecast,
-      resourceName: demand.resourceName, workstream: demand.workstream,
+      resourceName: demand.resourceName, 
       subTeam: demand.subTeam, startDate: demand.startDate, endDate: demand.endDate,
       resourceCount: demand.resourceCount || 0,
       type: demand.type as "Internal" | "External",
@@ -934,7 +929,6 @@ export default function CreateDemand() {
         currentYearForecast: 0,
         allocationPercent: 0,
 
-        workstream: "",
         subTeam: "",
         startDate: "",
         endDate: "",
