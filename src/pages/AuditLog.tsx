@@ -88,6 +88,18 @@ const columns: Column<AuditEntry>[] = [
     ),
   },
   {
+    key: "entityId",
+    header: "Resource ID",
+    render: (r) => {
+      const num = String(r.entityId)
+        .replace(/\D/g, "") // remove d,e,m,r,e,s,-
+        .slice(-3)
+        .padStart(3, "0");
+
+      return <span className="font-mono text-xs">RES-{num}</span>;
+    },
+  },
+  {
     key: "user",
     header: "User",
     render: (r) => {
@@ -118,20 +130,7 @@ const columns: Column<AuditEntry>[] = [
       </span>
     ),
   },
-  {
-    key: "entityLabel",
-    header: "Name",
-    render: (r) => (
-      <div>
-        <div className="text-xs font-medium text-foreground leading-tight">
-          {r.entityLabel}
-        </div>
-        <div className="text-[10px] text-muted-foreground font-mono">
-          {r.entityId}
-        </div>
-      </div>
-    ),
-  },
+
   {
     key: "action",
     header: "Action",
@@ -262,6 +261,7 @@ export default function AuditLog() {
   const handleExport = () => {
     const headers = [
       "Timestamp",
+      "Resource ID",
       "User",
       "Entity",
       "Entity ID",
@@ -468,12 +468,8 @@ export default function AuditLog() {
           </div>
 
           <div className="flex-1 min-h-0">
-  <DataTable
-    data={filteredData}
-    columns={columns}
-    pageSize={15}
-  />
-</div>
+            <DataTable data={filteredData} columns={columns} pageSize={15} />
+          </div>
         </CardContent>
       </Card>
     </div>
