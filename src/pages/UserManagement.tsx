@@ -191,7 +191,7 @@ function UserModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-x1 flex flex-col overflow-hidden">
+        <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-md max-h-[70vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-muted/40">
           <div>
@@ -213,7 +213,7 @@ function UserModal({
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5 space-y-4">
+        <div className="px-6 py-5 space-y-4 overflow-y-auto flex-1">
           <div>
             <label className="block text-xs font-medium text-foreground mb-1">
               Email <span className="text-destructive">*</span>
@@ -305,7 +305,7 @@ function UserModal({
     </button>
   </div>
 
-  <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto border border-border rounded-lg p-3">
+  <div className="grid grid-cols-1 gap-2 h-28 overflow-y-auto border border-border rounded-lg p-3">
     {PAGE_ACCESS.map((page) => (
       <label
         key={page}

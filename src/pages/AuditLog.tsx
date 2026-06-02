@@ -79,14 +79,27 @@ function ValueCell({ val, empty }: { val: string; empty?: boolean }) {
 
 const columns: Column<AuditEntry>[] = [
   {
-    key: "timestamp",
-    header: "Timestamp",
-    render: (r) => (
+  key: "timestamp",
+  header: "Timestamp",
+  render: (r) => {
+    const date = new Date(r.timestamp);
+
+    const formattedDateTime = `${date.getFullYear()}-${String(
+      date.getMonth() + 1,
+    ).padStart(2, "0")}-${String(date.getDate()).padStart(
+      2,
+      "0",
+    )} ${String(date.getHours()).padStart(2, "0")}:${String(
+      date.getMinutes(),
+    ).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
+
+    return (
       <span className="text-xs text-muted-foreground whitespace-nowrap">
-        {r.timestamp}
+        {formattedDateTime}
       </span>
-    ),
+    );
   },
+},
   {
     key: "entityId",
     header: "Resource ID",
