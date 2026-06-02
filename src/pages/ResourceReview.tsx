@@ -626,7 +626,7 @@ export default function ResourceReview() {
                         {fmt(req.currentYearForecast)}
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-col gap-1">
+                        <div className="flex items-center flex-col gap-1">
                           <span
                             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border w-fit ${style.bg} ${style.text} ${style.border}`}
                           >
@@ -693,56 +693,56 @@ export default function ResourceReview() {
                           {/* Stage 1 */}
                         </div>
                       </TableCell>
-                     <TableCell>
-  <div className="flex items-center justify-center gap-1">
-    {canAct && (
-      <>
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-8 px-3 text-xs text-green-700 border-green-300 hover:bg-green-50 hover:text-green-800"
-          disabled={!canApprove}
-          onClick={() => openAction(req, "approve")}
-        >
-          <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
-          Approve
-        </Button>
+                      <TableCell>
+                        <div className="flex items-center justify-center gap-1">
+                          {canAct && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-8 px-3 text-xs text-green-700 border-green-300 hover:bg-green-50 hover:text-green-800"
+                                disabled={!canApprove}
+                                onClick={() => openAction(req, "approve")}
+                              >
+                                <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+                                Approve
+                              </Button>
 
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-8 px-3 text-xs text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
-          disabled={!canApprove}
-          onClick={() => openAction(req, "reject")}
-        >
-          <XCircle className="h-3.5 w-3.5 mr-1" />
-          Reject
-        </Button>
-      </>
-    )}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-8 px-3 text-xs text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
+                                disabled={!canApprove}
+                                onClick={() => openAction(req, "reject")}
+                              >
+                                <XCircle className="h-3.5 w-3.5 mr-1" />
+                                Reject
+                              </Button>
+                            </>
+                          )}
 
-    <div className="flex items-center gap-0.5">
-      <Button
-        size="sm"
-        variant="ghost"
-        className="h-8 w-8 p-0"
-        title="View email"
-        onClick={() => setMailPreview(req)}
-      >
-        <Eye className="h-3.5 w-3.5" />
-      </Button>
+                          <div className="flex items-center gap-0.5">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 w-8 p-0"
+                              title="View email"
+                              onClick={() => setMailPreview(req)}
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                            </Button>
 
-      <Button
-        size="sm"
-        variant="ghost"
-        className="h-8 px-2"
-        onClick={() => openAction(req, "view")}
-      >
-        Details
-      </Button>
-    </div>
-  </div>
-</TableCell>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 px-2"
+                              onClick={() => openAction(req, "view")}
+                            >
+                              Details
+                            </Button>
+                          </div>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
