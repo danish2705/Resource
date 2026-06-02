@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { usePillarFilter } from "@/hooks/usePillarFilter";
-import  {ResourceDialog}  from "@/pages/Resource";
+import { ResourceDialog } from "@/pages/Resource";
 import {
   Select,
   SelectContent,
@@ -17,6 +17,8 @@ import {
   statusStyleMap,
   demandData,
 } from "@/mocks/demandStatus";
+import { useStore } from "@/store/useStore";
+import { useAuth } from "@/auth/useAuth";
 import { Search, X, Pencil, Eye, ClipboardList } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -297,7 +299,75 @@ function YearField({
 
 export default function AllocationStatus() {
   const { filterByPillar } = usePillarFilter();
-  const visibleDemands = filterByPillar(demandData);
+  const { demands } = useStore();
+  const { user } = useAuth();
+
+  // Convert live store demands to DemandStatusRecord shape
+  const liveDemands: DemandStatusRecord[] = useMemo(() => {
+    // For super_admin: show all their created demands
+    // For pmo/resource_manager: show all demands they can see
+    return demands.map((d) => ({
+      id: d.id,
+      projectId: d.id,
+      projectName: d.projectName,
+      requiredSkills: [d.projectRole].filter(Boolean),
+      budgetCode: d.budgetCode,
+      pillar: (d.pillar || "Hi-tech") as DemandStatusRecord["pillar"],
+      noOfResources: d.resourceCount || 1,
+      allocatedResources: 0,
+      estimatedRate: d.estimatedRate,
+      currentYearForecast: d.currentYearForecast,
+      status: (d.status === "Draft"
+        ? "Draft"
+        : d.status === "Pending"
+          ? "Submitted"
+          : d.status === "RM Approved"
+            ? "RM Approved"
+            : d.status === "RM Rejected"
+              ? "RM Rejected"
+              : d.status === "PMO Approved"
+                ? "PMO Approved"
+                : d.status === "PMO Rejected"
+                  ? "PMO Rejected"
+                  : d.status === "Approved"
+                    ? "Approved"
+                    : d.status === "Rejected"
+                      ? "Rejected"
+                      : "Submitted") as DemandStatusRecord["status"],
+      submittedBy: d.createdBy,
+      deliveryManager: d.updatedBy,
+      portfolio: d.portfolio,
+      program: d.program,
+      projectRole: d.projectRole,
+      workstream: d.workstream,
+      startDate: d.startDate,
+      endDate: d.endDate,
+      comments: d.comments,
+      allocation: {
+        currentYear: d.allocation.current,
+        y2027: d.allocation.y2027,
+        y2028: d.allocation.y2028,
+        y2029: d.allocation.y2029,
+        y2030: d.allocation.y2030,
+      },
+      forecast: {
+        currentYear: d.forecast.current,
+        y2027: d.forecast.y2027,
+        y2028: d.forecast.y2028,
+        y2029: d.forecast.y2029,
+        y2030: d.forecast.y2030,
+      },
+    }));
+  }, [demands]);
+
+  // Merge: live store demands take priority (by id), static mock fills the rest
+  const allDemands: DemandStatusRecord[] = useMemo(() => {
+    const liveIds = new Set(liveDemands.map((d) => d.id));
+    const staticFiltered = demandData.filter((d) => !liveIds.has(d.id));
+    return [...liveDemands, ...staticFiltered];
+  }, [liveDemands]);
+
+  const visibleDemands = filterByPillar(allDemands);
 
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");

@@ -46,7 +46,7 @@ const CREDENTIALS: Array<{
       username: "resm",
       role: "resource_manager",
       portfolio: "Banking",
-      pillar: "Banking",
+      pillar: "Hi-tech",
     },
   },
   {
@@ -100,3 +100,8 @@ export const useAuth = create<AuthState>()(
     },
   ),
 );
+
+// Register this store globally so useStore.ts can access it lazily
+// without a direct import (which would create a circular dependency).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(globalThis as any).__zustand_useAuth = useAuth;

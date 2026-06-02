@@ -5,7 +5,7 @@ import { useAuth } from "@/auth/useAuth";
 import { hasPermission } from "@/auth/rbac";
 import { useActiveValues } from "@/store/useMasterData";
 import type { Demand } from "@/store/useStore";
-import {ResourceDialog} from "@/pages/Resource";
+import { ResourceDialog } from "@/pages/Resource";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -157,7 +157,9 @@ function mapRowToDemand(
     subTeam: row["Sub Team"] || "",
     startDate: row["Start Date"] || "",
     endDate: row["End Date"] || "",
-    resourceCount: row["Resource Count"] ? parseInt(row["Resource Count"]) || 0 : 0,
+    resourceCount: row["Resource Count"]
+      ? parseInt(row["Resource Count"]) || 0
+      : 0,
     type: (row["Type"] || "Internal") as "Internal" | "External",
     vendorName: row["Vendor Name"] || "",
     country: row["Country"] || row["Location"] || "Sydney",
@@ -256,19 +258,19 @@ export default function DemandSummary() {
   // Fires once when the component mounts with ?allocate=<id> in the URL
   // (set by CreateDemand after a successful single-form submission).
   // Strips the param immediately so a refresh / back-nav doesn't re-trigger.
-  useEffect(() => {
-    const allocateId = searchParams.get("allocate");
-    if (!allocateId) return;
+  // useEffect(() => {
+  //   const allocateId = searchParams.get("allocate");
+  //   if (!allocateId) return;
 
-    const target = demands.find((d) => d.id === allocateId);
-    if (!target) return;
+  //   const target = demands.find((d) => d.id === allocateId);
+  //   if (!target) return;
 
-    openAllocation(target);
-    window.history.replaceState({}, "", window.location.pathname);
-    // openAllocation is stable (defined above, no deps that change);
-    // demands is intentionally in the dep array so we retry if the store
-    // hasn't hydrated yet on the very first render.
-  }, [searchParams, demands]);
+  //   openAllocation(target);
+  //   window.history.replaceState({}, "", window.location.pathname);
+  //   // openAllocation is stable (defined above, no deps that change);
+  //   // demands is intentionally in the dep array so we retry if the store
+  //   // hasn't hydrated yet on the very first render.
+  // }, [searchParams, demands]);
 
   // ── Filtered data ──
   const filtered = useMemo(() => {

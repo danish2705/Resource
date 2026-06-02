@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import type React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,6 @@ import {
   type ReviewStatus,
   type ApprovalRecord,
   type ReviewRequest,
-  mockReviewRequests,
 } from "@/mocks/resourceReview";
 import {
   Dialog,
@@ -48,6 +48,7 @@ import {
   Briefcase,
 } from "lucide-react";
 import { useStore } from "@/store/useStore";
+import { useAuth } from "@/auth/useAuth";
 import { toast } from "sonner";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -66,7 +67,7 @@ type BadgeStyle = {
   bg: string;
   text: string;
   border: string;
-  icon: React.ReactNode;
+  Icon: React.FC<{ className?: string }>;
   label: string;
 };
 
@@ -75,56 +76,56 @@ const statusStyles: Record<ReviewStatus, BadgeStyle> = {
     bg: "bg-amber-50",
     text: "text-amber-700",
     border: "border-amber-200",
-    icon: <Clock className="h-3 w-3" />,
+    Icon: Clock,
     label: "Pending RM",
   },
   "Awaiting Approval": {
     bg: "bg-amber-50",
     text: "text-amber-700",
     border: "border-amber-200",
-    icon: <AlertCircle className="h-3 w-3" />,
+    Icon: AlertCircle,
     label: "Awaiting RM",
   },
   "RM Approved": {
     bg: "bg-blue-50",
     text: "text-blue-700",
     border: "border-blue-200",
-    icon: <ChevronRight className="h-3 w-3" />,
+    Icon: ChevronRight,
     label: "Pending PMO",
   },
   "RM Rejected": {
     bg: "bg-red-50",
     text: "text-red-600",
     border: "border-red-200",
-    icon: <XCircle className="h-3 w-3" />,
+    Icon: XCircle,
     label: "RM Rejected",
   },
   "PMO Approved": {
-  bg: "bg-blue-50",
-  text: "text-blue-700",
-  border: "border-blue-200",
-  icon: <ChevronRight className="h-3 w-3" />,
-  label: "Pending PMO",
-},
+    bg: "bg-green-50",
+    text: "text-green-700",
+    border: "border-green-200",
+    Icon: CheckCheck,
+    label: "Fully Approved",
+  },
   "PMO Rejected": {
     bg: "bg-red-50",
     text: "text-red-600",
     border: "border-red-200",
-    icon: <XCircle className="h-3 w-3" />,
+    Icon: XCircle,
     label: "PMO Rejected",
   },
   Approved: {
-  bg: "bg-amber-50",
-  text: "text-amber-700",
-  border: "border-amber-200",
-  icon: <Clock className="h-3 w-3" />,
-  label: "Pending RM",
-},
+    bg: "bg-green-50",
+    text: "text-green-700",
+    border: "border-green-200",
+    Icon: CheckCheck,
+    label: "Fully Approved",
+  },
   Rejected: {
     bg: "bg-red-50",
     text: "text-red-600",
     border: "border-red-200",
-    icon: <XCircle className="h-3 w-3" />,
+    Icon: XCircle,
     label: "Rejected",
   },
 };
@@ -283,27 +284,17 @@ function SummaryCard({
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function ResourceReview() {
-  const { updateDemand, demands } = useStore();
+  const { updateDemand, demands, reviewRequests, updateReviewRequest } =
+    useStore();
   const { filterByPillar } = usePillarFilter();
+  const { user } = useAuth();
 
   const baseRequests = useMemo(
-    () => filterByPillar(mockReviewRequests),
-    [filterByPillar],
+    () => filterByPillar(reviewRequests),
+    [filterByPillar, reviewRequests],
   );
 
-  type OverridesMap = Record<
-    string,
-    { status: ReviewStatus; approvalHistory: ApprovalRecord[] }
-  >;
-  const [overrides, setOverrides] = useState<OverridesMap>({});
-
-  const requests = useMemo(
-    () =>
-      baseRequests.map((r) =>
-        overrides[r.id] ? { ...r, ...overrides[r.id] } : r,
-      ),
-    [baseRequests, overrides],
-  );
+  const requests = useMemo(() => baseRequests, [baseRequests]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [selected, setSelected] = useState<ReviewRequest | null>(null);
@@ -370,9 +361,28 @@ export default function ResourceReview() {
     setComment("");
   };
 
+  // PMO cannot approve before RM approval
+  
+
   const handleDecision = (decision: "Approved" | "Rejected") => {
     if (!selected) return;
-    const stage = getApprovalStage(selected.status);
+    if (
+      user?.role === "pmo" &&
+      (selected.status === "Pending" || selected.status === "Awaiting Approval")
+    ) {
+      toast.error("Resource Manager approval is required before PMO approval.");
+      return;
+    }
+    // Derive stage from the logged-in user's role first so that a PMO user
+    // rejecting a "Pending" request correctly records "PMO Rejected" (not
+    // "RM Rejected" which the status-based fallback would produce).
+    const stageFromRole =
+      user?.role === "resource_manager"
+        ? "rm"
+        : user?.role === "pmo"
+          ? "pmo"
+          : null;
+    const stage = stageFromRole ?? getApprovalStage(selected.status);
     setSubmitting(true);
     setTimeout(() => {
       const now = new Date().toLocaleDateString("en-US", {
@@ -380,8 +390,11 @@ export default function ResourceReview() {
         day: "2-digit",
         year: "numeric",
       });
+      const approverName =
+        user?.username ??
+        (stage === "rm" ? "Sarah Mitchell" : "James Thornton");
       const newRecord: ApprovalRecord = {
-        approver: stage === "rm" ? "Sarah Mitchell" : "James Thornton",
+        approver: approverName,
         role: stage === "rm" ? "Resource Manager" : "PMO",
         decision,
         comment:
@@ -394,16 +407,11 @@ export default function ResourceReview() {
       else
         newStatus = decision === "Approved" ? "PMO Approved" : "PMO Rejected";
 
-      setOverrides((prev) => ({
-        ...prev,
-        [selected.id]: {
-          status: newStatus,
-          approvalHistory: [
-            ...(prev[selected.id]?.approvalHistory ?? selected.approvalHistory),
-            newRecord,
-          ],
-        },
-      }));
+      // Persist to store
+      updateReviewRequest(selected.id, {
+        status: newStatus,
+        approvalHistory: [...selected.approvalHistory, newRecord],
+      });
 
       if (newStatus === "PMO Approved") {
         updateDemand(selected.demandId, {
@@ -414,6 +422,11 @@ export default function ResourceReview() {
         updateDemand(selected.demandId, {
           status: "Rejected",
           comments: `${newRecord.role} rejected: ${newRecord.comment}`,
+        });
+      } else if (newStatus === "RM Approved") {
+        updateDemand(selected.demandId, {
+          status: "RM Approved",
+          comments: `Resource Manager approved: ${newRecord.comment}`,
         });
       }
 
@@ -438,29 +451,29 @@ export default function ResourceReview() {
 
   return (
     <div className="h-[calc(100vh-110px)] flex flex-col p-6 gap-6">
-        <div className="shrink-0">
+      <div className="shrink-0">
         <div>
-    <h1 className="text-2xl font-semibold tracking-tight">
-          Resource Review
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Dual-stage approval: Resource Manager → PMO / Project sign-off.
-        </p>
-      </div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Resource Review
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Dual-stage approval: Resource Manager → PMO / Project sign-off.
+          </p>
+        </div>
 
-      <div className="flex items-center gap-3 px-4 py-3 rounded-lg border bg-muted/30 text-sm">
-        <div className="flex items-center gap-2 text-amber-600 font-medium">
-          <Users className="h-4 w-4" /> Stage 1: Resource Manager
+        <div className="flex items-center gap-3 px-4 py-3 rounded-lg border bg-muted/30 text-sm">
+          <div className="flex items-center gap-2 text-amber-600 font-medium">
+            <Users className="h-4 w-4" /> Stage 1: Resource Manager
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-2 text-blue-600 font-medium">
+            <Building2 className="h-4 w-4" /> Stage 2: PMO / Project
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-2 text-green-600 font-medium">
+            <CheckCheck className="h-4 w-4" /> Fully Approved
+          </div>
         </div>
-        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-        <div className="flex items-center gap-2 text-blue-600 font-medium">
-          <Building2 className="h-4 w-4" /> Stage 2: PMO / Project
-        </div>
-        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-        <div className="flex items-center gap-2 text-green-600 font-medium">
-          <CheckCheck className="h-4 w-4" /> Fully Approved
-        </div>
-      </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -527,40 +540,40 @@ export default function ResourceReview() {
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
             <Table>
               <TableHeader>
-  <TableRow>
-    <TableHead className="sticky top-0 z-20 bg-muted/40 pl-6">
-      Resource
-    </TableHead>
+                <TableRow>
+                  <TableHead className="sticky top-0 z-20 bg-muted/40 pl-6">
+                    Resource
+                  </TableHead>
 
-    <TableHead className="sticky top-0 z-20 bg-muted/40">
-      Project
-    </TableHead>
+                  <TableHead className="sticky top-0 z-20 bg-muted/40">
+                    Project
+                  </TableHead>
 
-    <TableHead className="sticky top-0 z-20 bg-muted/40">
-      Role
-    </TableHead>
+                  <TableHead className="sticky top-0 z-20 bg-muted/40">
+                    Role
+                  </TableHead>
 
-    <TableHead className="sticky top-0 z-20 bg-muted/40">
-      Requested By
-    </TableHead>
+                  <TableHead className="sticky top-0 z-20 bg-muted/40">
+                    Requested By
+                  </TableHead>
 
-    <TableHead className="sticky top-0 z-20 bg-muted/40">
-      Allocation
-    </TableHead>
+                  <TableHead className="sticky top-0 z-20 bg-muted/40">
+                    Allocation
+                  </TableHead>
 
-    <TableHead className="sticky top-0 z-20 bg-muted/40">
-      Forecast
-    </TableHead>
+                  <TableHead className="sticky top-0 z-20 bg-muted/40">
+                    Forecast
+                  </TableHead>
 
-    <TableHead className="sticky top-0 z-20 bg-muted/40">
-      Approval Stage
-    </TableHead>
+                  <TableHead className="sticky top-0 z-20 bg-muted/40">
+                    Approval Stage
+                  </TableHead>
 
-    <TableHead className="sticky top-0 z-20 bg-muted/40 text-right pr-6">
-      Actions
-    </TableHead>
-  </TableRow>
-</TableHeader>
+                  <TableHead className="sticky top-0 z-20 bg-muted/40 text-right pr-6">
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
               <TableBody>
                 {filtered.length === 0 && (
                   <TableRow>
@@ -576,6 +589,10 @@ export default function ResourceReview() {
                   const style = statusStyles[req.status];
                   const stage = getApprovalStage(req.status);
                   const canAct = stage !== "done";
+
+                  const canApprove =
+                    (user?.role === "resource_manager" && stage === "rm") ||
+                    (user?.role === "pmo" && stage === "pmo");
                   return (
                     <TableRow
                       key={req.id}
@@ -608,94 +625,113 @@ export default function ResourceReview() {
                           <span
                             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border w-fit ${style.bg} ${style.text} ${style.border}`}
                           >
-                            {style.icon}
+                            {style.Icon && <style.Icon className="h-3 w-3" />}
                             {style.label}
                           </span>
                           <div className="flex items-center gap-1 mt-0.5">
-  {/* Pending RM + Approved */}
-  {(req.status === "Pending" ||
-    req.status === "Awaiting Approval" ||
-    req.status === "Approved") && (
-    <>
-      <div className="h-1.5 w-5 rounded-full bg-amber-400" />
-      <div className="h-0.5 w-2 bg-muted" />
-      <div className="h-1.5 w-5 rounded-full bg-muted" />
-    </>
-  )}
+                            {/* Pending RM — dot 1 amber, dot 2 muted */}
+                            {(req.status === "Pending" ||
+                              req.status === "Awaiting Approval") && (
+                              <>
+                                <div className="h-1.5 w-5 rounded-full bg-amber-400" />
+                                <div className="h-0.5 w-2 bg-muted" />
+                                <div className="h-1.5 w-5 rounded-full bg-muted" />
+                              </>
+                            )}
 
-  {/* Pending PMO + Fully Approved */}
-  {(req.status === "RM Approved" ||
-    req.status === "PMO Approved") && (
-    <>
-      <div className="h-1.5 w-5 rounded-full bg-blue-400" />
-      <div className="h-0.5 w-2 bg-blue-300" />
-      <div className="h-1.5 w-5 rounded-full bg-blue-400" />
-    </>
-  )}
+                            {/* RM Approved / Pending PMO — both dots blue */}
+                            {req.status === "RM Approved" && (
+                              <>
+                                <div className="h-1.5 w-5 rounded-full bg-blue-500" />
+                                <div className="h-0.5 w-2 bg-blue-300" />
+                                <div className="h-1.5 w-5 rounded-full bg-blue-500" />
+                              </>
+                            )}
 
-  {/* RM Rejected */}
-  {req.status === "RM Rejected" && (
-    <>
-      <div className="h-1.5 w-5 rounded-full bg-red-400" />
-      <div className="h-0.5 w-2 bg-muted" />
-      <div className="h-1.5 w-5 rounded-full bg-muted" />
-    </>
-  )}
+                            {/* Fully Approved — both dots green */}
+                            {(req.status === "PMO Approved" ||
+                              req.status === "Approved") && (
+                              <>
+                                <div className="h-1.5 w-5 rounded-full bg-green-500" />
+                                <div className="h-0.5 w-2 bg-green-300" />
+                                <div className="h-1.5 w-5 rounded-full bg-green-500" />
+                              </>
+                            )}
 
-  {/* PMO Rejected */}
-  {req.status === "PMO Rejected" && (
-    <>
-      <div className="h-1.5 w-5 rounded-full bg-red-400" />
-      <div className="h-0.5 w-2 bg-red-300" />
-      <div className="h-1.5 w-5 rounded-full bg-red-400" />
-    </>
-  )}
-</div>
-  {/* Stage 1 */}
+                            {/* RM Rejected — dot 1 red, dot 2 muted */}
+                            {req.status === "RM Rejected" && (
+                              <>
+                                <div className="h-1.5 w-5 rounded-full bg-red-400" />
+                                <div className="h-0.5 w-2 bg-muted" />
+                                <div className="h-1.5 w-5 rounded-full bg-muted" />
+                              </>
+                            )}
+
+                            {/* PMO Rejected — both dots red */}
+                            {req.status === "PMO Rejected" && (
+                              <>
+                                <div className="h-1.5 w-5 rounded-full bg-red-400" />
+                                <div className="h-0.5 w-2 bg-red-300" />
+                                <div className="h-1.5 w-5 rounded-full bg-red-400" />
+                              </>
+                            )}
+
+                            {/* Rejected — both dots red */}
+                            {req.status === "Rejected" && (
+                              <>
+                                <div className="h-1.5 w-5 rounded-full bg-red-400" />
+                                <div className="h-0.5 w-2 bg-red-300" />
+                                <div className="h-1.5 w-5 rounded-full bg-red-400" />
+                              </>
+                            )}
+                          </div>
+                          {/* Stage 1 */}
                         </div>
                       </TableCell>
                       <TableCell className="pr-6">
                         <div className="flex items-center justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 px-2 text-xs"
-                            title="View email"
-                            onClick={() => setMailPreview(req)}
-                          >
-                            <Eye className="h-3.5 w-3.5" />
-                          </Button>
                           {canAct && (
                             <>
                               <Button
                                 size="sm"
                                 variant="outline"
                                 className="h-8 px-3 text-xs text-green-700 border-green-300 hover:bg-green-50 hover:text-green-800"
+                                disabled={!canApprove}
                                 onClick={() => openAction(req, "approve")}
                               >
-                                <CheckCircle2 className="h-3.5 w-3.5 mr-1" />{" "}
+                                <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
                                 Approve
                               </Button>
+
                               <Button
                                 size="sm"
                                 variant="outline"
                                 className="h-8 px-3 text-xs text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
+                                disabled={!canApprove}
                                 onClick={() => openAction(req, "reject")}
                               >
-                                <XCircle className="h-3.5 w-3.5 mr-1" /> Reject
+                                <XCircle className="h-3.5 w-3.5 mr-1" />
+                                Reject
                               </Button>
                             </>
                           )}
-                          {!canAct && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-8 px-3 text-xs"
-                              onClick={() => openAction(req, "view")}
-                            >
-                              Details
-                            </Button>
-                          )}
+
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            title="View email"
+                            onClick={() => setMailPreview(req)}
+                          >
+                            <Eye className="h-3.5 w-3.5 " />
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => openAction(req, "view")}
+                          >
+                            Details
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
