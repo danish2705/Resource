@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   BarChart, Bar, LineChart, Line, AreaChart, Area,
   PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid,
@@ -12,6 +13,9 @@ import {
   ChevronRight, Plus, Search, BarChart2, Layers, Target,
   Zap, Database,
 } from "lucide-react";
+import { useAuth } from "@/auth/useAuth";
+import type { Role } from "@/auth/rbac";
+import { useDashboardConfig, type WidgetConfig, type KpiConfig } from "@/hooks/useDashboardConfig";
 
 // ─── Global CSS ──────────────────────────────────────────────────────────────
 function GlobalStyles() {
@@ -353,53 +357,32 @@ function QuickActionBtn({ icon: Icon, label, color = T.blue, bg }) {
   );
 }
 
-// ─── Tab Switcher ─────────────────────────────────────────────────────────────
-function DashTabs({ active, onChange }) {
-  const tabs = [
-    { id: "super-admin", label: "Super Admin" },
-    { id: "pmo", label: "PMO" },
-    { id: "resource-manager", label: "Resource Manager" },
-    { id: "my-dashboard", label: "Resource" },
-  ];
-  return (
-    <div style={{ display: "flex", gap: 4, background: T.surfaceAlt, padding: "3px", borderRadius: 10, border: `1px solid ${T.border}` }}>
-      {tabs.map(t => (
-        <button key={t.id} onClick={() => onChange(t.id)}
-          style={{ padding: "6px 14px", fontSize: 11, fontWeight: 600, borderRadius: 8, border: "none", cursor: "pointer", background: active === t.id ? T.surface : "transparent", color: active === t.id ? T.text : T.textMuted, boxShadow: active === t.id ? "0 1px 4px rgba(0,0,0,0.08)" : "none", transition: "all .15s" }}>
-          {t.label}
-        </button>
-      ))}
-    </div>
-  );
+// ─── Customize Sidebar ────────────────────────────────────────────────────────
+interface CustomizeSidebarProps {
+  onClose: () => void;
+  onSave: () => void;
+  kpiCards: (KpiConfig & { label: string })[];
+  widgets: (WidgetConfig)[];
+  onToggleKpi: (id: string) => void;
+  onToggleWidget: (id: string) => void;
+  onReset: () => void;
+  onReorderWidgets: (from: number, to: number) => void;
+  onReorderKpis: (from: number, to: number) => void;
 }
 
-// ─── Customize Sidebar ────────────────────────────────────────────────────────
-function CustomizeSidebar({ onClose, kpiCards, widgets, onToggleKpi, onToggleWidget, onReset, onSaveView, savedViews, onLoadView, activeViewName }) {
+function CustomizeSidebar({ onClose, onSave, kpiCards, widgets, onToggleKpi, onToggleWidget, onReset, onReorderWidgets, onReorderKpis }: CustomizeSidebarProps) {
   const [tab, setTab] = useState("widgets");
-  const [showSave, setShowSave] = useState(false);
-  const [saveName, setSaveName] = useState("");
-  const widgetDragRef = useRef(null);
-  const kpiDragRef = useRef(null);
-  const [dragOver, setDragOver] = useState(null);
-  const [dragging, setDragging] = useState(null);
-  const [dragGroup, setDragGroup] = useState(null);
+  const widgetDragRef = useRef<number | null>(null);
+  const kpiDragRef = useRef<number | null>(null);
+  const [dragOver, setDragOver] = useState<number | null>(null);
+  const [dragging, setDragging] = useState<number | null>(null);
+  const [dragGroup, setDragGroup] = useState<string | null>(null);
+
+  const visibleCount = widgets.filter(w => w.checked).length;
+  const allHidden = visibleCount === 0;
 
   return (
     <div style={{ width: 280, minWidth: 280, background: T.surface, borderLeft: `1px solid ${T.border}`, display: "flex", flexDirection: "column", flexShrink: 0, overflow: "hidden" }}>
-      {showSave && (
-        <div style={{ position: "absolute", inset: 0, background: T.overlay, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ background: T.surface, borderRadius: 14, padding: 22, width: 300, border: `1px solid ${T.border}` }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: T.text, marginBottom: 14 }}>Save View</div>
-            <input value={saveName} onChange={e => setSaveName(e.target.value)} placeholder="View name..."
-              style={{ width: "100%", padding: "8px 10px", fontSize: 12, border: `1px solid ${T.border}`, borderRadius: 8, background: T.inputBg, color: T.text, outline: "none", marginBottom: 12 }} />
-            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-              <button onClick={() => setShowSave(false)} style={{ padding: "7px 16px", fontSize: 11, fontWeight: 600, color: T.textSec, background: T.surfaceAlt, border: `1px solid ${T.border}`, borderRadius: 7, cursor: "pointer" }}>Cancel</button>
-              <button onClick={() => { if (saveName.trim()) { onSaveView(saveName.trim()); setShowSave(false); setSaveName(""); } }}
-                style={{ padding: "7px 16px", fontSize: 11, fontWeight: 600, color: "#fff", background: T.blue, border: "none", borderRadius: 7, cursor: "pointer" }}>Save</button>
-            </div>
-          </div>
-        </div>
-      )}
       <div style={{ padding: "12px 14px", borderBottom: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: 13, fontWeight: 700, color: T.text }}>Customize Dashboard</span>
         <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 18, color: T.textMuted }}>×</button>
@@ -414,6 +397,11 @@ function CustomizeSidebar({ onClose, kpiCards, widgets, onToggleKpi, onToggleWid
       </div>
       <div style={{ flex: 1, overflow: "auto", padding: "12px 14px", display: "flex", flexDirection: "column", gap: 12 }}>
         <p style={{ margin: 0, fontSize: 10.5, color: T.textFaint }}>Toggle items on/off and drag to reorder.</p>
+        {allHidden && tab === "widgets" && (
+          <div style={{ padding: "10px 12px", background: `${T.amber}15`, border: `1px solid ${T.amber}40`, borderRadius: 8, fontSize: 11, color: T.amber, fontWeight: 600 }}>
+            ⚠ All widgets are hidden. Enable at least one widget.
+          </div>
+        )}
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {(tab === "widgets" ? widgets : kpiCards).map((item, i) => {
             const isOver = dragGroup === tab && dragOver === i && dragging !== i;
@@ -422,7 +410,14 @@ function CustomizeSidebar({ onClose, kpiCards, widgets, onToggleKpi, onToggleWid
               <div key={item.id} draggable
                 onDragStart={() => { (tab === "widgets" ? widgetDragRef : kpiDragRef).current = i; setDragging(i); setDragGroup(tab); }}
                 onDragOver={e => { e.preventDefault(); setDragOver(i); }}
-                onDrop={() => { /* simplified */ setDragging(null); setDragOver(null); setDragGroup(null); }}
+                onDrop={() => {
+                  const fromRef = tab === "widgets" ? widgetDragRef : kpiDragRef;
+                  if (fromRef.current !== null && fromRef.current !== i) {
+                    if (tab === "widgets") onReorderWidgets(fromRef.current, i);
+                    else onReorderKpis(fromRef.current, i);
+                  }
+                  setDragging(null); setDragOver(null); setDragGroup(null);
+                }}
                 onDragEnd={() => { setDragging(null); setDragOver(null); setDragGroup(null); }}
                 style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 9px", borderRadius: 7, background: isOver ? T.hoverBg : item.checked ? T.dragChecked : T.dragUnchecked, border: `1px solid ${isOver ? T.blue : item.checked ? T.dragCheckedBorder : T.border}`, opacity: isDragging ? 0.4 : 1, cursor: "grab", userSelect: "none" }}>
                 <label style={{ display: "flex", alignItems: "center", gap: 7, cursor: "pointer", flex: 1 }}>
@@ -435,27 +430,23 @@ function CustomizeSidebar({ onClose, kpiCards, widgets, onToggleKpi, onToggleWid
           })}
         </div>
         <button onClick={onReset} style={{ padding: "8px 0", fontSize: 11, fontWeight: 700, color: "#fff", background: T.blue, border: "none", borderRadius: 8, cursor: "pointer" }}>↺ Reset to Default</button>
-        <div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <div style={{ fontSize: 11.5, fontWeight: 700, color: T.text }}>Saved Views</div>
-            <button onClick={() => setShowSave(true)} style={{ fontSize: 10, fontWeight: 600, color: T.blue, background: `${T.blue}15`, border: `1px solid ${T.blue}30`, borderRadius: 6, padding: "3px 8px", cursor: "pointer" }}>+ Save Current</button>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            {savedViews.map((v, i) => (
-              <div key={i} onClick={() => onLoadView(i)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 10px", borderRadius: 7, cursor: "pointer", background: v.active ? T.inputBg : T.surfaceAlt, border: `1px solid ${v.active ? T.blue : T.border}` }}>
-                <span style={{ fontSize: 10.5, fontWeight: v.active ? 700 : 500, color: v.active ? T.blue : T.textSec }}>{v.name}</span>
-                {v.active && <span style={{ fontSize: 12, color: T.amber }}>★</span>}
-              </div>
-            ))}
-          </div>
-        </div>
+      </div>
+      {/* Save Button */}
+      <div style={{ padding: "12px 14px", borderTop: `1px solid ${T.border}` }}>
+        <button
+          onClick={onSave}
+          disabled={allHidden}
+          style={{ width: "100%", padding: "10px 0", fontSize: 12, fontWeight: 700, color: "#fff", background: allHidden ? T.gray : "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)", border: "none", borderRadius: 9, cursor: allHidden ? "not-allowed" : "pointer", boxShadow: allHidden ? "none" : "0 2px 10px rgba(37,99,235,0.3)", opacity: allHidden ? 0.6 : 1 }}>
+          Save & View Dashboard
+        </button>
+        {allHidden && <p style={{ margin: "6px 0 0", fontSize: 10, color: T.red, textAlign: "center" }}>Enable at least one widget to save.</p>}
       </div>
     </div>
   );
 }
 
-// ─── SUPER ADMIN DASHBOARD ────────────────────────────────────────────────────
-const SA_KPI = [
+// ─── SUPER ADMIN KPI & WIDGET DEFINITIONS ─────────────────────────────────────
+const SA_KPI_DEFS = [
   { id: "sa_users", icon: Users, iconBg: C.blueSoft, iconColor: C.blue, label: "Total Users", value: "2,543", vsLabel: "vs last month", delta: "3.2%", deltaUp: true, valueColor: T.blue },
   { id: "sa_resources", icon: Briefcase, iconBg: C.greenSoft, iconColor: C.green, label: "Total Resources", value: "4,782", vsLabel: "vs last month", delta: "1.9%", deltaUp: true, valueColor: T.green },
   { id: "sa_projects", icon: Target, iconBg: C.orangeSoft, iconColor: C.orange, label: "Active Projects", value: "156", vsLabel: "vs last month", delta: "8%", deltaUp: true, valueColor: T.orange },
@@ -463,7 +454,7 @@ const SA_KPI = [
   { id: "sa_util", icon: Gauge, iconBg: C.tealSoft, iconColor: C.teal, label: "Overall Utilization", value: "76%", vsLabel: "vs last month", delta: "4%", deltaUp: true, valueColor: T.teal },
   { id: "sa_approvals", icon: CheckCircle, iconBg: C.amberSoft, iconColor: C.amber, label: "Pending Approvals", value: "18", vsLabel: "vs last month", delta: "5%", deltaUp: false, valueColor: T.amber },
 ];
-const SA_WIDGETS = [
+const SA_WIDGET_DEFS: WidgetConfig[] = [
   { id: "sa_overview", label: "System Overview", checked: true, row: 1 },
   { id: "sa_users_role", label: "Users by Role", checked: true, row: 1 },
   { id: "sa_master", label: "Master Data Overview", checked: true, row: 1 },
@@ -474,193 +465,8 @@ const SA_WIDGETS = [
   { id: "sa_quick", label: "Quick Actions", checked: true, row: 3 },
 ];
 
-function SuperAdminDashboard() {
-  const [showCustomize, setShowCustomize] = useState(false);
-  const [kpiCards, setKpiCards] = useState(SA_KPI.map(k => ({ ...k, checked: true })));
-  const [widgets, setWidgets] = useState(SA_WIDGETS.map(w => ({ ...w })));
-  const [savedViews, setSavedViews] = useState([
-    { name: "Default View", active: true }, { name: "Executive View", active: false },
-    { name: "Staffing View", active: false }, { name: "Capacity View", active: false },
-  ]);
-  const [activeViewName, setActiveViewName] = useState("Default View");
-  const axisProps = { tick: { fontSize: 9, fill: T.textMuted } };
-
-  const visibleKpi = kpiCards.filter(k => k.checked);
-  const visibleWidgets = widgets.filter(w => w.checked);
-  const rowMap = useMemo(() => {
-    const m = new Map();
-    for (const w of visibleWidgets) { const r = w.row || 1; if (!m.has(r)) m.set(r, []); m.get(r).push(w); }
-    return Array.from(m.entries()).sort(([a], [b]) => a - b);
-  }, [visibleWidgets]);
-
-  function renderWidget(id) {
-    switch (id) {
-      case "sa_overview": return (
-        <CardShell title="System Overview">
-          {[["Business Units","12",T.blue],["Domains","21",T.green],["Practices","28",T.purple],["Locations","15",T.orange],["Active Workflows","9",T.teal]].map(([l,v,c]) => (
-            <div key={l} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: `1px solid ${T.borderLight}`, fontSize: 11 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <div style={{ width: 6, height: 6, borderRadius: 2, background: c }} />
-                <span style={{ color: T.textSec }}>{l}</span>
-              </div>
-              <span style={{ fontWeight: 700, color: T.text }}>{v}</span>
-            </div>
-          ))}
-        </CardShell>
-      );
-      case "sa_users_role": return (
-        <CardShell title="Users by Role">
-          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <div style={{ position: "relative", flexShrink: 0 }}>
-              <PieChart width={100} height={100}>
-                <Pie data={MOCK.usersByRole} cx={49} cy={49} innerRadius={28} outerRadius={46} dataKey="value" startAngle={90} endAngle={-270}>
-                  {MOCK.usersByRole.map((d, i) => <Cell key={i} fill={d.color} strokeWidth={0} />)}
-                </Pie>
-              </PieChart>
-              <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                <div style={{ fontSize: 14, fontWeight: 800, color: T.text }}>2,543</div>
-                <div style={{ fontSize: 8, color: T.textMuted }}>Total</div>
-              </div>
-            </div>
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
-              {MOCK.usersByRole.map((d, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10 }}>
-                  <div style={{ width: 7, height: 7, borderRadius: 2, background: d.color, flexShrink: 0 }} />
-                  <span style={{ color: T.textSec, flex: 1 }}>{d.name}</span>
-                  <span style={{ fontWeight: 700, color: T.text }}>{d.value.toLocaleString()}</span>
-                  <span style={{ color: T.textFaint }}>({d.pct})</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </CardShell>
-      );
-      case "sa_master": return (
-        <CardShell title="Master Data Overview">
-          {MOCK.masterData.map((d, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 0", fontSize: 11 }}>
-              <span style={{ color: T.textSec }}>{d.label}</span>
-              <span style={{ fontWeight: 700, color: d.color, background: `${d.color}15`, padding: "2px 8px", borderRadius: 99, fontSize: 10.5 }}>{d.value}</span>
-            </div>
-          ))}
-        </CardShell>
-      );
-      case "sa_dist": return (
-        <CardShell title="Resource Distribution by Domain">
-          <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-            <div style={{ position: "relative", flexShrink: 0 }}>
-              <PieChart width={110} height={110}>
-                <Pie data={MOCK.resourceDist} cx={54} cy={54} innerRadius={32} outerRadius={50} dataKey="value" startAngle={90} endAngle={-270}>
-                  {MOCK.resourceDist.map((d, i) => <Cell key={i} fill={d.color} strokeWidth={0} />)}
-                </Pie>
-              </PieChart>
-              <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                <div style={{ fontSize: 14, fontWeight: 800, color: T.text }}>4,782</div>
-                <div style={{ fontSize: 8, color: T.textMuted }}>Resources</div>
-              </div>
-            </div>
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 5 }}>
-              {MOCK.resourceDist.map((d, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10.5 }}>
-                  <div style={{ width: 7, height: 7, borderRadius: 2, background: d.color, flexShrink: 0 }} />
-                  <span style={{ color: T.textSec, flex: 1 }}>{d.name}</span>
-                  <MiniBar value={d.value} max={50} color={d.color} height={6} />
-                  <span style={{ fontWeight: 700, color: T.text, minWidth: 28, textAlign: "right" }}>{d.value}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </CardShell>
-      );
-      case "sa_util_trend": return (
-        <CardShell title="Utilization Trend (Last 12 Months)">
-          <ResponsiveContainer width="100%" height={180}>
-            <AreaChart data={MOCK.utilTrend12} margin={{ top: 4, right: 4, bottom: 4, left: -18 }}>
-              <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
-              <XAxis dataKey="month" {...axisProps} />
-              <YAxis domain={[65, 85]} {...axisProps} tickFormatter={v => `${v}%`} />
-              <Tooltip content={<CustomTooltip />} />
-              <defs><linearGradient id="saUG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={T.blue} stopOpacity={0.25} /><stop offset="100%" stopColor={T.blue} stopOpacity={0.01} /></linearGradient></defs>
-              <Area type="monotone" dataKey="rate" stroke={T.blue} strokeWidth={2.5} fill="url(#saUG)" dot={{ r: 3, fill: T.blue }} name="Utilization %" />
-            </AreaChart>
-          </ResponsiveContainer>
-          <div style={{ textAlign: "right", fontSize: 10, color: T.textFaint }}>May 76% <span style={{ color: T.blue, fontWeight: 700 }}>▲</span></div>
-        </CardShell>
-      );
-      case "sa_alerts": return (
-        <CardShell title="System Alerts">
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {[
-              { label: "API Status", status: "Operational", color: T.green },
-              { label: "Workflow Status", status: "Running", color: T.green },
-              { label: "Security Alerts", status: "2 Active", color: T.red },
-              { label: "Integration Status", status: "Degraded", color: T.orange },
-            ].map((s, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 8px", background: T.surfaceAlt, borderRadius: 7, fontSize: 11 }}>
-                <span style={{ color: T.textSec }}>{s.label}</span>
-                <StatusBadge color={s.color} bg={`${s.color}15`}>{s.status}</StatusBadge>
-              </div>
-            ))}
-          </div>
-          <div style={{ borderTop: `1px solid ${T.border}`, paddingTop: 8, marginTop: 2 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: T.textSec, marginBottom: 6 }}>Alert Summary</div>
-            {MOCK.systemAlerts.map((a, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 10.5, padding: "2px 0", color: T.textMuted }}>
-                <span>{a.label}</span>
-                <span style={{ fontWeight: 700, color: a.color }}>{a.count}</span>
-              </div>
-            ))}
-          </div>
-        </CardShell>
-      );
-      case "sa_user_mgmt": return (
-        <CardShell title="User Management Summary">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-            {MOCK.userMgmt.map((u, i) => (
-              <div key={i} style={{ background: T.surfaceAlt, borderRadius: 10, padding: "10px 12px", border: `1px solid ${T.border}` }}>
-                <div style={{ fontSize: 18, fontWeight: 800, color: u.color }}>{u.count.toLocaleString()}</div>
-                <div style={{ fontSize: 10, color: T.textFaint, marginTop: 2 }}>{u.type}</div>
-              </div>
-            ))}
-          </div>
-        </CardShell>
-      );
-      case "sa_quick": return (
-        <CardShell title="Quick Actions">
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-            <QuickActionBtn icon={UserCheck} label="Create User" color={T.blue} />
-            <QuickActionBtn icon={Shield} label="Manage Roles" color={T.green} />
-            <QuickActionBtn icon={Database} label="Import Data" color={T.orange} />
-            <QuickActionBtn icon={FileText} label="View Audit Logs" color={T.gray} />
-          </div>
-        </CardShell>
-      );
-      default: return null;
-    }
-  }
-
-  return (
-    <div style={{ flex: 1, overflow: "auto", padding: "16px 18px", display: "flex", flexDirection: "column", gap: 6 }}>
-      {visibleKpi.length > 0 && (<>
-        <DashSectionLabel>Key Performance Indicators</DashSectionLabel>
-        <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(visibleKpi.length, 6)}, minmax(0,1fr))`, gap: 10, marginBottom: 8 }}>
-          {visibleKpi.map(k => <KpiCard key={k.id} {...k} />)}
-        </div>
-      </>)}
-      {rowMap.map(([rowNum, rowWidgets]) => (
-        <div key={rowNum} style={{ marginBottom: 4 }}>
-          <DashSectionLabel>{rowNum === 1 ? "Organization Overview" : rowNum === 2 ? "Resource & System Insights" : "Team & Actions"}</DashSectionLabel>
-          <div style={{ display: "grid", gridTemplateColumns: `repeat(${rowWidgets.length}, minmax(0,1fr))`, gap: 12, marginBottom: 4 }}>
-            {rowWidgets.map(w => <div key={w.id} style={{ minWidth: 0 }}>{renderWidget(w.id)}</div>)}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── PMO DASHBOARD ────────────────────────────────────────────────────────────
-const PMO_KPI = [
+// ─── PMO KPI & WIDGET DEFINITIONS ─────────────────────────────────────────────
+const PMO_KPI_DEFS = [
   { id: "pmo_demands", icon: TrendingUp, iconBg: C.blueSoft, iconColor: C.blue, label: "Open Demands", value: "237", vsLabel: "vs last month", delta: "16%", deltaUp: true, valueColor: T.blue },
   { id: "pmo_approvals", icon: CheckCircle, iconBg: C.amberSoft, iconColor: C.amber, label: "Pending Approvals", value: "18", vsLabel: "vs last month", delta: "8%", deltaUp: false, valueColor: T.amber },
   { id: "pmo_projects", icon: Briefcase, iconBg: C.greenSoft, iconColor: C.green, label: "Active Projects", value: "156", vsLabel: "vs last month", delta: "4%", deltaUp: true, valueColor: T.green },
@@ -668,7 +474,7 @@ const PMO_KPI = [
   { id: "pmo_bench", icon: UserX, iconBg: C.purpleSoft, iconColor: C.purple, label: "Bench Resources", value: "412", vsLabel: "vs last month", delta: "8%", deltaUp: true, valueColor: T.purple },
   { id: "pmo_util", icon: Gauge, iconBg: C.orangeSoft, iconColor: C.orange, label: "Overall Utilization", value: "76%", vsLabel: "vs last month", delta: "4%", deltaUp: true, valueColor: T.orange },
 ];
-const PMO_WIDGETS = [
+const PMO_WIDGET_DEFS: WidgetConfig[] = [
   { id: "pmo_demandcap", label: "Demand vs Capacity", checked: true, row: 1 },
   { id: "pmo_status", label: "Demand Status", checked: true, row: 1 },
   { id: "pmo_unfilled", label: "Top Unfilled Demands", checked: true, row: 1 },
@@ -677,161 +483,8 @@ const PMO_WIDGETS = [
   { id: "pmo_quick", label: "Quick Actions", checked: true, row: 2 },
 ];
 
-function PMODashboard() {
-  const [kpiCards, setKpiCards] = useState(PMO_KPI.map(k => ({ ...k, checked: true })));
-  const [widgets, setWidgets] = useState(PMO_WIDGETS.map(w => ({ ...w })));
-  const [savedViews, setSavedViews] = useState([
-    { name: "Default View", active: true }, { name: "Staffing View", active: false },
-    { name: "Capacity View", active: false }, { name: "Executive View", active: false },
-  ]);
-  const axisProps = { tick: { fontSize: 9, fill: T.textMuted } };
-  const visibleKpi = kpiCards.filter(k => k.checked);
-  const visibleWidgets = widgets.filter(w => w.checked);
-  const rowMap = useMemo(() => {
-    const m = new Map();
-    for (const w of visibleWidgets) { const r = w.row || 1; if (!m.has(r)) m.set(r, []); m.get(r).push(w); }
-    return Array.from(m.entries()).sort(([a], [b]) => a - b);
-  }, [visibleWidgets]);
-
-  function renderWidget(id) {
-    switch (id) {
-
-      case "pmo_demandcap": return (
-        <CardShell title="Demand vs Capacity (Next 6 Months)">
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={MOCK.demandVsCapacity} barSize={10} barCategoryGap="28%" margin={{ top: 4, right: 4, bottom: 4, left: -16 }}>
-              <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} vertical={false} />
-              <XAxis dataKey="month" {...axisProps} />
-              <YAxis {...axisProps} />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend iconType="circle" iconSize={7} wrapperStyle={{ fontSize: 9, paddingTop: 6 }} />
-              <Bar dataKey="demand" fill={T.blue} radius={[3, 3, 0, 0]} name="Demand" />
-              <Bar dataKey="capacity" fill={T.green} radius={[3, 3, 0, 0]} name="Capacity" />
-              <Line type="monotone" dataKey="gap" stroke={T.red} strokeWidth={2} dot={{ r: 3, fill: T.red }} name="Gap" />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardShell>
-      );
-      case "pmo_status": return (
-        <CardShell title="Demand Status" subtitle="Current period breakdown">
-          <div style={{ position: "relative", height: 140 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={MOCK.demandStatus} innerRadius={42} outerRadius={62} paddingAngle={3} dataKey="value" startAngle={90} endAngle={-270}>
-                  {MOCK.demandStatus.map((e, i) => <Cell key={i} fill={e.color} strokeWidth={0} />)}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: T.text }}>237</div>
-              <div style={{ fontSize: 9, color: T.textMuted }}>Total</div>
-            </div>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            {MOCK.demandStatus.map(d => (
-              <div key={d.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 10.5 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  <div style={{ width: 7, height: 7, borderRadius: "50%", background: d.color }} />
-                  <span style={{ color: T.textSec }}>{d.name}</span>
-                </div>
-                <span style={{ fontWeight: 700, color: T.text }}>{d.value}</span>
-              </div>
-            ))}
-          </div>
-        </CardShell>
-      );
-      case "pmo_unfilled": return (
-        <CardShell title="Top Unfilled Demands" subtitle="By role & gap">
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {MOCK.topUnfilled.map((r, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 10.5, color: T.textSec, minWidth: 100 }}>{r.role}</span>
-                <MiniBar value={r.gap} max={10} color={r.urgent ? T.red : T.orange} height={8} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: r.urgent ? T.red : T.orange, minWidth: 16 }}>{r.gap}</span>
-              </div>
-            ))}
-          </div>
-        </CardShell>
-      );
-      case "pmo_staffing": return (
-        <CardShell title="Project Staffing Overview">
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10.5 }}>
-              <thead>
-                <tr style={{ borderBottom: `1px solid ${T.border}` }}>
-                  {["Project","Total Demand","Filled","Gap","Utilization"].map(h => (
-                    <th key={h} style={{ padding: "4px 6px", textAlign: h === "Project" ? "left" : "right", color: T.textFaint, fontWeight: 600, fontSize: 10 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {MOCK.projectStaffing.map((r, i) => (
-                  <tr key={i} style={{ borderBottom: `1px solid ${T.borderLight}` }}>
-                    <td style={{ padding: "5px 6px", color: T.text, fontWeight: 600 }}>{r.project}</td>
-                    <td style={{ padding: "5px 6px", textAlign: "right", color: T.textSec }}>{r.demand}</td>
-                    <td style={{ padding: "5px 6px", textAlign: "right", color: T.green, fontWeight: 600 }}>{r.filled}</td>
-                    <td style={{ padding: "5px 6px", textAlign: "right", color: r.gap > 0 ? T.red : T.green, fontWeight: 600 }}>{r.gap}</td>
-                    <td style={{ padding: "5px 6px", textAlign: "right" }}>
-                      <span style={{ color: parseInt(r.util) >= 90 ? T.green : T.amber, fontWeight: 700 }}>{r.util}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardShell>
-      );
-      case "pmo_forecast": return (
-        <CardShell title="Upcoming Demand Forecast" subtitle="Next 6 months">
-          <ResponsiveContainer width="100%" height={160}>
-            <AreaChart data={MOCK.upcomingDemand} margin={{ top: 4, right: 4, bottom: 4, left: -18 }}>
-              <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
-              <XAxis dataKey="month" {...axisProps} />
-              <YAxis {...axisProps} />
-              <Tooltip content={<CustomTooltip />} />
-              <defs><linearGradient id="pmoFG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={T.teal} stopOpacity={0.25} /><stop offset="100%" stopColor={T.teal} stopOpacity={0.01} /></linearGradient></defs>
-              <Area type="monotone" dataKey="demand" stroke={T.teal} strokeWidth={2.5} fill="url(#pmoFG)" dot={{ r: 3, fill: T.teal }} name="Demand FTE" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </CardShell>
-      );
-      case "pmo_quick": return (
-        <CardShell title="Quick Actions">
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-            <QuickActionBtn icon={Plus} label="Create/Import Demand" color={T.blue} />
-            <QuickActionBtn icon={CheckCircle} label="Allocation Review & Approval" color={T.green} />
-            <QuickActionBtn icon={BarChart2} label="Demand Summary" color={T.purple} />
-            <QuickActionBtn icon={Target} label="Capacity Plan" color={T.teal} />
-            <QuickActionBtn icon={Search} label="Resource Search" color={T.gray} />
-          </div>
-        </CardShell>
-      );
-      default: return null;
-    }
-  }
-
-  return (
-    <div style={{ flex: 1, overflow: "auto", padding: "16px 18px", display: "flex", flexDirection: "column", gap: 6 }}>
-      {visibleKpi.length > 0 && (<>
-        <DashSectionLabel>Key Performance Indicators</DashSectionLabel>
-        <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(visibleKpi.length, 6)}, minmax(0,1fr))`, gap: 10, marginBottom: 8 }}>
-          {visibleKpi.map(k => <KpiCard key={k.id} {...k} />)}
-        </div>
-      </>)}
-      {rowMap.map(([rowNum, rowWidgets]) => (
-        <div key={rowNum} style={{ marginBottom: 4 }}>
-          <DashSectionLabel>{rowNum === 1 ? "Demand Pipeline & Alerts" : rowNum === 2 ? "Demand Analysis & Staffing" : "Forecast & Actions"}</DashSectionLabel>
-          <div style={{ display: "grid", gridTemplateColumns: `repeat(${rowWidgets.length}, minmax(0,1fr))`, gap: 12, marginBottom: 4 }}>
-            {rowWidgets.map(w => <div key={w.id} style={{ minWidth: 0 }}>{renderWidget(w.id)}</div>)}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── RESOURCE MANAGER DASHBOARD ───────────────────────────────────────────────
-const RM_KPI = [
+// ─── RESOURCE MANAGER KPI & WIDGET DEFINITIONS ────────────────────────────────
+const RM_KPI_DEFS = [
   { id: "rm_team", icon: Users, iconBg: C.blueSoft, iconColor: C.blue, label: "Team Size", value: "42", vsLabel: "vs last month", delta: "3%", deltaUp: true, valueColor: T.blue },
   { id: "rm_avail", icon: UserCheck, iconBg: C.greenSoft, iconColor: C.green, label: "Available Resources", value: "12", vsLabel: "vs last month", delta: "2%", deltaUp: true, valueColor: T.green },
   { id: "rm_alloc", icon: Briefcase, iconBg: C.orangeSoft, iconColor: C.orange, label: "Allocated Resources", value: "30", vsLabel: "vs last month", delta: "2%", deltaUp: true, valueColor: T.orange },
@@ -839,7 +492,7 @@ const RM_KPI = [
   { id: "rm_requests", icon: Clock, iconBg: C.amberSoft, iconColor: C.amber, label: "Pending Requests", value: "5", vsLabel: "vs last month", delta: "2%", deltaUp: false, valueColor: T.amber },
   { id: "rm_rolloffs", icon: AlertTriangle, iconBg: C.redSoft, iconColor: C.red, label: "Upcoming Roll-Offs", value: "7", vsLabel: "Next 30 days", delta: "2%", deltaUp: false, valueColor: T.red },
 ];
-const RM_WIDGETS = [
+const RM_WIDGET_DEFS: WidgetConfig[] = [
   { id: "rm_heatmap", label: "Team Utilization Heatmap", checked: true, row: 1 },
   { id: "rm_avail_chart", label: "Resource Availability", checked: true, row: 1 },
   { id: "rm_rolloffs", label: "Upcoming Roll-Offs", checked: true, row: 1 },
@@ -849,199 +502,8 @@ const RM_WIDGETS = [
   { id: "rm_quick", label: "Quick Actions", checked: true, row: 3 },
 ];
 
-function ResourceManagerDashboard() {
-  const [kpiCards, setKpiCards] = useState(RM_KPI.map(k => ({ ...k, checked: true })));
-  const [widgets, setWidgets] = useState(RM_WIDGETS.map(w => ({ ...w })));
-  const [savedViews, setSavedViews] = useState([
-    { name: "Default View", active: true }, { name: "Bench View", active: false },
-    { name: "Allocation View", active: false }, { name: "Risk View", active: false },
-  ]);
-  const axisProps = { tick: { fontSize: 9, fill: T.textMuted } };
-  const visibleKpi = kpiCards.filter(k => k.checked);
-  const visibleWidgets = widgets.filter(w => w.checked);
-  const rowMap = useMemo(() => {
-    const m = new Map();
-    for (const w of visibleWidgets) { const r = w.row || 1; if (!m.has(r)) m.set(r, []); m.get(r).push(w); }
-    return Array.from(m.entries()).sort(([a], [b]) => a - b);
-  }, [visibleWidgets]);
-
-  function getHeatColor(util) {
-    if (util > 110) return { bg: "#fef2f2", text: T.red, bar: T.red };
-    if (util > 90) return { bg: "#fff7ed", text: T.orange, bar: T.orange };
-    if (util > 75) return { bg: "#f0fdf4", text: T.green, bar: T.green };
-    return { bg: "#fefce8", text: T.amber, bar: T.amber };
-  }
-
-  function renderWidget(id) {
-    switch (id) {
-      case "rm_heatmap": return (
-        <CardShell title="Team Utilization Heatmap">
-          <div style={{ display: "flex", gap: 4, marginBottom: 6, fontSize: 9, color: T.textFaint, paddingLeft: 90 }}>
-            {[0, 25, 50, 75, "100%", "125%+"].map((v, i) => <span key={i} style={{ flex: 1, textAlign: "center" }}>{v}</span>)}
-          </div>
-          {MOCK.teamHeatmap.map((r, i) => {
-            const c = getHeatColor(r.util);
-            return (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                <span style={{ fontSize: 10, color: T.textSec, minWidth: 88 }}>{r.resource}</span>
-                <div style={{ flex: 1, height: 20, background: T.borderLight, borderRadius: 4, overflow: "hidden", position: "relative" }}>
-                  <div style={{ width: `${Math.min((r.util / 130) * 100, 100)}%`, height: "100%", background: c.bar, borderRadius: 4 }} />
-                  <div style={{ position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", fontSize: 10, fontWeight: 700, color: c.text }}>{r.util}%</div>
-                </div>
-              </div>
-            );
-          })}
-          <div style={{ display: "flex", gap: 10, marginTop: 6 }}>
-            {[["≤75%", T.amber], ["76-90%", T.green], ["91-110%", T.orange], [">110%", T.red]].map(([l, c]) => (
-              <div key={l} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 9.5, color: T.textMuted }}>
-                <div style={{ width: 8, height: 8, borderRadius: 2, background: c }} />{l}
-              </div>
-            ))}
-          </div>
-        </CardShell>
-      );
-      case "rm_avail_chart": return (
-        <CardShell title="Resource Availability" subtitle="Next 90 days">
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {MOCK.resourceAvail.map((r, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 10.5, color: T.textSec, minWidth: 92 }}>{r.skill}</span>
-                <MiniBar value={r.count} max={16} color={T.blue} height={10} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: T.text, minWidth: 16, textAlign: "right" }}>{r.count}</span>
-              </div>
-            ))}
-          </div>
-        </CardShell>
-      );
-      case "rm_rolloffs": return (
-        <CardShell title="Upcoming Roll-Offs" subtitle="Next 30 days">
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {MOCK.rollOffs.map((r, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 10px", background: T.rowAlert, borderRadius: 8, border: `1px solid ${T.red}20`, fontSize: 11 }}>
-                <div>
-                  <div style={{ fontWeight: 700, color: T.text }}>{r.name}</div>
-                  <div style={{ fontSize: 10, color: T.textMuted }}>{r.project}</div>
-                </div>
-                <span style={{ color: T.red, fontWeight: 700, fontSize: 10.5 }}>{r.date}</span>
-              </div>
-            ))}
-          </div>
-          <div style={{ marginTop: 6, padding: "8px 10px", background: `${T.orange}10`, borderRadius: 8, border: `1px solid ${T.orange}25`, fontSize: 11 }}>
-            <span style={{ color: T.orange, fontWeight: 600 }}>⚠ 4 more roll-offs in August</span>
-          </div>
-        </CardShell>
-      );
-      case "rm_requests_table": return (
-        <CardShell title="Assignment Requests (5)">
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10.5 }}>
-              <thead>
-                <tr style={{ borderBottom: `1px solid ${T.border}` }}>
-                  {["Request ID","Project","Role","Requested By","Date","Action"].map(h => (
-                    <th key={h} style={{ padding: "4px 6px", textAlign: "left", color: T.textFaint, fontWeight: 600, fontSize: 10 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {MOCK.assignmentRequests.map((r, i) => (
-                  <tr key={i} style={{ borderBottom: `1px solid ${T.borderLight}` }}>
-                    <td style={{ padding: "5px 6px", color: T.blue, fontWeight: 600 }}>{r.id}</td>
-                    <td style={{ padding: "5px 6px", color: T.textSec }}>{r.project}</td>
-                    <td style={{ padding: "5px 6px", color: T.text }}>{r.role}</td>
-                    <td style={{ padding: "5px 6px", color: T.textMuted }}>{r.by}</td>
-                    <td style={{ padding: "5px 6px", color: T.textFaint }}>{r.date}</td>
-                    <td style={{ padding: "5px 6px" }}>
-                      <div style={{ display: "flex", gap: 4 }}>
-                        <button style={{ padding: "3px 8px", fontSize: 10, fontWeight: 600, color: "#fff", background: T.green, border: "none", borderRadius: 5, cursor: "pointer" }}>Approve</button>
-                        <button style={{ padding: "3px 8px", fontSize: 10, fontWeight: 600, color: "#fff", background: T.red, border: "none", borderRadius: 5, cursor: "pointer" }}>Reject</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardShell>
-      );
-      case "rm_skills": return (
-        <CardShell title="Skill Distribution">
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={MOCK.skills} layout="vertical" barSize={9} margin={{ top: 4, right: 20, bottom: 4, left: 50 }}>
-              <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} horizontal={false} />
-              <XAxis type="number" {...axisProps} />
-              <YAxis type="category" dataKey="skill" tick={{ fontSize: 10, fill: T.textMuted }} width={50} />
-              <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="count" radius={[0, 3, 3, 0]} name="Resources">
-                {MOCK.skills.map((s, i) => <Cell key={i} fill={s.color} />)}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </CardShell>
-      );
-      case "rm_bench": return (
-        <CardShell title="Bench Resources" subtitle="Available for immediate allocation">
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10.5 }}>
-              <thead>
-                <tr style={{ borderBottom: `1px solid ${T.border}` }}>
-                  {["Resource","Skill","Experience","Availability"].map(h => (
-                    <th key={h} style={{ padding: "4px 6px", textAlign: "left", color: T.textFaint, fontWeight: 600, fontSize: 10 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {MOCK.bench.map((b, i) => (
-                  <tr key={i} style={{ borderBottom: `1px solid ${T.borderLight}` }}>
-                    <td style={{ padding: "5px 6px", color: T.text, fontWeight: 600 }}>{b.name}</td>
-                    <td style={{ padding: "5px 6px" }}><StatusBadge color={T.blue} bg={`${T.blue}15`}>{b.skill}</StatusBadge></td>
-                    <td style={{ padding: "5px 6px", color: T.textSec }}>{b.exp}</td>
-                    <td style={{ padding: "5px 6px" }}>
-                      <StatusBadge color={b.avail === "Immediate" ? T.green : T.amber} bg={`${b.avail === "Immediate" ? T.green : T.amber}15`}>{b.avail}</StatusBadge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardShell>
-      );
-      case "rm_quick": return (
-        <CardShell title="Quick Actions">
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-            <QuickActionBtn icon={UserCheck} label="Assign Resource" color={T.blue} />
-            <QuickActionBtn icon={Search} label="Resource Search" color={T.green} />
-            <QuickActionBtn icon={Calendar} label="Team Calendar" color={T.purple} />
-            <QuickActionBtn icon={Gauge} label="Capacity View" color={T.orange} />
-            <QuickActionBtn icon={UserX} label="View Bench" color={T.amber} />
-          </div>
-        </CardShell>
-      );
-      default: return null;
-    }
-  }
-
-  return (
-    <div style={{ flex: 1, overflow: "auto", padding: "16px 18px", display: "flex", flexDirection: "column", gap: 6 }}>
-      {visibleKpi.length > 0 && (<>
-        <DashSectionLabel>Key Performance Indicators</DashSectionLabel>
-        <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(visibleKpi.length, 6)}, minmax(0,1fr))`, gap: 10, marginBottom: 8 }}>
-          {visibleKpi.map(k => <KpiCard key={k.id} {...k} />)}
-        </div>
-      </>)}
-      {rowMap.map(([rowNum, rowWidgets]) => (
-        <div key={rowNum} style={{ marginBottom: 4 }}>
-          <DashSectionLabel>{rowNum === 1 ? "Team Overview" : rowNum === 2 ? "Requests & Skills" : "Bench & Actions"}</DashSectionLabel>
-          <div style={{ display: "grid", gridTemplateColumns: `repeat(${rowWidgets.length}, minmax(0,1fr))`, gap: 12, marginBottom: 4 }}>
-            {rowWidgets.map(w => <div key={w.id} style={{ minWidth: 0 }}>{renderWidget(w.id)}</div>)}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── MY DASHBOARD ─────────────────────────────────────────────────────────────
-const MY_KPI = [
+// ─── RESOURCE (My Dashboard) KPI & WIDGET DEFINITIONS ─────────────────────────
+const MY_KPI_DEFS = [
   { id: "my_tasks", icon: CheckCircle, iconBg: C.blueSoft, iconColor: C.blue, label: "Assigned Tasks", value: "12", vsLabel: "3 overdue", delta: "3%", deltaUp: false, valueColor: T.blue },
   { id: "my_util", icon: Gauge, iconBg: C.greenSoft, iconColor: C.green, label: "Utilization", value: "80%", vsLabel: "on allocation", delta: "5%", deltaUp: true, valueColor: T.green },
   { id: "my_projects", icon: Briefcase, iconBg: C.purpleSoft, iconColor: C.purple, label: "Active Projects", value: "2", vsLabel: "active", delta: "0", deltaUp: true, valueColor: T.purple },
@@ -1049,7 +511,7 @@ const MY_KPI = [
   { id: "my_skills", icon: Star, iconBg: C.tealSoft, iconColor: C.teal, label: "Skills", value: "18", vsLabel: "strong skills", delta: "3", deltaUp: true, valueColor: T.teal },
   { id: "my_certs", icon: Award, iconBg: C.amberSoft, iconColor: C.amber, label: "Certifications", value: "4", vsLabel: "active", delta: "1", deltaUp: true, valueColor: T.amber },
 ];
-const MY_WIDGETS = [
+const MY_WIDGET_DEFS: WidgetConfig[] = [
   { id: "my_assignments", label: "My Assignments", checked: true, row: 1 },
   { id: "my_tasks_board", label: "My Tasks", checked: true, row: 1 },
   { id: "my_gauge", label: "Utilization Gauge", checked: true, row: 1 },
@@ -1061,188 +523,669 @@ const MY_WIDGETS = [
   { id: "my_leave", label: "Leave Summary", checked: true, row: 3 },
 ];
 
-function ResourceDashboard() {
-  const [kpiCards, setKpiCards] = useState(MY_KPI.map(k => ({ ...k, checked: true })));
-  const [widgets, setWidgets] = useState(MY_WIDGETS.map(w => ({ ...w })));
-  const [savedViews, setSavedViews] = useState([
-    { name: "Default View", active: true }, { name: "Weekly View", active: false },
-    { name: "Skills View", active: false },
-  ]);
-  const visibleKpi = kpiCards.filter(k => k.checked);
+// ─── Role → dashboard config mapper ──────────────────────────────────────────
+function getRoleDashConfig(role: Role) {
+  switch (role) {
+    case "super_admin": return { persona: "super_admin", kpiDefs: SA_KPI_DEFS, widgetDefs: SA_WIDGET_DEFS };
+    case "pmo": return { persona: "pmo", kpiDefs: PMO_KPI_DEFS, widgetDefs: PMO_WIDGET_DEFS };
+    case "resource_manager": return { persona: "resource_manager", kpiDefs: RM_KPI_DEFS, widgetDefs: RM_WIDGET_DEFS };
+    case "resource": return { persona: "resource", kpiDefs: MY_KPI_DEFS, widgetDefs: MY_WIDGET_DEFS };
+    default: return { persona: "resource", kpiDefs: MY_KPI_DEFS, widgetDefs: MY_WIDGET_DEFS };
+  }
+}
+
+function getDashMeta(role: Role) {
+  switch (role) {
+    case "super_admin": return { title: "Super Admin Dashboard", subtitle: "Enterprise-wide visibility and governance." };
+    case "pmo": return { title: "PMO Dashboard", subtitle: "Workforce planning overview and demand fulfillment status." };
+    case "resource_manager": return { title: "Resource Manager Dashboard", subtitle: "Manage your team's allocation, utilization and resource availability." };
+    case "resource": return { title: "Resource Dashboard", subtitle: "Your personal work summary and tasks." };
+    default: return { title: "Dashboard", subtitle: "" };
+  }
+}
+
+// ─── Widget renderers ─────────────────────────────────────────────────────────
+function renderSAWidget(id: string, axisProps: object) {
+  switch (id) {
+    case "sa_overview": return (
+      <CardShell title="System Overview">
+        {[["Business Units","12",T.blue],["Domains","21",T.green],["Practices","28",T.purple],["Locations","15",T.orange],["Active Workflows","9",T.teal]].map(([l,v,c]) => (
+          <div key={l} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: `1px solid ${T.borderLight}`, fontSize: 11 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ width: 6, height: 6, borderRadius: 2, background: c }} />
+              <span style={{ color: T.textSec }}>{l}</span>
+            </div>
+            <span style={{ fontWeight: 700, color: T.text }}>{v}</span>
+          </div>
+        ))}
+      </CardShell>
+    );
+    case "sa_users_role": return (
+      <CardShell title="Users by Role">
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <div style={{ position: "relative", flexShrink: 0 }}>
+            <PieChart width={100} height={100}>
+              <Pie data={MOCK.usersByRole} cx={49} cy={49} innerRadius={28} outerRadius={46} dataKey="value" startAngle={90} endAngle={-270}>
+                {MOCK.usersByRole.map((d, i) => <Cell key={i} fill={d.color} strokeWidth={0} />)}
+              </Pie>
+            </PieChart>
+            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: T.text }}>2,543</div>
+              <div style={{ fontSize: 8, color: T.textMuted }}>Total</div>
+            </div>
+          </div>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+            {MOCK.usersByRole.map((d, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10 }}>
+                <div style={{ width: 7, height: 7, borderRadius: 2, background: d.color, flexShrink: 0 }} />
+                <span style={{ color: T.textSec, flex: 1 }}>{d.name}</span>
+                <span style={{ fontWeight: 700, color: T.text }}>{d.value.toLocaleString()}</span>
+                <span style={{ color: T.textFaint }}>({d.pct})</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </CardShell>
+    );
+    case "sa_master": return (
+      <CardShell title="Master Data Overview">
+        {MOCK.masterData.map((d, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 0", fontSize: 11 }}>
+            <span style={{ color: T.textSec }}>{d.label}</span>
+            <span style={{ fontWeight: 700, color: d.color, background: `${d.color}15`, padding: "2px 8px", borderRadius: 99, fontSize: 10.5 }}>{d.value}</span>
+          </div>
+        ))}
+      </CardShell>
+    );
+    case "sa_dist": return (
+      <CardShell title="Resource Distribution by Domain">
+        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+          <div style={{ position: "relative", flexShrink: 0 }}>
+            <PieChart width={110} height={110}>
+              <Pie data={MOCK.resourceDist} cx={54} cy={54} innerRadius={32} outerRadius={50} dataKey="value" startAngle={90} endAngle={-270}>
+                {MOCK.resourceDist.map((d, i) => <Cell key={i} fill={d.color} strokeWidth={0} />)}
+              </Pie>
+            </PieChart>
+            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: T.text }}>4,782</div>
+              <div style={{ fontSize: 8, color: T.textMuted }}>Resources</div>
+            </div>
+          </div>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 5 }}>
+            {MOCK.resourceDist.map((d, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10.5 }}>
+                <div style={{ width: 7, height: 7, borderRadius: 2, background: d.color, flexShrink: 0 }} />
+                <span style={{ color: T.textSec, flex: 1 }}>{d.name}</span>
+                <MiniBar value={d.value} max={50} color={d.color} height={6} />
+                <span style={{ fontWeight: 700, color: T.text, minWidth: 28, textAlign: "right" }}>{d.value}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </CardShell>
+    );
+    case "sa_util_trend": return (
+      <CardShell title="Utilization Trend (Last 12 Months)">
+        <ResponsiveContainer width="100%" height={180}>
+          <AreaChart data={MOCK.utilTrend12} margin={{ top: 4, right: 4, bottom: 4, left: -18 }}>
+            <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
+            <XAxis dataKey="month" {...axisProps} />
+            <YAxis domain={[65, 85]} {...axisProps} tickFormatter={v => `${v}%`} />
+            <Tooltip content={<CustomTooltip />} />
+            <defs><linearGradient id="saUG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={T.blue} stopOpacity={0.25} /><stop offset="100%" stopColor={T.blue} stopOpacity={0.01} /></linearGradient></defs>
+            <Area type="monotone" dataKey="rate" stroke={T.blue} strokeWidth={2.5} fill="url(#saUG)" dot={{ r: 3, fill: T.blue }} name="Utilization %" />
+          </AreaChart>
+        </ResponsiveContainer>
+        <div style={{ textAlign: "right", fontSize: 10, color: T.textFaint }}>May 76% <span style={{ color: T.blue, fontWeight: 700 }}>▲</span></div>
+      </CardShell>
+    );
+    case "sa_alerts": return (
+      <CardShell title="System Alerts">
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {[
+            { label: "API Status", status: "Operational", color: T.green },
+            { label: "Workflow Status", status: "Running", color: T.green },
+            { label: "Security Alerts", status: "2 Active", color: T.red },
+            { label: "Integration Status", status: "Degraded", color: T.orange },
+          ].map((s, i) => (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 8px", background: T.surfaceAlt, borderRadius: 7, fontSize: 11 }}>
+              <span style={{ color: T.textSec }}>{s.label}</span>
+              <StatusBadge color={s.color} bg={`${s.color}15`}>{s.status}</StatusBadge>
+            </div>
+          ))}
+        </div>
+        <div style={{ borderTop: `1px solid ${T.border}`, paddingTop: 8, marginTop: 2 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: T.textSec, marginBottom: 6 }}>Alert Summary</div>
+          {MOCK.systemAlerts.map((a, i) => (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 10.5, padding: "2px 0", color: T.textMuted }}>
+              <span>{a.label}</span>
+              <span style={{ fontWeight: 700, color: a.color }}>{a.count}</span>
+            </div>
+          ))}
+        </div>
+      </CardShell>
+    );
+    case "sa_user_mgmt": return (
+      <CardShell title="User Management Summary">
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          {MOCK.userMgmt.map((u, i) => (
+            <div key={i} style={{ background: T.surfaceAlt, borderRadius: 10, padding: "10px 12px", border: `1px solid ${T.border}` }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: u.color }}>{u.count.toLocaleString()}</div>
+              <div style={{ fontSize: 10, color: T.textFaint, marginTop: 2 }}>{u.type}</div>
+            </div>
+          ))}
+        </div>
+      </CardShell>
+    );
+    case "sa_quick": return (
+      <CardShell title="Quick Actions">
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+          <QuickActionBtn icon={UserCheck} label="Create User" color={T.blue} />
+          <QuickActionBtn icon={Shield} label="Manage Roles" color={T.green} />
+          <QuickActionBtn icon={Database} label="Import Data" color={T.orange} />
+          <QuickActionBtn icon={FileText} label="View Audit Logs" color={T.gray} />
+        </div>
+      </CardShell>
+    );
+    default: return null;
+  }
+}
+
+function renderPMOWidget(id: string, axisProps: object) {
+  switch (id) {
+    case "pmo_demandcap": return (
+      <CardShell title="Demand vs Capacity (Next 6 Months)">
+        <ResponsiveContainer width="100%" height={200}>
+          <BarChart data={MOCK.demandVsCapacity} barSize={10} barCategoryGap="28%" margin={{ top: 4, right: 4, bottom: 4, left: -16 }}>
+            <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} vertical={false} />
+            <XAxis dataKey="month" {...axisProps} />
+            <YAxis {...axisProps} />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend iconType="circle" iconSize={7} wrapperStyle={{ fontSize: 9, paddingTop: 6 }} />
+            <Bar dataKey="demand" fill={T.blue} radius={[3, 3, 0, 0]} name="Demand" />
+            <Bar dataKey="capacity" fill={T.green} radius={[3, 3, 0, 0]} name="Capacity" />
+            <Line type="monotone" dataKey="gap" stroke={T.red} strokeWidth={2} dot={{ r: 3, fill: T.red }} name="Gap" />
+          </BarChart>
+        </ResponsiveContainer>
+      </CardShell>
+    );
+    case "pmo_status": return (
+      <CardShell title="Demand Status" subtitle="Current period breakdown">
+        <div style={{ position: "relative", height: 140 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie data={MOCK.demandStatus} innerRadius={42} outerRadius={62} paddingAngle={3} dataKey="value" startAngle={90} endAngle={-270}>
+                {MOCK.demandStatus.map((e, i) => <Cell key={i} fill={e.color} strokeWidth={0} />)}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: T.text }}>237</div>
+            <div style={{ fontSize: 9, color: T.textMuted }}>Total</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {MOCK.demandStatus.map(d => (
+            <div key={d.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 10.5 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <div style={{ width: 7, height: 7, borderRadius: "50%", background: d.color }} />
+                <span style={{ color: T.textSec }}>{d.name}</span>
+              </div>
+              <span style={{ fontWeight: 700, color: T.text }}>{d.value}</span>
+            </div>
+          ))}
+        </div>
+      </CardShell>
+    );
+    case "pmo_unfilled": return (
+      <CardShell title="Top Unfilled Demands" subtitle="By role & gap">
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {MOCK.topUnfilled.map((r, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 10.5, color: T.textSec, minWidth: 100 }}>{r.role}</span>
+              <MiniBar value={r.gap} max={10} color={r.urgent ? T.red : T.orange} height={8} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: r.urgent ? T.red : T.orange, minWidth: 16 }}>{r.gap}</span>
+            </div>
+          ))}
+        </div>
+      </CardShell>
+    );
+    case "pmo_staffing": return (
+      <CardShell title="Project Staffing Overview">
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10.5 }}>
+            <thead>
+              <tr style={{ borderBottom: `1px solid ${T.border}` }}>
+                {["Project","Total Demand","Filled","Gap","Utilization"].map(h => (
+                  <th key={h} style={{ padding: "4px 6px", textAlign: h === "Project" ? "left" : "right", color: T.textFaint, fontWeight: 600, fontSize: 10 }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {MOCK.projectStaffing.map((r, i) => (
+                <tr key={i} style={{ borderBottom: `1px solid ${T.borderLight}` }}>
+                  <td style={{ padding: "5px 6px", color: T.text, fontWeight: 600 }}>{r.project}</td>
+                  <td style={{ padding: "5px 6px", textAlign: "right", color: T.textSec }}>{r.demand}</td>
+                  <td style={{ padding: "5px 6px", textAlign: "right", color: T.green, fontWeight: 600 }}>{r.filled}</td>
+                  <td style={{ padding: "5px 6px", textAlign: "right", color: r.gap > 0 ? T.red : T.green, fontWeight: 600 }}>{r.gap}</td>
+                  <td style={{ padding: "5px 6px", textAlign: "right" }}>
+                    <span style={{ color: parseInt(r.util) >= 90 ? T.green : T.amber, fontWeight: 700 }}>{r.util}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </CardShell>
+    );
+    case "pmo_forecast": return (
+      <CardShell title="Upcoming Demand Forecast" subtitle="Next 6 months">
+        <ResponsiveContainer width="100%" height={160}>
+          <AreaChart data={MOCK.upcomingDemand} margin={{ top: 4, right: 4, bottom: 4, left: -18 }}>
+            <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} />
+            <XAxis dataKey="month" {...axisProps} />
+            <YAxis {...axisProps} />
+            <Tooltip content={<CustomTooltip />} />
+            <defs><linearGradient id="pmoFG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={T.teal} stopOpacity={0.25} /><stop offset="100%" stopColor={T.teal} stopOpacity={0.01} /></linearGradient></defs>
+            <Area type="monotone" dataKey="demand" stroke={T.teal} strokeWidth={2.5} fill="url(#pmoFG)" dot={{ r: 3, fill: T.teal }} name="Demand FTE" />
+          </AreaChart>
+        </ResponsiveContainer>
+      </CardShell>
+    );
+    case "pmo_quick": return (
+      <CardShell title="Quick Actions">
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+          <QuickActionBtn icon={Plus} label="Create/Import Demand" color={T.blue} />
+          <QuickActionBtn icon={CheckCircle} label="Allocation Review & Approval" color={T.green} />
+          <QuickActionBtn icon={BarChart2} label="Demand Summary" color={T.purple} />
+          <QuickActionBtn icon={Target} label="Capacity Plan" color={T.teal} />
+          <QuickActionBtn icon={Search} label="Resource Search" color={T.gray} />
+        </div>
+      </CardShell>
+    );
+    default: return null;
+  }
+}
+
+function renderRMWidget(id: string, axisProps: object) {
+  function getHeatColor(util: number) {
+    if (util > 110) return { bg: "#fef2f2", text: T.red, bar: T.red };
+    if (util > 90) return { bg: "#fff7ed", text: T.orange, bar: T.orange };
+    if (util > 75) return { bg: "#f0fdf4", text: T.green, bar: T.green };
+    return { bg: "#fefce8", text: T.amber, bar: T.amber };
+  }
+  switch (id) {
+    case "rm_heatmap": return (
+      <CardShell title="Team Utilization Heatmap">
+        <div style={{ display: "flex", gap: 4, marginBottom: 6, fontSize: 9, color: T.textFaint, paddingLeft: 90 }}>
+          {[0, 25, 50, 75, "100%", "125%+"].map((v, i) => <span key={i} style={{ flex: 1, textAlign: "center" }}>{v}</span>)}
+        </div>
+        {MOCK.teamHeatmap.map((r, i) => {
+          const c = getHeatColor(r.util);
+          return (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+              <span style={{ fontSize: 10, color: T.textSec, minWidth: 88 }}>{r.resource}</span>
+              <div style={{ flex: 1, height: 20, background: T.borderLight, borderRadius: 4, overflow: "hidden", position: "relative" }}>
+                <div style={{ width: `${Math.min((r.util / 130) * 100, 100)}%`, height: "100%", background: c.bar, borderRadius: 4 }} />
+                <div style={{ position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", fontSize: 10, fontWeight: 700, color: c.text }}>{r.util}%</div>
+              </div>
+            </div>
+          );
+        })}
+        <div style={{ display: "flex", gap: 10, marginTop: 6 }}>
+          {[["≤75%", T.amber], ["76-90%", T.green], ["91-110%", T.orange], [">110%", T.red]].map(([l, c]) => (
+            <div key={l} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 9.5, color: T.textMuted }}>
+              <div style={{ width: 8, height: 8, borderRadius: 2, background: c }} />{l}
+            </div>
+          ))}
+        </div>
+      </CardShell>
+    );
+    case "rm_avail_chart": return (
+      <CardShell title="Resource Availability" subtitle="Next 90 days">
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {MOCK.resourceAvail.map((r, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 10.5, color: T.textSec, minWidth: 92 }}>{r.skill}</span>
+              <MiniBar value={r.count} max={16} color={T.blue} height={10} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: T.text, minWidth: 16, textAlign: "right" }}>{r.count}</span>
+            </div>
+          ))}
+        </div>
+      </CardShell>
+    );
+    case "rm_rolloffs": return (
+      <CardShell title="Upcoming Roll-Offs" subtitle="Next 30 days">
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {MOCK.rollOffs.map((r, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 10px", background: T.rowAlert, borderRadius: 8, border: `1px solid ${T.red}20`, fontSize: 11 }}>
+              <div>
+                <div style={{ fontWeight: 700, color: T.text }}>{r.name}</div>
+                <div style={{ fontSize: 10, color: T.textMuted }}>{r.project}</div>
+              </div>
+              <span style={{ color: T.red, fontWeight: 700, fontSize: 10.5 }}>{r.date}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 6, padding: "8px 10px", background: `${T.orange}10`, borderRadius: 8, border: `1px solid ${T.orange}25`, fontSize: 11 }}>
+          <span style={{ color: T.orange, fontWeight: 600 }}>⚠ 4 more roll-offs in August</span>
+        </div>
+      </CardShell>
+    );
+    case "rm_requests_table": return (
+      <CardShell title="Assignment Requests (5)">
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10.5 }}>
+            <thead>
+              <tr style={{ borderBottom: `1px solid ${T.border}` }}>
+                {["Request ID","Project","Role","Requested By","Date","Action"].map(h => (
+                  <th key={h} style={{ padding: "4px 6px", textAlign: "left", color: T.textFaint, fontWeight: 600, fontSize: 10 }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {MOCK.assignmentRequests.map((r, i) => (
+                <tr key={i} style={{ borderBottom: `1px solid ${T.borderLight}` }}>
+                  <td style={{ padding: "5px 6px", color: T.blue, fontWeight: 600 }}>{r.id}</td>
+                  <td style={{ padding: "5px 6px", color: T.textSec }}>{r.project}</td>
+                  <td style={{ padding: "5px 6px", color: T.text }}>{r.role}</td>
+                  <td style={{ padding: "5px 6px", color: T.textMuted }}>{r.by}</td>
+                  <td style={{ padding: "5px 6px", color: T.textFaint }}>{r.date}</td>
+                  <td style={{ padding: "5px 6px" }}>
+                    <div style={{ display: "flex", gap: 4 }}>
+                      <button style={{ padding: "3px 8px", fontSize: 10, fontWeight: 600, color: "#fff", background: T.green, border: "none", borderRadius: 5, cursor: "pointer" }}>Approve</button>
+                      <button style={{ padding: "3px 8px", fontSize: 10, fontWeight: 600, color: "#fff", background: T.red, border: "none", borderRadius: 5, cursor: "pointer" }}>Reject</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </CardShell>
+    );
+    case "rm_skills": return (
+      <CardShell title="Skill Distribution">
+        <ResponsiveContainer width="100%" height={180}>
+          <BarChart data={MOCK.skills} layout="vertical" barSize={9} margin={{ top: 4, right: 20, bottom: 4, left: 50 }}>
+            <CartesianGrid strokeDasharray="2 2" stroke={T.borderLight} horizontal={false} />
+            <XAxis type="number" {...axisProps} />
+            <YAxis type="category" dataKey="skill" tick={{ fontSize: 10, fill: T.textMuted }} width={50} />
+            <Tooltip content={<CustomTooltip />} />
+            <Bar dataKey="count" radius={[0, 3, 3, 0]} name="Resources">
+              {MOCK.skills.map((s, i) => <Cell key={i} fill={s.color} />)}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </CardShell>
+    );
+    case "rm_bench": return (
+      <CardShell title="Bench Resources" subtitle="Available for immediate allocation">
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10.5 }}>
+            <thead>
+              <tr style={{ borderBottom: `1px solid ${T.border}` }}>
+                {["Resource","Skill","Experience","Availability"].map(h => (
+                  <th key={h} style={{ padding: "4px 6px", textAlign: "left", color: T.textFaint, fontWeight: 600, fontSize: 10 }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {MOCK.bench.map((b, i) => (
+                <tr key={i} style={{ borderBottom: `1px solid ${T.borderLight}` }}>
+                  <td style={{ padding: "5px 6px", color: T.text, fontWeight: 600 }}>{b.name}</td>
+                  <td style={{ padding: "5px 6px" }}><StatusBadge color={T.blue} bg={`${T.blue}15`}>{b.skill}</StatusBadge></td>
+                  <td style={{ padding: "5px 6px", color: T.textSec }}>{b.exp}</td>
+                  <td style={{ padding: "5px 6px" }}>
+                    <StatusBadge color={b.avail === "Immediate" ? T.green : T.amber} bg={`${b.avail === "Immediate" ? T.green : T.amber}15`}>{b.avail}</StatusBadge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </CardShell>
+    );
+    case "rm_quick": return (
+      <CardShell title="Quick Actions">
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+          <QuickActionBtn icon={UserCheck} label="Assign Resource" color={T.blue} />
+          <QuickActionBtn icon={Search} label="Resource Search" color={T.green} />
+          <QuickActionBtn icon={Calendar} label="Team Calendar" color={T.purple} />
+          <QuickActionBtn icon={Gauge} label="Capacity View" color={T.orange} />
+          <QuickActionBtn icon={UserX} label="View Bench" color={T.amber} />
+        </div>
+      </CardShell>
+    );
+    default: return null;
+  }
+}
+
+function renderMyWidget(id: string) {
+  switch (id) {
+    case "my_assignments": return (
+      <CardShell title="My Assignments">
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10.5 }}>
+            <thead>
+              <tr style={{ borderBottom: `1px solid ${T.border}` }}>
+                {["Project","Role","Allocation","Period"].map(h => (
+                  <th key={h} style={{ padding: "4px 6px", textAlign: "left", color: T.textFaint, fontWeight: 600, fontSize: 10 }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {MOCK.myAssignments.map((a, i) => (
+                <tr key={i} style={{ borderBottom: `1px solid ${T.borderLight}` }}>
+                  <td style={{ padding: "5px 6px", color: T.text, fontWeight: 700 }}>{a.project}</td>
+                  <td style={{ padding: "5px 6px", color: T.textSec }}>{a.role}</td>
+                  <td style={{ padding: "5px 6px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <MiniBar value={a.alloc} max={100} color={T.blue} height={7} />
+                      <span style={{ fontWeight: 700, color: T.blue, minWidth: 28 }}>{a.alloc}%</span>
+                    </div>
+                  </td>
+                  <td style={{ padding: "5px 6px", color: T.textFaint, fontSize: 10 }}>{a.period}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div style={{ padding: "7px 10px", background: `${T.blue}08`, borderRadius: 8, fontSize: 10.5 }}>
+          <span style={{ color: T.textMuted }}>Total Allocation: </span>
+          <span style={{ fontWeight: 700, color: T.blue }}>80%</span>
+          <span style={{ color: T.textMuted }}> · Available: </span>
+          <span style={{ fontWeight: 700, color: T.green }}>20%</span>
+        </div>
+      </CardShell>
+    );
+    case "my_tasks_board": return (
+      <CardShell title="My Tasks">
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          {[
+            { label: "To Do", tasks: MOCK.myTasks.todo, color: T.gray },
+            { label: "In Progress", tasks: MOCK.myTasks.inprogress, color: T.blue },
+            { label: "Awaiting Approval", tasks: MOCK.myTasks.awaiting, color: T.amber },
+            { label: "Completed", tasks: MOCK.myTasks.completed, color: T.green },
+          ].map(col => (
+            <div key={col.label} style={{ background: T.surfaceAlt, borderRadius: 8, padding: "8px 10px", border: `1px solid ${T.border}` }}>
+              <div style={{ fontSize: 9.5, fontWeight: 700, color: col.color, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>{col.label} ({col.tasks.length})</div>
+              {col.tasks.map((t, i) => (
+                <div key={i} style={{ fontSize: 10, color: T.textSec, padding: "3px 0", borderBottom: i < col.tasks.length - 1 ? `1px solid ${T.borderLight}` : "none" }}>{t}</div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </CardShell>
+    );
+    case "my_gauge": return (
+      <CardShell title="Utilization">
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, paddingTop: 8 }}>
+          <div style={{ width: 110, height: 110, borderRadius: "50%", border: `10px solid ${T.blue}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: `0 0 0 3px ${T.blue}20` }}>
+            <span style={{ fontSize: 26, fontWeight: 800, color: T.text, letterSpacing: "-0.03em" }}>80%</span>
+            <span style={{ fontSize: 9, color: T.textMuted }}>Current</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: 10, color: T.textFaint }}>
+            <span>0%</span><span style={{ color: T.blue, fontWeight: 600 }}>Target: 85%</span><span>100%</span>
+          </div>
+          <div style={{ width: "100%", height: 8, background: T.borderLight, borderRadius: 4, overflow: "hidden" }}>
+            <div style={{ width: "80%", height: "100%", background: T.blue, borderRadius: 4 }} />
+          </div>
+          <div style={{ background: `${T.green}12`, color: T.green, borderRadius: 99, padding: "3px 12px", fontSize: 10.5, fontWeight: 700, display: "flex", alignItems: "center", gap: 3 }}>
+            <ArrowUpRight size={11} /> +5pp vs last month
+          </div>
+        </div>
+      </CardShell>
+    );
+    case "my_activities": return (
+      <CardShell title="Upcoming Activities">
+        <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+          {MOCK.upcomingActivities.map((a, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 10px", background: T.surfaceAlt, borderRadius: 8, border: `1px solid ${T.border}` }}>
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: `${a.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>{a.icon}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: T.text }}>{a.label}</div>
+                <div style={{ fontSize: 10, color: T.textFaint }}>{a.date}</div>
+              </div>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: a.color }} />
+            </div>
+          ))}
+        </div>
+      </CardShell>
+    );
+    case "my_skills_widget": return (
+      <CardShell title="Skill Growth" subtitle="Recommended for you">
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {MOCK.mySkills.map((s, i) => (
+            <div key={i}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10.5, marginBottom: 3 }}>
+                <span style={{ color: T.textSec, fontWeight: 500 }}>{s.name}</span>
+                <span style={{ fontWeight: 700, color: s.color }}>{s.level}%</span>
+              </div>
+              <MiniBar value={s.level} max={100} color={s.color} height={7} />
+            </div>
+          ))}
+        </div>
+      </CardShell>
+    );
+    case "my_notifs": return (
+      <CardShell title="Notifications">
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {MOCK.notifications.map((n, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 9, padding: "7px 10px", background: T.surfaceAlt, borderRadius: 8, border: `1px solid ${T.border}` }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: n.dot, marginTop: 3, flexShrink: 0 }} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: T.text }}>{n.msg}</div>
+                <div style={{ fontSize: 10, color: T.textFaint, marginTop: 1 }}>{n.time}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardShell>
+    );
+    case "my_quick": return (
+      <CardShell title="Quick Actions">
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+          <QuickActionBtn icon={Users} label="Update Profile" color={T.blue} />
+          <QuickActionBtn icon={Star} label="Update Skills" color={T.teal} />
+          <QuickActionBtn icon={Calendar} label="Apply Leave" color={T.green} />
+          <QuickActionBtn icon={FileText} label="Submit Timesheet" color={T.orange} />
+          <QuickActionBtn icon={Briefcase} label="View Assignments" color={T.purple} />
+        </div>
+      </CardShell>
+    );
+    case "my_learning": return (
+      <CardShell title="Learning Progress">
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {MOCK.learningProgress.map((c, i) => (
+            <div key={i}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 4 }}>
+                <span style={{ color: T.textSec, fontWeight: 500 }}>{c.course}</span>
+                <span style={{ fontWeight: 700, color: c.color }}>{c.pct}%</span>
+              </div>
+              <div style={{ height: 7, borderRadius: 99, background: T.borderLight, overflow: "hidden" }}>
+                <div style={{ width: `${c.pct}%`, height: "100%", background: c.color, borderRadius: 99, transition: "width .4s" }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardShell>
+    );
+    case "my_leave": return (
+      <CardShell title="Leave Summary">
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+          {[["Available", "12", T.green], ["Used", "8", T.orange], ["Upcoming", "2", T.blue]].map(([l, v, c]) => (
+            <div key={l} style={{ background: `${c}10`, border: `1px solid ${c}25`, borderRadius: 9, padding: "10px", textAlign: "center" }}>
+              <div style={{ fontSize: 20, fontWeight: 800, color: c }}>{v}</div>
+              <div style={{ fontSize: 9.5, color: T.textFaint, marginTop: 2 }}>{l}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 4, fontSize: 10.5, color: T.textFaint, padding: "6px 8px", background: T.surfaceAlt, borderRadius: 7 }}>
+          Next leave: <span style={{ color: T.blue, fontWeight: 600 }}>Jul 4 – Jul 6</span> · Approved
+        </div>
+      </CardShell>
+    );
+    default: return null;
+  }
+}
+
+// ─── Dashboard Content (shared layout for all roles) ──────────────────────────
+interface DashboardContentProps {
+  role: Role;
+  widgets: WidgetConfig[];
+  kpiCards: KpiConfig[];
+}
+
+function DashboardContent({ role, widgets, kpiCards }: DashboardContentProps) {
+  const axisProps = { tick: { fontSize: 9, fill: T.textMuted } };
+
+  // Build KPI defs lookup
+  const kpiDefMap = useMemo(() => {
+    let defs = role === "super_admin" ? SA_KPI_DEFS : role === "pmo" ? PMO_KPI_DEFS : role === "resource_manager" ? RM_KPI_DEFS : MY_KPI_DEFS;
+    const m = new Map(defs.map(d => [d.id, d]));
+    return m;
+  }, [role]);
+
+  const visibleKpi = kpiCards.filter(k => k.checked).map(k => kpiDefMap.get(k.id)).filter(Boolean);
   const visibleWidgets = widgets.filter(w => w.checked);
+
+  // Group widgets into rows preserving order
   const rowMap = useMemo(() => {
-    const m = new Map();
-    for (const w of visibleWidgets) { const r = w.row || 1; if (!m.has(r)) m.set(r, []); m.get(r).push(w); }
+    const m = new Map<number, WidgetConfig[]>();
+    for (const w of visibleWidgets) {
+      const r = w.row || 1;
+      if (!m.has(r)) m.set(r, []);
+      m.get(r)!.push(w);
+    }
     return Array.from(m.entries()).sort(([a], [b]) => a - b);
   }, [visibleWidgets]);
 
-  function renderWidget(id) {
-    switch (id) {
-      case "my_assignments": return (
-        <CardShell title="My Assignments">
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10.5 }}>
-              <thead>
-                <tr style={{ borderBottom: `1px solid ${T.border}` }}>
-                  {["Project","Role","Allocation","Period"].map(h => (
-                    <th key={h} style={{ padding: "4px 6px", textAlign: "left", color: T.textFaint, fontWeight: 600, fontSize: 10 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {MOCK.myAssignments.map((a, i) => (
-                  <tr key={i} style={{ borderBottom: `1px solid ${T.borderLight}` }}>
-                    <td style={{ padding: "5px 6px", color: T.text, fontWeight: 700 }}>{a.project}</td>
-                    <td style={{ padding: "5px 6px", color: T.textSec }}>{a.role}</td>
-                    <td style={{ padding: "5px 6px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <MiniBar value={a.alloc} max={100} color={T.blue} height={7} />
-                        <span style={{ fontWeight: 700, color: T.blue, minWidth: 28 }}>{a.alloc}%</span>
-                      </div>
-                    </td>
-                    <td style={{ padding: "5px 6px", color: T.textFaint, fontSize: 10 }}>{a.period}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div style={{ padding: "7px 10px", background: `${T.blue}08`, borderRadius: 8, fontSize: 10.5 }}>
-            <span style={{ color: T.textMuted }}>Total Allocation: </span>
-            <span style={{ fontWeight: 700, color: T.blue }}>80%</span>
-            <span style={{ color: T.textMuted }}> · Available: </span>
-            <span style={{ fontWeight: 700, color: T.green }}>20%</span>
-          </div>
-        </CardShell>
-      );
-      case "my_tasks_board": return (
-        <CardShell title="My Tasks">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-            {[
-              { label: "To Do", tasks: MOCK.myTasks.todo, color: T.gray },
-              { label: "In Progress", tasks: MOCK.myTasks.inprogress, color: T.blue },
-              { label: "Awaiting Approval", tasks: MOCK.myTasks.awaiting, color: T.amber },
-              { label: "Completed", tasks: MOCK.myTasks.completed, color: T.green },
-            ].map(col => (
-              <div key={col.label} style={{ background: T.surfaceAlt, borderRadius: 8, padding: "8px 10px", border: `1px solid ${T.border}` }}>
-                <div style={{ fontSize: 9.5, fontWeight: 700, color: col.color, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>{col.label} ({col.tasks.length})</div>
-                {col.tasks.map((t, i) => (
-                  <div key={i} style={{ fontSize: 10, color: T.textSec, padding: "3px 0", borderBottom: i < col.tasks.length - 1 ? `1px solid ${T.borderLight}` : "none" }}>{t}</div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </CardShell>
-      );
-      case "my_gauge": return (
-        <CardShell title="Utilization">
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, paddingTop: 8 }}>
-            <div style={{ width: 110, height: 110, borderRadius: "50%", border: `10px solid ${T.blue}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: `0 0 0 3px ${T.blue}20` }}>
-              <span style={{ fontSize: 26, fontWeight: 800, color: T.text, letterSpacing: "-0.03em" }}>80%</span>
-              <span style={{ fontSize: 9, color: T.textMuted }}>Current</span>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: 10, color: T.textFaint }}>
-              <span>0%</span><span style={{ color: T.blue, fontWeight: 600 }}>Target: 85%</span><span>100%</span>
-            </div>
-            <div style={{ width: "100%", height: 8, background: T.borderLight, borderRadius: 4, overflow: "hidden" }}>
-              <div style={{ width: "80%", height: "100%", background: T.blue, borderRadius: 4 }} />
-            </div>
-            <div style={{ background: `${T.green}12`, color: T.green, borderRadius: 99, padding: "3px 12px", fontSize: 10.5, fontWeight: 700, display: "flex", alignItems: "center", gap: 3 }}>
-              <ArrowUpRight size={11} /> +5pp vs last month
-            </div>
-          </div>
-        </CardShell>
-      );
-      case "my_activities": return (
-        <CardShell title="Upcoming Activities">
-          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-            {MOCK.upcomingActivities.map((a, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 10px", background: T.surfaceAlt, borderRadius: 8, border: `1px solid ${T.border}` }}>
-                <div style={{ width: 28, height: 28, borderRadius: 8, background: `${a.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>{a.icon}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: T.text }}>{a.label}</div>
-                  <div style={{ fontSize: 10, color: T.textFaint }}>{a.date}</div>
-                </div>
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: a.color }} />
-              </div>
-            ))}
-          </div>
-        </CardShell>
-      );
-      case "my_skills_widget": return (
-        <CardShell title="Skill Growth" subtitle="Recommended for you">
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {MOCK.mySkills.map((s, i) => (
-              <div key={i}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10.5, marginBottom: 3 }}>
-                  <span style={{ color: T.textSec, fontWeight: 500 }}>{s.name}</span>
-                  <span style={{ fontWeight: 700, color: s.color }}>{s.level}%</span>
-                </div>
-                <MiniBar value={s.level} max={100} color={s.color} height={7} />
-              </div>
-            ))}
-          </div>
-        </CardShell>
-      );
-      case "my_notifs": return (
-        <CardShell title="Notifications">
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {MOCK.notifications.map((n, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 9, padding: "7px 10px", background: T.surfaceAlt, borderRadius: 8, border: `1px solid ${T.border}` }}>
-                <div style={{ width: 8, height: 8, borderRadius: "50%", background: n.dot, marginTop: 3, flexShrink: 0 }} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: T.text }}>{n.msg}</div>
-                  <div style={{ fontSize: 10, color: T.textFaint, marginTop: 1 }}>{n.time}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardShell>
-      );
-      case "my_quick": return (
-        <CardShell title="Quick Actions">
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-            <QuickActionBtn icon={Users} label="Update Profile" color={T.blue} />
-            <QuickActionBtn icon={Star} label="Update Skills" color={T.teal} />
-            <QuickActionBtn icon={Calendar} label="Apply Leave" color={T.green} />
-            <QuickActionBtn icon={FileText} label="Submit Timesheet" color={T.orange} />
-            <QuickActionBtn icon={Briefcase} label="View Assignments" color={T.purple} />
-          </div>
-        </CardShell>
-      );
-      case "my_learning": return (
-        <CardShell title="Learning Progress">
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {MOCK.learningProgress.map((c, i) => (
-              <div key={i}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 4 }}>
-                  <span style={{ color: T.textSec, fontWeight: 500 }}>{c.course}</span>
-                  <span style={{ fontWeight: 700, color: c.color }}>{c.pct}%</span>
-                </div>
-                <div style={{ height: 7, borderRadius: 99, background: T.borderLight, overflow: "hidden" }}>
-                  <div style={{ width: `${c.pct}%`, height: "100%", background: c.color, borderRadius: 99, transition: "width .4s" }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardShell>
-      );
-      case "my_leave": return (
-        <CardShell title="Leave Summary">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-            {[["Available", "12", T.green], ["Used", "8", T.orange], ["Upcoming", "2", T.blue]].map(([l, v, c]) => (
-              <div key={l} style={{ background: `${c}10`, border: `1px solid ${c}25`, borderRadius: 9, padding: "10px", textAlign: "center" }}>
-                <div style={{ fontSize: 20, fontWeight: 800, color: c }}>{v}</div>
-                <div style={{ fontSize: 9.5, color: T.textFaint, marginTop: 2 }}>{l}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{ marginTop: 4, fontSize: 10.5, color: T.textFaint, padding: "6px 8px", background: T.surfaceAlt, borderRadius: 7 }}>
-            Next leave: <span style={{ color: T.blue, fontWeight: 600 }}>Jul 4 – Jul 6</span> · Approved
-          </div>
-        </CardShell>
-      );
+  const rowLabels: Record<number, Record<string, string>> = {
+    super_admin: { 1: "Organization Overview", 2: "Resource & System Insights", 3: "Team & Actions" },
+    pmo: { 1: "Demand Pipeline & Alerts", 2: "Demand Analysis & Staffing", 3: "Forecast & Actions" },
+    resource_manager: { 1: "Team Overview", 2: "Requests & Skills", 3: "Bench & Actions" },
+    resource: { 1: "Work Summary", 2: "Activities & Growth", 3: "Learning & Leave" },
+  } as any;
+
+  function renderWidget(id: string) {
+    switch (role) {
+      case "super_admin": return renderSAWidget(id, axisProps);
+      case "pmo": return renderPMOWidget(id, axisProps);
+      case "resource_manager": return renderRMWidget(id, axisProps);
+      case "resource": return renderMyWidget(id);
       default: return null;
     }
+  }
+
+  if (visibleKpi.length === 0 && visibleWidgets.length === 0) {
+    return (
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, color: T.textMuted }}>
+        <div style={{ fontSize: 32 }}>📊</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: T.text }}>No widgets visible</div>
+        <div style={{ fontSize: 12, color: T.textFaint }}>Open Customize Dashboard to enable widgets.</div>
+      </div>
+    );
   }
 
   return (
@@ -1250,12 +1193,12 @@ function ResourceDashboard() {
       {visibleKpi.length > 0 && (<>
         <DashSectionLabel>Key Performance Indicators</DashSectionLabel>
         <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(visibleKpi.length, 6)}, minmax(0,1fr))`, gap: 10, marginBottom: 8 }}>
-          {visibleKpi.map(k => <KpiCard key={k.id} {...k} />)}
+          {visibleKpi.map(k => <KpiCard key={k!.id} {...(k as any)} />)}
         </div>
       </>)}
       {rowMap.map(([rowNum, rowWidgets]) => (
         <div key={rowNum} style={{ marginBottom: 4 }}>
-          <DashSectionLabel>{rowNum === 1 ? "Work Summary" : rowNum === 2 ? "Activities & Growth" : "Learning & Leave"}</DashSectionLabel>
+          <DashSectionLabel>{(rowLabels as any)[role]?.[rowNum] ?? `Section ${rowNum}`}</DashSectionLabel>
           <div style={{ display: "grid", gridTemplateColumns: `repeat(${rowWidgets.length}, minmax(0,1fr))`, gap: 12, marginBottom: 4 }}>
             {rowWidgets.map(w => <div key={w.id} style={{ minWidth: 0 }}>{renderWidget(w.id)}</div>)}
           </div>
@@ -1265,39 +1208,29 @@ function ResourceDashboard() {
   );
 }
 
-// ─── App Shell ────────────────────────────────────────────────────────────────
-export default function App() {
-  const dark = useDark();
-  const [activeDash, setActiveDash] = useState("super-admin");
+// ─── Role-based Dashboard Shell (uses useDashboardConfig) ─────────────────────
+function RoleDashboard({ role }: { role: Role }) {
+  const navigate = useNavigate();
+  const { persona, kpiDefs, widgetDefs } = getRoleDashConfig(role);
+  const kpiIds = kpiDefs.map(k => k.id);
+
+  const {
+    widgets, kpiCards, saveConfig, resetConfig, toggleWidget, toggleKpi, reorderWidgets, reorderKpis,
+  } = useDashboardConfig(persona, widgetDefs, kpiIds);
+
+  // Build kpiCards with labels for sidebar
+  const kpiWithLabels = kpiCards.map(k => {
+    const def = kpiDefs.find(d => d.id === k.id);
+    return { ...k, label: def?.label ?? k.id };
+  });
+
   const [showCustomize, setShowCustomize] = useState(false);
+  const meta = getDashMeta(role);
 
-  const dashMeta = {
-    "super-admin": { title: "Super Admin Dashboard", subtitle: "Enterprise-wide visibility and governance.", user: "Super Admin", role: "System Administrator" },
-    "pmo": { title: "PMO Dashboard", subtitle: "Workforce planning overview and demand fulfillment status.", user: "PMO", role: "Programme Manager" },
-    "resource-manager": { title: "Resource Manager Dashboard", subtitle: "Manage your team's allocation, utilization and resource availability.", user: "Resource Manager", role: "Team Lead" },
-    "my-dashboard": { title: "Resource Dashboard", subtitle: "Your personal work summary and tasks.", user: "Sameera N.", role: "Senior Developer" },
-  };
-  const meta = dashMeta[activeDash];
-
-  const defaultKpi = activeDash === "super-admin" ? SA_KPI : activeDash === "pmo" ? PMO_KPI : activeDash === "resource-manager" ? RM_KPI : MY_KPI;
-  const defaultWidgets = activeDash === "super-admin" ? SA_WIDGETS : activeDash === "pmo" ? PMO_WIDGETS : activeDash === "resource-manager" ? RM_WIDGETS : MY_WIDGETS;
-  const [kpiCards, setKpiCards] = useState(defaultKpi.map(k => ({ ...k, checked: true })));
-  const [widgets, setWidgets] = useState(defaultWidgets.map(w => ({ ...w })));
-  const [savedViews, setSavedViews] = useState([
-    { name: "Default View", active: true }, { name: "Executive View", active: false },
-    { name: "Staffing View", active: false }, { name: "Capacity View", active: false },
-    { name: "Resource Health View", active: false },
-  ]);
-  const [activeViewName, setActiveViewName] = useState("Default View");
-
-  const handleDashChange = (id) => {
-    setActiveDash(id);
+  const handleSave = () => {
+    saveConfig(widgets, kpiCards);
     setShowCustomize(false);
-    const kpi = id === "super-admin" ? SA_KPI : id === "pmo" ? PMO_KPI : id === "resource-manager" ? RM_KPI : MY_KPI;
-    const wid = id === "super-admin" ? SA_WIDGETS : id === "pmo" ? PMO_WIDGETS : id === "resource-manager" ? RM_WIDGETS : MY_WIDGETS;
-    setKpiCards(kpi.map(k => ({ ...k, checked: true })));
-    setWidgets(wid.map(w => ({ ...w })));
-    setActiveViewName("Default View");
+    navigate("/my-dashboard", { state: { fromSave: true, persona } });
   };
 
   return (
@@ -1308,7 +1241,6 @@ export default function App() {
         <div style={{ background: T.surface, borderBottom: `1px solid ${T.border}`, padding: "8px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0, zIndex: 2 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div style={{ fontSize: 14, fontWeight: 800, color: T.text, letterSpacing: "-0.01em" }}>Dashboard</div>
-            <DashTabs active={activeDash} onChange={handleDashChange} />
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <button onClick={() => setShowCustomize(c => !c)}
@@ -1327,47 +1259,34 @@ export default function App() {
           <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: T.textMuted }}>
             <Calendar size={12} />
             <span>Jun 2, 2026</span>
-            <div style={{ padding: "3px 10px", border: `1px solid ${T.border}`, borderRadius: 8, display: "flex", alignItems: "center", gap: 4, cursor: "pointer" }}>
-              <span style={{ fontSize: 10.5, color: T.textFaint }}>☆</span>
-              <span style={{ fontSize: 11, color: T.textSec, fontWeight: 500 }}>{activeViewName}</span>
-            </div>
           </div>
         </div>
 
         {/* Main layout */}
         <div style={{ display: "flex", flex: 1, overflow: "hidden", minHeight: 0 }}>
-          {activeDash === "super-admin" && <SuperAdminDashboard />}
-          {activeDash === "pmo" && <PMODashboard />}
-          {activeDash === "resource-manager" && <ResourceManagerDashboard />}
-          {activeDash === "my-dashboard" && <ResourceDashboard />}
+          <DashboardContent role={role} widgets={widgets} kpiCards={kpiCards} />
           {showCustomize && (
             <CustomizeSidebar
               onClose={() => setShowCustomize(false)}
-              kpiCards={kpiCards.map(k => ({ ...k, label: k.label }))}
-              widgets={widgets.map(w => ({ ...w }))}
-              onToggleKpi={id => setKpiCards(ks => ks.map(k => k.id === id ? { ...k, checked: !k.checked } : k))}
-              onToggleWidget={id => setWidgets(ws => ws.map(w => w.id === id ? { ...w, checked: !w.checked } : w))}
-              onReset={() => {
-                const kpi = activeDash === "super-admin" ? SA_KPI : activeDash === "pmo" ? PMO_KPI : activeDash === "resource-manager" ? RM_KPI : MY_KPI;
-                const wid = activeDash === "super-admin" ? SA_WIDGETS : activeDash === "pmo" ? PMO_WIDGETS : activeDash === "resource-manager" ? RM_WIDGETS : MY_WIDGETS;
-                setKpiCards(kpi.map(k => ({ ...k, checked: true })));
-                setWidgets(wid.map(w => ({ ...w })));
-                setActiveViewName("Default View");
-              }}
-              onSaveView={name => {
-                setSavedViews(sv => [...sv.map(v => ({ ...v, active: false })), { name, active: true }]);
-                setActiveViewName(name);
-              }}
-              savedViews={savedViews}
-              onLoadView={i => {
-                setSavedViews(sv => sv.map((v, idx) => ({ ...v, active: idx === i })));
-                setActiveViewName(savedViews[i].name);
-              }}
-              activeViewName={activeViewName}
+              onSave={handleSave}
+              kpiCards={kpiWithLabels}
+              widgets={widgets}
+              onToggleKpi={toggleKpi}
+              onToggleWidget={toggleWidget}
+              onReset={resetConfig}
+              onReorderWidgets={reorderWidgets}
+              onReorderKpis={reorderKpis}
             />
           )}
         </div>
       </div>
     </>
   );
+}
+
+// ─── Main Export: role-based routing ─────────────────────────────────────────
+export default function Dashboard() {
+  const { user } = useAuth();
+  const role = (user?.role as Role) ?? "resource";
+  return <RoleDashboard role={role} />;
 }

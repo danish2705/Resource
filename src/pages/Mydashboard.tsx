@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Search,
   Star,
@@ -14,7 +15,9 @@ import {
   Copy,
   TrendingUp,
   X,
+  CheckCircle,
 } from "lucide-react";
+import { useAuth } from "@/auth/useAuth";
 
 // ─── CSS custom properties — same system as Dashboard.tsx ─────────────────────
 function GlobalStyles() {
@@ -757,11 +760,24 @@ export default function Mydashboard() {
   // useDark() only triggers re-renders when theme changes.
   // All actual colour logic is handled by CSS vars — no JS colour switching needed.
   const dark = useDark();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
 
   const [cards, setCards] = useState<DashboardCard[]>(SEED_CARDS);
   const [search, setSearch] = useState("");
   const [ownerFilter, setOwnerFilter] = useState("All");
   const [notification, setNotification] = useState<string | null>(null);
+  const [savedBanner, setSavedBanner] = useState(false);
+
+  // Detect navigation from Dashboard save flow
+  useEffect(() => {
+    const state = location.state as { fromSave?: boolean; persona?: string } | null;
+    if (state?.fromSave) {
+      setSavedBanner(true);
+      setTimeout(() => setSavedBanner(false), 5000);
+    }
+  }, []);
 
   useEffect(() => {
     const newView = (window as any).__newSavedView as
@@ -775,8 +791,8 @@ export default function Mydashboard() {
           .concat({
             id,
             name: newView.name,
-            owner: "Kantharaja M P",
-            ownerInitials: "KM",
+            owner: user?.username ?? "Kantharaja M P",
+            ownerInitials: (user?.username ?? "KM").slice(0, 2).toUpperCase(),
             ownerColor: "#2563eb",
             workspace: "Resource Management",
             workspaceIcon: "RM",
@@ -817,7 +833,7 @@ export default function Mydashboard() {
     if (card) showNotification(`"${card.name}" deleted`);
   };
   const handleOpen = (_id: string) => {
-    window.location.href = "/dashboard";
+    navigate("/");
   };
   const handleDuplicate = (id: string) => {
     const src = cards.find((c) => c.id === id);
@@ -891,6 +907,36 @@ export default function Mydashboard() {
               }}
             />
             {notification}
+          </div>
+        )}
+
+        {/* ── Saved config banner ── */}
+        {savedBanner && (
+          <div
+            style={{
+              background: "#ecfdf5",
+              borderBottom: "1px solid #a7f3d0",
+              padding: "12px 32px",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              fontSize: 13,
+              color: "#065f46",
+              fontWeight: 600,
+            }}
+          >
+            <CheckCircle size={16} color="#10b981" />
+            Dashboard configuration saved successfully. Your widgets and layout will reload on next visit.
+            <button
+              onClick={() => navigate("/")}
+              style={{ marginLeft: "auto", padding: "5px 14px", background: "#10b981", color: "#fff", border: "none", borderRadius: 7, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+            >
+              View Dashboard
+            </button>
+            <button
+              onClick={() => setSavedBanner(false)}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "#065f46", fontSize: 16, lineHeight: 1 }}
+            >×</button>
           </div>
         )}
 
@@ -984,7 +1030,7 @@ export default function Mydashboard() {
           <div style={{ marginLeft: "auto" }}>
             <button
               onClick={() => {
-                window.location.href = "/dashboard";
+                navigate("/");
               }}
               style={{
                 display: "flex",
@@ -1062,7 +1108,7 @@ export default function Mydashboard() {
               </div>
               <button
                 onClick={() => {
-                  window.location.href = "/dashboard";
+                  navigate("/");
                 }}
                 style={{
                   marginTop: 8,
@@ -1090,7 +1136,7 @@ export default function Mydashboard() {
               {/* Create new card */}
               <div
                 onClick={() => {
-                  window.location.href = "/dashboard";
+                  navigate("/");
                 }}
                 style={{
                   border: `2px dashed ${T.border}`,
