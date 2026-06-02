@@ -224,6 +224,7 @@ export const useStore = create<AppState>()(
           estimatedRate: d.estimatedRate,
           currentYearForecast: d.currentYearForecast,
           country: d.country || "Sydney",
+          resourceCount: d.resourceCount || 1,
           status: "Pending",
           approvalHistory: [],
           mailSubject: `Resource Review Required: ${d.projectRole || "Resource"} – ${d.projectName}`,

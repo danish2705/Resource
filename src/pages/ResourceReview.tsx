@@ -73,58 +73,58 @@ type BadgeStyle = {
 
 const statusStyles: Record<ReviewStatus, BadgeStyle> = {
   Pending: {
-    bg: "bg-amber-50",
-    text: "text-amber-700",
-    border: "border-amber-200",
+    bg: "bg-amber-100 dark:bg-amber-900/30",
+    text: "text-amber-700 dark:text-amber-400",
+    border: "border-amber-300 dark:border-amber-700",
     Icon: Clock,
     label: "Pending RM",
   },
   "Awaiting Approval": {
-    bg: "bg-amber-50",
-    text: "text-amber-700",
-    border: "border-amber-200",
+    bg: "bg-amber-100 dark:bg-amber-900/30",
+    text: "text-amber-700 dark:text-amber-400",
+    border: "border-amber-300 dark:border-amber-700",
     Icon: AlertCircle,
     label: "Awaiting RM",
   },
   "RM Approved": {
-    bg: "bg-blue-50",
-    text: "text-blue-700",
-    border: "border-blue-200",
+    bg: "bg-blue-100 dark:bg-blue-900/30",
+    text: "text-blue-700 dark:text-blue-400",
+    border: "border-blue-300 dark:border-blue-700",
     Icon: ChevronRight,
     label: "Pending PMO",
   },
   "RM Rejected": {
-    bg: "bg-red-50",
-    text: "text-red-600",
-    border: "border-red-200",
+    bg: "bg-red-100 dark:bg-red-900/30",
+    text: "text-red-600 dark:text-red-400",
+    border: "border-red-300 dark:border-red-700",
     Icon: XCircle,
     label: "RM Rejected",
   },
   "PMO Approved": {
-    bg: "bg-green-50",
-    text: "text-green-700",
-    border: "border-green-200",
+    bg: "bg-green-100 dark:bg-green-900/30",
+    text: "text-green-700 dark:text-green-400",
+    border: "border-green-300 dark:border-green-700",
     Icon: CheckCheck,
     label: "Fully Approved",
   },
   "PMO Rejected": {
-    bg: "bg-red-50",
-    text: "text-red-600",
-    border: "border-red-200",
+    bg: "bg-red-100 dark:bg-red-900/30",
+    text: "text-red-600 dark:text-red-400",
+    border: "border-red-300 dark:border-red-700",
     Icon: XCircle,
     label: "PMO Rejected",
   },
   Approved: {
-    bg: "bg-green-50",
-    text: "text-green-700",
-    border: "border-green-200",
+    bg: "bg-green-100 dark:bg-green-900/30",
+    text: "text-green-700 dark:text-green-400",
+    border: "border-green-300 dark:border-green-700",
     Icon: CheckCheck,
     label: "Fully Approved",
   },
   Rejected: {
-    bg: "bg-red-50",
-    text: "text-red-600",
-    border: "border-red-200",
+    bg: "bg-red-100 dark:bg-red-900/30",
+    text: "text-red-600 dark:text-red-400",
+    border: "border-red-300 dark:border-red-700",
     Icon: XCircle,
     label: "Rejected",
   },
@@ -180,18 +180,18 @@ function ApprovalStepper({ request }: { request: ReviewRequest }) {
   const stepColors = {
     approved: {
       ring: "border-green-500 bg-green-500",
-      text: "text-green-600",
+      text: "text-green-600 dark:text-green-400",
       iconColor: "text-white",
     },
     rejected: {
-      ring: "border-red-500 bg-red-50",
-      text: "text-red-600",
-      iconColor: "text-red-500",
+      ring: "border-red-500 bg-red-100 dark:bg-red-900/30",
+      text: "text-red-600 dark:text-red-400",
+      iconColor: "text-red-500 dark:text-red-400",
     },
     active: {
-      ring: "border-blue-500 bg-blue-50",
-      text: "text-blue-700",
-      iconColor: "text-blue-600",
+      ring: "border-blue-500 bg-blue-100 dark:bg-blue-900/30",
+      text: "text-blue-700 dark:text-blue-400",
+      iconColor: "text-blue-600 dark:text-blue-400",
     },
     waiting: {
       ring: "border-muted-foreground/30 bg-muted/40",
@@ -226,7 +226,7 @@ function ApprovalStepper({ request }: { request: ReviewRequest }) {
                     {step.record.decidedOn}
                   </p>
                   <p
-                    className={`text-[10px] mt-0.5 ${step.state === "approved" ? "text-green-600" : "text-red-500"}`}
+                    className={`text-[10px] mt-0.5 ${step.state === "approved" ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}
                   >
                     {step.record.decision}
                   </p>
@@ -362,7 +362,6 @@ export default function ResourceReview() {
   };
 
   // PMO cannot approve before RM approval
-  
 
   const handleDecision = (decision: "Approved" | "Rejected") => {
     if (!selected) return;
@@ -466,15 +465,15 @@ export default function ResourceReview() {
         </div>
 
         <div className="flex items-center gap-3 px-4 py-3 rounded-lg border bg-muted/30 text-sm">
-          <div className="flex items-center gap-2 text-amber-600 font-medium">
+          <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-medium">
             <Users className="h-4 w-4" /> Stage 1: Resource Manager
           </div>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          <div className="flex items-center gap-2 text-blue-600 font-medium">
+          <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-medium">
             <Building2 className="h-4 w-4" /> Stage 2: PMO / Project
           </div>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          <div className="flex items-center gap-2 text-green-600 font-medium">
+          <div className="flex items-center gap-2 text-green-600 dark:text-green-400 font-medium">
             <CheckCheck className="h-4 w-4" /> Fully Approved
           </div>
         </div>
@@ -484,26 +483,32 @@ export default function ResourceReview() {
         <SummaryCard
           label="Pending RM Review"
           value={counts.pendingRM}
-          icon={<Users className="h-5 w-5 text-amber-600" />}
-          color="bg-amber-50"
+          icon={
+            <Users className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+          }
+          color="bg-amber-100 dark:bg-amber-900/30"
         />
         <SummaryCard
           label="Pending PMO Review"
           value={counts.pendingPMO}
-          icon={<Building2 className="h-5 w-5 text-blue-600" />}
-          color="bg-blue-50"
+          icon={
+            <Building2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+          }
+          color="bg-blue-100 dark:bg-blue-900/30"
         />
         <SummaryCard
           label="Fully Approved"
           value={counts.fullyApproved}
-          icon={<CheckCheck className="h-5 w-5 text-green-600" />}
-          color="bg-green-50"
+          icon={
+            <CheckCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
+          }
+          color="bg-green-100 dark:bg-green-900/30"
         />
         <SummaryCard
           label="Rejected"
           value={counts.rejected}
-          icon={<XCircle className="h-5 w-5 text-red-500" />}
-          color="bg-red-50"
+          icon={<XCircle className="h-5 w-5 text-red-500 dark:text-red-400" />}
+          color="bg-red-100 dark:bg-red-900/30"
         />
       </div>
 
@@ -561,6 +566,10 @@ export default function ResourceReview() {
                     Requested By
                   </TableHead>
 
+                  <TableHead className="sticky top-0 z-20 bg-background text-center">
+                    No. of Resources
+                  </TableHead>
+
                   <TableHead className="sticky top-0 z-20 bg-background">
                     Allocation
                   </TableHead>
@@ -582,7 +591,7 @@ export default function ResourceReview() {
                 {filtered.length === 0 && (
                   <TableRow>
                     <TableCell
-                      colSpan={8}
+                      colSpan={9}
                       className="text-center py-10 text-muted-foreground"
                     >
                       No requests match your filters.
@@ -620,20 +629,25 @@ export default function ResourceReview() {
                         {req.requestedBy}
                       </TableCell>
                       <TableCell className="text-center">
-  <span
-    className={`font-medium ${
-      req.allocationPercent >= 100
-        ? "text-green-600"
-        : req.allocationPercent >= 75
-          ? "text-blue-600"
-          : req.allocationPercent >= 50
-            ? "text-amber-600"
-            : "text-red-600"
-    }`}
-  >
-    {req.allocationPercent}%
-  </span>
-</TableCell>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                          {req.resourceCount ?? 1}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span
+                          className={`font-medium ${
+                            req.allocationPercent >= 100
+                              ? "text-green-600 dark:text-green-400"
+                              : req.allocationPercent >= 75
+                                ? "text-blue-600 dark:text-blue-400"
+                                : req.allocationPercent >= 50
+                                  ? "text-amber-600 dark:text-amber-400"
+                                  : "text-red-600 dark:text-red-400"
+                          }`}
+                        >
+                          {req.allocationPercent}%
+                        </span>
+                      </TableCell>
                       <TableCell className="text-sm">
                         {fmt(req.currentYearForecast)}
                       </TableCell>
@@ -712,7 +726,7 @@ export default function ResourceReview() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="h-8 px-3 text-xs text-green-700 border-green-300 hover:bg-green-50 hover:text-green-800"
+                                className="h-8 px-3 text-xs text-green-700 border-green-300 hover:bg-green-50 hover:text-green-800 dark:text-green-400 dark:border-green-700 dark:hover:bg-green-900/30 dark:hover:text-green-300"
                                 disabled={!canApprove}
                                 onClick={() => openAction(req, "approve")}
                               >
@@ -723,7 +737,7 @@ export default function ResourceReview() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="h-8 px-3 text-xs text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
+                                className="h-8 px-3 text-xs text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:border-red-700 dark:hover:bg-red-900/30 dark:hover:text-red-300"
                                 disabled={!canApprove}
                                 onClick={() => openAction(req, "reject")}
                               >
@@ -808,6 +822,10 @@ export default function ResourceReview() {
                     value={`${selected.allocationPercent}%`}
                   />
                   <DetailRow
+                    label="No. of Resources"
+                    value={String(selected.resourceCount ?? 1)}
+                  />
+                  <DetailRow
                     label="Est. Rate"
                     value={`$${selected.estimatedRate}/hr`}
                   />
@@ -829,7 +847,7 @@ export default function ResourceReview() {
                   {selected.approvalHistory.map((rec, i) => (
                     <div
                       key={i}
-                      className={`text-sm rounded-md px-3 py-2 border ${rec.decision === "Approved" ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}
+                      className={`text-sm rounded-md px-3 py-2 border ${rec.decision === "Approved" ? "bg-green-100 border-green-300 dark:bg-green-900/30 dark:border-green-700" : "bg-red-100 border-red-300 dark:bg-red-900/30 dark:border-red-700"}`}
                     >
                       <div className="flex items-center justify-between mb-0.5">
                         <span className="font-medium">{rec.approver}</span>
@@ -872,7 +890,7 @@ export default function ResourceReview() {
             </Button>
             {dialogMode === "approve" && (
               <Button
-                className="bg-green-600 hover:bg-green-700 text-white"
+                className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white"
                 disabled={submitting}
                 onClick={() => handleDecision("Approved")}
               >

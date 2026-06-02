@@ -47,6 +47,7 @@ import { toast } from "sonner";
 import DataTable, { type Column } from "@/components/DataTable";
 import { resources, type Resource } from "@/mocks/resources";
 import { useAuth } from "@/auth/useAuth";
+import { useStore } from "@/store/useStore";
 
 // ─── Table Columns ────────────────────────────────────────────────────────────
 
@@ -658,6 +659,8 @@ export function ResourceDialog({
 
   const navigate = useNavigate();
   const role = userRole;
+  const { updateDemand, updateReviewRequest, reviewRequests } = useStore();
+  const { user } = useAuth();
 
   // ADD this after all your useState declarations:
   useEffect(() => {
@@ -675,6 +678,13 @@ export function ResourceDialog({
   const handleSave = () => {
     setIsSaving(true);
     setTimeout(() => {
+      // Persist resource names and count back to the demand in the store
+      const names = resources.map((r) => r.name).join(", ");
+      updateDemand(demandId, {
+        resourceName: names,
+        resourceCount: resources.length,
+        identified: resources.length > 0,
+      });
       setIsSaving(false);
       setHasPendingChanges(false);
       toast.success(`Resource allocation saved to ${projectName}`, {
@@ -687,13 +697,43 @@ export function ResourceDialog({
   const handleSaveAndSubmit = () => {
     setIsSubmitting(true);
     setTimeout(() => {
-      setIsSubmitting(false);
-      setHasPendingChanges(false);
-
-      // Use pickedResources count on confirm step, fall back to assigned resources on list step
+      // Use pickedResources on confirm step, fall back to assigned resources on list step
+      const finalResources =
+        pickedResources.length > 0
+          ? pickedResources.map((r) => r.name).join(", ")
+          : resources.map((r) => r.name).join(", ");
       const count =
         pickedResources.length > 0 ? pickedResources.length : resources.length;
       const resourceWord = `${count} resource${count !== 1 ? "s" : ""}`;
+
+      // 1. Update the demand with resource info and mark as Pending
+      updateDemand(demandId, {
+        resourceName: finalResources,
+        resourceCount: count,
+        identified: count > 0,
+        status: "Pending",
+      });
+
+      // 2. Update the matching ReviewRequest to Pending so RM/PMO can see it
+      const matchingReview = reviewRequests.find(
+        (r) => r.demandId === demandId,
+      );
+      if (matchingReview) {
+        updateReviewRequest(matchingReview.id, {
+          resourceName: finalResources,
+          resourceCount: count,
+          status: "Pending",
+          requestedBy: user?.username ?? matchingReview.requestedBy,
+          requestedOn: new Date().toLocaleDateString("en-US", {
+            month: "2-digit",
+            day: "2-digit",
+            year: "numeric",
+          }),
+        });
+      }
+
+      setIsSubmitting(false);
+      setHasPendingChanges(false);
 
       if (role === "resource_manager") {
         toast.success("Allocation submitted for approval", {
@@ -707,13 +747,13 @@ export function ResourceDialog({
         });
       } else {
         toast.success("Allocation submitted for approval", {
-          description: `An email has been sent to Resource Manager and PMO for ${resourceWord} on ${projectName}.`,
+          description: `${resourceWord} submitted. Resource Manager and PMO can now approve on the Allocation Review page.`,
           duration: 6000,
         });
       }
 
       handleClose();
-      navigate("/demand-status");
+      navigate("/resource-review");
     }, 800);
   };
 
@@ -779,6 +819,19 @@ export function ResourceDialog({
           ...newResources.filter((r) => !existingNames.has(r.name)),
         ];
       });
+
+      // Persist to store as draft
+      const allNames = [
+        ...resources.map((r) => r.name),
+        ...newResources.map((r) => r.name),
+      ].join(", ");
+      const allCount = resources.length + newResources.length;
+      updateDemand(demandId, {
+        resourceName: allNames,
+        resourceCount: allCount,
+        identified: allCount > 0,
+      });
+
       setIsSaving(false);
       setHasPendingChanges(false);
       toast.success("Allocation saved as draft", {

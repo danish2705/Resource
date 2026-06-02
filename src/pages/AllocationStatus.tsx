@@ -152,8 +152,23 @@ function ViewDetailsModal({
               <Field label="Project Role" value={demand.projectRole || "—"} />
               <Field label="Pillar" value={demand.pillar} />
               <Field label="Budget Code" value={demand.budgetCode} />
+              <Field label="Workstream" value={demand.workstream || "—"} />
               <Field label="Start Date" value={formatDate(demand.startDate)} />
               <Field label="End Date" value={formatDate(demand.endDate)} />
+              <Field
+                label="No. of Resources"
+                value={String(demand.noOfResources ?? 0)}
+              />
+              <Field
+                label="Allocated Resources"
+                value={`${demand.allocatedResources ?? 0} / ${demand.noOfResources ?? 0}`}
+              />
+              {demand.resourceName && (
+                <Field
+                  label="Allocated Resource(s)"
+                  value={demand.resourceName}
+                />
+              )}
             </div>
 
             <div className="mt-5">
@@ -298,8 +313,19 @@ function YearField({
 
 export default function AllocationStatus() {
   const { filterByPillar } = usePillarFilter();
-  const { demands } = useStore();
+  const { demands, reviewRequests } = useStore();
   const { user } = useAuth();
+
+  // Build a map: demandId → number of approved resources (PMO Approved or Approved)
+  const approvedCountByDemand = useMemo(() => {
+    const map: Record<string, number> = {};
+    reviewRequests.forEach((r) => {
+      if (r.status === "PMO Approved" || r.status === "Approved") {
+        map[r.demandId] = (map[r.demandId] || 0) + (r.resourceCount || 1);
+      }
+    });
+    return map;
+  }, [reviewRequests]);
 
   // Convert live store demands to DemandStatusRecord shape
   const liveDemands: DemandStatusRecord[] = useMemo(() => {
@@ -313,7 +339,7 @@ export default function AllocationStatus() {
       budgetCode: d.budgetCode,
       pillar: (d.pillar || "Hi-tech") as DemandStatusRecord["pillar"],
       noOfResources: d.resourceCount || 1,
-      allocatedResources: 0,
+      allocatedResources: approvedCountByDemand[d.id] || 0,
       estimatedRate: d.estimatedRate,
       currentYearForecast: d.currentYearForecast,
       status: (d.status === "Draft"
@@ -333,11 +359,31 @@ export default function AllocationStatus() {
                     : d.status === "Rejected"
                       ? "Rejected"
                       : "Submitted") as DemandStatusRecord["status"],
-      submittedBy: d.createdBy,
-      deliveryManager: d.updatedBy,
+      submittedBy:
+        d.createdBy === "super"
+          ? "Super Admin"
+          : d.createdBy === "pmo"
+            ? "PMO"
+            : d.createdBy === "resm"
+              ? "Resource Manager"
+              : d.createdBy === "reso"
+                ? "Resource Owner"
+                : d.createdBy,
+      deliveryManager:
+        d.updatedBy === "super"
+          ? "Super Admin"
+          : d.updatedBy === "pmo"
+            ? "PMO"
+            : d.updatedBy === "resm"
+              ? "Resource Manager"
+              : d.updatedBy === "reso"
+                ? "Resource Owner"
+                : d.updatedBy,
       portfolio: d.portfolio,
       program: d.program,
       projectRole: d.projectRole,
+      resourceName: d.resourceName || "",
+      workstream: d.workstream,
       startDate: d.startDate,
       endDate: d.endDate,
       comments: d.comments,
@@ -356,7 +402,7 @@ export default function AllocationStatus() {
         y2030: d.forecast.y2030,
       },
     }));
-  }, [demands]);
+  }, [demands, approvedCountByDemand]);
 
   // Merge: live store demands take priority (by id), static mock fills the rest
   const allDemands: DemandStatusRecord[] = useMemo(() => {
@@ -596,7 +642,6 @@ export default function AllocationStatus() {
                           <div className="font-medium text-foreground leading-snug max-w-[180px]">
                             {d.projectName}
                           </div>
-
                           <div className="text-xs text-muted-foreground mt-0.5">
                             {d.pillar}
                           </div>
@@ -639,14 +684,20 @@ export default function AllocationStatus() {
                         </td>
 
                         <td className="px-3 py-3">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${statusStyleMap[d.status]}`}
-                          >
-                            {d.status}
-                          </span>
-
-                          <div className="text-xs text-muted-foreground mt-1">
-                            {d.submittedBy}
+                          <div className="flex flex-col gap-1">
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap w-fit ${statusStyleMap[d.status]}`}
+                            >
+                              {d.status}
+                            </span>
+                            {d.submittedBy && (
+                              <div
+                                className="text-xs text-muted-foreground truncate max-w-[140px]"
+                                title={d.submittedBy}
+                              >
+                                {d.submittedBy}
+                              </div>
+                            )}
                           </div>
                         </td>
 

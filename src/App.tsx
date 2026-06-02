@@ -22,9 +22,9 @@ import ProjectsPage from "./pages/Projects";
 import ResourceReview from "@/pages/ResourceReview";
 import AuditLog from "@/pages/AuditLog";
 import TaskReviewApproval from "@/pages/TaskReviewApproval";
+import BudgetForecasting from "@/pages/BudgetForecasting";
 
 import { useAuth } from "@/auth/useAuth";
-
 
 const queryClient = new QueryClient();
 
@@ -80,7 +80,14 @@ const App = () => (
                         </ProtectedRoute>
                       }
                     />
-
+                    <Route
+                      path="/budget-forecasting"
+                      element={
+                        <ProtectedRoute permission="view_reporting">
+                          <BudgetForecasting />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route
                       path="/demand-status"
                       element={

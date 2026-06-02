@@ -16,6 +16,7 @@ import {
   Lock,
   PanelLeft,
   UserCog,
+  DollarSign,
 } from "lucide-react";
 
 import {
@@ -140,6 +141,12 @@ const projectSubItems: NavItem[] = [
 
 const lowerItems: NavItem[] = [
   {
+    title: "Budget Forecasting",
+    url: "/budget-forecasting",
+    icon: DollarSign,
+    permission: "view_reporting",
+  },
+  {
     title: "Reporting & Analytics",
     url: "/reports",
     icon: BarChart3,
@@ -191,11 +198,9 @@ export function AppSidebar() {
   const [projectOpen, setProjectOpen] = useState(projectActive);
 
   const dashboardActive =
-  location.pathname === "/" ||
-  location.pathname.startsWith("/mydashboard");
+    location.pathname === "/" || location.pathname.startsWith("/mydashboard");
 
-const [dashboardOpen, setDashboardOpen] =
-  useState(dashboardActive);
+  const [dashboardOpen, setDashboardOpen] = useState(dashboardActive);
 
   const linkBase =
     "flex items-center gap-2 w-full transition-colors rounded-md";
@@ -414,7 +419,6 @@ const [dashboardOpen, setDashboardOpen] =
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-
               {/* Dashboard */}
 
               {can("view_dashboard") ? (
@@ -427,11 +431,7 @@ const [dashboardOpen, setDashboardOpen] =
                     <CollapsibleTrigger asChild>
                       <SidebarMenuButton
                         tooltip="Dashboard"
-                        className={
-                          dashboardActive
-                            ? linkActive
-                            : linkInactive
-                        }
+                        className={dashboardActive ? linkActive : linkInactive}
                       >
                         <LayoutDashboard className="h-4 w-4 shrink-0" />
 
@@ -465,9 +465,7 @@ const [dashboardOpen, setDashboardOpen] =
 
                         {!collapsed && (
                           <>
-                            <span className="flex-1">
-                              Dashboard
-                            </span>
+                            <span className="flex-1">Dashboard</span>
 
                             <Lock className="h-3 w-3 ml-auto opacity-60" />
                           </>
@@ -547,7 +545,7 @@ const [dashboardOpen, setDashboardOpen] =
               )}
 
               {/* Allocation Details */}
-              
+
               {allocationItems.map(renderNavItem)}
 
               {/* Projects */}
@@ -562,9 +560,7 @@ const [dashboardOpen, setDashboardOpen] =
                     <CollapsibleTrigger asChild>
                       <SidebarMenuButton
                         tooltip="Projects"
-                        className={
-                          projectActive ? linkActive : linkInactive
-                        }
+                        className={projectActive ? linkActive : linkInactive}
                       >
                         <ClipboardList className="h-4 w-4 shrink-0" />
 
@@ -581,9 +577,7 @@ const [dashboardOpen, setDashboardOpen] =
                     {!collapsed && (
                       <CollapsibleContent>
                         <SidebarMenuSub>
-                          {projectSubItems.map(
-                            renderProjectSubItem
-                          )}
+                          {projectSubItems.map(renderProjectSubItem)}
                         </SidebarMenuSub>
                       </CollapsibleContent>
                     )}
@@ -600,9 +594,7 @@ const [dashboardOpen, setDashboardOpen] =
 
                         {!collapsed && (
                           <>
-                            <span className="flex-1">
-                              Projects
-                            </span>
+                            <span className="flex-1">Projects</span>
 
                             <Lock className="h-3 w-3 ml-auto opacity-60" />
                           </>
@@ -610,10 +602,7 @@ const [dashboardOpen, setDashboardOpen] =
                       </div>
                     </TooltipTrigger>
 
-                    <TooltipContent
-                      side="right"
-                      className="text-xs"
-                    >
+                    <TooltipContent side="right" className="text-xs">
                       You don't have access to Projects
                     </TooltipContent>
                   </Tooltip>

@@ -1061,7 +1061,7 @@ const MY_WIDGETS = [
   { id: "my_leave", label: "Leave Summary", checked: true, row: 3 },
 ];
 
-function MyDashboard() {
+function ResourceDashboard() {
   const [kpiCards, setKpiCards] = useState(MY_KPI.map(k => ({ ...k, checked: true })));
   const [widgets, setWidgets] = useState(MY_WIDGETS.map(w => ({ ...w })));
   const [savedViews, setSavedViews] = useState([
@@ -1339,7 +1339,7 @@ export default function App() {
           {activeDash === "super-admin" && <SuperAdminDashboard />}
           {activeDash === "pmo" && <PMODashboard />}
           {activeDash === "resource-manager" && <ResourceManagerDashboard />}
-          {activeDash === "my-dashboard" && <MyDashboard />}
+          {activeDash === "my-dashboard" && <ResourceDashboard />}
           {showCustomize && (
             <CustomizeSidebar
               onClose={() => setShowCustomize(false)}

@@ -34,6 +34,7 @@ export interface ReviewRequest {
   estimatedRate: number;
   currentYearForecast: number;
   country: string;
+  resourceCount: number;
   status: ReviewStatus;
   approvalHistory: ApprovalRecord[];
   mailSubject: string;
@@ -60,6 +61,7 @@ export const mockReviewRequests: ReviewRequest[] = [
     estimatedRate: 130,
     currentYearForecast: 270400,
     country: "Australia",
+    resourceCount: 1,
     status: "PMO Approved",
     approvalHistory: [
       {
@@ -100,6 +102,7 @@ export const mockReviewRequests: ReviewRequest[] = [
     estimatedRate: 95,
     currentYearForecast: 148200,
     country: "Germany",
+    resourceCount: 1,
     status: "Approved",
     approvalHistory: [
       {
@@ -139,6 +142,7 @@ export const mockReviewRequests: ReviewRequest[] = [
     estimatedRate: 110,
     currentYearForecast: 114400,
     country: "Sydney",
+    resourceCount: 1,
     status: "PMO Approved",
     approvalHistory: [
       {
@@ -178,6 +182,7 @@ export const mockReviewRequests: ReviewRequest[] = [
     estimatedRate: 85,
     currentYearForecast: 176800,
     country: "Poland",
+    resourceCount: 1,
     status: "Approved",
     approvalHistory: [
       {
@@ -218,6 +223,7 @@ export const mockReviewRequests: ReviewRequest[] = [
     estimatedRate: 145,
     currentYearForecast: 241920,
     country: "USA",
+    resourceCount: 1,
     status: "PMO Approved",
     approvalHistory: [
       {
@@ -258,6 +264,7 @@ export const mockReviewRequests: ReviewRequest[] = [
     estimatedRate: 90,
     currentYearForecast: 158400,
     country: "Nigeria",
+    resourceCount: 1,
     status: "Approved",
     approvalHistory: [
       {
@@ -300,6 +307,7 @@ export const mockReviewRequests: ReviewRequest[] = [
     estimatedRate: 105,
     currentYearForecast: 184800,
     country: "UAE",
+    resourceCount: 1,
     status: "RM Approved",
     approvalHistory: [
       {
@@ -333,6 +341,7 @@ export const mockReviewRequests: ReviewRequest[] = [
     estimatedRate: 120,
     currentYearForecast: 118800,
     country: "Russia",
+    resourceCount: 1,
     status: "RM Approved",
     approvalHistory: [
       {
@@ -368,6 +377,7 @@ export const mockReviewRequests: ReviewRequest[] = [
     estimatedRate: 135,
     currentYearForecast: 237600,
     country: "France",
+    resourceCount: 1,
     status: "Pending",
     approvalHistory: [],
     mailSubject: "Resource Review Required: ML Engineer – AI & ML Platform",
@@ -392,6 +402,7 @@ export const mockReviewRequests: ReviewRequest[] = [
     estimatedRate: 120,
     currentYearForecast: 249600,
     country: "Sydney",
+    resourceCount: 1,
     status: "Awaiting Approval",
     approvalHistory: [],
     mailSubject:
@@ -419,6 +430,7 @@ export const mockReviewRequests: ReviewRequest[] = [
     estimatedRate: 115,
     currentYearForecast: 202400,
     country: "Vietnam",
+    resourceCount: 1,
     status: "RM Rejected",
     approvalHistory: [
       {

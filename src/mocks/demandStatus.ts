@@ -32,6 +32,7 @@ export interface DemandStatusRecord {
   startDate?: string;
   endDate?: string;
   comments?: string;
+  resourceName?: string;
   allocation?: {
     currentYear: number;
     y2027: number;
