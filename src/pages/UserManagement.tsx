@@ -36,13 +36,29 @@ interface FormData {
   team: string;
   systemRole: SystemRole;
   email: string;
+  pageAccess: string[];
 }
+
+const PAGE_ACCESS = [
+  "Dashboard",
+  "Resource Information",
+  "Create/Import Demand",
+  "Demand Summary & Allocation",
+  "Allocation Status",
+  "Allocation Review & Approval",
+  "Allocation Details",
+  "Projects",
+  "Reporting & Analytics",
+  "Audit Log",
+  "User Management",
+] as const;
 
 const EMPTY_FORM: FormData = {
   name: "",
   team: "",
   systemRole: "Resource",
   email: "",
+  pageAccess: [],
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -162,12 +178,20 @@ function UserModal({
   onClose,
   errors,
 }: ModalProps) {
-  const set = (key: keyof FormData, value: string) =>
-    onChange({ ...form, [key]: value });
+  const togglePageAccess = (page: string) => {
+  const exists = form.pageAccess.includes(page);
+
+  onChange({
+    ...form,
+    pageAccess: exists
+      ? form.pageAccess.filter((p) => p !== page)
+      : [...form.pageAccess, page],
+  });
+};
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden">
+      <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-x1 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-muted/40">
           <div>
@@ -250,6 +274,54 @@ function UserModal({
               </div>
 
               {/* System Role */}
+              <div>
+  <SectionLabel>Page Access</SectionLabel>
+
+  <div className="flex items-center justify-between mb-3">
+    <button
+      type="button"
+      className="text-xs text-primary hover:underline"
+      onClick={() =>
+        onChange({
+          ...form,
+          pageAccess: [...PAGE_ACCESS],
+        })
+      }
+    >
+      Select All
+    </button>
+
+    <button
+      type="button"
+      className="text-xs text-muted-foreground hover:underline"
+      onClick={() =>
+        onChange({
+          ...form,
+          pageAccess: [],
+        })
+      }
+    >
+      Clear All
+    </button>
+  </div>
+
+  <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto border border-border rounded-lg p-3">
+    {PAGE_ACCESS.map((page) => (
+      <label
+        key={page}
+        className="flex items-center gap-2 text-sm cursor-pointer"
+      >
+        <input
+          type="checkbox"
+          checked={form.pageAccess.includes(page)}
+          onChange={() => togglePageAccess(page)}
+          className="rounded border-border"
+        />
+        <span>{page}</span>
+      </label>
+    ))}
+  </div>
+</div>
               <div>
                 <label className="block text-xs font-medium text-foreground mb-1">
                   System Role <span className="text-destructive">*</span>
@@ -435,11 +507,12 @@ export default function UserManagement() {
   const openEdit = (r: Resource) => {
     setEditTarget(r);
     setForm({
-      name: r.name,
-      team: r.team,
-      systemRole: (r.systemRole as SystemRole) ?? "Resource",
-      email: r.email ?? "",
-    });
+  name: r.name,
+  team: r.team,
+  systemRole: (r.systemRole as SystemRole) ?? "Resource",
+  email: r.email ?? "",
+  pageAccess: [],
+});
     setErrors({});
     setModalMode("edit");
   };
