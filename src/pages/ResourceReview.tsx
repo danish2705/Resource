@@ -615,8 +615,20 @@ export default function ResourceReview() {
                         {req.requestedBy}
                       </TableCell>
                       <TableCell className="text-center">
-                        {req.allocationPercent}%
-                      </TableCell>
+  <span
+    className={`font-medium ${
+      req.allocationPercent >= 100
+        ? "text-green-600"
+        : req.allocationPercent >= 75
+          ? "text-blue-600"
+          : req.allocationPercent >= 50
+            ? "text-amber-600"
+            : "text-red-600"
+    }`}
+  >
+    {req.allocationPercent}%
+  </span>
+</TableCell>
                       <TableCell className="text-sm">
                         {fmt(req.currentYearForecast)}
                       </TableCell>
