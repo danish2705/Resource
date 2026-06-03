@@ -451,10 +451,10 @@ const SEED_ROWS: PortfolioRow[] = [
 // ─── Badge styles ─────────────────────────────────────────────────────────────
 
 const priorityStyle = (p: PortfolioRow["priority"]) => {
-  if (p === "Immediate")
+  if (p === "Critical")
     return "bg-red-500 text-white border-0 text-xs font-semibold";
   if (p === "High")
-    return "bg-red-100 text-red-700 dark:bg-red-500/30 dark:text-red-300 border-0 text-xs font-semibold";
+    return "bg-red-200 text-red-700 dark:bg-red-500/30 dark:text-red-300 border-0 text-xs font-semibold";
   if (p === "Medium")
     return "bg-orange-100 text-orange-700 dark:bg-orange-500/30 dark:text-orange-300 border-0 text-xs font-semibold";
   return "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300 border-0 text-xs font-semibold";
@@ -483,9 +483,7 @@ interface FilterState {
   types: Set<string>;
   owners: Set<string>;
   startDateFrom: string;
-  startDateTo: string;
   endDateFrom: string;
-  endDateTo: string;
   varianceFilter: "all" | "over" | "under";
 }
 
@@ -496,9 +494,7 @@ const defaultFilters = (): FilterState => ({
   types: new Set(),
   owners: new Set(),
   startDateFrom: "",
-  startDateTo: "",
   endDateFrom: "",
-  endDateTo: "",
   varianceFilter: "all",
 });
 
@@ -1185,25 +1181,15 @@ export default function ProjectPortfolio() {
       // Variance filter
       if (filters.varianceFilter === "over" && row.variance >= 0) return false;
       if (filters.varianceFilter === "under" && row.variance < 0) return false;
-      // Start date range
-      if (filters.startDateFrom || filters.startDateTo) {
+      // Start date filter
+      if (filters.startDateFrom) {
         const rowDate = parseDate(row.fromDate);
-        if (filters.startDateFrom && rowDate) {
-          if (rowDate < new Date(filters.startDateFrom)) return false;
-        }
-        if (filters.startDateTo && rowDate) {
-          if (rowDate > new Date(filters.startDateTo)) return false;
-        }
+        if (rowDate && rowDate < new Date(filters.startDateFrom)) return false;
       }
-      // End date range
-      if (filters.endDateFrom || filters.endDateTo) {
+      // End date filter
+      if (filters.endDateFrom) {
         const rowDate = parseDate(row.toDate);
-        if (filters.endDateFrom && rowDate) {
-          if (rowDate < new Date(filters.endDateFrom)) return false;
-        }
-        if (filters.endDateTo && rowDate) {
-          if (rowDate > new Date(filters.endDateTo)) return false;
-        }
+        if (rowDate && rowDate < new Date(filters.endDateFrom)) return false;
       }
       return true;
     });
@@ -1217,8 +1203,8 @@ export default function ProjectPortfolio() {
     if (filters.types.size) n++;
     if (filters.owners.size) n++;
     if (filters.varianceFilter !== "all") n++;
-    if (filters.startDateFrom || filters.startDateTo) n++;
-    if (filters.endDateFrom || filters.endDateTo) n++;
+    if (filters.startDateFrom) n++;
+    if (filters.endDateFrom) n++;
     return n;
   }, [filters]);
 
@@ -1545,19 +1531,9 @@ export default function ProjectPortfolio() {
               onChange={(e) => setFilter("startDateFrom", e.target.value)}
               className="px-2 py-1 rounded-lg border border-border bg-background text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-colors"
             />
-            <span className="text-xs text-muted-foreground">to</span>
-            <input
-              type="date"
-              value={filters.startDateTo}
-              onChange={(e) => setFilter("startDateTo", e.target.value)}
-              className="px-2 py-1 rounded-lg border border-border bg-background text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-colors"
-            />
-            {(filters.startDateFrom || filters.startDateTo) && (
+            {filters.startDateFrom && (
               <button
-                onClick={() => {
-                  setFilter("startDateFrom", "");
-                  setFilter("startDateTo", "");
-                }}
+                onClick={() => setFilter("startDateFrom", "")}
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X className="w-3 h-3" />
@@ -1577,19 +1553,9 @@ export default function ProjectPortfolio() {
               onChange={(e) => setFilter("endDateFrom", e.target.value)}
               className="px-2 py-1 rounded-lg border border-border bg-background text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-colors"
             />
-            <span className="text-xs text-muted-foreground">to</span>
-            <input
-              type="date"
-              value={filters.endDateTo}
-              onChange={(e) => setFilter("endDateTo", e.target.value)}
-              className="px-2 py-1 rounded-lg border border-border bg-background text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-colors"
-            />
-            {(filters.endDateFrom || filters.endDateTo) && (
+            {filters.endDateFrom && (
               <button
-                onClick={() => {
-                  setFilter("endDateFrom", "");
-                  setFilter("endDateTo", "");
-                }}
+                onClick={() => setFilter("endDateFrom", "")}
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X className="w-3 h-3" />
