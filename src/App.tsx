@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import UserManagement from "@/pages/UserManagement";
 import MasterDataManagement from "@/pages/MasterDataManagement";
+import Configuration from "@/pages/Configuration";
 
 import AppLayout from "@/components/AppLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoutes";
@@ -25,6 +26,7 @@ import AuditLog from "@/pages/AuditLog";
 import TaskReviewApproval from "@/pages/TaskReviewApproval";
 import ScenarioPlanning from "@/pages/ScenarioPlanning";
 import ProjectPortfolio from "@/pages/ProjectPortfolio";
+import Training from "./pages/Training";
 
 import { useAuth } from "@/auth/useAuth";
 
@@ -165,6 +167,16 @@ const App = () => (
                       }
                     />
 
+                    {/* Training */}
+                    <Route
+                      path="/training"
+                      element={
+                        <ProtectedRoute permission="view_dashboard">
+                          <Training />
+                        </ProtectedRoute>
+                      }
+                    />
+
                     <Route
                       path="/projects"
                       element={
@@ -218,7 +230,15 @@ const App = () => (
                       }
                     />
 
-                    <Route path="/mydashboard" element={<Mydashboard />} />
+                    <Route
+                      path="/admin/configuration"
+                      element={
+                        <ProtectedRoute permission="manage_master_data">
+                          <Configuration />
+                        </ProtectedRoute>
+                      }
+                    />
+
                     {/* Fallback Route */}
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>

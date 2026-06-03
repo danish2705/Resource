@@ -20,6 +20,7 @@ import {
   FolderKanban,
   Database,
   ShieldAlert,
+  Settings,
   GraduationCap,
 } from "lucide-react";
 
@@ -76,7 +77,7 @@ const dashboardSubItems: NavItem[] = [
   },
   {
     title: "My Dashboards",
-    url: "/mydashboard",
+    url: "/my-dashboard",
     icon: LayoutDashboard,
     end: true,
     permission: "view_dashboard",
@@ -134,7 +135,7 @@ const projectSubItems: NavItem[] = [
     title: "Task Review & Approval",
     url: "/task-review-approval",
     icon: ShieldCheck,
-    permission: "approve_demand", // change permission if needed
+    permission: "approve_demand",
   },
 ];
 
@@ -168,9 +169,16 @@ const adminSubItems: NavItem[] = [
     icon: Database,
     permission: "manage_master_data",
   },
+  {
+    title: "Configuration",
+    url: "/admin/configuration",
+    icon: Settings,
+    permission: "manage_master_data",
+  },
 ];
 
-const lowerItems: NavItem[] = [  {
+const lowerItems: NavItem[] = [
+  {
     title: "Reporting & Analytics",
     url: "/reports",
     icon: BarChart3,
@@ -186,6 +194,7 @@ const lowerItems: NavItem[] = [  {
     title: "Training",
     url: "/training",
     icon: GraduationCap,
+    permission: "view_dashboard",
   },
 ];
 
@@ -229,7 +238,7 @@ export function AppSidebar() {
   const [portfolioOpen, setPortfolioOpen] = useState(portfolioActive);
 
   const dashboardActive =
-    location.pathname === "/" || location.pathname.startsWith("/mydashboard");
+    location.pathname === "/" || location.pathname.startsWith("/my-dashboard");
 
   const [dashboardOpen, setDashboardOpen] = useState(dashboardActive);
 
@@ -645,8 +654,6 @@ export function AppSidebar() {
                   </Tooltip>
                 </SidebarMenuItem>
               )}
-
-              {/* Remaining Lower Items */}
 
               {/* Portfolio Planning */}
 
