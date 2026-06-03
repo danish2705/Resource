@@ -177,7 +177,6 @@ export default function DemandSummary() {
   const location = useLocation();
   // ── CHANGE 1: read ?allocate=<id> query param ─────────────────────────────
   const [searchParams] = useSearchParams();
-
   const { demands, addDemands, deleteDemand } = useStore();
 
   // ── Navigate-in from Project Portfolio ──────────────────────────────────────
@@ -204,7 +203,7 @@ export default function DemandSummary() {
   const pillars = useActiveValues("pillars");
   const roles = useActiveValues("roles");
   const locationOpts = useActiveValues("countries");
-
+  const canCreate = user ? hasPermission(user.role, "create_demand") : false;
   // ── Filters ──
   const [fSearch, setFSearch] = useState("");
   const [fProject, setFProject] = useState("all");
@@ -612,6 +611,16 @@ export default function DemandSummary() {
               {visibleDemands.length} demands
             </p>
           </div>
+          {canCreate && (
+            <Button
+              size="sm"
+              className="h-9 gap-1.5"
+              onClick={() => navigate("/demand/create")}
+            >
+              <Plus className="h-3.5 w-3.5" />
+              New Demand
+            </Button>
+          )}
         </CardHeader>
 
         <CardContent>
