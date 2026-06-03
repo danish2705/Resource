@@ -320,7 +320,7 @@ export default function MasterDataManagement() {
       errors.label = "Column name is required.";
     }
     if (form.keyTouched && !form.key.trim()) {
-      errors.key = "Column key is required.";
+      errors.key = "Data Type is required.";
     }
     if (form.key && page?.columns.some((c) => c.key === form.key)) {
       errors.key = "A column with this key already exists.";
@@ -530,7 +530,7 @@ export default function MasterDataManagement() {
                           {/* Column Key */}
                           <div className="space-y-1">
                             <Label className="text-xs">
-                              Column Key <span className="text-destructive">*</span>
+                              Data Type <span className="text-destructive">*</span>
                               <span className="text-muted-foreground font-normal ml-1">(auto-filled)</span>
                             </Label>
                             <Input
