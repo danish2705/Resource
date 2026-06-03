@@ -925,17 +925,6 @@ export default function TaskReviewApproval() {
             </tbody>
           </table>
         </div>
-
-        {/* Footer */}
-        <div className="shrink-0 px-5 py-2.5 border-t border-border flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
-            Showing {filtered.length} of {tasks.length} task requests
-          </p>
-          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-            <User className="w-3 h-3" />
-            Only Project Manager approval required
-          </span>
-        </div>
       </div>
     </div>
   );
