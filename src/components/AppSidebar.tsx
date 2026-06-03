@@ -20,6 +20,7 @@ import {
   FolderKanban,
   Database,
   ShieldAlert,
+  GraduationCap,
 } from "lucide-react";
 
 import {
@@ -180,6 +181,11 @@ const lowerItems: NavItem[] = [  {
     url: "/audit-log",
     icon: ScrollText,
     permission: "view_audit_logs",
+  },
+  {
+    title: "Training",
+    url: "/training",
+    icon: GraduationCap,
   },
 ];
 

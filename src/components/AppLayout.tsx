@@ -106,6 +106,10 @@ const resolvePageTitle = (pathname: string) => {
     return "Audit Log";
   }
 
+  if (pathname.startsWith("/training")) {
+    return "Training";
+  }
+
   return "Enterprise Resource Management";
 };
 
