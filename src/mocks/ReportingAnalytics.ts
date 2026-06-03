@@ -283,7 +283,7 @@ export const reportCards = [
   {
     num: 9,
     title: "Vendor Ranking Report",
-    desc: "Report for showing vendor ranking report based on budget spent",
+    desc: "Report for showing vendor ranking based on budget spent",
     vendors: [
       { name: "Tech Mahindra", spend: "$3.21M", rank: 1, score: 92 },
       { name: "Tata Consultancy Svcs", spend: "$2.98M", rank: 2, score: 88 },
