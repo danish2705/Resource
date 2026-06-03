@@ -33,7 +33,7 @@ type SortDir = "asc" | "desc";
 
 interface FormData {
   name: string;
-  team: string;
+  team: string[];
   systemRole: SystemRole;
   email: string;
   pageAccess: string[];
@@ -55,7 +55,7 @@ const PAGE_ACCESS = [
 
 const EMPTY_FORM: FormData = {
   name: "",
-  team: "",
+  team: [],
   systemRole: "Resource",
   email: "",
   pageAccess: [],
@@ -254,18 +254,32 @@ function UserModal({
                 <label className="block text-xs font-medium text-foreground mb-1">
                   Pillar <span className="text-destructive">*</span>
                 </label>
-                <select
-                  className={
-                    selectCls + (errors.team ? " border-destructive" : "")
-                  }
-                  value={form.team}
-                  onChange={(e) => set("team", e.target.value)}
-                >
-                  <option value="">Select pillar</option>
-                  {PILLARS.map((p) => (
-                    <option key={p}>{p}</option>
-                  ))}
-                </select>
+                <div className="border border-border rounded-lg p-3 max-h-40 overflow-y-auto">
+  <div className="space-y-2">
+    {PILLARS.map((pillar) => (
+      <label
+        key={pillar}
+        className="flex items-center gap-2 text-sm cursor-pointer"
+      >
+        <input
+          type="checkbox"
+          checked={form.team.includes(pillar)}
+          onChange={() => {
+            const exists = form.team.includes(pillar);
+
+            onChange({
+              ...form,
+              team: exists
+                ? form.team.filter((p) => p !== pillar)
+                : [...form.team, pillar],
+            });
+          }}
+        />
+        <span>{pillar}</span>
+      </label>
+    ))}
+  </div>
+</div>
                 {errors.team && (
                   <p className="text-xs text-destructive mt-0.5">
                     {errors.team}
@@ -492,7 +506,8 @@ export default function UserManagement() {
   const validate = (f: FormData) => {
     const e: typeof errors = {};
     if (!f.name.trim()) e.name = "Name is required";
-    if (!f.team) e.team = "Pillar is required";
+    if (f.team.length === 0)
+  e.team = "At least one pillar is required";
     if (!f.systemRole) e.systemRole = "System role is required";
     if (!f.email.trim()) e.email = "Email is required";
     setErrors(e);
@@ -508,7 +523,7 @@ export default function UserManagement() {
     setEditTarget(r);
     setForm({
   name: r.name,
-  team: r.team,
+  team: [r.team],
   systemRole: (r.systemRole as SystemRole) ?? "Resource",
   email: r.email ?? "",
   pageAccess: [],
@@ -527,8 +542,8 @@ export default function UserManagement() {
         initials: makeInitials(form.name),
         role: "",
         level: "Mid",
-        pillar: form.team as Resource["pillar"],
-        team: form.team,
+        pillar: form.team[0] as Resource["pillar"],
+team: form.team.join(", "),
         reportingManager: "—",
         employeeType: "Full Time",
         availableAfter: new Date().toISOString().slice(0, 10),
@@ -549,8 +564,8 @@ export default function UserManagement() {
                 ...r,
                 name: form.name.trim(),
                 initials: makeInitials(form.name),
-                team: form.team,
-                pillar: form.team as Resource["pillar"],
+                team: form.team.join(", "),
+                pillar: form.team[0] as Resource["pillar"],
                 systemRole: form.systemRole,
               }
             : r,
