@@ -192,59 +192,6 @@ export default function DataTable<T extends object>({
         </Table>
       </div>
     </div>
-
-    {/* Fixed Pagination */}
-    <div className="shrink-0 border-t bg-background py-3">
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
-        <span>
-          Showing {sorted.length === 0 ? 0 : page * pageSize + 1} to{" "}
-          {Math.min((page + 1) * pageSize, sorted.length)} of {sorted.length}{" "}
-          entries
-        </span>
-
-        <div className="flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page === 0}
-            onClick={() => setPage(page - 1)}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-
-          {Array.from(
-            { length: Math.min(totalPages, 5) },
-            (_, i) => {
-              const p =
-                totalPages <= 5
-                  ? i
-                  : Math.max(0, Math.min(page - 2, totalPages - 5)) + i;
-
-              return (
-                <Button
-                  key={p}
-                  variant={p === page ? "default" : "outline"}
-                  size="sm"
-                  className="w-8 h-8"
-                  onClick={() => setPage(p)}
-                >
-                  {p + 1}
-                </Button>
-              );
-            }
-          )}
-
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page >= totalPages - 1}
-            onClick={() => setPage(page + 1)}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-    </div>
   </div>
   );
 }
