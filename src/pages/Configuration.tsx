@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ChevronDown,
   Pencil,
@@ -8,6 +8,7 @@ import {
   X,
   Settings,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -40,6 +41,7 @@ interface WorkflowConfig {
   name: string;
   description: string;
   sendForApproval: boolean;
+  sendForApprovalTo: string;
   notifyOnApprovalDenial: string;
   action?: "edit" | "delete" | null;
 }
@@ -70,57 +72,64 @@ const initialWorkflows: WorkflowConfig[] = [
   {
     id: "wf-1",
     isActive: true,
-    name: "Demand Approval – Data",
+    name: "New Demand Creation",
     description: "Approve demand for project by Data team",
     sendForApproval: true,
+    sendForApprovalTo: "Rajesh Kumar",
     notifyOnApprovalDenial: "Inder Johal",
   },
   {
     id: "wf-2",
     isActive: false,
-    name: "Resource Allocation – People",
+    name: "Resource Onboarding Request",
     description: "Resource allocation for project by People team",
     sendForApproval: false,
+    sendForApprovalTo: "Priya Sharma",
     notifyOnApprovalDenial: "Halterman, Lisa",
   },
   {
     id: "wf-3",
     isActive: false,
-    name: "Resource Allocation – Data",
+    name: "Allocation Change Request",
     description: "Resource allocation by Data team",
     sendForApproval: true,
+    sendForApprovalTo: "Michael Torres",
     notifyOnApprovalDenial: "Inder Johal",
   },
   {
     id: "wf-4",
     isActive: false,
-    name: "Budget Variance Approval – PMO",
+    name: "Budget Overrun Escalation",
     description: "Budget variance approval managed by PMO",
     sendForApproval: true,
+    sendForApprovalTo: "Sarah Mitchell",
     notifyOnApprovalDenial: "Halterman, Lisa",
   },
   {
     id: "wf-5",
     isActive: false,
-    name: "Vendor Communication",
+    name: "Vendor Engagement Approval",
     description: "Vendor communication workflow for procurement",
     sendForApproval: false,
+    sendForApprovalTo: "David Nguyen",
     notifyOnApprovalDenial: "Baltrusch, Kimberly",
   },
   {
     id: "wf-6",
     isActive: true,
-    name: "Project Kickoff Approval",
+    name: "Project Kickoff Sign-off",
     description: "Approval workflow triggered at project kickoff stage",
     sendForApproval: true,
+    sendForApprovalTo: "Anita Desai",
     notifyOnApprovalDenial: "Halterman, Lisa",
   },
   {
     id: "wf-7",
     isActive: false,
-    name: "Capacity Planning Review",
+    name: "Monthly Capacity Review",
     description: "Monthly capacity planning review and sign-off",
     sendForApproval: true,
+    sendForApprovalTo: "James Whitfield",
     notifyOnApprovalDenial: "Inder Johal",
   },
 ];
@@ -149,6 +158,7 @@ function WorkflowModal({ workflow, onClose, onSave }: WorkflowModalProps) {
       name: "",
       description: "",
       sendForApproval: false,
+      sendForApprovalTo: "",
       notifyOnApprovalDenial: "",
     },
   );
@@ -300,6 +310,25 @@ export default function Configuration() {
   const [deletingWorkflow, setDeletingWorkflow] =
     useState<WorkflowConfig | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [isLoadingSection, setIsLoadingSection] = useState(false);
+  const loadingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleObjectChange = (opt: ObjectType) => {
+    setSelectedObject(opt);
+    setDropdownOpen(false);
+    setIsLoadingSection(true);
+    if (loadingTimerRef.current) clearTimeout(loadingTimerRef.current);
+    loadingTimerRef.current = setTimeout(
+      () => setIsLoadingSection(false),
+      1200,
+    );
+  };
+
+  useEffect(() => {
+    return () => {
+      if (loadingTimerRef.current) clearTimeout(loadingTimerRef.current);
+    };
+  }, []);
 
   const filtered = workflows.filter(
     (wf) =>
@@ -358,8 +387,7 @@ export default function Configuration() {
                     <button
                       key={opt}
                       onClick={() => {
-                        setSelectedObject(opt);
-                        setDropdownOpen(false);
+                        handleObjectChange(opt);
                       }}
                       className={`w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors ${
                         opt === selectedObject
@@ -378,7 +406,16 @@ export default function Configuration() {
       </Card>
 
       {/* Content Panel */}
-      {selectedObject === "Workflow" ? (
+      {isLoadingSection ? (
+        <Card>
+          <CardContent className="py-20 flex flex-col items-center justify-center gap-4">
+            <Loader2 className="h-9 w-9 text-primary animate-spin" />
+            <p className="text-sm text-muted-foreground font-medium">
+              Fetching data from database...
+            </p>
+          </CardContent>
+        </Card>
+      ) : selectedObject === "Workflow" ? (
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
@@ -414,6 +451,7 @@ export default function Configuration() {
                       name: "",
                       description: "",
                       sendForApproval: false,
+                      sendForApprovalTo: "",
                       notifyOnApprovalDenial: "",
                     });
                     setShowModal(true);
@@ -436,9 +474,7 @@ export default function Configuration() {
                     </TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Description</TableHead>
-                    <TableHead className="text-center">
-                      Send For Approval
-                    </TableHead>
+                    <TableHead>Send For Approval</TableHead>
                     <TableHead>Notify On Approval / Denial</TableHead>
                     <TableHead className="text-center">Action</TableHead>
                   </TableRow>
@@ -485,16 +521,8 @@ export default function Configuration() {
                         </TableCell>
 
                         {/* Send For Approval */}
-                        <TableCell className="text-center">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              wf.sendForApproval
-                                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                                : "bg-muted text-muted-foreground"
-                            }`}
-                          >
-                            {wf.sendForApproval ? "Yes" : "No"}
-                          </span>
+                        <TableCell className="text-foreground">
+                          {wf.sendForApprovalTo || "—"}
                         </TableCell>
 
                         {/* Notify On Approval / Denial */}
