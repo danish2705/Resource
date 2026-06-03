@@ -782,6 +782,12 @@ export default function Mydashboard() {
     const saved = DashboardService.getForUser(user.id);
     if (saved.length === 0) return SEED_CARDS;
 
+    // Always include the Default View card at the top
+    const defaultCard: DashboardCard = {
+      ...SEED_CARDS[0],
+      isActive: false,
+    };
+
     // Convert saved dashboards to card format
     const savedCards: DashboardCard[] = saved.map((d) => ({
       id: d.id,
@@ -802,7 +808,7 @@ export default function Mydashboard() {
       isSharedWithMe: false,
     }));
 
-    return savedCards;
+    return [defaultCard, ...savedCards];
   }
 
   const [cards, setCards] = useState<DashboardCard[]>(() => buildCards());
@@ -855,6 +861,12 @@ export default function Mydashboard() {
   };
 
   const handleOpen = (id: string) => {
+    // For the Default View card, navigate with the special DEFAULT_VIEW_ID
+    // so Dashboard resets to its system baseline.
+    if (id === DEFAULT_VIEW_CARD_ID) {
+      navigate("/", { state: { viewId: "default" } });
+      return;
+    }
     // Mark this dashboard as active so it loads its config
     if (user) {
       // Deactivate others for same user, activate this one
@@ -864,7 +876,7 @@ export default function Mydashboard() {
       });
       DashboardService.update(id, { isActive: true });
     }
-    navigate("/");
+    navigate("/", { state: { viewId: id } });
   };
 
   const handleDuplicate = (id: string) => {
@@ -1009,7 +1021,7 @@ export default function Mydashboard() {
             <CheckCircle size={16} color="#10b981" />
             Dashboard configuration saved successfully. Your widgets and layout will reload on next visit.
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/", { state: { viewId: "default" } })}
               style={{ marginLeft: "auto", padding: "5px 14px", background: "#10b981", color: "#fff", border: "none", borderRadius: 7, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
             >
               View Dashboard
@@ -1111,7 +1123,7 @@ export default function Mydashboard() {
           <div style={{ marginLeft: "auto" }}>
             <button
               onClick={() => {
-                navigate("/");
+                navigate("/", { state: { viewId: "default" } });
               }}
               style={{
                 display: "flex",
@@ -1189,7 +1201,7 @@ export default function Mydashboard() {
               </div>
               <button
                 onClick={() => {
-                  navigate("/");
+                  navigate("/", { state: { viewId: "default" } });
                 }}
                 style={{
                   marginTop: 8,
@@ -1217,7 +1229,7 @@ export default function Mydashboard() {
               {/* Create new card */}
               <div
                 onClick={() => {
-                  navigate("/");
+                  navigate("/", { state: { viewId: "default" } });
                 }}
                 style={{
                   border: `2px dashed ${T.border}`,

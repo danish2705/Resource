@@ -91,12 +91,6 @@ const mainItems: NavItem[] = [
 
 const demandSubItems: NavItem[] = [
   {
-    title: "Create/Import Demand",
-    url: "/demand/create",
-    icon: PlusCircle,
-    permission: "create_demand",
-  },
-  {
     title: "Demand Summary & Allocation",
     url: "/demand",
     icon: ListChecks,

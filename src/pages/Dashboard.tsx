@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   BarChart, Bar, LineChart, Line, AreaChart, Area,
   PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid,
@@ -989,8 +989,8 @@ function renderRMWidget(id: string, axisProps: object, navigate: (path: string) 
       <CardShell title="Quick Actions">
         <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
           <QuickActionBtn icon={UserCheck} label="Assign Resource" color={T.blue} onClick={() => navigate("/demand")} />
+          <QuickActionBtn icon={CheckCircle} label="Allocation Review & Approval" color={T.green} onClick={() => navigate("/resource-review")} />
           <QuickActionBtn icon={Search} label="Resource Search" color={T.green} onClick={() => navigate("/resources")} />
-          <QuickActionBtn icon={Gauge} label="Capacity View" color={T.orange} onClick={() => navigate("/forecast")} />
           <QuickActionBtn icon={UserX} label="View Bench" color={T.amber} onClick={() => navigate("/resources")} />
         </div>
       </CardShell>
@@ -1253,6 +1253,7 @@ const DEFAULT_VIEW_NAME = "Default View";
 function RoleDashboard({ role }: { role: Role }) {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { persona, kpiDefs, widgetDefs } = getRoleDashConfig(role);
   const kpiIds = kpiDefs.map(k => k.id);
 
@@ -1283,6 +1284,21 @@ function RoleDashboard({ role }: { role: Role }) {
   useEffect(() => {
     refreshSavedViews();
   }, [user?.id, persona]);
+
+  // ─── Auto-select view when navigated from My Dashboard ────────────────────
+  useEffect(() => {
+    const state = location.state as { viewId?: string } | null;
+    if (!state?.viewId) return;
+    // Use setTimeout to ensure refreshSavedViews has settled its state
+    const id = state.viewId;
+    if (id === DEFAULT_VIEW_ID) {
+      handleSelectView(DEFAULT_VIEW_ID);
+    } else {
+      // Small defer so savedViews state is populated before we try to select
+      const timer = setTimeout(() => handleSelectView(id), 0);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
 
   // ─── Switch view ──────────────────────────────────────────────────────────
   function handleSelectView(id: string) {
