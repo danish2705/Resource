@@ -1609,10 +1609,10 @@ export default function ProjectPortfolio() {
 
       {/* Table */}
       <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
+  <CardContent className="p-0">
+    <div className="border rounded-md max-h-[500px] overflow-auto">
+      <Table className="min-w-[1400px]">
+        <TableHeader className="sticky top-0 z-10 bg-background">
                 <TableRow className="bg-muted/40">
                   <TableHead className="w-[90px]">Project ID</TableHead>
                   <TableHead className="w-[180px]">Project</TableHead>
@@ -1635,6 +1635,7 @@ export default function ProjectPortfolio() {
                   )}
                 </TableRow>
               </TableHeader>
+             
               <TableBody>
                 {filteredRows.length === 0 ? (
                   <TableRow>
