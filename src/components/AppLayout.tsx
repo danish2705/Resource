@@ -41,7 +41,7 @@ const resolvePageTitle = (pathname: string) => {
   if (
     pathname === "/" ||
     pathname === "/dashboard" ||
-    pathname === "/my-dashboard"
+    pathname === "/mydashboard"
   ) {
     return "Dashboard";
   }
@@ -66,6 +66,12 @@ const resolvePageTitle = (pathname: string) => {
 
   if (pathname.startsWith("/projects") || pathname.startsWith("/task-review")) {
     return "Projects";
+  }
+
+  /* Porfolio planning*/
+
+  if (pathname.startsWith("/project-portfolio") || pathname.startsWith("/scenario-planning")) {
+    return "Portfolio Planning";
   }
 
   /* REPORTING */
