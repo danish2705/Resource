@@ -271,24 +271,6 @@ export default function DemandSummary() {
     });
   };
 
-  // ── CHANGE 3: auto-open allocation after submit ───────────────────────────
-  // Fires once when the component mounts with ?allocate=<id> in the URL
-  // (set by CreateDemand after a successful single-form submission).
-  // Strips the param immediately so a refresh / back-nav doesn't re-trigger.
-  useEffect(() => {
-    const allocateId = searchParams.get("allocate");
-    if (!allocateId) return;
-
-    const target = demands.find((d) => d.id === allocateId);
-    if (!target) return;
-
-    openAllocation(target);
-    window.history.replaceState({}, "", window.location.pathname);
-    // openAllocation is stable (defined above, no deps that change);
-    // demands is intentionally in the dep array so we retry if the store
-    // hasn't hydrated yet on the very first render.
-  }, [searchParams, demands]);
-
   // ── Filtered data ──
   const filtered = useMemo(() => {
     const q = fSearch.toLowerCase();

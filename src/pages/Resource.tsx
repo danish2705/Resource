@@ -659,7 +659,13 @@ export function ResourceDialog({
 
   const navigate = useNavigate();
   const role = userRole;
-  const { updateDemand, updateReviewRequest, reviewRequests } = useStore();
+  const {
+    updateDemand,
+    updateReviewRequest,
+    reviewRequests,
+    addReviewRequest,
+    demands,
+  } = useStore();
   const { user } = useAuth();
 
   // ADD this after all your useState declarations:
@@ -715,21 +721,52 @@ export function ResourceDialog({
       });
 
       // 2. Update the matching ReviewRequest to Pending so RM/PMO can see it
+      //    If no ReviewRequest exists yet (bulk-created demand), create one.
       const matchingReview = reviewRequests.find(
         (r) => r.demandId === demandId,
       );
+      const dateLabel = new Date().toLocaleDateString("en-US", {
+        month: "2-digit",
+        day: "2-digit",
+        year: "numeric",
+      });
       if (matchingReview) {
         updateReviewRequest(matchingReview.id, {
           resourceName: finalResources,
           resourceCount: count,
           status: "Pending",
           requestedBy: user?.username ?? matchingReview.requestedBy,
-          requestedOn: new Date().toLocaleDateString("en-US", {
-            month: "2-digit",
-            day: "2-digit",
-            year: "numeric",
-          }),
+          requestedOn: dateLabel,
         });
+      } else {
+        // No ReviewRequest exists: create one now (bulk-imported demands)
+        const demand = demands.find((d) => d.id === demandId);
+        if (demand) {
+          addReviewRequest({
+            id: `rev-${Date.now()}`,
+            demandId,
+            requestedBy: user?.username ?? "Unknown",
+            requestedOn: dateLabel,
+            project: demand.projectName,
+            resourceName: finalResources,
+            projectRole: demand.projectRole || "TBD",
+            portfolio: demand.portfolio || "",
+            pillar: demand.pillar || "",
+            startDate: demand.startDate,
+            endDate: demand.endDate,
+            type: demand.type,
+            vendorName: demand.vendorName || "",
+            allocationPercent: demand.allocationPercent,
+            estimatedRate: demand.estimatedRate,
+            currentYearForecast: demand.currentYearForecast,
+            country: demand.country || "Sydney",
+            resourceCount: count,
+            status: "Pending" as const,
+            approvalHistory: [],
+            mailSubject: `Resource Review Required: ${demand.projectRole || "Resource"} – ${demand.projectName}`,
+            mailBody: `Hi Manager,\n\nA resource request has been submitted.\n\nProject: ${demand.projectName}\nRole: ${demand.projectRole || "TBD"}\nResource: ${finalResources}\n\nThank you,\nResource Management System`,
+          });
+        }
       }
 
       setIsSubmitting(false);

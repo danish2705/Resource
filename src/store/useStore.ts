@@ -64,10 +64,19 @@ export function __registerAuthStore(store: {
 
 // ─── Portfolio Project (from Scenario Planning) ───────────────────────────────
 
+export interface PortfolioResourcePlanEntry {
+  role: string;
+  noOfResources: number;
+  fromDate: string;
+  toDate: string;
+  billRate: number;
+}
+
 export interface PortfolioProject {
   id: string;
   projectId: string;
   project: string;
+  portfolio: string;
   priority: "Immediate" | "High" | "Medium" | "Low";
   owner: string;
   type: string;
@@ -84,6 +93,7 @@ export interface PortfolioProject {
   cost: number;
   variance: number;
   projectedBenefits: number;
+  resourcePlan?: PortfolioResourcePlanEntry[];
 }
 
 interface AppState {
@@ -303,9 +313,42 @@ export const useStore = create<AppState>()(
             oldValue: "",
             newValue: `status: ${d.status}`,
           }));
+          const currentUser = getAuthUser();
+          const userLabel = currentUser?.username ?? "admin@company.com";
+          const dateLabel = new Date().toLocaleDateString("en-US", {
+            month: "2-digit",
+            day: "2-digit",
+            year: "numeric",
+          });
+          // Create a ReviewRequest for each bulk demand so Resource Review & Status pages work
+          const newReviewRequests: ReviewRequest[] = newDemands.map((d) => ({
+            id: `rev-${Date.now()}-${d.id}`,
+            demandId: d.id,
+            requestedBy: userLabel,
+            requestedOn: dateLabel,
+            project: d.projectName,
+            resourceName: d.resourceName || "TBD",
+            projectRole: d.projectRole || "TBD",
+            portfolio: d.portfolio || "",
+            pillar: d.pillar || "",
+            startDate: d.startDate,
+            endDate: d.endDate,
+            type: d.type,
+            vendorName: d.vendorName || "",
+            allocationPercent: d.allocationPercent,
+            estimatedRate: d.estimatedRate,
+            currentYearForecast: d.currentYearForecast,
+            country: d.country || "Sydney",
+            resourceCount: d.resourceCount || 1,
+            status: "Pending" as const,
+            approvalHistory: [],
+            mailSubject: `Resource Review Required: ${d.projectRole || "Resource"} – ${d.projectName}`,
+            mailBody: `Hi Manager,\n\nA resource request has been submitted for your review and approval.\n\nProject: ${d.projectName}\nRole: ${d.projectRole || "TBD"}\nResource: ${d.resourceName || "TBD"}\nAllocation: ${d.allocationPercent}%\nPeriod: ${d.startDate} – ${d.endDate}\nEstimated Rate: $${d.estimatedRate}/hr\nForecast (Current Year): $${d.currentYearForecast}\n\nPlease review the details and approve or decline the request at your earliest convenience.\n\nThank you,\nResource Management System`,
+          }));
           return {
             demands: [...newDemands, ...state.demands], // ← prepend bulk
             auditLog: [...newAuditEntries, ...state.auditLog],
+            reviewRequests: [...newReviewRequests, ...state.reviewRequests],
           };
         }),
 
