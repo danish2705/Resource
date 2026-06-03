@@ -706,7 +706,7 @@ export default function DemandSummary() {
             )}
           </div>
 
-          <DataTable data={filtered} columns={columns} pageSize={5} />
+          <DataTable data={filtered} columns={columns} pageSize={10} />
         </CardContent>
       </Card>
 
