@@ -393,7 +393,6 @@ export default function ResourceReview() {
   };
 
   // PMO cannot approve before RM approval
-  
 
   const handleDecision = (decision: "Approved" | "Rejected") => {
     if (!selected) return;
@@ -412,7 +411,11 @@ export default function ResourceReview() {
         ? "rm"
         : user?.role === "pmo"
           ? "pmo"
-          : null;
+          : user?.role === "super_admin"
+            ? getApprovalStage(selected.status) === "rm"
+              ? "rm"
+              : "pmo"
+            : null;
     const stage = stageFromRole ?? getApprovalStage(selected.status);
     setSubmitting(true);
     setTimeout(() => {
@@ -619,7 +622,8 @@ export default function ResourceReview() {
 
                   const canApprove =
                     (user?.role === "resource_manager" && stage === "rm") ||
-                    (user?.role === "pmo" && stage === "pmo");
+                    (user?.role === "pmo" && stage === "pmo") ||
+                    (user?.role === "super_admin" && stage !== "done");
                   return (
                     <TableRow
                       key={req.id}
@@ -642,20 +646,20 @@ export default function ResourceReview() {
                         {req.requestedBy}
                       </TableCell>
                       <TableCell className="text-center">
-  <span
-    className={`font-medium ${
-      req.allocationPercent >= 100
-        ? "text-green-600"
-        : req.allocationPercent >= 75
-          ? "text-blue-600"
-          : req.allocationPercent >= 50
-            ? "text-amber-600"
-            : "text-red-600"
-    }`}
-  >
-    {req.allocationPercent}%
-  </span>
-</TableCell>
+                        <span
+                          className={`font-medium ${
+                            req.allocationPercent >= 100
+                              ? "text-green-600"
+                              : req.allocationPercent >= 75
+                                ? "text-blue-600"
+                                : req.allocationPercent >= 50
+                                  ? "text-amber-600"
+                                  : "text-red-600"
+                          }`}
+                        >
+                          {req.allocationPercent}%
+                        </span>
+                      </TableCell>
                       <TableCell className="text-sm">
                         {fmt(req.currentYearForecast)}
                       </TableCell>
@@ -727,56 +731,56 @@ export default function ResourceReview() {
                           {/* Stage 1 */}
                         </div>
                       </TableCell>
-                     <TableCell>
-  <div className="flex items-center justify-center gap-1">
-    {canAct && (
-      <>
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-8 px-3 text-xs text-green-700 border-green-300 hover:bg-green-50 hover:text-green-800"
-          disabled={!canApprove}
-          onClick={() => openAction(req, "approve")}
-        >
-          <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
-          Approve
-        </Button>
+                      <TableCell>
+                        <div className="flex items-center justify-center gap-1">
+                          {canAct && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-8 px-3 text-xs text-green-700 border-green-300 hover:bg-green-50 hover:text-green-800"
+                                disabled={!canApprove}
+                                onClick={() => openAction(req, "approve")}
+                              >
+                                <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+                                Approve
+                              </Button>
 
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-8 px-3 text-xs text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
-          disabled={!canApprove}
-          onClick={() => openAction(req, "reject")}
-        >
-          <XCircle className="h-3.5 w-3.5 mr-1" />
-          Reject
-        </Button>
-      </>
-    )}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-8 px-3 text-xs text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
+                                disabled={!canApprove}
+                                onClick={() => openAction(req, "reject")}
+                              >
+                                <XCircle className="h-3.5 w-3.5 mr-1" />
+                                Reject
+                              </Button>
+                            </>
+                          )}
 
-    <div className="flex items-center gap-0.5">
-      <Button
-        size="sm"
-        variant="ghost"
-        className="h-8 w-8 p-0"
-        title="View email"
-        onClick={() => setMailPreview(req)}
-      >
-        <Eye className="h-3.5 w-3.5" />
-      </Button>
+                          <div className="flex items-center gap-0.5">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 w-8 p-0"
+                              title="View email"
+                              onClick={() => setMailPreview(req)}
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                            </Button>
 
-      <Button
-        size="sm"
-        variant="ghost"
-        className="h-8 px-2"
-        onClick={() => openAction(req, "view")}
-      >
-        Details
-      </Button>
-    </div>
-  </div>
-</TableCell>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 px-2"
+                              onClick={() => openAction(req, "view")}
+                            >
+                              Details
+                            </Button>
+                          </div>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -824,14 +828,14 @@ export default function ResourceReview() {
                 </div>
                 <div className="space-y-3">
                   <DetailRow
-  label="Start Date"
-  value={formatDate(selected.startDate)}
-/>
+                    label="Start Date"
+                    value={formatDate(selected.startDate)}
+                  />
 
-<DetailRow
-  label="End Date"
-  value={formatDate(selected.endDate)}
-/>
+                  <DetailRow
+                    label="End Date"
+                    value={formatDate(selected.endDate)}
+                  />
                   <DetailRow
                     label="Allocation"
                     value={`${selected.allocationPercent}%`}
@@ -849,9 +853,9 @@ export default function ResourceReview() {
               <div className="border-t pt-4 text-sm space-y-2">
                 <DetailRow label="Requested By" value={selected.requestedBy} />
                 <DetailRow
-  label="Requested On"
-  value={formatDateTime(selected.requestedOn)}
-/>
+                  label="Requested On"
+                  value={formatDateTime(selected.requestedOn)}
+                />
               </div>
               {selected.approvalHistory.length > 0 && (
                 <div className="space-y-2">
@@ -905,7 +909,7 @@ export default function ResourceReview() {
             {dialogMode === "approve" && (
               <Button
                 className="bg-green-600 hover:bg-green-700 text-white"
-                                disabled={submitting}
+                disabled={submitting}
                 onClick={() => handleDecision("Approved")}
               >
                 {submitting

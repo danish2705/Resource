@@ -473,6 +473,7 @@ export default function ScenarioPlanning() {
     GeneratedScenario
   > | null>(null);
   const [openModal, setOpenModal] = useState<ScenarioType | null>(null);
+  const [rowErrors, setRowErrors] = useState<Set<string>>(new Set());
 
   const liveCost = useMemo(() => calcTotal(rows), [rows]);
   const liveDiff = liveCost - totalBudget;
@@ -498,6 +499,13 @@ export default function ScenarioPlanning() {
   }
 
   function handleSave(sendForApproval: boolean) {
+    // Validate: every row must have a role selected
+    const missingRole = new Set(rows.filter((r) => !r.role).map((r) => r.id));
+    if (missingRole.size > 0) {
+      setRowErrors(missingRole);
+      return;
+    }
+    setRowErrors(new Set());
     // Find the selected project's name from projectData
     const projectMeta = projectData.find((p) => p.id === selectedProject);
     const projectName =
@@ -768,10 +776,21 @@ export default function ScenarioPlanning() {
                       <div className="relative">
                         <select
                           value={row.role}
-                          onChange={(e) =>
-                            updateRow(row.id, { role: e.target.value })
-                          }
-                          className="w-full appearance-none bg-background border border-input rounded-lg text-foreground pl-3 pr-7 py-1.5 focus:outline-none focus:ring-2 focus:ring-ring text-sm"
+                          onChange={(e) => {
+                            updateRow(row.id, { role: e.target.value });
+                            if (e.target.value) {
+                              setRowErrors((prev) => {
+                                const next = new Set(prev);
+                                next.delete(row.id);
+                                return next;
+                              });
+                            }
+                          }}
+                          className={`w-full appearance-none bg-background border rounded-lg text-foreground pl-3 pr-7 py-1.5 focus:outline-none focus:ring-2 focus:ring-ring text-sm ${
+                            rowErrors.has(row.id)
+                              ? "border-red-500 focus:ring-red-500"
+                              : "border-input"
+                          }`}
                         >
                           <option value="">Select Role</option>
                           {ROLE_OPTIONS.map((r) => (
@@ -780,6 +799,11 @@ export default function ScenarioPlanning() {
                         </select>
                         <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" />
                       </div>
+                      {rowErrors.has(row.id) && (
+                        <p className="text-xs text-red-500 mt-1">
+                          Role is required
+                        </p>
+                      )}
                     </td>
 
                     {/* Counter */}

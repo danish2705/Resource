@@ -966,7 +966,7 @@ function CreateDemandDialog({
 export default function ProjectPortfolio() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { portfolioProjects, addDemands } = useStore();
+  const { portfolioProjects, addDemands, demands } = useStore();
   const masterPortfolios = useActiveValues("portfolios");
 
   const sendForApproval = location.state?.sendForApproval ?? false;
@@ -982,37 +982,82 @@ export default function ProjectPortfolio() {
 
   // Derive rows reactively from store — always picks up new saves from Scenario Planning
   const rows = useMemo<PortfolioRow[]>(() => {
-    const storeRows: PortfolioRow[] = (portfolioProjects ?? []).map((p) => ({
-      id: p.id,
-      projectId: p.projectId,
-      project: p.project,
-      portfolio: p.portfolio,
-      priority: p.priority,
-      owner: p.owner,
-      type: p.type,
-      status: statusOverrides[p.id] ?? p.status,
-      fromDate: p.fromDate,
-      toDate: p.toDate,
-      budget: p.budget,
-      cost: p.cost,
-      variance: p.variance,
-      projectedBenefits: p.projectedBenefits,
-      // Map scenario planning resource rows into the ResourcePlanEntry shape
-      resourcePlan: p.resourcePlan?.map((r) => ({
-        role: r.role,
-        required: r.noOfResources,
-        allocated: 0,
-        gap: r.noOfResources,
-        startDate: r.fromDate ? r.fromDate.split("-").reverse().join("-") : "",
-        endDate: r.toDate ? r.toDate.split("-").reverse().join("-") : "",
-      })),
-    }));
+    // Build lookup: projectName -> role -> count of approved demands
+    // Also track total approved per project (for TBD/unset roles)
+    const approvedStatuses = new Set([
+      "Approved",
+      "PMO Approved",
+      "RM Approved",
+    ]);
+
+    // projectName -> role -> count (role-specific)
+    const allocatedByRole: Record<string, Record<string, number>> = {};
+    // projectName -> total approved count (regardless of role)
+    const allocatedTotal: Record<string, number> = {};
+
+    for (const d of demands ?? []) {
+      if (!approvedStatuses.has(d.status)) continue;
+      const proj = d.projectName?.trim().toLowerCase();
+      if (!proj) continue;
+      // Always increment total for this project
+      allocatedTotal[proj] = (allocatedTotal[proj] ?? 0) + 1;
+      // Also track by role when role is known (not TBD/empty)
+      const role = d.projectRole?.trim().toLowerCase();
+      if (role && role !== "tbd") {
+        if (!allocatedByRole[proj]) allocatedByRole[proj] = {};
+        allocatedByRole[proj][role] = (allocatedByRole[proj][role] ?? 0) + 1;
+      }
+    }
+
+    const storeRows: PortfolioRow[] = (portfolioProjects ?? []).map((p) => {
+      const projKey = p.project?.trim().toLowerCase();
+      // How many approved demands remain to distribute across roles for this project
+      let remainingUnmatched = allocatedTotal[projKey] ?? 0;
+      return {
+        id: p.id,
+        projectId: p.projectId,
+        project: p.project,
+        portfolio: p.portfolio,
+        priority: p.priority,
+        owner: p.owner,
+        type: p.type,
+        status: statusOverrides[p.id] ?? p.status,
+        fromDate: p.fromDate,
+        toDate: p.toDate,
+        budget: p.budget,
+        cost: p.cost,
+        variance: p.variance,
+        projectedBenefits: p.projectedBenefits,
+        // Map scenario planning resource rows into the ResourcePlanEntry shape
+        resourcePlan: p.resourcePlan?.map((r) => {
+          const roleKey = r.role?.trim().toLowerCase();
+          // Prefer exact role match; fall back to unmatched pool (covers TBD demands)
+          const roleMatch = allocatedByRole[projKey]?.[roleKey] ?? 0;
+          const fallback =
+            roleMatch === 0 ? Math.min(remainingUnmatched, r.noOfResources) : 0;
+          if (fallback > 0) remainingUnmatched -= fallback;
+          const allocated = roleMatch + fallback;
+          const required = r.noOfResources;
+          const gap = Math.max(0, required - allocated);
+          return {
+            role: r.role,
+            required,
+            allocated,
+            gap,
+            startDate: r.fromDate
+              ? r.fromDate.split("-").reverse().join("-")
+              : "",
+            endDate: r.toDate ? r.toDate.split("-").reverse().join("-") : "",
+          };
+        }),
+      };
+    });
     const seedRows: PortfolioRow[] = SEED_ROWS.map((r) => ({
       ...r,
       status: statusOverrides[r.id] ?? r.status,
     }));
     return [...storeRows, ...seedRows];
-  }, [portfolioProjects, statusOverrides]);
+  }, [portfolioProjects, statusOverrides, demands]);
 
   const pendingRows = sendForApproval
     ? rows.filter((r) => !approvedIds.has(r.id) && !rejectedIds.has(r.id))
