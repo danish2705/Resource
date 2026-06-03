@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useStore } from "@/store/useStore";
 import { useAuth } from "@/auth/useAuth";
 import { hasPermission } from "@/auth/rbac";
@@ -174,10 +174,27 @@ function mapRowToDemand(
 
 export default function DemandSummary() {
   const navigate = useNavigate();
+  const location = useLocation();
   // ── CHANGE 1: read ?allocate=<id> query param ─────────────────────────────
   const [searchParams] = useSearchParams();
-
   const { demands, addDemands, deleteDemand } = useStore();
+
+  // ── Navigate-in from Project Portfolio ──────────────────────────────────────
+  useEffect(() => {
+    const state = location.state as {
+      fromPortfolio?: boolean;
+      projectNames?: string[];
+    } | null;
+    if (state?.fromPortfolio && state.projectNames?.length) {
+      const names = state.projectNames.join(", ");
+      toast.success(
+        `${state.projectNames.length} demand${state.projectNames.length > 1 ? "s" : ""} created with status Pending`,
+        { description: names },
+      );
+      // Clear state so re-visits don't re-toast
+      window.history.replaceState({}, "");
+    }
+  }, [location.state]);
   const { filterByPillar } = usePillarFilter();
   const visibleDemands = filterByPillar(demands);
   const { user } = useAuth();
@@ -186,7 +203,7 @@ export default function DemandSummary() {
   const pillars = useActiveValues("pillars");
   const roles = useActiveValues("roles");
   const locationOpts = useActiveValues("countries");
-
+  const canCreate = user ? hasPermission(user.role, "create_demand") : false;
   // ── Filters ──
   const [fSearch, setFSearch] = useState("");
   const [fProject, setFProject] = useState("all");
@@ -258,19 +275,19 @@ export default function DemandSummary() {
   // Fires once when the component mounts with ?allocate=<id> in the URL
   // (set by CreateDemand after a successful single-form submission).
   // Strips the param immediately so a refresh / back-nav doesn't re-trigger.
-  // useEffect(() => {
-  //   const allocateId = searchParams.get("allocate");
-  //   if (!allocateId) return;
+  useEffect(() => {
+    const allocateId = searchParams.get("allocate");
+    if (!allocateId) return;
 
-  //   const target = demands.find((d) => d.id === allocateId);
-  //   if (!target) return;
+    const target = demands.find((d) => d.id === allocateId);
+    if (!target) return;
 
-  //   openAllocation(target);
-  //   window.history.replaceState({}, "", window.location.pathname);
-  //   // openAllocation is stable (defined above, no deps that change);
-  //   // demands is intentionally in the dep array so we retry if the store
-  //   // hasn't hydrated yet on the very first render.
-  // }, [searchParams, demands]);
+    openAllocation(target);
+    window.history.replaceState({}, "", window.location.pathname);
+    // openAllocation is stable (defined above, no deps that change);
+    // demands is intentionally in the dep array so we retry if the store
+    // hasn't hydrated yet on the very first render.
+  }, [searchParams, demands]);
 
   // ── Filtered data ──
   const filtered = useMemo(() => {
@@ -594,6 +611,16 @@ export default function DemandSummary() {
               {visibleDemands.length} demands
             </p>
           </div>
+          {canCreate && (
+            <Button
+              size="sm"
+              className="h-9 gap-1.5"
+              onClick={() => navigate("/demand/create")}
+            >
+              <Plus className="h-3.5 w-3.5" />
+              New Demand
+            </Button>
+          )}
         </CardHeader>
 
         <CardContent>

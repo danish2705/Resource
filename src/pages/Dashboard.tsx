@@ -1252,6 +1252,7 @@ const DEFAULT_VIEW_NAME = "Default View";
 
 function RoleDashboard({ role }: { role: Role }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { persona, kpiDefs, widgetDefs } = getRoleDashConfig(role);
   const kpiIds = kpiDefs.map(k => k.id);
 
@@ -1338,16 +1339,15 @@ function RoleDashboard({ role }: { role: Role }) {
     setShowSaveDialog(true);
   };
 
-  // Dialog saved successfully → switch to the new saved view (DO NOT modify Default View)
+  // Dialog saved successfully → navigate to My Dashboard so the user sees their new view
   const handleDialogSaved = (dashId: string, dashName: string) => {
     setShowSaveDialog(false);
-    refreshSavedViews();
-    // Switch the active view to the newly saved dashboard
-    setActiveViewId(dashId);
-    setActiveViewName(dashName);
     // NOTE: We intentionally do NOT call saveConfig() here — the Default View
     // localStorage config must remain unchanged.  The saved view lives only in
     // DashboardService (SavedDashboard records).
+    navigate("/mydashboard", {
+      state: { fromSave: true, dashboardId: dashId, dashboardName: dashName },
+    });
   };
 
   return (
