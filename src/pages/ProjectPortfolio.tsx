@@ -1357,7 +1357,7 @@ export default function ProjectPortfolio() {
         />
       )}
 
-      {/* Header */}
+      {/* Heder */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Layers className="h-5 w-5 text-muted-foreground" />
