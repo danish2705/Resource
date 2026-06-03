@@ -299,17 +299,22 @@ export default function ResourceAllocation() {
   const columns = useMemo<Column<AllocationRow>[]>(
     () => [
       {
-        key: "resourceId",
-        header: "Resource ID",
-        render: (r) => (
-          <span className="text-xs font-medium">{r.resourceId}</span>
-        ),
-      },
-      {
         key: "projectId",
         header: "Project ID",
         render: (r) => (
           <span className="text-xs font-medium">{r.projectId}</span>
+        ),
+      },
+      {
+        key: "project",
+        header: "Project",
+        render: (r) => <ProjectCell row={r} onShowAll={handleAllocClick} />,
+      },
+      {
+        key: "resourceId",
+        header: "Resource ID",
+        render: (r) => (
+          <span className="text-xs font-medium">{r.resourceId}</span>
         ),
       },
       {
@@ -318,11 +323,6 @@ export default function ResourceAllocation() {
         render: (r) => (
           <span className="font-semibold text-foreground">{r.resource}</span>
         ),
-      },
-      {
-        key: "project",
-        header: "Project",
-        render: (r) => <ProjectCell row={r} onShowAll={handleAllocClick} />,
       },
       {
         key: "role",
