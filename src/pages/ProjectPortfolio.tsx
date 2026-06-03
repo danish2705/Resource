@@ -195,22 +195,27 @@ const SEED_ROWS: PortfolioRow[] = [
 // ─── Badge styles ─────────────────────────────────────────────────────────────
 
 const priorityStyle = (p: PortfolioRow["priority"]) => {
-  if (p === "Immediate") return "bg-red-500/80 text-white border-0 text-xs";
-  if (p === "High") return "bg-red-500/30 text-red-300 border-0 text-xs";
+  if (p === "Immediate")
+    return "bg-red-500 text-white border-0 text-xs font-semibold";
+  if (p === "High")
+    return "bg-red-100 text-red-700 dark:bg-red-500/30 dark:text-red-300 border-0 text-xs font-semibold";
   if (p === "Medium")
-    return "bg-orange-500/30 text-orange-300 border-0 text-xs";
-  return "bg-yellow-500/20 text-yellow-300 border-0 text-xs";
+    return "bg-orange-100 text-orange-700 dark:bg-orange-500/30 dark:text-orange-300 border-0 text-xs font-semibold";
+  return "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300 border-0 text-xs font-semibold";
 };
 
 const statusStyle = (s: ApprovalStatus) => {
-  if (s === "Active") return "bg-green-500/20 text-green-400 border-0 text-xs";
-  if (s === "Approved") return "bg-blue-500/20 text-blue-400 border-0 text-xs";
+  if (s === "Active")
+    return "bg-green-100  text-green-700  dark:bg-green-500/20  dark:text-green-400  border-0 text-xs font-medium";
+  if (s === "Approved")
+    return "bg-blue-100   text-blue-700   dark:bg-blue-500/20   dark:text-blue-400   border-0 text-xs font-medium";
   if (s === "Proposed")
-    return "bg-purple-500/20 text-purple-400 border-0 text-xs";
-  if (s === "Rejected") return "bg-red-500/20 text-red-400 border-0 text-xs";
+    return "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 border-0 text-xs font-medium";
+  if (s === "Rejected")
+    return "bg-red-100    text-red-700    dark:bg-red-500/20    dark:text-red-400    border-0 text-xs font-medium";
   if (s === "Approved - Backlog")
-    return "bg-teal-500/20 text-teal-400 border-0 text-xs";
-  return "bg-muted/60 text-muted-foreground border-0 text-xs";
+    return "bg-teal-100  text-teal-700   dark:bg-teal-500/20   dark:text-teal-400   border-0 text-xs font-medium";
+  return "bg-muted/60 text-muted-foreground border-0 text-xs font-medium";
 };
 
 // ─── Project Detail Modal ─────────────────────────────────────────────────────
