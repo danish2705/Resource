@@ -12,9 +12,7 @@ import {
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-import {
-  SidebarProvider,
-} from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 import { AppSidebar } from "@/components/AppSidebar";
 
@@ -35,14 +33,9 @@ import { Badge } from "@/components/ui/badge";
 
 import { toast } from "sonner";
 
-import {
-  useState,
-  useEffect,
-} from "react";
+import { useState, useEffect } from "react";
 
-const resolvePageTitle = (
-  pathname: string,
-) => {
+const resolvePageTitle = (pathname: string) => {
   /* DASHBOARD */
 
   if (
@@ -55,96 +48,55 @@ const resolvePageTitle = (
 
   /* RESOURCES */
 
-  if (
-    pathname.startsWith(
-      "/resources",
-    )
-  ) {
+  if (pathname.startsWith("/resources")) {
     return "Resource Information";
   }
 
   /* DEMAND & ALLOCATION */
 
   if (
-    pathname.startsWith(
-      "/demand",
-    ) ||
-    pathname.startsWith(
-      "/create-demand",
-    ) ||
-    pathname.startsWith(
-      "/resource-review",
-    )
+    pathname.startsWith("/demand") ||
+    pathname.startsWith("/create-demand") ||
+    pathname.startsWith("/resource-review")
   ) {
     return "Demand & Allocation";
   }
 
   /* PROJECTS */
 
-  if (
-    pathname.startsWith(
-      "/projects",
-    ) ||
-    pathname.startsWith(
-      "/task-review",
-    )
-  ) {
+  if (pathname.startsWith("/projects") || pathname.startsWith("/task-review")) {
     return "Projects";
   }
 
   /* REPORTING */
 
-  if (
-    pathname.startsWith(
-      "/reports",
-    )
-  ) {
+  if (pathname.startsWith("/reports")) {
     return "Reporting & Analytics";
   }
 
   /* USER MANAGEMENT */
 
-  if (
-    pathname.startsWith(
-      "/user-management",
-    )
-  ) {
+  if (pathname.startsWith("/user-management")) {
     return "User Management";
   }
 
   /* PROFILE */
 
-  if (
-    pathname.startsWith(
-      "/profile",
-    )
-  ) {
+  if (pathname.startsWith("/profile")) {
     return "My Profile";
   }
 
   /* MY ALLOCATIONS */
 
-  if (
-    pathname.startsWith(
-      "/my-allocations",
-    )
-  ) {
+  if (pathname.startsWith("/my-allocations")) {
     return "My Allocations";
   }
 
-  if (
-    pathname.startsWith(
-      "/allocation",
-    )
-  ) {
+  if (pathname.startsWith("/allocation")) {
     return "Allocation Details";
   }
 
-  if (
-    pathname.startsWith(
-      "/audit-log",
-    )
-  ) {
+  if (pathname.startsWith("/audit-log")) {
     return "Audit Log";
   }
 
@@ -159,57 +111,30 @@ const initials = (n: string) =>
     .join("")
     .toUpperCase();
 
-function LayoutContent({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function LayoutContent({ children }: { children: React.ReactNode }) {
   const location = useLocation();
 
   const navigate = useNavigate();
 
-  const title = resolvePageTitle(
-    location.pathname,
-  );
+  const title = resolvePageTitle(location.pathname);
 
-  const { user, logout } =
-    useAuth();
+  const { user, logout } = useAuth();
 
-  const [darkMode, setDarkMode] =
-    useState(() => {
-      return (
-        localStorage.getItem(
-          "theme",
-        ) === "dark"
-      );
-    });
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem("theme") === "dark";
+  });
 
-  const [
-    lastUpdated,
-    setLastUpdated,
-  ] = useState<Date>(
-    new Date(),
-  );
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   useEffect(() => {
     if (darkMode) {
-      document.documentElement.classList.add(
-        "dark",
-      );
+      document.documentElement.classList.add("dark");
 
-      localStorage.setItem(
-        "theme",
-        "dark",
-      );
+      localStorage.setItem("theme", "dark");
     } else {
-      document.documentElement.classList.remove(
-        "dark",
-      );
+      document.documentElement.classList.remove("dark");
 
-      localStorage.setItem(
-        "theme",
-        "light",
-      );
+      localStorage.setItem("theme", "light");
     }
   }, [darkMode]);
 
@@ -222,40 +147,27 @@ function LayoutContent({
   const handleLogout = () => {
     logout();
 
-    toast.success(
-      "Logged out successfully",
-    );
+    toast.success("Logged out successfully");
 
     navigate("/login", {
       replace: true,
     });
   };
 
-  const formatLastUpdated = (
-    date: Date,
-  ) => {
-    return date.toLocaleString(
-      "en-AU",
-      {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      },
-    );
+  const formatLastUpdated = (date: Date) => {
+    return date.toLocaleString("en-AU", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
   };
 
-  const displayName = user
-    ? ROLE_LABELS[user.role]
-    : "";
+  const displayName = user ? ROLE_LABELS[user.role] : "";
 
-  const avatarText = user
-    ? initials(
-        ROLE_LABELS[user.role],
-      )
-    : "??";
+  const avatarText = user ? user.username.charAt(0).toUpperCase() : "??";
 
   return (
     <div
@@ -384,14 +296,9 @@ function LayoutContent({
                 </Avatar>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent
-                align="end"
-                className="w-64"
-              >
+              <DropdownMenuContent align="end" className="w-64">
                 <DropdownMenuLabel className="flex flex-col gap-1 py-2">
-                  <span className="font-semibold">
-                    {displayName}
-                  </span>
+                  <span className="font-semibold">{displayName}</span>
 
                   <span
                     className="
@@ -404,20 +311,12 @@ function LayoutContent({
                   </span>
 
                   <div className="mt-1 flex items-center gap-2">
-                    <Badge
-                      variant="secondary"
-                      className="text-xs"
-                    >
+                    <Badge variant="secondary" className="text-xs">
                       {displayName}
                     </Badge>
 
-                    <Badge
-                      variant="outline"
-                      className="text-xs"
-                    >
-                      Portfolio:
-                      {" "}
-                      {user?.portfolio}
+                    <Badge variant="outline" className="text-xs">
+                      Portfolio: {user?.portfolio}
                     </Badge>
                   </div>
                 </DropdownMenuLabel>
@@ -430,11 +329,7 @@ function LayoutContent({
                   onClick={(e) => {
                     e.preventDefault();
 
-                    setDarkMode(
-                      (
-                        prev,
-                      ) => !prev,
-                    );
+                    setDarkMode((prev) => !prev);
                   }}
                   className="cursor-pointer"
                 >
@@ -444,38 +339,22 @@ function LayoutContent({
                     <Moon className="mr-2 h-4 w-4" />
                   )}
 
-                  {darkMode
-                    ? "Light Mode"
-                    : "Dark Mode"}
+                  {darkMode ? "Light Mode" : "Dark Mode"}
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
 
                 {/* PROFILE */}
 
-                <DropdownMenuItem
-                  onClick={() =>
-                    navigate(
-                      "/profile",
-                    )
-                  }
-                >
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
                   <UserIcon className="mr-2 h-4 w-4" />
-
                   My Profile
                 </DropdownMenuItem>
 
                 {/* ALLOCATIONS */}
 
-                <DropdownMenuItem
-                  onClick={() =>
-                    navigate(
-                      "/my-allocations",
-                    )
-                  }
-                >
+                <DropdownMenuItem onClick={() => navigate("/my-allocations")}>
                   <ListChecks className="mr-2 h-4 w-4" />
-
                   My Allocations
                 </DropdownMenuItem>
 
@@ -484,9 +363,7 @@ function LayoutContent({
                 {/* LOGOUT */}
 
                 <DropdownMenuItem
-                  onClick={
-                    handleLogout
-                  }
+                  onClick={handleLogout}
                   className="
                     cursor-pointer
                     font-medium
@@ -498,7 +375,6 @@ function LayoutContent({
                   "
                 >
                   <LogOut className="mr-2 h-4 w-4 text-red-500" />
-
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -526,16 +402,10 @@ function LayoutContent({
   );
 }
 
-export default function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
-      <LayoutContent>
-        {children}
-      </LayoutContent>
+      <LayoutContent>{children}</LayoutContent>
     </SidebarProvider>
   );
 }

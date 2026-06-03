@@ -17,44 +17,44 @@ const CREDENTIALS: Array<{
   user: AuthUser;
 }> = [
   {
-    username: "super",
-    password: "super",
+    username: "bob",
+    password: "bob",
     user: {
       id: "auth-1",
-      username: "super",
+      username: "bob",
       role: "super_admin",
       portfolio: "Global",
       pillar: null,
     },
   },
   {
-    username: "pmo",
-    password: "pmo",
+    username: "tom",
+    password: "tom",
     user: {
       id: "auth-2",
-      username: "pmo",
+      username: "tom",
       role: "pmo",
       portfolio: "Hi-tech",
       pillar: "Hi-tech",
     },
   },
   {
-    username: "resm",
-    password: "resm",
+    username: "sam",
+    password: "sam",
     user: {
       id: "auth-3",
-      username: "resm",
+      username: "sam",
       role: "resource_manager",
       portfolio: "Banking",
       pillar: "Hi-tech",
     },
   },
   {
-    username: "reso",
-    password: "reso",
+    username: "zoi",
+    password: "zoi",
     user: {
       id: "auth-4",
-      username: "reso",
+      username: "zoi",
       role: "resource",
       portfolio: "Healthcare",
       pillar: "Healthcare",

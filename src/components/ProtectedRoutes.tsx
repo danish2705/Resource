@@ -9,9 +9,15 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
   /** If provided, user must have this permission or sees a 403 screen */
   permission?: Permission;
+  /** If provided, users with these roles see a 403 screen */
+  excludeRoles?: string[];
 }
 
-export function ProtectedRoute({ children, permission }: ProtectedRouteProps) {
+export function ProtectedRoute({
+  children,
+  permission,
+  excludeRoles,
+}: ProtectedRouteProps) {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
 
@@ -20,6 +26,10 @@ export function ProtectedRoute({ children, permission }: ProtectedRouteProps) {
   }
 
   if (permission && user && !hasPermission(user.role, permission)) {
+    return <AccessDenied />;
+  }
+
+  if (excludeRoles && user && excludeRoles.includes(user.role)) {
     return <AccessDenied />;
   }
 

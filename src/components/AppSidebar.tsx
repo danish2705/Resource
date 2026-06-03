@@ -59,6 +59,7 @@ interface NavItem {
   }>;
   end?: boolean;
   permission?: Permission;
+  excludeRoles?: string[];
 }
 
 const dashboardSubItems: NavItem[] = [
@@ -141,10 +142,11 @@ const projectSubItems: NavItem[] = [
 
 const lowerItems: NavItem[] = [
   {
-    title: "Budget Forecasting",
-    url: "/budget-forecasting",
-    icon: DollarSign,
+    title: "Scenario Planning",
+    url: "/scenario-planning",
+    icon: TrendingUp,
     permission: "view_reporting",
+    excludeRoles: ["resource"],
   },
   {
     title: "Reporting & Analytics",
@@ -175,10 +177,12 @@ export function AppSidebar() {
 
   const { user } = useAuth();
 
-  const can = (permission?: Permission) => {
+  const can = (permission?: Permission, excludeRoles?: string[]) => {
     if (!permission) return true;
 
     if (!user) return false;
+
+    if (excludeRoles && excludeRoles.includes(user.role)) return false;
 
     return hasPermission(user.role, permission);
   };
@@ -215,7 +219,7 @@ export function AppSidebar() {
     "opacity-60 cursor-not-allowed pointer-events-none select-none";
 
   const renderNavItem = (item: NavItem) => {
-    const allowed = can(item.permission);
+    const allowed = can(item.permission, item.excludeRoles);
 
     if (allowed) {
       return (

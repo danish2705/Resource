@@ -61,7 +61,7 @@ export default function LoginPage() {
 
     await new Promise((r) => setTimeout(r, 500));
 
-    const result = login("super", "super");
+    const result = login("bob", "bob");
 
     setLoading(false);
 
@@ -78,31 +78,29 @@ export default function LoginPage() {
         <div className="w-full max-w-md flex flex-col">
           {/* Brand Section */}
           <div className="flex flex-col items-center mb-5">
-  <div className="relative mb-3">
-    <div className="h-16 w-16 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-xl">
-      <Layers3 className="h-8 w-8" />
-    </div>
+            <div className="relative mb-3">
+              <div className="h-16 w-16 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-xl">
+                <Layers3 className="h-8 w-8" />
+              </div>
 
-    <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-background border border-border flex items-center justify-center shadow-sm">
-      <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-    </div>
-  </div>
+              <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-background border border-border flex items-center justify-center shadow-sm">
+                <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+              </div>
+            </div>
 
-  <h1 className="text-2xl md:text-[28px] font-bold tracking-tight text-center text-foreground leading-tight max-w-md">
-    Enterprise Resource Management
-  </h1>
+            <h1 className="text-2xl md:text-[28px] font-bold tracking-tight text-center text-foreground leading-tight max-w-md">
+              Enterprise Resource Management
+            </h1>
 
-  <p className="text-sm text-muted-foreground text-center mt-2">
-    Secure workforce planning and allocation platform
-  </p>
-</div>
+            <p className="text-sm text-muted-foreground text-center mt-2">
+              Secure workforce planning and allocation platform
+            </p>
+          </div>
 
           {/* Login Card */}
           <Card className="shadow-2xl border-border/50 backdrop-blur-sm">
             <CardHeader className="pb-4">
-              <CardTitle className="text-xl">
-                Welcome back
-              </CardTitle>
+              <CardTitle className="text-xl">Welcome back</CardTitle>
 
               <CardDescription>
                 Enter your credentials to continue
@@ -113,9 +111,7 @@ export default function LoginPage() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Username */}
                 <div className="space-y-2">
-                  <Label htmlFor="username">
-                    Username
-                  </Label>
+                  <Label htmlFor="username">Username</Label>
 
                   <Input
                     id="username"
@@ -131,9 +127,7 @@ export default function LoginPage() {
 
                 {/* Password */}
                 <div className="space-y-2">
-                  <Label htmlFor="password">
-                    Password
-                  </Label>
+                  <Label htmlFor="password">Password</Label>
 
                   <div className="relative">
                     <Input
@@ -226,25 +220,17 @@ export default function LoginPage() {
               </p>
 
               <div className="grid grid-cols-2 gap-y-2 text-xs text-muted-foreground">
-                <span className="font-medium">
-                  Super Admin
-                </span>
-                <span>super / super</span>
+                <span className="font-medium">Super Admin</span>
+                <span>bob / bob</span>
 
-                <span className="font-medium">
-                  PMO
-                </span>
-                <span>pmo / pmo</span>
+                <span className="font-medium">PMO</span>
+                <span>tom / tom</span>
 
-                <span className="font-medium">
-                  Resource Manager
-                </span>
-                <span>resm / resm</span>
+                <span className="font-medium">Resource Manager</span>
+                <span>sam / sam</span>
 
-                <span className="font-medium">
-                  Resource
-                </span>
-                <span>reso / reso</span>
+                <span className="font-medium">Resource</span>
+                <span>zoi / zoi</span>
               </div>
             </CardContent>
           </Card>

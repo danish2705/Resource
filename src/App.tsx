@@ -22,7 +22,7 @@ import ProjectsPage from "./pages/Projects";
 import ResourceReview from "@/pages/ResourceReview";
 import AuditLog from "@/pages/AuditLog";
 import TaskReviewApproval from "@/pages/TaskReviewApproval";
-import BudgetForecasting from "@/pages/BudgetForecasting";
+import ScenarioPlanning from "@/pages/ScenarioPlanning";
 
 import { useAuth } from "@/auth/useAuth";
 
@@ -81,10 +81,13 @@ const App = () => (
                       }
                     />
                     <Route
-                      path="/budget-forecasting"
+                      path="/scenario-planning"
                       element={
-                        <ProtectedRoute permission="view_reporting">
-                          <BudgetForecasting />
+                        <ProtectedRoute
+                          permission="view_reporting"
+                          excludeRoles={["resource"]}
+                        >
+                          <ScenarioPlanning />
                         </ProtectedRoute>
                       }
                     />
