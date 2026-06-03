@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import UserManagement from "@/pages/UserManagement";
+import MasterDataManagement from "@/pages/MasterDataManagement";
 
 import AppLayout from "@/components/AppLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoutes";
@@ -204,6 +205,15 @@ const App = () => (
                       element={
                         <ProtectedRoute permission="manage_users">
                           <UserManagement />
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    <Route
+                      path="/admin/master-data"
+                      element={
+                        <ProtectedRoute permission="manage_master_data">
+                          <MasterDataManagement />
                         </ProtectedRoute>
                       }
                     />

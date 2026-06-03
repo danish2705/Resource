@@ -18,6 +18,8 @@ import {
   UserCog,
   DollarSign,
   FolderKanban,
+  Database,
+  ShieldAlert,
 } from "lucide-react";
 
 import {
@@ -152,8 +154,22 @@ const portfolioSubItems: NavItem[] = [
   },
 ];
 
-const lowerItems: NavItem[] = [
+const adminSubItems: NavItem[] = [
   {
+    title: "User Management",
+    url: "/user-management",
+    icon: UserCog,
+    permission: "manage_users",
+  },
+  {
+    title: "Master Data Management",
+    url: "/admin/master-data",
+    icon: Database,
+    permission: "manage_master_data",
+  },
+];
+
+const lowerItems: NavItem[] = [  {
     title: "Reporting & Analytics",
     url: "/reports",
     icon: BarChart3,
@@ -164,12 +180,6 @@ const lowerItems: NavItem[] = [
     url: "/audit-log",
     icon: ScrollText,
     permission: "view_audit_logs",
-  },
-  {
-    title: "User Management",
-    url: "/user-management",
-    icon: UserCog,
-    permission: "manage_users",
   },
 ];
 
@@ -216,6 +226,12 @@ export function AppSidebar() {
     location.pathname === "/" || location.pathname.startsWith("/mydashboard");
 
   const [dashboardOpen, setDashboardOpen] = useState(dashboardActive);
+
+  const adminActive =
+    location.pathname.startsWith("/user-management") ||
+    location.pathname.startsWith("/admin/");
+
+  const [adminOpen, setAdminOpen] = useState(adminActive);
 
   const linkBase =
     "flex items-center gap-2 w-full transition-colors rounded-md";
@@ -688,6 +704,66 @@ export function AppSidebar() {
               )}
 
               {lowerItems.map(renderNavItem)}
+
+              {/* Admin */}
+              {can("manage_users") ? (
+                <Collapsible
+                  open={collapsed ? false : adminOpen}
+                  onOpenChange={setAdminOpen}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton
+                        tooltip="Admin"
+                        className={adminActive ? linkActive : linkInactive}
+                      >
+                        <ShieldAlert className="h-4 w-4 shrink-0" />
+
+                        {!collapsed && (
+                          <>
+                            <span>Admin</span>
+
+                            <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                          </>
+                        )}
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+
+                    {!collapsed && (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {adminSubItems.map(renderSubItem)}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    )}
+                  </SidebarMenuItem>
+                </Collapsible>
+              ) : (
+                <SidebarMenuItem>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div
+                        className={`${linkBase} ${linkDisabled} px-2 py-1.5 text-sm text-sidebar-foreground/60`}
+                      >
+                        <ShieldAlert className="h-4 w-4 shrink-0" />
+
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1">Admin</span>
+
+                            <Lock className="h-3 w-3 ml-auto opacity-60" />
+                          </>
+                        )}
+                      </div>
+                    </TooltipTrigger>
+
+                    <TooltipContent side="right" className="text-xs">
+                      You don't have access to Admin
+                    </TooltipContent>
+                  </Tooltip>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
