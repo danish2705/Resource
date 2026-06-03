@@ -25,7 +25,6 @@ import AuditLog from "@/pages/AuditLog";
 import TaskReviewApproval from "@/pages/TaskReviewApproval";
 import ScenarioPlanning from "@/pages/ScenarioPlanning";
 import ProjectPortfolio from "@/pages/ProjectPortfolio";
-import Training from "@/pages/Training";
 
 import { useAuth } from "@/auth/useAuth";
 
@@ -220,9 +219,6 @@ const App = () => (
                     />
 
                     <Route path="/mydashboard" element={<Mydashboard />} />
-
-                    <Route path="/training" element={<Training />} />
-
                     {/* Fallback Route */}
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
