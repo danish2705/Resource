@@ -14,6 +14,10 @@ import {
   DollarSign,
   TrendingUp,
   BarChart3,
+  Search,
+  Filter,
+  ChevronDown,
+  RotateCcw,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -77,6 +81,14 @@ const fmtShort = (n: number) => {
   if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
   if (Math.abs(n) >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
   return `$${n}`;
+};
+
+// Parse DD-MM-YYYY to a comparable Date
+const parseDate = (ddmmyyyy: string): Date | null => {
+  const parts = ddmmyyyy.split("-");
+  if (parts.length !== 3) return null;
+  const [d, m, y] = parts;
+  return new Date(`${y}-${m}-${d}`);
 };
 
 // ─── Seed Data ────────────────────────────────────────────────────────────────
@@ -450,17 +462,135 @@ const priorityStyle = (p: PortfolioRow["priority"]) => {
 
 const statusStyle = (s: ApprovalStatus) => {
   if (s === "Active")
-    return "bg-green-100  text-green-700  dark:bg-green-500/20  dark:text-green-400  border-0 text-xs font-medium";
+    return "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border-0 text-xs font-medium";
   if (s === "Approved")
-    return "bg-blue-100   text-blue-700   dark:bg-blue-500/20   dark:text-blue-400   border-0 text-xs font-medium";
+    return "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border-0 text-xs font-medium";
   if (s === "Proposed")
     return "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 border-0 text-xs font-medium";
   if (s === "Rejected")
-    return "bg-red-100    text-red-700    dark:bg-red-500/20    dark:text-red-400    border-0 text-xs font-medium";
+    return "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 border-0 text-xs font-medium";
   if (s === "Approved - Backlog")
-    return "bg-teal-100  text-teal-700   dark:bg-teal-500/20   dark:text-teal-400   border-0 text-xs font-medium";
+    return "bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-400 border-0 text-xs font-medium";
   return "bg-muted/60 text-muted-foreground border-0 text-xs font-medium";
 };
+
+// ─── Filter State Type ────────────────────────────────────────────────────────
+
+interface FilterState {
+  search: string;
+  priorities: Set<string>;
+  statuses: Set<string>;
+  types: Set<string>;
+  owners: Set<string>;
+  startDateFrom: string;
+  startDateTo: string;
+  endDateFrom: string;
+  endDateTo: string;
+  varianceFilter: "all" | "over" | "under";
+}
+
+const defaultFilters = (): FilterState => ({
+  search: "",
+  priorities: new Set(),
+  statuses: new Set(),
+  types: new Set(),
+  owners: new Set(),
+  startDateFrom: "",
+  startDateTo: "",
+  endDateFrom: "",
+  endDateTo: "",
+  varianceFilter: "all",
+});
+
+// ─── Multi-select Dropdown ────────────────────────────────────────────────────
+
+function MultiSelectDropdown({
+  label,
+  options,
+  selected,
+  onChange,
+}: {
+  label: string;
+  options: string[];
+  selected: Set<string>;
+  onChange: (next: Set<string>) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useMemo(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const toggle = (val: string) => {
+    const next = new Set(selected);
+    next.has(val) ? next.delete(val) : next.add(val);
+    onChange(next);
+  };
+
+  const count = selected.size;
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors whitespace-nowrap
+          ${
+            count > 0
+              ? "border-primary/50 bg-primary/10 text-primary"
+              : "border-border bg-card text-muted-foreground hover:text-foreground hover:border-border/80"
+          }`}
+      >
+        {label}
+        {count > 0 && (
+          <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold">
+            {count}
+          </span>
+        )}
+        <ChevronDown
+          className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {open && (
+        <div className="absolute top-full mt-1 left-0 z-50 min-w-[180px] bg-card border border-border rounded-xl shadow-xl overflow-hidden">
+          <div className="p-1">
+            {options.map((opt) => (
+              <label
+                key={opt}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted/60 cursor-pointer transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  checked={selected.has(opt)}
+                  onChange={() => toggle(opt)}
+                  className="w-3.5 h-3.5 accent-primary cursor-pointer"
+                />
+                <span className="text-xs text-foreground">{opt}</span>
+              </label>
+            ))}
+          </div>
+          {count > 0 && (
+            <div className="border-t border-border px-3 py-2">
+              <button
+                onClick={() => onChange(new Set())}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Clear all
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── Project Detail Modal ─────────────────────────────────────────────────────
 
@@ -490,7 +620,6 @@ function ProjectDetailModal({
         onClick={onClose}
       />
       <div className="relative bg-card border border-border rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        {/* Header */}
         <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between rounded-t-2xl">
           <div>
             <div className="flex items-center gap-2 mb-0.5">
@@ -515,25 +644,16 @@ function ProjectDetailModal({
           </button>
         </div>
 
-        {/* Tabs */}
         <div className="flex border-b border-border px-6 gap-1 bg-card">
           <button
             onClick={() => setActiveTab("overview")}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
-              activeTab === "overview"
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${activeTab === "overview" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
           >
             Overview
           </button>
           <button
             onClick={() => setActiveTab("resource-plan")}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-1.5 ${
-              activeTab === "resource-plan"
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-1.5 ${activeTab === "resource-plan" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
           >
             Resource Plan
             {totalGap > 0 && (
@@ -544,11 +664,9 @@ function ProjectDetailModal({
           </button>
         </div>
 
-        {/* Body */}
         <div className="p-6 space-y-5">
           {activeTab === "overview" ? (
             <>
-              {/* Budget vs Target bar */}
               <div className="bg-muted/40 border border-border rounded-xl p-4">
                 <div className="flex items-center justify-between mb-1">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
@@ -586,8 +704,6 @@ function ProjectDetailModal({
                   </span>
                 </div>
               </div>
-
-              {/* KPI grid */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-muted/40 border border-border rounded-xl p-4">
                   <p className="text-xs text-muted-foreground mb-1">
@@ -622,8 +738,6 @@ function ProjectDetailModal({
                   </p>
                 </div>
               </div>
-
-              {/* Actuals bar */}
               <div className="bg-muted/40 border border-border rounded-xl p-4">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
                   Actuals
@@ -650,8 +764,6 @@ function ProjectDetailModal({
                   </span>
                 </div>
               </div>
-
-              {/* Project details grid */}
               <div className="grid grid-cols-3 gap-3">
                 {[
                   { label: "Project Owner", value: row.owner },
@@ -676,9 +788,7 @@ function ProjectDetailModal({
               </div>
             </>
           ) : (
-            /* ── Resource Plan Tab ── */
             <>
-              {/* Summary KPIs */}
               <div className="grid grid-cols-3 gap-3">
                 <div className="bg-muted/40 border border-border rounded-xl p-4 text-center">
                   <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide font-medium">
@@ -718,8 +828,6 @@ function ProjectDetailModal({
                   </p>
                 </div>
               </div>
-
-              {/* Allocation progress bar */}
               <div className="bg-muted/40 border border-border rounded-xl p-4">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
@@ -741,8 +849,6 @@ function ProjectDetailModal({
                   />
                 </div>
               </div>
-
-              {/* Role breakdown table */}
               {row.resourcePlan && row.resourcePlan.length > 0 ? (
                 <div className="rounded-xl border border-border overflow-hidden">
                   <table className="w-full text-sm">
@@ -833,10 +939,7 @@ function CreateDemandDialog({
   const allSelected = selected.size === rows.length;
   const someSelected = selected.size > 0 && !allSelected;
 
-  // keep indeterminate in sync
-  if (selectAllRef.current) {
-    selectAllRef.current.indeterminate = someSelected;
-  }
+  if (selectAllRef.current) selectAllRef.current.indeterminate = someSelected;
 
   const toggle = (id: string) => {
     setSelected((prev) => {
@@ -846,13 +949,11 @@ function CreateDemandDialog({
     });
   };
 
-  const toggleAll = () => {
+  const toggleAll = () =>
     setSelected(allSelected ? new Set() : new Set(rows.map((r) => r.id)));
-  };
 
   const handleSubmit = () => {
-    const chosen = rows.filter((r) => selected.has(r.id));
-    onSubmit(chosen);
+    onSubmit(rows.filter((r) => selected.has(r.id)));
     onClose();
   };
 
@@ -863,7 +964,6 @@ function CreateDemandDialog({
         onClick={onClose}
       />
       <div className="relative bg-card border border-border rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[85vh]">
-        {/* Header */}
         <div className="px-6 py-4 border-b border-border flex items-start justify-between rounded-t-2xl shrink-0">
           <div>
             <h2 className="text-lg font-bold text-foreground">Create Demand</h2>
@@ -878,8 +978,6 @@ function CreateDemandDialog({
             <X className="w-4 h-4" />
           </button>
         </div>
-
-        {/* Select all bar */}
         <div className="px-6 py-3 border-b border-border flex items-center gap-3 bg-muted/30 shrink-0">
           <input
             ref={selectAllRef}
@@ -899,8 +997,6 @@ function CreateDemandDialog({
             {selected.size} selected
           </span>
         </div>
-
-        {/* Project rows */}
         <div className="overflow-y-auto flex-1">
           {rows.map((row) => {
             const isChecked = selected.has(row.id);
@@ -908,9 +1004,7 @@ function CreateDemandDialog({
               <div
                 key={row.id}
                 onClick={() => toggle(row.id)}
-                className={`flex items-center gap-3 px-6 py-3 border-b border-border cursor-pointer hover:bg-muted/40 transition-colors last:border-b-0 ${
-                  isChecked ? "bg-primary/5" : ""
-                }`}
+                className={`flex items-center gap-3 px-6 py-3 border-b border-border cursor-pointer hover:bg-muted/40 transition-colors last:border-b-0 ${isChecked ? "bg-primary/5" : ""}`}
               >
                 <input
                   type="checkbox"
@@ -935,8 +1029,6 @@ function CreateDemandDialog({
             );
           })}
         </div>
-
-        {/* Footer */}
         <div className="px-6 py-4 border-t border-border flex items-center justify-end gap-2 rounded-b-2xl shrink-0">
           <Button variant="outline" size="sm" onClick={onClose}>
             Cancel
@@ -972,36 +1064,29 @@ export default function ProjectPortfolio() {
   const sendForApproval = location.state?.sendForApproval ?? false;
   const [viewRow, setViewRow] = useState<PortfolioRow | null>(null);
   const [showDemandDialog, setShowDemandDialog] = useState(false);
+  const [filters, setFilters] = useState<FilterState>(defaultFilters());
 
-  // Local status overrides for approve/reject actions (id → status)
   const [statusOverrides, setStatusOverrides] = useState<
     Record<string, ApprovalStatus>
   >({});
   const [approvedIds, setApprovedIds] = useState<Set<string>>(new Set());
   const [rejectedIds, setRejectedIds] = useState<Set<string>>(new Set());
 
-  // Derive rows reactively from store — always picks up new saves from Scenario Planning
+  // Derive all rows from store + seed
   const rows = useMemo<PortfolioRow[]>(() => {
-    // Build lookup: projectName -> role -> count of approved demands
-    // Also track total approved per project (for TBD/unset roles)
     const approvedStatuses = new Set([
       "Approved",
       "PMO Approved",
       "RM Approved",
     ]);
-
-    // projectName -> role -> count (role-specific)
     const allocatedByRole: Record<string, Record<string, number>> = {};
-    // projectName -> total approved count (regardless of role)
     const allocatedTotal: Record<string, number> = {};
 
     for (const d of demands ?? []) {
       if (!approvedStatuses.has(d.status)) continue;
       const proj = d.projectName?.trim().toLowerCase();
       if (!proj) continue;
-      // Always increment total for this project
       allocatedTotal[proj] = (allocatedTotal[proj] ?? 0) + 1;
-      // Also track by role when role is known (not TBD/empty)
       const role = d.projectRole?.trim().toLowerCase();
       if (role && role !== "tbd") {
         if (!allocatedByRole[proj]) allocatedByRole[proj] = {};
@@ -1011,7 +1096,6 @@ export default function ProjectPortfolio() {
 
     const storeRows: PortfolioRow[] = (portfolioProjects ?? []).map((p) => {
       const projKey = p.project?.trim().toLowerCase();
-      // How many approved demands remain to distribute across roles for this project
       let remainingUnmatched = allocatedTotal[projKey] ?? 0;
       return {
         id: p.id,
@@ -1028,22 +1112,19 @@ export default function ProjectPortfolio() {
         cost: p.cost,
         variance: p.variance,
         projectedBenefits: p.projectedBenefits,
-        // Map scenario planning resource rows into the ResourcePlanEntry shape
         resourcePlan: p.resourcePlan?.map((r) => {
           const roleKey = r.role?.trim().toLowerCase();
-          // Prefer exact role match; fall back to unmatched pool (covers TBD demands)
           const roleMatch = allocatedByRole[projKey]?.[roleKey] ?? 0;
           const fallback =
             roleMatch === 0 ? Math.min(remainingUnmatched, r.noOfResources) : 0;
           if (fallback > 0) remainingUnmatched -= fallback;
           const allocated = roleMatch + fallback;
           const required = r.noOfResources;
-          const gap = Math.max(0, required - allocated);
           return {
             role: r.role,
             required,
             allocated,
-            gap,
+            gap: Math.max(0, required - allocated),
             startDate: r.fromDate
               ? r.fromDate.split("-").reverse().join("-")
               : "",
@@ -1052,12 +1133,101 @@ export default function ProjectPortfolio() {
         }),
       };
     });
+
     const seedRows: PortfolioRow[] = SEED_ROWS.map((r) => ({
       ...r,
       status: statusOverrides[r.id] ?? r.status,
     }));
     return [...storeRows, ...seedRows];
   }, [portfolioProjects, statusOverrides, demands]);
+
+  // Derive filter option lists from all rows
+  const priorityOptions = useMemo(
+    () => [...new Set(rows.map((r) => r.priority))],
+    [rows],
+  );
+  const statusOptions = useMemo(
+    () => [...new Set(rows.map((r) => r.status))],
+    [rows],
+  );
+  const typeOptions = useMemo(
+    () => [...new Set(rows.map((r) => r.type))],
+    [rows],
+  );
+  const ownerOptions = useMemo(
+    () => [...new Set(rows.map((r) => r.owner))].sort(),
+    [rows],
+  );
+
+  // Apply filters
+  const filteredRows = useMemo(() => {
+    return rows.filter((row) => {
+      // Text search: project name or project ID
+      if (filters.search) {
+        const q = filters.search.toLowerCase();
+        if (
+          !row.project.toLowerCase().includes(q) &&
+          !row.projectId.toLowerCase().includes(q)
+        )
+          return false;
+      }
+      // Priority
+      if (filters.priorities.size > 0 && !filters.priorities.has(row.priority))
+        return false;
+      // Status
+      if (filters.statuses.size > 0 && !filters.statuses.has(row.status))
+        return false;
+      // Type
+      if (filters.types.size > 0 && !filters.types.has(row.type)) return false;
+      // Owner
+      if (filters.owners.size > 0 && !filters.owners.has(row.owner))
+        return false;
+      // Variance filter
+      if (filters.varianceFilter === "over" && row.variance >= 0) return false;
+      if (filters.varianceFilter === "under" && row.variance < 0) return false;
+      // Start date range
+      if (filters.startDateFrom || filters.startDateTo) {
+        const rowDate = parseDate(row.fromDate);
+        if (filters.startDateFrom && rowDate) {
+          if (rowDate < new Date(filters.startDateFrom)) return false;
+        }
+        if (filters.startDateTo && rowDate) {
+          if (rowDate > new Date(filters.startDateTo)) return false;
+        }
+      }
+      // End date range
+      if (filters.endDateFrom || filters.endDateTo) {
+        const rowDate = parseDate(row.toDate);
+        if (filters.endDateFrom && rowDate) {
+          if (rowDate < new Date(filters.endDateFrom)) return false;
+        }
+        if (filters.endDateTo && rowDate) {
+          if (rowDate > new Date(filters.endDateTo)) return false;
+        }
+      }
+      return true;
+    });
+  }, [rows, filters]);
+
+  const activeFilterCount = useMemo(() => {
+    let n = 0;
+    if (filters.search) n++;
+    if (filters.priorities.size) n++;
+    if (filters.statuses.size) n++;
+    if (filters.types.size) n++;
+    if (filters.owners.size) n++;
+    if (filters.varianceFilter !== "all") n++;
+    if (filters.startDateFrom || filters.startDateTo) n++;
+    if (filters.endDateFrom || filters.endDateTo) n++;
+    return n;
+  }, [filters]);
+
+  const resetFilters = () => setFilters(defaultFilters());
+
+  const setFilter = <K extends keyof FilterState>(
+    key: K,
+    val: FilterState[K],
+  ) => setFilters((prev) => ({ ...prev, [key]: val }));
 
   const pendingRows = sendForApproval
     ? rows.filter((r) => !approvedIds.has(r.id) && !rejectedIds.has(r.id))
@@ -1074,13 +1244,10 @@ export default function ProjectPortfolio() {
   };
 
   const handleDemandSubmit = (selected: PortfolioRow[]) => {
-    // Convert DD-MM-YYYY → YYYY-MM-DD for date inputs
     const toIso = (ddmmyyyy: string) => {
       const [d, m, y] = ddmmyyyy.split("-");
       return y && m && d ? `${y}-${m}-${d}` : ddmmyyyy;
     };
-
-    // Map project type to a portfolio value, fallback to first available
     const typeToPortfolio: Record<string, string> = {
       Strategic: "Global",
       Compliance: "Hi-tech",
@@ -1091,7 +1258,6 @@ export default function ProjectPortfolio() {
       if (mapped && masterPortfolios.includes(mapped)) return mapped;
       return masterPortfolios[0] || "";
     };
-
     const newDemands = selected.map((row) => ({
       portfolio:
         row.portfolio && masterPortfolios.includes(row.portfolio)
@@ -1129,7 +1295,7 @@ export default function ProjectPortfolio() {
     });
   };
 
-  // KPI values
+  // KPI values based on ALL rows (unfiltered)
   const totalBudget = rows.reduce((s, r) => s + r.budget, 0);
   const totalCost = rows.reduce((s, r) => s + r.cost, 0);
   const totalBenefits = rows.reduce((s, r) => s + r.projectedBenefits, 0);
@@ -1180,7 +1346,6 @@ export default function ProjectPortfolio() {
 
   return (
     <div className="space-y-6">
-      {/* Modals */}
       {viewRow && (
         <ProjectDetailModal row={viewRow} onClose={() => setViewRow(null)} />
       )}
@@ -1225,7 +1390,6 @@ export default function ProjectPortfolio() {
         </Button>
       </div>
 
-      {/* Approval banner */}
       {sendForApproval && pendingRows.length > 0 && (
         <div className="flex items-center gap-3 rounded-xl border border-warning/30 bg-warning/10 px-4 py-3">
           <AlertTriangle className="h-5 w-5 text-warning shrink-0" />
@@ -1274,6 +1438,175 @@ export default function ProjectPortfolio() {
         ))}
       </div>
 
+      {/* ── Filter Bar ── */}
+      <div className="bg-card border border-border rounded-xl p-3 space-y-3">
+        {/* Row 1: Search + dropdowns + variance toggle */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Search */}
+          <div className="relative flex-1 min-w-[200px] max-w-xs">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search project name or ID…"
+              value={filters.search}
+              onChange={(e) => setFilter("search", e.target.value)}
+              className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-border bg-background text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-colors"
+            />
+            {filters.search && (
+              <button
+                onClick={() => setFilter("search", "")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+
+          <div className="w-px h-5 bg-border" />
+
+          {/* Multi-select dropdowns */}
+          <MultiSelectDropdown
+            label="Priority"
+            options={priorityOptions}
+            selected={filters.priorities}
+            onChange={(v) => setFilter("priorities", v)}
+          />
+          <MultiSelectDropdown
+            label="Status"
+            options={statusOptions}
+            selected={filters.statuses}
+            onChange={(v) => setFilter("statuses", v)}
+          />
+          <MultiSelectDropdown
+            label="Type"
+            options={typeOptions}
+            selected={filters.types}
+            onChange={(v) => setFilter("types", v)}
+          />
+          <MultiSelectDropdown
+            label="Owner"
+            options={ownerOptions}
+            selected={filters.owners}
+            onChange={(v) => setFilter("owners", v)}
+          />
+
+          <div className="w-px h-5 bg-border" />
+
+          {/* Variance quick filter */}
+          <div className="flex items-center gap-1 rounded-lg border border-border bg-muted/30 p-0.5">
+            {(["all", "over", "under"] as const).map((val) => (
+              <button
+                key={val}
+                onClick={() => setFilter("varianceFilter", val)}
+                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap
+                  ${
+                    filters.varianceFilter === val
+                      ? val === "over"
+                        ? "bg-red-500 text-white"
+                        : val === "under"
+                          ? "bg-green-500 text-white"
+                          : "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+              >
+                {val === "all"
+                  ? "All Variance"
+                  : val === "over"
+                    ? "Over Budget"
+                    : "Under Budget"}
+              </button>
+            ))}
+          </div>
+
+          {/* Reset */}
+          {activeFilterCount > 0 && (
+            <button
+              onClick={resetFilters}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs text-muted-foreground hover:text-foreground border border-border hover:border-border/80 transition-colors ml-auto"
+            >
+              <RotateCcw className="w-3 h-3" />
+              Reset
+              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-primary/15 text-primary text-[9px] font-bold">
+                {activeFilterCount}
+              </span>
+            </button>
+          )}
+        </div>
+
+        {/* Row 2: Date range filters */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground font-medium whitespace-nowrap">
+              Start Date:
+            </span>
+            <input
+              type="date"
+              value={filters.startDateFrom}
+              onChange={(e) => setFilter("startDateFrom", e.target.value)}
+              className="px-2 py-1 rounded-lg border border-border bg-background text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-colors"
+            />
+            <span className="text-xs text-muted-foreground">to</span>
+            <input
+              type="date"
+              value={filters.startDateTo}
+              onChange={(e) => setFilter("startDateTo", e.target.value)}
+              className="px-2 py-1 rounded-lg border border-border bg-background text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-colors"
+            />
+            {(filters.startDateFrom || filters.startDateTo) && (
+              <button
+                onClick={() => {
+                  setFilter("startDateFrom", "");
+                  setFilter("startDateTo", "");
+                }}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+
+          <div className="w-px h-4 bg-border" />
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground font-medium whitespace-nowrap">
+              End Date:
+            </span>
+            <input
+              type="date"
+              value={filters.endDateFrom}
+              onChange={(e) => setFilter("endDateFrom", e.target.value)}
+              className="px-2 py-1 rounded-lg border border-border bg-background text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-colors"
+            />
+            <span className="text-xs text-muted-foreground">to</span>
+            <input
+              type="date"
+              value={filters.endDateTo}
+              onChange={(e) => setFilter("endDateTo", e.target.value)}
+              className="px-2 py-1 rounded-lg border border-border bg-background text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-colors"
+            />
+            {(filters.endDateFrom || filters.endDateTo) && (
+              <button
+                onClick={() => {
+                  setFilter("endDateFrom", "");
+                  setFilter("endDateTo", "");
+                }}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+
+          {/* Result count */}
+          <span className="ml-auto text-xs text-muted-foreground">
+            Showing{" "}
+            <strong className="text-foreground">{filteredRows.length}</strong>{" "}
+            of <strong className="text-foreground">{rows.length}</strong>{" "}
+            projects
+          </span>
+        </div>
+      </div>
+
       {/* Table */}
       <Card>
         <CardContent className="p-0">
@@ -1303,99 +1636,120 @@ export default function ProjectPortfolio() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rows.map((row) => {
-                  const isApproved = approvedIds.has(row.id);
-                  const isRejected = rejectedIds.has(row.id);
-                  return (
-                    <TableRow
-                      key={row.id}
-                      className={
-                        isApproved
-                          ? "bg-success/10"
-                          : isRejected
-                            ? "bg-destructive/10 opacity-60"
-                            : ""
-                      }
+                {filteredRows.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={sendForApproval ? 13 : 12}
+                      className="py-12 text-center text-muted-foreground text-sm"
                     >
-                      <TableCell className="text-sm font-mono text-muted-foreground">
-                        {row.projectId}
-                      </TableCell>
-                      <TableCell
-                        className="font-medium text-sm text-primary underline cursor-pointer hover:text-primary/80"
-                        onClick={() => setViewRow(row)}
+                      <div className="flex flex-col items-center gap-2">
+                        <Filter className="w-8 h-8 text-muted-foreground/40" />
+                        <p>No projects match the current filters.</p>
+                        <button
+                          onClick={resetFilters}
+                          className="text-xs text-primary hover:underline"
+                        >
+                          Clear all filters
+                        </button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredRows.map((row) => {
+                    const isApproved = approvedIds.has(row.id);
+                    const isRejected = rejectedIds.has(row.id);
+                    return (
+                      <TableRow
+                        key={row.id}
+                        className={
+                          isApproved
+                            ? "bg-success/10"
+                            : isRejected
+                              ? "bg-destructive/10 opacity-60"
+                              : ""
+                        }
                       >
-                        {row.project}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={priorityStyle(row.priority)}>
-                          {row.priority}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm">{row.owner}</TableCell>
-                      <TableCell className="text-sm">{row.type}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {row.fromDate}
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {row.toDate}
-                      </TableCell>
-                      <TableCell className="text-right text-sm">
-                        {fmt(row.budget)}
-                      </TableCell>
-                      <TableCell className="text-right text-sm">
-                        {fmt(row.cost)}
-                      </TableCell>
-                      <TableCell
-                        className={`text-right text-sm font-medium ${row.variance < 0 ? "text-red-400" : "text-green-400"}`}
-                      >
-                        {row.variance < 0
-                          ? `-${fmt(Math.abs(row.variance))}`
-                          : fmt(row.variance)}
-                      </TableCell>
-                      <TableCell className="text-right text-sm">
-                        {fmt(row.projectedBenefits)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={statusStyle(row.status)}>
-                          {row.status}
-                        </Badge>
-                      </TableCell>
-                      {sendForApproval && (
-                        <TableCell className="text-center">
-                          {isApproved ? (
-                            <span className="flex items-center justify-center gap-1 text-green-400 text-xs font-medium">
-                              <CheckCircle2 className="h-4 w-4" /> Approved
-                            </span>
-                          ) : isRejected ? (
-                            <span className="flex items-center justify-center gap-1 text-red-400 text-xs font-medium">
-                              <XCircle className="h-4 w-4" /> Rejected
-                            </span>
-                          ) : (
-                            <div className="flex items-center justify-center gap-1">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-7 px-2 text-xs text-green-400 border-success/30 hover:bg-success/10"
-                                onClick={() => handleApprove(row.id)}
-                              >
-                                <CheckCircle2 className="h-3.5 w-3.5 mr-1" />{" "}
-                                Approve
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-7 px-2 text-xs text-red-400 border-destructive/30 hover:bg-destructive/10"
-                                onClick={() => handleReject(row.id)}
-                              >
-                                <XCircle className="h-3.5 w-3.5 mr-1" /> Reject
-                              </Button>
-                            </div>
-                          )}
+                        <TableCell className="text-sm font-mono text-muted-foreground">
+                          {row.projectId}
                         </TableCell>
-                      )}
-                    </TableRow>
-                  );
-                })}
+                        <TableCell
+                          className="font-medium text-sm text-primary underline cursor-pointer hover:text-primary/80"
+                          onClick={() => setViewRow(row)}
+                        >
+                          {row.project}
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={priorityStyle(row.priority)}>
+                            {row.priority}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-sm">{row.owner}</TableCell>
+                        <TableCell className="text-sm">{row.type}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {row.fromDate}
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {row.toDate}
+                        </TableCell>
+                        <TableCell className="text-right text-sm">
+                          {fmt(row.budget)}
+                        </TableCell>
+                        <TableCell className="text-right text-sm">
+                          {fmt(row.cost)}
+                        </TableCell>
+                        <TableCell
+                          className={`text-right text-sm font-medium ${row.variance < 0 ? "text-red-400" : "text-green-400"}`}
+                        >
+                          {row.variance < 0
+                            ? `-${fmt(Math.abs(row.variance))}`
+                            : fmt(row.variance)}
+                        </TableCell>
+                        <TableCell className="text-right text-sm">
+                          {fmt(row.projectedBenefits)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={statusStyle(row.status)}>
+                            {row.status}
+                          </Badge>
+                        </TableCell>
+                        {sendForApproval && (
+                          <TableCell className="text-center">
+                            {isApproved ? (
+                              <span className="flex items-center justify-center gap-1 text-green-400 text-xs font-medium">
+                                <CheckCircle2 className="h-4 w-4" /> Approved
+                              </span>
+                            ) : isRejected ? (
+                              <span className="flex items-center justify-center gap-1 text-red-400 text-xs font-medium">
+                                <XCircle className="h-4 w-4" /> Rejected
+                              </span>
+                            ) : (
+                              <div className="flex items-center justify-center gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 px-2 text-xs text-green-400 border-success/30 hover:bg-success/10"
+                                  onClick={() => handleApprove(row.id)}
+                                >
+                                  <CheckCircle2 className="h-3.5 w-3.5 mr-1" />{" "}
+                                  Approve
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 px-2 text-xs text-red-400 border-destructive/30 hover:bg-destructive/10"
+                                  onClick={() => handleReject(row.id)}
+                                >
+                                  <XCircle className="h-3.5 w-3.5 mr-1" />{" "}
+                                  Reject
+                                </Button>
+                              </div>
+                            )}
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    );
+                  })
+                )}
               </TableBody>
             </Table>
           </div>
