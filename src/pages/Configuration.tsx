@@ -77,7 +77,7 @@ const initialWorkflows: WorkflowConfig[] = [
       "Initiates and routes new project demand requests for review and approval",
     sendForApproval: true,
     sendForApprovalTo: "Rajesh Kumar",
-    notifyOnApprovalDenial: "Inder Johal",
+    notifyOnApprovalDenial: "Anurah Vaishy",
   },
   {
     id: "wf-2",
@@ -87,7 +87,7 @@ const initialWorkflows: WorkflowConfig[] = [
       "Manages the end-to-end process of onboarding new resources to active projects",
     sendForApproval: false,
     sendForApprovalTo: "Priya Sharma",
-    notifyOnApprovalDenial: "Halterman, Lisa",
+    notifyOnApprovalDenial: "Samson Karre",
   },
   {
     id: "wf-3",
@@ -97,7 +97,7 @@ const initialWorkflows: WorkflowConfig[] = [
       "Handles requests to modify existing resource allocations across projects",
     sendForApproval: true,
     sendForApprovalTo: "Michael Torres",
-    notifyOnApprovalDenial: "Inder Johal",
+    notifyOnApprovalDenial: "Sameera Mohamed",
   },
   {
     id: "wf-4",
@@ -107,7 +107,7 @@ const initialWorkflows: WorkflowConfig[] = [
       "Escalates and tracks projects that have exceeded their approved budget threshold",
     sendForApproval: true,
     sendForApprovalTo: "Sarah Mitchell",
-    notifyOnApprovalDenial: "Halterman, Lisa",
+    notifyOnApprovalDenial: "Kartik Dontula",
   },
   {
     id: "wf-5",
@@ -117,7 +117,7 @@ const initialWorkflows: WorkflowConfig[] = [
       "Governs the approval process for initiating and renewing vendor engagements",
     sendForApproval: false,
     sendForApprovalTo: "David Nguyen",
-    notifyOnApprovalDenial: "Baltrusch, Kimberly",
+    notifyOnApprovalDenial: "Danish Meraj",
   },
   {
     id: "wf-6",
@@ -127,7 +127,7 @@ const initialWorkflows: WorkflowConfig[] = [
       "Ensures all stakeholders formally sign off before a project moves to execution",
     sendForApproval: true,
     sendForApprovalTo: "Anita Desai",
-    notifyOnApprovalDenial: "Halterman, Lisa",
+    notifyOnApprovalDenial: "Betty Smith",
   },
   {
     id: "wf-7",
@@ -137,7 +137,7 @@ const initialWorkflows: WorkflowConfig[] = [
       "Facilitates monthly review of team capacity against planned project demand",
     sendForApproval: true,
     sendForApprovalTo: "James Whitfield",
-    notifyOnApprovalDenial: "Inder Johal",
+    notifyOnApprovalDenial: "Ravi Patel",
   },
 ];
 
