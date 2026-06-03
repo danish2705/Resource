@@ -73,7 +73,8 @@ const initialWorkflows: WorkflowConfig[] = [
     id: "wf-1",
     isActive: true,
     name: "New Demand Creation",
-    description: "Approve demand for project by Data team",
+    description:
+      "Initiates and routes new project demand requests for review and approval",
     sendForApproval: true,
     sendForApprovalTo: "Rajesh Kumar",
     notifyOnApprovalDenial: "Inder Johal",
@@ -82,7 +83,8 @@ const initialWorkflows: WorkflowConfig[] = [
     id: "wf-2",
     isActive: false,
     name: "Resource Onboarding Request",
-    description: "Resource allocation for project by People team",
+    description:
+      "Manages the end-to-end process of onboarding new resources to active projects",
     sendForApproval: false,
     sendForApprovalTo: "Priya Sharma",
     notifyOnApprovalDenial: "Halterman, Lisa",
@@ -91,7 +93,8 @@ const initialWorkflows: WorkflowConfig[] = [
     id: "wf-3",
     isActive: false,
     name: "Allocation Change Request",
-    description: "Resource allocation by Data team",
+    description:
+      "Handles requests to modify existing resource allocations across projects",
     sendForApproval: true,
     sendForApprovalTo: "Michael Torres",
     notifyOnApprovalDenial: "Inder Johal",
@@ -100,7 +103,8 @@ const initialWorkflows: WorkflowConfig[] = [
     id: "wf-4",
     isActive: false,
     name: "Budget Overrun Escalation",
-    description: "Budget variance approval managed by PMO",
+    description:
+      "Escalates and tracks projects that have exceeded their approved budget threshold",
     sendForApproval: true,
     sendForApprovalTo: "Sarah Mitchell",
     notifyOnApprovalDenial: "Halterman, Lisa",
@@ -109,7 +113,8 @@ const initialWorkflows: WorkflowConfig[] = [
     id: "wf-5",
     isActive: false,
     name: "Vendor Engagement Approval",
-    description: "Vendor communication workflow for procurement",
+    description:
+      "Governs the approval process for initiating and renewing vendor engagements",
     sendForApproval: false,
     sendForApprovalTo: "David Nguyen",
     notifyOnApprovalDenial: "Baltrusch, Kimberly",
@@ -118,7 +123,8 @@ const initialWorkflows: WorkflowConfig[] = [
     id: "wf-6",
     isActive: true,
     name: "Project Kickoff Sign-off",
-    description: "Approval workflow triggered at project kickoff stage",
+    description:
+      "Ensures all stakeholders formally sign off before a project moves to execution",
     sendForApproval: true,
     sendForApprovalTo: "Anita Desai",
     notifyOnApprovalDenial: "Halterman, Lisa",
@@ -127,7 +133,8 @@ const initialWorkflows: WorkflowConfig[] = [
     id: "wf-7",
     isActive: false,
     name: "Monthly Capacity Review",
-    description: "Monthly capacity planning review and sign-off",
+    description:
+      "Facilitates monthly review of team capacity against planned project demand",
     sendForApproval: true,
     sendForApprovalTo: "James Whitfield",
     notifyOnApprovalDenial: "Inder Johal",
