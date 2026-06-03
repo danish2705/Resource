@@ -14,9 +14,18 @@ export interface KpiConfig {
   checked: boolean;
 }
 
+export interface FilterConfig {
+  id: string;
+  label: string;
+  checked: boolean;
+  order: number;
+  mandatory?: boolean;
+}
+
 export interface DashboardConfig {
   widgets: WidgetConfig[];
   kpiCards: KpiConfig[];
+  filters?: FilterConfig[];
   savedAt?: string;
 }
 
@@ -27,7 +36,8 @@ function getStorageKey(userId: string, persona: string) {
 export function useDashboardConfig(
   persona: string,
   defaultWidgets: WidgetConfig[],
-  defaultKpiIds: string[]
+  defaultKpiIds: string[],
+  defaultFilters: FilterConfig[] = []
 ) {
   const { user } = useAuth();
   const userId = user?.id ?? "anonymous";
@@ -43,14 +53,21 @@ export function useDashboardConfig(
     }
   }
 
-  function mergeWithDefaults(saved: DashboardConfig | null, defaultW: WidgetConfig[], defaultKIds: string[]) {
+  function mergeWithDefaults(
+    saved: DashboardConfig | null,
+    defaultW: WidgetConfig[],
+    defaultKIds: string[],
+    defaultF: FilterConfig[]
+  ) {
     if (!saved) {
       return {
         widgets: defaultW.map((w, i) => ({ ...w, order: i })),
         kpiCards: defaultKIds.map((id) => ({ id, checked: true })),
+        filters: defaultF.map((f, i) => ({ ...f, order: i })),
       };
     }
-    // Merge: for any widget not in saved, add it as checked (new widgets added after save)
+
+    // Merge widgets
     const savedWidgetMap = new Map(saved.widgets.map((w) => [w.id, w]));
     const widgets = defaultW
       .map((w, i) => {
@@ -59,26 +76,43 @@ export function useDashboardConfig(
       })
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
+    // Merge kpis
     const savedKpiMap = new Map(saved.kpiCards.map((k) => [k.id, k]));
     const kpiCards = defaultKIds.map((id) => {
       const s = savedKpiMap.get(id);
       return { id, checked: s ? s.checked : true };
     });
 
-    return { widgets, kpiCards };
+    // Merge filters
+    const savedFilters = saved.filters ?? [];
+    const savedFilterMap = new Map(savedFilters.map((f) => [f.id, f]));
+    const filters = defaultF
+      .map((f, i) => {
+        const s = savedFilterMap.get(f.id);
+        if (s) {
+          // mandatory filters are always visible
+          return { ...f, checked: f.mandatory ? true : s.checked, order: s.order ?? i };
+        }
+        return { ...f, order: i };
+      })
+      .sort((a, b) => a.order - b.order);
+
+    return { widgets, kpiCards, filters };
   }
 
   const saved = loadFromStorage();
-  const merged = mergeWithDefaults(saved, defaultWidgets, defaultKpiIds);
+  const merged = mergeWithDefaults(saved, defaultWidgets, defaultKpiIds, defaultFilters);
 
   const [widgets, setWidgets] = useState<WidgetConfig[]>(merged.widgets);
   const [kpiCards, setKpiCards] = useState<KpiConfig[]>(merged.kpiCards);
+  const [filters, setFilters] = useState<FilterConfig[]>(merged.filters);
 
   const saveConfig = useCallback(
-    (ws: WidgetConfig[], kpis: KpiConfig[]) => {
+    (ws: WidgetConfig[], kpis: KpiConfig[], fs: FilterConfig[]) => {
       const config: DashboardConfig = {
         widgets: ws.map((w, i) => ({ ...w, order: i })),
         kpiCards: kpis,
+        filters: fs.map((f, i) => ({ ...f, order: i })),
         savedAt: new Date().toISOString(),
       };
       try {
@@ -93,12 +127,14 @@ export function useDashboardConfig(
   const resetConfig = useCallback(() => {
     const freshWidgets = defaultWidgets.map((w, i) => ({ ...w, order: i }));
     const freshKpis = defaultKpiIds.map((id) => ({ id, checked: true }));
+    const freshFilters = defaultFilters.map((f, i) => ({ ...f, order: i }));
     setWidgets(freshWidgets);
     setKpiCards(freshKpis);
+    setFilters(freshFilters);
     try {
       localStorage.removeItem(storageKey);
     } catch {}
-  }, [storageKey, defaultWidgets, defaultKpiIds]);
+  }, [storageKey, defaultWidgets, defaultKpiIds, defaultFilters]);
 
   const toggleWidget = useCallback((id: string) => {
     setWidgets((ws) => ws.map((w) => (w.id === id ? { ...w, checked: !w.checked } : w)));
@@ -106,6 +142,12 @@ export function useDashboardConfig(
 
   const toggleKpi = useCallback((id: string) => {
     setKpiCards((ks) => ks.map((k) => (k.id === id ? { ...k, checked: !k.checked } : k)));
+  }, []);
+
+  const toggleFilter = useCallback((id: string) => {
+    setFilters((fs) =>
+      fs.map((f) => (f.id === id && !f.mandatory ? { ...f, checked: !f.checked } : f))
+    );
   }, []);
 
   const reorderWidgets = useCallback((fromIndex: number, toIndex: number) => {
@@ -126,17 +168,30 @@ export function useDashboardConfig(
     });
   }, []);
 
+  const reorderFilters = useCallback((fromIndex: number, toIndex: number) => {
+    setFilters((fs) => {
+      const arr = [...fs];
+      const [moved] = arr.splice(fromIndex, 1);
+      arr.splice(toIndex, 0, moved);
+      return arr.map((f, i) => ({ ...f, order: i }));
+    });
+  }, []);
+
   return {
     widgets,
     kpiCards,
+    filters,
     setWidgets,
     setKpiCards,
+    setFilters,
     saveConfig,
     resetConfig,
     toggleWidget,
     toggleKpi,
+    toggleFilter,
     reorderWidgets,
     reorderKpis,
+    reorderFilters,
     hasSavedConfig: saved !== null,
   };
 }
