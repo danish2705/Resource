@@ -77,7 +77,7 @@ const initialWorkflows: WorkflowConfig[] = [
       "Initiates and routes new project demand requests for review and approval",
     sendForApproval: true,
     sendForApprovalTo: "Rajesh Kumar",
-    notifyOnApprovalDenial: "Anurah Vaishy",
+    notifyOnApprovalDenial: "Anurag Vaishy",
   },
   {
     id: "wf-2",
