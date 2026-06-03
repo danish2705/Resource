@@ -229,7 +229,7 @@ export const resources: Resource[] = [
 
     employeeType: "Full Time",
 
-    availableAfter: "2026-05-29",
+    availableAfter: "2026-07-10",
 
     skills: ["ML", "Python", "TensorFlow"],
 
