@@ -56,8 +56,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "view_dashboard",
     "view_allocation",
     "view_resource_info",
-    "view_projects",
-    "view_reporting",
+    "view_projects"
   ],
 };
 
