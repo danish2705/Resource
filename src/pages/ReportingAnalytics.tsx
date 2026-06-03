@@ -1614,6 +1614,34 @@ function UtilFilterBar({ filters, setFilters }: { filters: any; setFilters: (fn:
             Measure workforce efficiency & workload distribution
           </span>
         </div>
+        <a
+          href="https://app.powerbi.com/groups/me/reports/9581f32e-5e45-4655-8705-d94c63ef7ae7/637a9c8a3b634ab2b3bb?experience=power-bi"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 7,
+            padding: "8px 16px",
+            background: "#F2C811",
+            color: "#1a1a1a",
+            border: "none",
+            borderRadius: 8,
+            fontSize: 13,
+            fontWeight: 700,
+            textDecoration: "none",
+            cursor: "pointer",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.12)",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="3" width="5" height="18" rx="1.2" fill="#1a1a1a" opacity="0.75"/>
+            <rect x="9.5" y="7" width="5" height="14" rx="1.2" fill="#1a1a1a" opacity="0.75"/>
+            <rect x="17" y="11" width="5" height="10" rx="1.2" fill="#1a1a1a" opacity="0.75"/>
+          </svg>
+          View in Power BI
+        </a>
       </div>
       <div
         style={{
@@ -4716,22 +4744,33 @@ function ReportDetail9() {
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <DetailCard>
             <SectionLabel>Spend by Category</SectionLabel>
-            <div style={{ position: "relative", width: 180, height: 150 }}>
-              <PieChart width={180} height={150}>
+            <div style={{ display: "flex",justifyContent: "center", alignItems: "center", width: "100%", }}>
+              <PieChart width={260} height={220}>
                 <Pie
                   data={spendByCat}
-                  cx={89}
-                  cy={74}
-                  innerRadius={40}
-                  outerRadius={65}
+                  cx="50%"
+                  cy="45%"
+                  innerRadius={45}
+                  outerRadius={70}
                   dataKey="value"
                 >
                   {spendByCat.map((_, i) => (
-                    <Cell key={i} fill={DONUT_COLORS[i]} />
+                    <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={ttStyle} formatter={(v: any) => `${v}%`} />
-                <Legend wrapperStyle={{ fontSize: 9, color: T.textMuted }} />
+                <Tooltip
+                  contentStyle={ttStyle}
+                  formatter={(v: any) => `${v}%`}
+                />
+                <Legend
+                  verticalAlign="bottom"
+                  align="center"
+                  iconSize={10}
+                  wrapperStyle={{
+                    fontSize: 11,
+                    paddingTop: 10,
+                  }}
+                />
               </PieChart>
             </div>
           </DetailCard>
