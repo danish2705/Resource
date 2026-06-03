@@ -1274,12 +1274,55 @@ export default function ProjectPortfolio() {
         ))}
       </div>
 
+        
+        <div className="flex items-center gap-3 flex-wrap">
+  <input
+    type="text"
+    placeholder="Search project, owner..."
+    className="h-10 w-[350px] rounded-md border border-input bg-background px-3 text-sm"
+  />
+
+  <select className="h-10 rounded-md border border-input bg-background px-3 text-sm">
+    <option>All Portfolios</option>
+    <option>Global</option>
+    <option>Hi-tech</option>
+    <option>Retail</option>
+  </select>
+
+  <select className="h-10 rounded-md border border-input bg-background px-3 text-sm">
+    <option>All Priorities</option>
+    <option>Immediate</option>
+    <option>High</option>
+    <option>Medium</option>
+    <option>Low</option>
+  </select>
+
+  <select className="h-10 rounded-md border border-input bg-background px-3 text-sm">
+    <option>All Types</option>
+    <option>Strategic</option>
+    <option>Compliance</option>
+    <option>Financial</option>
+  </select>
+
+  <select className="h-10 rounded-md border border-input bg-background px-3 text-sm">
+    <option>All Statuses</option>
+    <option>Active</option>
+    <option>Approved</option>
+    <option>Proposed</option>
+    <option>Rejected</option>
+  </select>
+
+  <span className="ml-auto text-sm text-muted-foreground">
+    {rows.length} results
+  </span>
+</div>
+
       {/* Table */}
       <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
+  <CardContent className="p-0">
+    <div className="border rounded-md max-h-[500px] overflow-auto">
+      <Table className="min-w-[1400px]">
+        <TableHeader className="sticky top-0 z-10 bg-background">
                 <TableRow className="bg-muted/40">
                   <TableHead className="w-[90px]">Project ID</TableHead>
                   <TableHead className="w-[180px]">Project</TableHead>
@@ -1302,6 +1345,7 @@ export default function ProjectPortfolio() {
                   )}
                 </TableRow>
               </TableHeader>
+             
               <TableBody>
                 {rows.map((row) => {
                   const isApproved = approvedIds.has(row.id);
