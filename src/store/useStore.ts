@@ -62,9 +62,35 @@ export function __registerAuthStore(store: {
   (globalThis as any).__zustand_useAuth = store;
 }
 
+// ─── Portfolio Project (from Scenario Planning) ───────────────────────────────
+
+export interface PortfolioProject {
+  id: string;
+  projectId: string;
+  project: string;
+  priority: "Immediate" | "High" | "Medium" | "Low";
+  owner: string;
+  type: string;
+  status:
+    | "Pending Approval"
+    | "Approved"
+    | "Rejected"
+    | "Active"
+    | "Proposed"
+    | "Approved - Backlog";
+  fromDate: string;
+  toDate: string;
+  budget: number;
+  cost: number;
+  variance: number;
+  projectedBenefits: number;
+}
+
 interface AppState {
   demands: Demand[];
   allocations: Allocation[];
+  portfolioProjects: PortfolioProject[];
+  addPortfolioProject: (p: Omit<PortfolioProject, "id" | "projectId">) => void;
   worklist: WorklistItem[];
   resources: ResourceProfile[];
   forecasts: Forecast[];
@@ -152,6 +178,19 @@ export const useStore = create<AppState>()(
     (set, get) => ({
       demands: mockDemands,
       allocations: mockAllocations,
+      portfolioProjects: [],
+
+      addPortfolioProject: (p) =>
+        set((state) => {
+          const existing = state.portfolioProjects ?? [];
+          const idx = existing.length + 1;
+          const newProject: PortfolioProject = {
+            ...p,
+            id: `pp-${Date.now()}`,
+            projectId: `P-${String(100 + idx).padStart(3, "0")}`,
+          };
+          return { portfolioProjects: [newProject, ...existing] };
+        }),
       worklist: mockWorklist,
       resources: mockResources,
       forecasts: mockForecasts,
@@ -762,14 +801,15 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "app-storage",
-      version: 2,
+      version: 3,
       migrate: (persisted: any, fromVersion: number) => {
-        // v1 → v2: one-time replacement of old mock reviewRequests with the
-        // updated mixed-status seed data. After this runs once the store is
-        // left untouched, so runtime changes (super-user creates demand,
-        // PMO approves, etc.) survive across page refreshes normally.
+        // v1 → v2: replace old mock reviewRequests with updated seed data
         if (fromVersion < 2) {
-          return { ...persisted, reviewRequests: mockReviewRequests };
+          persisted = { ...persisted, reviewRequests: mockReviewRequests };
+        }
+        // v2 → v3: add portfolioProjects field
+        if (fromVersion < 3) {
+          persisted = { ...persisted, portfolioProjects: [] };
         }
         return persisted;
       },

@@ -1,5 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useStore } from "@/store/useStore";
 
 import {
   X,
@@ -194,20 +195,22 @@ const SEED_ROWS: PortfolioRow[] = [
 // ─── Badge styles ─────────────────────────────────────────────────────────────
 
 const priorityStyle = (p: PortfolioRow["priority"]) => {
-  if (p === "Immediate") return "bg-red-500 text-white border-0 text-xs";
-  if (p === "High") return "bg-red-200 text-red-900 border-0 text-xs";
-  if (p === "Medium") return "bg-orange-200 text-orange-900 border-0 text-xs";
-  return "bg-yellow-100 text-yellow-900 border-0 text-xs";
+  if (p === "Immediate") return "bg-red-500/80 text-white border-0 text-xs";
+  if (p === "High") return "bg-red-500/30 text-red-300 border-0 text-xs";
+  if (p === "Medium")
+    return "bg-orange-500/30 text-orange-300 border-0 text-xs";
+  return "bg-yellow-500/20 text-yellow-300 border-0 text-xs";
 };
 
 const statusStyle = (s: ApprovalStatus) => {
-  if (s === "Active") return "bg-green-100 text-green-800 border-0 text-xs";
-  if (s === "Approved") return "bg-blue-100 text-blue-800 border-0 text-xs";
-  if (s === "Proposed") return "bg-purple-100 text-purple-800 border-0 text-xs";
-  if (s === "Rejected") return "bg-red-100 text-red-800 border-0 text-xs";
+  if (s === "Active") return "bg-green-500/20 text-green-400 border-0 text-xs";
+  if (s === "Approved") return "bg-blue-500/20 text-blue-400 border-0 text-xs";
+  if (s === "Proposed")
+    return "bg-purple-500/20 text-purple-400 border-0 text-xs";
+  if (s === "Rejected") return "bg-red-500/20 text-red-400 border-0 text-xs";
   if (s === "Approved - Backlog")
-    return "bg-teal-100 text-teal-800 border-0 text-xs";
-  return "bg-muted text-muted-foreground border-0 text-xs";
+    return "bg-teal-500/20 text-teal-400 border-0 text-xs";
+  return "bg-muted/60 text-muted-foreground border-0 text-xs";
 };
 
 // ─── Project Detail Modal ─────────────────────────────────────────────────────
@@ -283,7 +286,7 @@ function ProjectDetailModal({
                 Budget · {fmtShort(row.budget)}
               </span>
               <span
-                className={`ml-auto font-medium ${row.variance < 0 ? "text-destructive" : "text-success"}`}
+                className={`ml-auto font-medium ${row.variance < 0 ? "text-red-400" : "text-green-400"}`}
               >
                 Variance ·{" "}
                 {row.variance < 0
@@ -312,7 +315,7 @@ function ProjectDetailModal({
             <div className="bg-muted/40 border border-border rounded-xl p-4">
               <p className="text-xs text-muted-foreground mb-1">Variance</p>
               <p
-                className={`text-2xl font-bold ${row.variance < 0 ? "text-destructive" : "text-success"}`}
+                className={`text-2xl font-bold ${row.variance < 0 ? "text-red-400" : "text-green-400"}`}
               >
                 {row.variance < 0
                   ? `-${fmtShort(Math.abs(row.variance))}`
@@ -534,13 +537,42 @@ function CreateDemandDialog({
 export default function ProjectPortfolio() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { portfolioProjects, addDemands } = useStore();
 
   const sendForApproval = location.state?.sendForApproval ?? false;
   const [viewRow, setViewRow] = useState<PortfolioRow | null>(null);
   const [showDemandDialog, setShowDemandDialog] = useState(false);
-  const [rows, setRows] = useState<PortfolioRow[]>(SEED_ROWS);
+
+  // Local status overrides for approve/reject actions (id → status)
+  const [statusOverrides, setStatusOverrides] = useState<
+    Record<string, ApprovalStatus>
+  >({});
   const [approvedIds, setApprovedIds] = useState<Set<string>>(new Set());
   const [rejectedIds, setRejectedIds] = useState<Set<string>>(new Set());
+
+  // Derive rows reactively from store — always picks up new saves from Scenario Planning
+  const rows = useMemo<PortfolioRow[]>(() => {
+    const storeRows: PortfolioRow[] = (portfolioProjects ?? []).map((p) => ({
+      id: p.id,
+      projectId: p.projectId,
+      project: p.project,
+      priority: p.priority,
+      owner: p.owner,
+      type: p.type,
+      status: statusOverrides[p.id] ?? p.status,
+      fromDate: p.fromDate,
+      toDate: p.toDate,
+      budget: p.budget,
+      cost: p.cost,
+      variance: p.variance,
+      projectedBenefits: p.projectedBenefits,
+    }));
+    const seedRows: PortfolioRow[] = SEED_ROWS.map((r) => ({
+      ...r,
+      status: statusOverrides[r.id] ?? r.status,
+    }));
+    return [...storeRows, ...seedRows];
+  }, [portfolioProjects, statusOverrides]);
 
   const pendingRows = sendForApproval
     ? rows.filter((r) => !approvedIds.has(r.id) && !rejectedIds.has(r.id))
@@ -548,21 +580,52 @@ export default function ProjectPortfolio() {
 
   const handleApprove = (id: string) => {
     setApprovedIds((prev) => new Set([...prev, id]));
-    setRows((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status: "Approved" } : r)),
-    );
+    setStatusOverrides((prev) => ({ ...prev, [id]: "Approved" }));
   };
 
   const handleReject = (id: string) => {
     setRejectedIds((prev) => new Set([...prev, id]));
-    setRows((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status: "Rejected" } : r)),
-    );
+    setStatusOverrides((prev) => ({ ...prev, [id]: "Rejected" }));
   };
 
   const handleDemandSubmit = (selected: PortfolioRow[]) => {
-    // Wire your actual API call here
-    console.log("Demand submitted for:", selected);
+    // Convert DD-MM-YYYY → YYYY-MM-DD for date inputs
+    const toIso = (ddmmyyyy: string) => {
+      const [d, m, y] = ddmmyyyy.split("-");
+      return y && m && d ? `${y}-${m}-${d}` : ddmmyyyy;
+    };
+    const newDemands = selected.map((row) => ({
+      portfolio: "",
+      program: "",
+      projectName: row.project,
+      projectRole: "",
+      budgetCode: row.projectId,
+      pillar: "",
+      allocationPercent: 0,
+      status: "Pending" as const,
+      comments: "",
+      identified: false,
+      estimatedRate: 0,
+      currentYearForecast: 0,
+      resourceName: "",
+      workstream: "",
+      subTeam: "",
+      startDate: toIso(row.fromDate),
+      endDate: toIso(row.toDate),
+      type: "Internal" as const,
+      vendorName: "",
+      country: "",
+      resourceCount: 0,
+      allocation: { current: 0, y2027: 0, y2028: 0, y2029: 0, y2030: 0 },
+      forecast: { current: 0, y2027: 0, y2028: 0, y2029: 0, y2030: 0 },
+    }));
+    addDemands(newDemands);
+    navigate("/demand", {
+      state: {
+        fromPortfolio: true,
+        projectNames: selected.map((r) => r.project),
+      },
+    });
   };
 
   // KPI values
@@ -782,7 +845,7 @@ export default function ProjectPortfolio() {
                         {fmt(row.cost)}
                       </TableCell>
                       <TableCell
-                        className={`text-right text-sm font-medium ${row.variance < 0 ? "text-destructive" : "text-success"}`}
+                        className={`text-right text-sm font-medium ${row.variance < 0 ? "text-red-400" : "text-green-400"}`}
                       >
                         {row.variance < 0
                           ? `-${fmt(Math.abs(row.variance))}`
@@ -799,11 +862,11 @@ export default function ProjectPortfolio() {
                       {sendForApproval && (
                         <TableCell className="text-center">
                           {isApproved ? (
-                            <span className="flex items-center justify-center gap-1 text-success text-xs font-medium">
+                            <span className="flex items-center justify-center gap-1 text-green-400 text-xs font-medium">
                               <CheckCircle2 className="h-4 w-4" /> Approved
                             </span>
                           ) : isRejected ? (
-                            <span className="flex items-center justify-center gap-1 text-destructive text-xs font-medium">
+                            <span className="flex items-center justify-center gap-1 text-red-400 text-xs font-medium">
                               <XCircle className="h-4 w-4" /> Rejected
                             </span>
                           ) : (
@@ -811,7 +874,7 @@ export default function ProjectPortfolio() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="h-7 px-2 text-xs text-success border-success/30 hover:bg-success/10"
+                                className="h-7 px-2 text-xs text-green-400 border-success/30 hover:bg-success/10"
                                 onClick={() => handleApprove(row.id)}
                               >
                                 <CheckCircle2 className="h-3.5 w-3.5 mr-1" />{" "}
@@ -820,7 +883,7 @@ export default function ProjectPortfolio() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="h-7 px-2 text-xs text-destructive border-destructive/30 hover:bg-destructive/10"
+                                className="h-7 px-2 text-xs text-red-400 border-destructive/30 hover:bg-destructive/10"
                                 onClick={() => handleReject(row.id)}
                               >
                                 <XCircle className="h-3.5 w-3.5 mr-1" /> Reject

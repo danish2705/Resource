@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/useAuth";
+import { useStore } from "@/store/useStore";
 import { projectData } from "@/mocks/projects";
 import {
   Plus,
@@ -449,6 +450,7 @@ function ScenarioModal({
 export default function ScenarioPlanning() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { addPortfolioProject } = useStore();
   const isReadOnly = user?.role === "resource";
 
   // ── Project-level selectors ──
@@ -496,6 +498,51 @@ export default function ScenarioPlanning() {
   }
 
   function handleSave(sendForApproval: boolean) {
+    // Find the selected project's name from projectData
+    const projectMeta = projectData.find((p) => p.id === selectedProject);
+    const projectName =
+      projectMeta?.project ?? selectedProject ?? "Unnamed Project";
+
+    // Derive earliest start / latest end from resource rows
+    const filledRows = rows.filter((r) => r.fromDate && r.toDate);
+    const fromDate = filledRows.length
+      ? filledRows.reduce(
+          (min, r) => (r.fromDate < min ? r.fromDate : min),
+          filledRows[0].fromDate,
+        )
+      : new Date().toISOString().split("T")[0];
+    const toDate = filledRows.length
+      ? filledRows.reduce(
+          (max, r) => (r.toDate > max ? r.toDate : max),
+          filledRows[0].toDate,
+        )
+      : new Date().toISOString().split("T")[0];
+
+    // Map priority select value → PortfolioRow priority label
+    const priorityMap: Record<string, "Immediate" | "High" | "Medium" | "Low"> =
+      {
+        immediate: "Immediate",
+        high: "High",
+        medium: "Medium",
+        low: "Low",
+      };
+
+    addPortfolioProject({
+      project: projectName,
+      priority: priorityMap[selectedPriority] ?? "Medium",
+      owner: user?.username ?? "—",
+      type: selectedType || "Strategic",
+      status: sendForApproval
+        ? "Pending Approval"
+        : (selectedStatus as any) || "Proposed",
+      fromDate: fromDate.split("-").reverse().join("-"),
+      toDate: toDate.split("-").reverse().join("-"),
+      budget: totalBudget,
+      cost: liveCost,
+      variance: totalBudget - liveCost,
+      projectedBenefits: parseFloat(projectedBenefits) || 0,
+    });
+
     navigate("/project-portfolio", {
       state: { sendForApproval, projectId: selectedProject },
     });
@@ -514,9 +561,6 @@ export default function ScenarioPlanning() {
             Baseline, and Best Case scenarios automatically.
           </p>
         </div>
-        <button className="flex items-center gap-2 rounded-lg bg-primary hover:bg-primary/90 px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors shadow-sm">
-          <Users className="h-4 w-4" /> Create Demand
-        </button>
       </div>
 
       {/* ── Project-level selectors + Projected Benefits ── */}
@@ -683,7 +727,9 @@ export default function ScenarioPlanning() {
                 <th className="px-4 py-3 text-left w-8">Sr</th>
                 <th className="px-4 py-3 text-left min-w-[160px]">Role</th>
                 <th className="px-4 py-3 text-center w-36">No. of Resources</th>
-                <th className="px-4 py-3 text-left min-w-[140px]">Start Date</th>
+                <th className="px-4 py-3 text-left min-w-[140px]">
+                  Start Date
+                </th>
                 <th className="px-4 py-3 text-left min-w-[140px]">End Date</th>
                 <th className="px-4 py-3 text-left min-w-[130px]">
                   Bill Rate ($/Hr)
