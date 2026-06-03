@@ -529,6 +529,7 @@ export default function ScenarioPlanning() {
 
     addPortfolioProject({
       project: projectName,
+      portfolio: selectedPortfolio,
       priority: priorityMap[selectedPriority] ?? "Medium",
       owner: user?.username ?? "—",
       type: selectedType || "Strategic",
@@ -541,6 +542,15 @@ export default function ScenarioPlanning() {
       cost: liveCost,
       variance: totalBudget - liveCost,
       projectedBenefits: parseFloat(projectedBenefits) || 0,
+      resourcePlan: rows
+        .filter((r) => r.role)
+        .map((r) => ({
+          role: r.role,
+          noOfResources: r.noOfResources,
+          fromDate: r.fromDate,
+          toDate: r.toDate,
+          billRate: r.billRate,
+        })),
     });
 
     navigate("/project-portfolio", {

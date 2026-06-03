@@ -1074,7 +1074,7 @@ export default function CreateDemand() {
     if (!demand) return;
     setForms([
       {
-        portfolio: demand.portfolio || demand.pillar,
+        portfolio: demand.portfolio || demand.pillar || _portfolios[0] || "",
         program: demand.program,
         projectName: demand.projectName,
         projectRole: demand.projectRole,

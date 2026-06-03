@@ -1,6 +1,7 @@
 import { useState, useRef, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "@/store/useStore";
+import { useActiveValues } from "@/store/useMasterData";
 
 import {
   X,
@@ -36,10 +37,20 @@ type ApprovalStatus =
   | "Proposed"
   | "Approved - Backlog";
 
+interface ResourcePlanEntry {
+  role: string;
+  required: number;
+  allocated: number;
+  gap: number;
+  startDate: string;
+  endDate: string;
+}
+
 interface PortfolioRow {
   id: string;
   projectId: string;
   project: string;
+  portfolio?: string;
   priority: "Immediate" | "High" | "Medium" | "Low";
   owner: string;
   type: string;
@@ -50,6 +61,7 @@ interface PortfolioRow {
   cost: number;
   variance: number;
   projectedBenefits: number;
+  resourcePlan?: ResourcePlanEntry[];
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -84,6 +96,40 @@ const SEED_ROWS: PortfolioRow[] = [
     cost: 374971.08,
     variance: 625028.92,
     projectedBenefits: 269250,
+    resourcePlan: [
+      {
+        role: "Solution Architect",
+        required: 2,
+        allocated: 2,
+        gap: 0,
+        startDate: "01-06-2020",
+        endDate: "25-01-2021",
+      },
+      {
+        role: "Backend Developer",
+        required: 4,
+        allocated: 3,
+        gap: 1,
+        startDate: "01-07-2020",
+        endDate: "25-01-2021",
+      },
+      {
+        role: "QA Engineer",
+        required: 2,
+        allocated: 2,
+        gap: 0,
+        startDate: "01-09-2020",
+        endDate: "25-01-2021",
+      },
+      {
+        role: "Project Manager",
+        required: 1,
+        allocated: 1,
+        gap: 0,
+        startDate: "01-06-2020",
+        endDate: "25-01-2021",
+      },
+    ],
   },
   {
     id: "2",
@@ -99,6 +145,32 @@ const SEED_ROWS: PortfolioRow[] = [
     cost: 166401.76,
     variance: -41401.76,
     projectedBenefits: 122000,
+    resourcePlan: [
+      {
+        role: "Mobile Developer",
+        required: 3,
+        allocated: 3,
+        gap: 0,
+        startDate: "01-01-2020",
+        endDate: "19-08-2020",
+      },
+      {
+        role: "UI/UX Designer",
+        required: 1,
+        allocated: 1,
+        gap: 0,
+        startDate: "01-01-2020",
+        endDate: "30-03-2020",
+      },
+      {
+        role: "Business Analyst",
+        required: 1,
+        allocated: 0,
+        gap: 1,
+        startDate: "01-02-2020",
+        endDate: "19-08-2020",
+      },
+    ],
   },
   {
     id: "3",
@@ -114,6 +186,32 @@ const SEED_ROWS: PortfolioRow[] = [
     cost: 306096.0,
     variance: -256096.0,
     projectedBenefits: 760000,
+    resourcePlan: [
+      {
+        role: "Research Lead",
+        required: 1,
+        allocated: 1,
+        gap: 0,
+        startDate: "01-03-2020",
+        endDate: "08-02-2021",
+      },
+      {
+        role: "Data Scientist",
+        required: 2,
+        allocated: 1,
+        gap: 1,
+        startDate: "01-04-2020",
+        endDate: "08-02-2021",
+      },
+      {
+        role: "Research Analyst",
+        required: 3,
+        allocated: 2,
+        gap: 1,
+        startDate: "01-05-2020",
+        endDate: "31-12-2020",
+      },
+    ],
   },
   {
     id: "4",
@@ -129,6 +227,40 @@ const SEED_ROWS: PortfolioRow[] = [
     cost: 388804.46,
     variance: 61195.54,
     projectedBenefits: 520000,
+    resourcePlan: [
+      {
+        role: "Data Engineer",
+        required: 3,
+        allocated: 3,
+        gap: 0,
+        startDate: "01-02-2020",
+        endDate: "20-08-2020",
+      },
+      {
+        role: "BI Developer",
+        required: 2,
+        allocated: 2,
+        gap: 0,
+        startDate: "01-03-2020",
+        endDate: "20-08-2020",
+      },
+      {
+        role: "Cloud Architect",
+        required: 1,
+        allocated: 1,
+        gap: 0,
+        startDate: "01-02-2020",
+        endDate: "20-08-2020",
+      },
+      {
+        role: "Scrum Master",
+        required: 1,
+        allocated: 1,
+        gap: 0,
+        startDate: "01-02-2020",
+        endDate: "20-08-2020",
+      },
+    ],
   },
   {
     id: "5",
@@ -144,6 +276,40 @@ const SEED_ROWS: PortfolioRow[] = [
     cost: 433463.29,
     variance: 826536.71,
     projectedBenefits: 280000,
+    resourcePlan: [
+      {
+        role: "AI/ML Engineer",
+        required: 4,
+        allocated: 3,
+        gap: 1,
+        startDate: "01-01-2020",
+        endDate: "21-10-2020",
+      },
+      {
+        role: "Frontend Developer",
+        required: 3,
+        allocated: 3,
+        gap: 0,
+        startDate: "01-03-2020",
+        endDate: "21-10-2020",
+      },
+      {
+        role: "Product Owner",
+        required: 1,
+        allocated: 1,
+        gap: 0,
+        startDate: "01-01-2020",
+        endDate: "21-10-2020",
+      },
+      {
+        role: "DevOps Engineer",
+        required: 2,
+        allocated: 1,
+        gap: 1,
+        startDate: "01-04-2020",
+        endDate: "21-10-2020",
+      },
+    ],
   },
   {
     id: "6",
@@ -159,6 +325,32 @@ const SEED_ROWS: PortfolioRow[] = [
     cost: 196161.58,
     variance: -96161.58,
     projectedBenefits: 37861,
+    resourcePlan: [
+      {
+        role: "CRM Consultant",
+        required: 2,
+        allocated: 2,
+        gap: 0,
+        startDate: "01-04-2020",
+        endDate: "23-12-2020",
+      },
+      {
+        role: "Integration Developer",
+        required: 2,
+        allocated: 1,
+        gap: 1,
+        startDate: "01-05-2020",
+        endDate: "23-12-2020",
+      },
+      {
+        role: "Business Analyst",
+        required: 1,
+        allocated: 1,
+        gap: 0,
+        startDate: "01-04-2020",
+        endDate: "30-09-2020",
+      },
+    ],
   },
   {
     id: "7",
@@ -174,6 +366,32 @@ const SEED_ROWS: PortfolioRow[] = [
     cost: 623626.68,
     variance: -573626.68,
     projectedBenefits: 72750,
+    resourcePlan: [
+      {
+        role: "iOS Developer",
+        required: 2,
+        allocated: 2,
+        gap: 0,
+        startDate: "01-05-2020",
+        endDate: "30-04-2021",
+      },
+      {
+        role: "Android Developer",
+        required: 2,
+        allocated: 2,
+        gap: 0,
+        startDate: "01-05-2020",
+        endDate: "30-04-2021",
+      },
+      {
+        role: "QA Engineer",
+        required: 1,
+        allocated: 0,
+        gap: 1,
+        startDate: "01-08-2020",
+        endDate: "30-04-2021",
+      },
+    ],
   },
   {
     id: "8",
@@ -189,6 +407,32 @@ const SEED_ROWS: PortfolioRow[] = [
     cost: 386401.4,
     variance: -266401.4,
     projectedBenefits: 93083.33,
+    resourcePlan: [
+      {
+        role: "Field Engineer",
+        required: 5,
+        allocated: 4,
+        gap: 1,
+        startDate: "01-01-2020",
+        endDate: "21-08-2020",
+      },
+      {
+        role: "Operations Manager",
+        required: 1,
+        allocated: 1,
+        gap: 0,
+        startDate: "01-01-2020",
+        endDate: "21-08-2020",
+      },
+      {
+        role: "Technical Analyst",
+        required: 2,
+        allocated: 2,
+        gap: 0,
+        startDate: "01-03-2020",
+        endDate: "21-08-2020",
+      },
+    ],
   },
 ];
 
@@ -229,6 +473,15 @@ function ProjectDetailModal({
 }) {
   const budgetPct = Math.min(100, Math.round((row.cost / row.budget) * 100));
   const isOver = row.cost > row.budget;
+  const [activeTab, setActiveTab] = useState<"overview" | "resource-plan">(
+    "overview",
+  );
+
+  const totalRequired =
+    row.resourcePlan?.reduce((s, r) => s + r.required, 0) ?? 0;
+  const totalAllocated =
+    row.resourcePlan?.reduce((s, r) => s + r.allocated, 0) ?? 0;
+  const totalGap = totalRequired - totalAllocated;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -262,130 +515,301 @@ function ProjectDetailModal({
           </button>
         </div>
 
+        {/* Tabs */}
+        <div className="flex border-b border-border px-6 gap-1 bg-card">
+          <button
+            onClick={() => setActiveTab("overview")}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
+              activeTab === "overview"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveTab("resource-plan")}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-1.5 ${
+              activeTab === "resource-plan"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Resource Plan
+            {totalGap > 0 && (
+              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold">
+                {totalGap}
+              </span>
+            )}
+          </button>
+        </div>
+
         {/* Body */}
         <div className="p-6 space-y-5">
-          {/* Budget vs Target bar */}
-          <div className="bg-muted/40 border border-border rounded-xl p-4">
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                Budget vs. Target
-              </p>
-              <p className="text-xs text-muted-foreground">{budgetPct}% used</p>
-            </div>
-            <p className="text-2xl font-bold text-foreground mb-3">
-              {fmtShort(row.budget)}
-            </p>
-            <div className="h-3 rounded-full bg-muted overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all ${isOver ? "bg-red-500" : "bg-orange-400"}`}
-                style={{ width: `${budgetPct}%` }}
-              />
-            </div>
-            <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <span className="inline-block w-2 h-2 rounded-full bg-orange-400" />
-                Cost · {fmtShort(row.cost)}
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="inline-block w-2 h-2 rounded-full bg-blue-400" />
-                Budget · {fmtShort(row.budget)}
-              </span>
-              <span
-                className={`ml-auto font-medium ${row.variance < 0 ? "text-red-400" : "text-green-400"}`}
-              >
-                Variance ·{" "}
-                {row.variance < 0
-                  ? `-${fmtShort(Math.abs(row.variance))}`
-                  : fmtShort(row.variance)}
-              </span>
-            </div>
-          </div>
-
-          {/* KPI grid */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-muted/40 border border-border rounded-xl p-4">
-              <p className="text-xs text-muted-foreground mb-1">
-                Projected Benefits
-              </p>
-              <p className="text-2xl font-bold text-primary">
-                {fmtShort(row.projectedBenefits)}
-              </p>
-            </div>
-            <div className="bg-muted/40 border border-border rounded-xl p-4">
-              <p className="text-xs text-muted-foreground mb-1">Actual Cost</p>
-              <p className="text-2xl font-bold text-foreground">
-                {fmtShort(row.cost)}
-              </p>
-            </div>
-            <div className="bg-muted/40 border border-border rounded-xl p-4">
-              <p className="text-xs text-muted-foreground mb-1">Variance</p>
-              <p
-                className={`text-2xl font-bold ${row.variance < 0 ? "text-red-400" : "text-green-400"}`}
-              >
-                {row.variance < 0
-                  ? `-${fmtShort(Math.abs(row.variance))}`
-                  : fmtShort(row.variance)}
-              </p>
-            </div>
-            <div className="bg-muted/40 border border-border rounded-xl p-4">
-              <p className="text-xs text-muted-foreground mb-1">Budget</p>
-              <p className="text-2xl font-bold text-foreground">
-                {fmtShort(row.budget)}
-              </p>
-            </div>
-          </div>
-
-          {/* Actuals bar */}
-          <div className="bg-muted/40 border border-border rounded-xl p-4">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
-              Actuals
-            </p>
-            <p className="text-2xl font-bold text-foreground mb-3">
-              {fmtShort(row.cost)}
-            </p>
-            <div className="h-3 rounded-full bg-muted overflow-hidden">
-              <div
-                className="h-full rounded-full bg-red-500 transition-all"
-                style={{
-                  width: `${Math.min(100, Math.round((row.cost / (row.budget * 1.2)) * 100))}%`,
-                }}
-              />
-            </div>
-            <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <span className="inline-block w-2 h-2 rounded-full bg-red-400" />
-                Unselected Actuals · {fmtShort(row.cost * 0.32)}
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="inline-block w-2 h-2 rounded-full bg-blue-400" />
-                Selected Actuals · {fmtShort(row.cost * 0.68)}
-              </span>
-            </div>
-          </div>
-
-          {/* Project details grid */}
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { label: "Project Owner", value: row.owner },
-              { label: "Type", value: row.type },
-              { label: "Priority", value: row.priority },
-              { label: "Start Date", value: row.fromDate },
-              { label: "End Date", value: row.toDate },
-              { label: "Status", value: row.status },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className="bg-muted/40 border border-border rounded-xl p-3"
-              >
-                <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide font-medium">
-                  {item.label}
+          {activeTab === "overview" ? (
+            <>
+              {/* Budget vs Target bar */}
+              <div className="bg-muted/40 border border-border rounded-xl p-4">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Budget vs. Target
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {budgetPct}% used
+                  </p>
+                </div>
+                <p className="text-2xl font-bold text-foreground mb-3">
+                  {fmtShort(row.budget)}
                 </p>
-                <p className="text-sm font-semibold text-foreground">
-                  {item.value}
-                </p>
+                <div className="h-3 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all ${isOver ? "bg-red-500" : "bg-orange-400"}`}
+                    style={{ width: `${budgetPct}%` }}
+                  />
+                </div>
+                <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <span className="inline-block w-2 h-2 rounded-full bg-orange-400" />
+                    Cost · {fmtShort(row.cost)}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="inline-block w-2 h-2 rounded-full bg-blue-400" />
+                    Budget · {fmtShort(row.budget)}
+                  </span>
+                  <span
+                    className={`ml-auto font-medium ${row.variance < 0 ? "text-red-400" : "text-green-400"}`}
+                  >
+                    Variance ·{" "}
+                    {row.variance < 0
+                      ? `-${fmtShort(Math.abs(row.variance))}`
+                      : fmtShort(row.variance)}
+                  </span>
+                </div>
               </div>
-            ))}
-          </div>
+
+              {/* KPI grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-muted/40 border border-border rounded-xl p-4">
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Projected Benefits
+                  </p>
+                  <p className="text-2xl font-bold text-primary">
+                    {fmtShort(row.projectedBenefits)}
+                  </p>
+                </div>
+                <div className="bg-muted/40 border border-border rounded-xl p-4">
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Actual Cost
+                  </p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {fmtShort(row.cost)}
+                  </p>
+                </div>
+                <div className="bg-muted/40 border border-border rounded-xl p-4">
+                  <p className="text-xs text-muted-foreground mb-1">Variance</p>
+                  <p
+                    className={`text-2xl font-bold ${row.variance < 0 ? "text-red-400" : "text-green-400"}`}
+                  >
+                    {row.variance < 0
+                      ? `-${fmtShort(Math.abs(row.variance))}`
+                      : fmtShort(row.variance)}
+                  </p>
+                </div>
+                <div className="bg-muted/40 border border-border rounded-xl p-4">
+                  <p className="text-xs text-muted-foreground mb-1">Budget</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {fmtShort(row.budget)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Actuals bar */}
+              <div className="bg-muted/40 border border-border rounded-xl p-4">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                  Actuals
+                </p>
+                <p className="text-2xl font-bold text-foreground mb-3">
+                  {fmtShort(row.cost)}
+                </p>
+                <div className="h-3 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-red-500 transition-all"
+                    style={{
+                      width: `${Math.min(100, Math.round((row.cost / (row.budget * 1.2)) * 100))}%`,
+                    }}
+                  />
+                </div>
+                <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <span className="inline-block w-2 h-2 rounded-full bg-red-400" />
+                    Unselected Actuals · {fmtShort(row.cost * 0.32)}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="inline-block w-2 h-2 rounded-full bg-blue-400" />
+                    Selected Actuals · {fmtShort(row.cost * 0.68)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Project details grid */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: "Project Owner", value: row.owner },
+                  { label: "Type", value: row.type },
+                  { label: "Priority", value: row.priority },
+                  { label: "Start Date", value: row.fromDate },
+                  { label: "End Date", value: row.toDate },
+                  { label: "Status", value: row.status },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="bg-muted/40 border border-border rounded-xl p-3"
+                  >
+                    <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide font-medium">
+                      {item.label}
+                    </p>
+                    <p className="text-sm font-semibold text-foreground">
+                      {item.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            /* ── Resource Plan Tab ── */
+            <>
+              {/* Summary KPIs */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-muted/40 border border-border rounded-xl p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide font-medium">
+                    Total Required
+                  </p>
+                  <p className="text-3xl font-bold text-foreground">
+                    {totalRequired}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    resources
+                  </p>
+                </div>
+                <div className="bg-muted/40 border border-border rounded-xl p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide font-medium">
+                    Allocated
+                  </p>
+                  <p className="text-3xl font-bold text-green-400">
+                    {totalAllocated}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    resources
+                  </p>
+                </div>
+                <div
+                  className={`border rounded-xl p-4 text-center ${totalGap > 0 ? "bg-red-500/10 border-red-500/30" : "bg-muted/40 border-border"}`}
+                >
+                  <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide font-medium">
+                    Gap
+                  </p>
+                  <p
+                    className={`text-3xl font-bold ${totalGap > 0 ? "text-red-400" : "text-green-400"}`}
+                  >
+                    {totalGap}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {totalGap > 0 ? "unfilled" : "fully staffed"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Allocation progress bar */}
+              <div className="bg-muted/40 border border-border rounded-xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Staffing Coverage
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {totalRequired > 0
+                      ? Math.round((totalAllocated / totalRequired) * 100)
+                      : 0}
+                    %
+                  </p>
+                </div>
+                <div className="h-3 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all ${totalGap > 0 ? "bg-amber-400" : "bg-green-500"}`}
+                    style={{
+                      width: `${totalRequired > 0 ? Math.round((totalAllocated / totalRequired) * 100) : 0}%`,
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Role breakdown table */}
+              {row.resourcePlan && row.resourcePlan.length > 0 ? (
+                <div className="rounded-xl border border-border overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/40">
+                      <tr>
+                        <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                          Role
+                        </th>
+                        <th className="px-4 py-2.5 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                          Required
+                        </th>
+                        <th className="px-4 py-2.5 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                          Allocated
+                        </th>
+                        <th className="px-4 py-2.5 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                          Gap
+                        </th>
+                        <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                          Period
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {row.resourcePlan.map((entry, idx) => (
+                        <tr
+                          key={idx}
+                          className="border-t border-border/50 hover:bg-muted/20 transition-colors"
+                        >
+                          <td className="px-4 py-3 font-medium text-foreground">
+                            {entry.role}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold text-sm">
+                              {entry.required}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 font-bold text-sm">
+                              {entry.allocated}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            {entry.gap > 0 ? (
+                              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-500/10 text-red-500 font-bold text-sm">
+                                -{entry.gap}
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/10 text-green-500 font-bold text-sm">
+                                ✓
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
+                            {entry.startDate} → {entry.endDate}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-border/50 p-8 text-center text-muted-foreground text-sm">
+                  No resource plan defined for this project.
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -543,6 +967,7 @@ export default function ProjectPortfolio() {
   const location = useLocation();
   const navigate = useNavigate();
   const { portfolioProjects, addDemands } = useStore();
+  const masterPortfolios = useActiveValues("portfolios");
 
   const sendForApproval = location.state?.sendForApproval ?? false;
   const [viewRow, setViewRow] = useState<PortfolioRow | null>(null);
@@ -561,6 +986,7 @@ export default function ProjectPortfolio() {
       id: p.id,
       projectId: p.projectId,
       project: p.project,
+      portfolio: p.portfolio,
       priority: p.priority,
       owner: p.owner,
       type: p.type,
@@ -571,6 +997,15 @@ export default function ProjectPortfolio() {
       cost: p.cost,
       variance: p.variance,
       projectedBenefits: p.projectedBenefits,
+      // Map scenario planning resource rows into the ResourcePlanEntry shape
+      resourcePlan: p.resourcePlan?.map((r) => ({
+        role: r.role,
+        required: r.noOfResources,
+        allocated: 0,
+        gap: r.noOfResources,
+        startDate: r.fromDate ? r.fromDate.split("-").reverse().join("-") : "",
+        endDate: r.toDate ? r.toDate.split("-").reverse().join("-") : "",
+      })),
     }));
     const seedRows: PortfolioRow[] = SEED_ROWS.map((r) => ({
       ...r,
@@ -599,8 +1034,24 @@ export default function ProjectPortfolio() {
       const [d, m, y] = ddmmyyyy.split("-");
       return y && m && d ? `${y}-${m}-${d}` : ddmmyyyy;
     };
+
+    // Map project type to a portfolio value, fallback to first available
+    const typeToPortfolio: Record<string, string> = {
+      Strategic: "Global",
+      Compliance: "Hi-tech",
+      Financial: "Retail",
+    };
+    const getPortfolio = (type: string) => {
+      const mapped = typeToPortfolio[type];
+      if (mapped && masterPortfolios.includes(mapped)) return mapped;
+      return masterPortfolios[0] || "";
+    };
+
     const newDemands = selected.map((row) => ({
-      portfolio: "",
+      portfolio:
+        row.portfolio && masterPortfolios.includes(row.portfolio)
+          ? row.portfolio
+          : getPortfolio(row.type),
       program: "",
       projectName: row.project,
       projectRole: "",
@@ -620,7 +1071,7 @@ export default function ProjectPortfolio() {
       type: "Internal" as const,
       vendorName: "",
       country: "",
-      resourceCount: 0,
+      resourceCount: row.resourcePlan?.reduce((s, r) => s + r.required, 0) ?? 0,
       allocation: { current: 0, y2027: 0, y2028: 0, y2029: 0, y2030: 0 },
       forecast: { current: 0, y2027: 0, y2028: 0, y2029: 0, y2030: 0 },
     }));

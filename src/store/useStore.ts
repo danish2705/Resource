@@ -64,10 +64,19 @@ export function __registerAuthStore(store: {
 
 // ─── Portfolio Project (from Scenario Planning) ───────────────────────────────
 
+export interface PortfolioResourcePlanEntry {
+  role: string;
+  noOfResources: number;
+  fromDate: string;
+  toDate: string;
+  billRate: number;
+}
+
 export interface PortfolioProject {
   id: string;
   projectId: string;
   project: string;
+  portfolio: string;
   priority: "Immediate" | "High" | "Medium" | "Low";
   owner: string;
   type: string;
@@ -84,6 +93,7 @@ export interface PortfolioProject {
   cost: number;
   variance: number;
   projectedBenefits: number;
+  resourcePlan?: PortfolioResourcePlanEntry[];
 }
 
 interface AppState {
