@@ -1,3 +1,4 @@
+import CohortHeatmap from "@/components/CohortHeatmap";
 import {
   aging,
   availTrend,
@@ -24,10 +25,6 @@ import {
   forecastData,
   GENERIC_FILTER_DEFS,
   header,
-  heatmapData,
-  heatmapDepts,
-  heatmapManagers,
-  heatmapMonths,
   items,
   keyInsights,
   main,
@@ -1874,11 +1871,10 @@ function GenericFilterBar({ filters, setFilters }: { filters: any; setFilters: (
 // ─── Utilization-specific helpers ─────────────────────────────────────────────
 
 function heatCell(val: number) {
-  if (val > 110) return { bg: "#fde8e8", color: COLORS.red };
-  if (val > 100) return { bg: "#fee2e2", color: "#c0392b" };
-  if (val >= 85) return { bg: "#e8f5e9", color: "#2e7d32" };
-  if (val >= 70) return { bg: "#e3f4fd", color: "#1565c0" };
-  return { bg: "#fff9e6", color: "#92400e" };
+  // RAG: Green 0–60, Amber 65–85, Red 90–100
+  if (val >= 90) return { bg: "#DC2626", color: "#ffffff" };
+  if (val >= 65) return { bg: "#D97706", color: "#ffffff" };
+  return { bg: "#16A34A", color: "#ffffff" };
 }
 
 // ─── Utilization Dashboard (Report #12) ──────────────────────────────────────
@@ -2590,7 +2586,7 @@ function ReportDetail12() {
             </div>
           </div>
 
-          {/* Heatmap */}
+          {/* Heatmap — Cohort Style */}
           <div
             style={{
               background: T.surface,
@@ -2604,145 +2600,15 @@ function ReportDetail12() {
                 fontSize: 12,
                 fontWeight: 700,
                 color: T.text,
-                marginBottom: 10,
+                marginBottom: 4,
               }}
             >
-              7. Utilization Heatmap by Department
+              7. Utilization Heatmap
             </div>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr>
-                  <th
-                    style={{
-                      fontSize: 10,
-                      color: T.textMuted,
-                      padding: "5px 8px",
-                      textAlign: "left",
-                      borderBottom: `0.5px solid ${T.border}`,
-                      fontWeight: 600,
-                      minWidth: 130,
-                    }}
-                  >
-                    Department / Manager
-                  </th>
-                  {heatmapManagers.map((m) => (
-                    <th
-                      key={m}
-                      style={{
-                        fontSize: 9.5,
-                        color: T.textSec,
-                        padding: "5px 8px",
-                        textAlign: "center",
-                        borderBottom: `0.5px solid ${T.border}`,
-                        fontWeight: 700,
-                      }}
-                    >
-                      {m}
-                    </th>
-                  ))}
-                  <th
-                    style={{
-                      fontSize: 10,
-                      color: T.textMuted,
-                      padding: "5px 8px",
-                      textAlign: "center",
-                      borderBottom: `0.5px solid ${T.border}`,
-                      fontWeight: 600,
-                    }}
-                  >
-                    Department Avg
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {heatmapDepts.map((row, i) => {
-                  const avgStyle =
-                    row.avg >= 80
-                      ? { bg: "#e8f5e9", color: "#2e7d32" }
-                      : { bg: "#fff4cc", color: "#92400e" };
-                  return (
-                    <tr
-                      key={i}
-                      style={{ borderBottom: `0.5px solid ${T.borderLight}` }}
-                    >
-                      <td
-                        style={{
-                          padding: "6px 8px",
-                          fontSize: 11,
-                          color: T.textSec,
-                          fontWeight: 600,
-                        }}
-                      >
-                        {row.dept}
-                      </td>
-                      {row.vals.map((v, j) => {
-                        const s = heatCell(v);
-                        return (
-                          <td
-                            key={j}
-                            style={{ padding: "4px 6px", textAlign: "center" }}
-                          >
-                            <span
-                              style={{
-                                fontSize: 11,
-                                fontWeight: 700,
-                                color: s.color,
-                                background: s.bg,
-                                padding: "3px 8px",
-                                borderRadius: 4,
-                                display: "inline-block",
-                              }}
-                            >
-                              {v}%
-                            </span>
-                          </td>
-                        );
-                      })}
-                      <td style={{ padding: "4px 6px", textAlign: "center" }}>
-                        <span
-                          style={{
-                            fontSize: 11,
-                            fontWeight: 800,
-                            color: avgStyle.color,
-                            background: avgStyle.bg,
-                            padding: "3px 8px",
-                            borderRadius: 4,
-                            display: "inline-block",
-                          }}
-                        >
-                          {row.avg}%
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            <div style={{ display: "flex", gap: 14, marginTop: 10 }}>
-              {utilization.map((l, i) => (
-                <span
-                  key={i}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                    fontSize: 9,
-                  }}
-                >
-                  <span
-                    style={{
-                      width: 10,
-                      height: 10,
-                      background: l.bg,
-                      border: `1px solid ${l.color}44`,
-                      borderRadius: 2,
-                      display: "inline-block",
-                    }}
-                  />
-                  <span style={{ color: T.textMuted }}>{l.label}</span>
-                </span>
-              ))}
-            </div>
+            <CohortHeatmap
+              title=""
+              pillarFilter={filters.pillar ?? "All"}
+            />
           </div>
 
           {/* Key Insights */}
@@ -2818,10 +2684,10 @@ function ReportDetail12() {
 // ─── Shared card/table helpers ────────────────────────────────────────────────
 
 function heatColor(val: number) {
-  if (val >= 101) return { bg: "#fde8e8", text: COLORS.red, fw: 700 };
-  if (val >= 95) return { bg: "#fff4cc", text: "#a16207", fw: 600 };
-  if (val >= 70) return { bg: "#e8f5e9", text: "#2e7d32", fw: 500 };
-  return { bg: "#e3f2fd", text: "#1565c0", fw: 500 };
+  // RAG: Green 0–60, Amber 65–85, Red 90+
+  if (val >= 90) return { bg: "#DC2626", text: "#ffffff", fw: 700 };
+  if (val >= 65) return { bg: "#D97706", text: "#ffffff", fw: 600 };
+  return { bg: "#16A34A", text: "#ffffff", fw: 500 };
 }
 
 function CardHeader({ children }: { children: React.ReactNode }) {
@@ -2992,7 +2858,7 @@ function ReportDetail1() {
           ))}
         </div>
 
-        {/* Heatmap */}
+        {/* Heatmap — Cohort Style */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12 }}>
           <div
             style={{
@@ -3002,186 +2868,13 @@ function ReportDetail1() {
               padding: "14px 16px",
             }}
           >
-            <CardHeader>1. Capacity Heatmap (Utilization %)</CardHeader>
-            <div style={{ overflowX: "auto" }}>
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  minWidth: 520,
-                }}
-              >
-                <thead>
-                  <tr>
-                    <th
-                      style={{
-                        fontSize: 9,
-                        color: T.textMuted,
-                        padding: "4px 6px",
-                        textAlign: "left",
-                        width: 36,
-                      }}
-                    >
-                      Pillar
-                    </th>
-                    <th
-                      style={{
-                        fontSize: 9,
-                        color: T.textMuted,
-                        padding: "4px 6px",
-                        textAlign: "left",
-                        minWidth: 130,
-                      }}
-                    >
-                      Team / Skill Set
-                    </th>
-                    {heatmapMonths.map((m) => (
-                      <th
-                        key={m}
-                        style={{
-                          fontSize: 8,
-                          color: T.textMuted,
-                          padding: "4px 4px",
-                          textAlign: "center",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {m}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {heatmapData.map((pillar, pi) =>
-                    pillar.rows.map((row, ri) => {
-                      const isFirst = ri === 0;
-                      return (
-                        <tr
-                          key={`${pi}-${ri}`}
-                          style={{
-                            borderTop:
-                              isFirst && pi > 0
-                                ? `2px solid ${T.border}`
-                                : `0.5px solid ${T.borderLight}`,
-                          }}
-                        >
-                          {isFirst && (
-                            <td
-                              rowSpan={pillar.rows.length}
-                              style={{
-                                fontSize: 10,
-                                fontWeight: 700,
-                                color: T.textSec,
-                                padding: "4px 6px",
-                                verticalAlign: "middle",
-                                textAlign: "center",
-                                borderRight: `1px solid ${T.border}`,
-                              }}
-                            >
-                              <div>{pillar.icon}</div>
-                              <div
-                                style={{
-                                  fontSize: 8,
-                                  marginTop: 2,
-                                  color: T.textMuted,
-                                }}
-                              >
-                                {pillar.pillar}
-                              </div>
-                            </td>
-                          )}
-                          <td
-                            style={{
-                              fontSize: 9.5,
-                              color: T.textSec,
-                              padding: "4px 6px",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {row.team}
-                          </td>
-                          {row.vals.map((v, vi) => {
-                            const { bg, text, fw } = heatColor(v);
-                            return (
-                              <td
-                                key={vi}
-                                style={{
-                                  padding: "3px 3px",
-                                  textAlign: "center",
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    fontSize: 9.5,
-                                    fontWeight: fw,
-                                    color: text,
-                                    background: bg,
-                                    borderRadius: 3,
-                                    padding: "2px 5px",
-                                    display: "inline-block",
-                                  }}
-                                >
-                                  {v}%
-                                </span>
-                              </td>
-                            );
-                          })}
-                        </tr>
-                      );
-                    }),
-                  )}
-                </tbody>
-              </table>
+            <div style={{ fontSize: 12, fontWeight: 700, color: T.text, marginBottom: 12 }}>
+              1. Capacity Heatmap (Utilization %)
             </div>
-            <div
-              style={{
-                display: "flex",
-                gap: 12,
-                marginTop: 10,
-                flexWrap: "wrap",
-              }}
-            >
-              {[
-                {
-                  label: "Underutilized (<70%)",
-                  bg: "#e3f2fd",
-                  color: "#1565c0",
-                },
-                { label: "Healthy (70%–95%)", bg: "#e8f5e9", color: "#2e7d32" },
-                {
-                  label: "Near Capacity (95%–100%)",
-                  bg: "#fff4cc",
-                  color: "#a16207",
-                },
-                {
-                  label: "Overallocated (>100%)",
-                  bg: "#fde8e8",
-                  color: COLORS.red,
-                },
-              ].map((leg, i) => (
-                <span
-                  key={i}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                    fontSize: 9,
-                  }}
-                >
-                  <span
-                    style={{
-                      width: 10,
-                      height: 10,
-                      background: leg.bg,
-                      border: `1px solid ${leg.color}44`,
-                      borderRadius: 2,
-                      display: "inline-block",
-                    }}
-                  />
-                  <span style={{ color: T.textMuted }}>{leg.label}</span>
-                </span>
-              ))}
-            </div>
+            <CohortHeatmap
+              title="Enterprise Capacity Utilization — Jan to Jun 2026"
+              pillarFilter={execFilters.pillar ?? "All"}
+            />
           </div>
         </div>
 

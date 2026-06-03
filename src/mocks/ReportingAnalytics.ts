@@ -457,24 +457,24 @@ export const underutilizedResources = [
   { name: "Kavya Iyer", dept: "Delivery", util: 42, hours: 80 },
   { name: "Priya Nair", dept: "Finance", util: 45, hours: 72 },
   { name: "Arjun Reddy", dept: "Operations", util: 48, hours: 64 },
-  { name: "Vikram Singh", dept: "Technology", util: 49, hours: 60 },
+  { name: "Vikram Singh", dept: "Technology", util: 50, hours: 60 },
   { name: "Anita Singh", dept: "HR", util: 50, hours: 58 },
-  { name: "Sandeep Das", dept: "Business Support", util: 52, hours: 56 },
+  { name: "Sandeep Das", dept: "Business Support", util: 55, hours: 56 },
   { name: "Rahul Verma", dept: "Operations", util: 55, hours: 50 },
-  { name: "Manoj Gupta", dept: "Delivery", util: 57, hours: 48 },
+  { name: "Manoj Gupta", dept: "Delivery", util: 55, hours: 48 },
 ];
 
 export const overutilizedResources = [
-  { name: "Amit Kumar", dept: "Delivery", util: 98, overtime: 42 },
-  { name: "Sneha Joshi", dept: "Delivery", util: 95, overtime: 36 },
-  { name: "Deepak Yadav", dept: "Technology", util: 93, overtime: 32 },
-  { name: "Pooja Mehta", dept: "Technology", util: 91, overtime: 28 },
-  { name: "Varun Joshi", dept: "Operations", util: 90, overtime: 26 },
-  { name: "Rakesh Patel", dept: "Delivery", util: 89, overtime: 24 },
-  { name: "Meera Nair", dept: "Business Support", util: 87, overtime: 20 },
-  { name: "Karan Malhotra", dept: "Delivery", util: 86, overtime: 18 },
-  { name: "Isha Verma", dept: "Technology", util: 84, overtime: 16 },
-  { name: "Sunil Rao", dept: "Operations", util: 83, overtime: 16 },
+  { name: "Amit Kumar", dept: "Delivery", util: 100, overtime: 40 },
+  { name: "Sneha Joshi", dept: "Delivery", util: 95, overtime: 35 },
+  { name: "Deepak Yadav", dept: "Technology", util: 95, overtime: 30 },
+  { name: "Pooja Mehta", dept: "Technology", util: 90, overtime: 30 },
+  { name: "Varun Joshi", dept: "Operations", util: 90, overtime: 25 },
+  { name: "Rakesh Patel", dept: "Delivery", util: 90, overtime: 25 },
+  { name: "Meera Nair", dept: "Business Support", util: 85, overtime: 20 },
+  { name: "Karan Malhotra", dept: "Delivery", util: 85, overtime: 20 },
+  { name: "Isha Verma", dept: "Technology", util: 85, overtime: 15 },
+  { name: "Sunil Rao", dept: "Operations", util: 85, overtime: 15 },
 ];
 
 export const heatmapManagers = [
@@ -485,12 +485,12 @@ export const heatmapManagers = [
 ];
 
 export const heatmapDepts = [
-  { dept: "Delivery", vals: [92, 95, 88, 96], avg: 83 },
-  { dept: "Technology", vals: [88, 99, 80, 92], avg: 80 },
-  { dept: "Business Support", vals: [65, 82, 70, 91], avg: 77 },
-  { dept: "Operations", vals: [66, 78, 72, 83], avg: 75 },
-  { dept: "Finance", vals: [58, 69, 76, 82], avg: 72 },
-  { dept: "HR", vals: [55, 64, 68, 72], avg: 70 },
+  { dept: "Delivery", vals: [90, 95, 90, 95], avg: 90 },
+  { dept: "Technology", vals: [90, 100, 80, 90], avg: 90 },
+  { dept: "Business Support", vals: [65, 80, 70, 90], avg: 75 },
+  { dept: "Operations", vals: [65, 80, 70, 85], avg: 75 },
+  { dept: "Finance", vals: [60, 70, 75, 80], avg: 70 },
+  { dept: "HR", vals: [55, 65, 70, 70], avg: 65 },
 ];
 
 // ─── Executive Report (Report #1) ─────────────────────────────────────────────
@@ -567,44 +567,56 @@ export const heatmapData = [
     pillar: "Banking",
     icon: "🏦",
     rows: [
-      { team: "Application Development", vals: [82, 84, 88, 91, 96, 99] },
-      { team: "Data Engineering", vals: [78, 83, 95, 98, 99, 99] },
-      { team: "QA Automation", vals: [76, 80, 92, 98, 99, 99] },
-      { team: "Cloud Engineering", vals: [85, 86, 90, 93, 97, 99] },
+      { team: "Application Development", role: "Developer", resourceCount: 14, vals: [80, 85, 90, 90, 95, 100] },
+      { team: "Data Engineering", role: "Data Engineer", resourceCount: 10, vals: [80, 85, 95, 100, 100, 100] },
+      { team: "QA Automation", role: "QA Engineer", resourceCount: 8, vals: [75, 80, 90, 100, 100, 100] },
+      { team: "Cloud Engineering", role: "Cloud Architect", resourceCount: 6, vals: [85, 85, 90, 95, 95, 100] },
     ],
   },
   {
     pillar: "Retail",
     icon: "🛒",
     rows: [
-      { team: "Application Development", vals: [81, 82, 85, 88, 93, 98] },
-      { team: "Data Engineering", vals: [77, 79, 83, 86, 90, 94] },
-      { team: "QA Automation", vals: [80, 83, 88, 92, 95, 99] },
-      { team: "Cloud Engineering", vals: [75, 78, 82, 86, 88, 93] },
+      { team: "Application Development", role: "Developer", resourceCount: 12, vals: [80, 80, 85, 90, 95, 100] },
+      { team: "Data Engineering", role: "Data Engineer", resourceCount: 9, vals: [75, 80, 85, 85, 90, 95] },
+      { team: "QA Automation", role: "QA Engineer", resourceCount: 7, vals: [80, 85, 90, 90, 95, 100] },
+      { team: "Cloud Engineering", role: "Cloud Architect", resourceCount: 5, vals: [75, 80, 80, 85, 90, 95] },
     ],
   },
   {
     pillar: "Healthcare",
     icon: "🏥",
     rows: [
-      { team: "Application Development", vals: [83, 85, 90, 94, 96, 99] },
-      { team: "Data Engineering", vals: [78, 81, 86, 91, 97, 99] },
+      { team: "Application Development", role: "Developer", resourceCount: 11, vals: [85, 85, 90, 95, 95, 100] },
+      { team: "Data Engineering", role: "Data Engineer", resourceCount: 8, vals: [80, 80, 85, 90, 95, 100] },
+      { team: "Compliance & Security", role: "Security Analyst", resourceCount: 5, vals: [55, 60, 65, 70, 75, 80] },
     ],
   },
   {
     pillar: "Hi-tech",
     icon: "💻",
     rows: [
-      { team: "Application Development", vals: [82, 84, 88, 91, 94, 97] },
-      { team: "Data Engineering", vals: [79, 82, 86, 90, 93, 96] },
+      { team: "Application Development", role: "Developer", resourceCount: 13, vals: [80, 85, 90, 90, 95, 95] },
+      { team: "Data Engineering", role: "Data Engineer", resourceCount: 9, vals: [80, 80, 85, 90, 95, 95] },
+      { team: "DevOps & SRE", role: "DevOps Engineer", resourceCount: 6, vals: [70, 75, 80, 85, 90, 92] },
     ],
   },
   {
     pillar: "Life Sciences",
     icon: "🔬",
     rows: [
-      { team: "Application Development", vals: [77, 80, 83, 87, 92, 95] },
-      { team: "Data Engineering", vals: [74, 77, 81, 84, 88, 90] },
+      { team: "Application Development", role: "Developer", resourceCount: 10, vals: [75, 80, 85, 85, 90, 95] },
+      { team: "Data Engineering", role: "Data Engineer", resourceCount: 7, vals: [75, 75, 80, 85, 90, 90] },
+      { team: "Regulatory Affairs", role: "Consultant", resourceCount: 4, vals: [50, 55, 60, 65, 68, 70] },
+    ],
+  },
+  {
+    pillar: "Consumer",
+    icon: "🛍️",
+    rows: [
+      { team: "Application Development", role: "Developer", resourceCount: 9, vals: [65, 70, 75, 80, 85, 88] },
+      { team: "UX Engineering", role: "UX Designer", resourceCount: 6, vals: [60, 65, 70, 75, 78, 82] },
+      { team: "Analytics", role: "Data Analyst", resourceCount: 5, vals: [55, 58, 62, 68, 72, 75] },
     ],
   },
 ];
@@ -616,6 +628,68 @@ export const heatmapMonths = [
   "Apr",
   "May",
   "Jun",
+];
+
+// ─── Cohort Heatmap Views ──────────────────────────────────────────────────────
+
+export type HeatmapViewType = "pillars" | "projects" | "roles" | "capabilityGroups" | "teams" | "demandCategories";
+
+export const heatmapByProjects = [
+  { rowLabel: "Cloud Migration", subLabel: "Banking", resourceCount: 18, vals: [75, 80, 85, 90, 95, 100] },
+  { rowLabel: "Data Warehouse Modernization", subLabel: "Banking", resourceCount: 14, vals: [70, 75, 80, 85, 90, 95] },
+  { rowLabel: "Retail Analytics Platform", subLabel: "Retail", resourceCount: 12, vals: [65, 70, 75, 80, 85, 90] },
+  { rowLabel: "Healthcare Portal", subLabel: "Healthcare", resourceCount: 11, vals: [85, 85, 90, 95, 98, 100] },
+  { rowLabel: "EHR Integration", subLabel: "Healthcare", resourceCount: 9, vals: [55, 60, 65, 70, 75, 80] },
+  { rowLabel: "AI Platform v2", subLabel: "Hi-tech", resourceCount: 15, vals: [80, 85, 88, 92, 95, 95] },
+  { rowLabel: "Mobile App Revamp", subLabel: "Retail", resourceCount: 8, vals: [60, 65, 70, 75, 80, 85] },
+  { rowLabel: "Genomics Research Portal", subLabel: "Life Sciences", resourceCount: 7, vals: [50, 55, 60, 65, 70, 72] },
+  { rowLabel: "ERP Implementation", subLabel: "Consumer", resourceCount: 10, vals: [65, 70, 75, 80, 85, 88] },
+  { rowLabel: "Customer 360", subLabel: "Consumer", resourceCount: 8, vals: [55, 60, 65, 70, 75, 78] },
+];
+
+export const heatmapByRoles = [
+  { rowLabel: "Application Developer", subLabel: "Engineering", resourceCount: 69, vals: [80, 82, 86, 89, 93, 96] },
+  { rowLabel: "Data Engineer", subLabel: "Engineering", resourceCount: 43, vals: [78, 80, 84, 88, 92, 94] },
+  { rowLabel: "QA Automation Engineer", subLabel: "Quality", resourceCount: 30, vals: [75, 79, 85, 92, 96, 100] },
+  { rowLabel: "Cloud Architect", subLabel: "Engineering", resourceCount: 22, vals: [82, 83, 87, 92, 93, 97] },
+  { rowLabel: "DevOps / SRE", subLabel: "Engineering", resourceCount: 18, vals: [70, 74, 80, 85, 89, 91] },
+  { rowLabel: "Business Analyst", subLabel: "Consulting", resourceCount: 25, vals: [65, 70, 74, 78, 82, 85] },
+  { rowLabel: "Scrum Master", subLabel: "Delivery", resourceCount: 16, vals: [60, 64, 68, 72, 76, 80] },
+  { rowLabel: "Data Analyst", subLabel: "Analytics", resourceCount: 20, vals: [55, 60, 64, 68, 72, 75] },
+  { rowLabel: "Security Analyst", subLabel: "Quality", resourceCount: 12, vals: [52, 56, 60, 65, 70, 74] },
+  { rowLabel: "UX Designer", subLabel: "Design", resourceCount: 14, vals: [58, 63, 67, 72, 75, 79] },
+];
+
+export const heatmapByCapabilityGroups = [
+  { rowLabel: "Digital Engineering", subLabel: "Core", resourceCount: 82, vals: [82, 84, 88, 91, 94, 97] },
+  { rowLabel: "Data & Analytics", subLabel: "Core", resourceCount: 63, vals: [78, 80, 84, 87, 91, 93] },
+  { rowLabel: "Cloud & Infrastructure", subLabel: "Core", resourceCount: 44, vals: [76, 78, 83, 87, 90, 93] },
+  { rowLabel: "Quality Engineering", subLabel: "Support", resourceCount: 38, vals: [75, 78, 84, 91, 95, 100] },
+  { rowLabel: "Consulting & Advisory", subLabel: "Support", resourceCount: 29, vals: [65, 69, 73, 77, 81, 84] },
+  { rowLabel: "Project & Delivery Mgmt", subLabel: "Support", resourceCount: 24, vals: [60, 64, 68, 72, 76, 80] },
+  { rowLabel: "UX & Design", subLabel: "Emerging", resourceCount: 18, vals: [57, 62, 66, 71, 74, 78] },
+  { rowLabel: "AI & ML Engineering", subLabel: "Emerging", resourceCount: 15, vals: [68, 72, 76, 80, 84, 87] },
+];
+
+export const heatmapByTeams = [
+  { rowLabel: "Team Alpha — Banking", subLabel: "Banking", resourceCount: 12, vals: [80, 85, 90, 95, 98, 100] },
+  { rowLabel: "Team Beta — Banking", subLabel: "Banking", resourceCount: 10, vals: [78, 82, 87, 92, 95, 100] },
+  { rowLabel: "Team Gamma — Retail", subLabel: "Retail", resourceCount: 11, vals: [75, 79, 84, 88, 92, 96] },
+  { rowLabel: "Team Delta — Retail", subLabel: "Retail", resourceCount: 9, vals: [70, 74, 79, 83, 88, 92] },
+  { rowLabel: "Team Epsilon — Healthcare", subLabel: "Healthcare", resourceCount: 10, vals: [82, 83, 87, 92, 94, 98] },
+  { rowLabel: "Team Zeta — Hi-tech", subLabel: "Hi-tech", resourceCount: 13, vals: [80, 84, 88, 91, 94, 94] },
+  { rowLabel: "Team Eta — Life Sciences", subLabel: "Life Sciences", resourceCount: 8, vals: [55, 60, 65, 70, 75, 78] },
+  { rowLabel: "Team Theta — Consumer", subLabel: "Consumer", resourceCount: 9, vals: [62, 66, 71, 76, 80, 84] },
+];
+
+export const heatmapByDemandCategories = [
+  { rowLabel: "New Development", subLabel: "Demand Type", resourceCount: 55, vals: [80, 84, 88, 92, 95, 98] },
+  { rowLabel: "Maintenance & Support", subLabel: "Demand Type", resourceCount: 40, vals: [72, 75, 79, 83, 87, 90] },
+  { rowLabel: "Infrastructure & Cloud", subLabel: "Demand Type", resourceCount: 30, vals: [78, 80, 84, 88, 91, 93] },
+  { rowLabel: "Data & Analytics", subLabel: "Demand Type", resourceCount: 25, vals: [70, 73, 77, 81, 85, 88] },
+  { rowLabel: "Testing & QA", subLabel: "Demand Type", resourceCount: 22, vals: [75, 78, 83, 90, 94, 100] },
+  { rowLabel: "Consulting & Advisory", subLabel: "Demand Type", resourceCount: 18, vals: [60, 64, 68, 72, 76, 80] },
+  { rowLabel: "Training & Enablement", subLabel: "Demand Type", resourceCount: 12, vals: [45, 50, 54, 58, 62, 65] },
 ];
 
 export const execCapDemandData = [
