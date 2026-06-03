@@ -55,7 +55,7 @@ interface PortfolioRow {
   projectId: string;
   project: string;
   portfolio?: string;
-  priority: "Immediate" | "High" | "Medium" | "Low";
+  priority: "Critical" | "High" | "Medium" | "Low";
   owner: string;
   type: string;
   status: ApprovalStatus;
@@ -98,7 +98,7 @@ const SEED_ROWS: PortfolioRow[] = [
     id: "1",
     projectId: "P-001",
     project: "Enterprise Mobility v4.2",
-    priority: "Immediate",
+    priority: "Critical",
     owner: "Ohlen, Hampus",
     type: "Strategic",
     status: "Active",
@@ -147,7 +147,7 @@ const SEED_ROWS: PortfolioRow[] = [
     id: "2",
     projectId: "P-002",
     project: "Mobile Marketplace Upgrade",
-    priority: "Immediate",
+    priority: "Critical",
     owner: "Kukreja, Samir",
     type: "Strategic",
     status: "Active",
@@ -1621,8 +1621,8 @@ export default function ProjectPortfolio() {
                   <TableHead>Type</TableHead>
                   <TableHead>Start Date</TableHead>
                   <TableHead>End Date</TableHead>
-                  <TableHead className="text-right">Budget</TableHead>
-                  <TableHead className="text-right">Cost</TableHead>
+                  <TableHead className="text-center">Budget</TableHead>
+                  <TableHead className="text-right">Plan Cost</TableHead>
                   <TableHead className="text-right">Variance</TableHead>
                   <TableHead className="text-right">
                     Projected Benefits
