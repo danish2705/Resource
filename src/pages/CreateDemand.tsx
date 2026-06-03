@@ -251,7 +251,7 @@ function ImportDemandModal({
             <>
               <DialogHeader>
                 <DialogTitle className="text-lg font-semibold">Import Demand Data</DialogTitle>
-                <p className="text-sm text-muted-foreground mt-1">Choose a source. External tools are simulated for demo purposes.</p>
+                <p className="text-sm text-muted-foreground mt-1">Choose a source.</p>
               </DialogHeader>
               <div className="grid grid-cols-2 gap-3 mt-2">
                 {IMPORT_SOURCES.filter((s) => s.id !== "api").map((s) => (

@@ -15,7 +15,10 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/auth/useAuth";
 import type { Role } from "@/auth/rbac";
-import { useDashboardConfig, type WidgetConfig, type KpiConfig } from "@/hooks/useDashboardConfig";
+import { useDashboardConfig, type WidgetConfig, type KpiConfig, type FilterConfig } from "@/hooks/useDashboardConfig";
+import { DashboardHeader } from "@/components/DashboardHeader";
+import { SaveDashboardDialog } from "@/components/SaveDashboardDialog";
+import { DashboardService, type SavedDashboard } from "@/components/DashboardService";
 
 // ─── Global CSS ──────────────────────────────────────────────────────────────
 function GlobalStyles() {
@@ -347,9 +350,9 @@ function StatusBadge({ color, bg, children }) {
   return <span style={{ background: bg, color, fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 99 }}>{children}</span>;
 }
 
-function QuickActionBtn({ icon: Icon, label, color = T.blue, bg }) {
+function QuickActionBtn({ icon: Icon, label, color = T.blue, bg, onClick }: { icon: any; label: string; color?: string; bg?: string; onClick?: () => void }) {
   return (
-    <button style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 12px", background: bg || `${color}15`, border: `1px solid ${color}30`, borderRadius: 8, cursor: "pointer", fontSize: 11, fontWeight: 600, color, whiteSpace: "nowrap", flex: 1, justifyContent: "center" }}
+    <button onClick={onClick} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 12px", background: bg || `${color}15`, border: `1px solid ${color}30`, borderRadius: 8, cursor: "pointer", fontSize: 11, fontWeight: 600, color, whiteSpace: "nowrap", flex: 1, justifyContent: "center" }}
       onMouseEnter={e => e.currentTarget.style.background = `${color}25`}
       onMouseLeave={e => e.currentTarget.style.background = bg || `${color}15`}>
       <Icon size={12} />{label}
@@ -363,23 +366,41 @@ interface CustomizeSidebarProps {
   onSave: () => void;
   kpiCards: (KpiConfig & { label: string })[];
   widgets: (WidgetConfig)[];
+  filters: FilterConfig[];
   onToggleKpi: (id: string) => void;
   onToggleWidget: (id: string) => void;
+  onToggleFilter: (id: string) => void;
   onReset: () => void;
   onReorderWidgets: (from: number, to: number) => void;
   onReorderKpis: (from: number, to: number) => void;
+  onReorderFilters: (from: number, to: number) => void;
 }
 
-function CustomizeSidebar({ onClose, onSave, kpiCards, widgets, onToggleKpi, onToggleWidget, onReset, onReorderWidgets, onReorderKpis }: CustomizeSidebarProps) {
+function CustomizeSidebar({ onClose, onSave, kpiCards, widgets, filters, onToggleKpi, onToggleWidget, onToggleFilter, onReset, onReorderWidgets, onReorderKpis, onReorderFilters }: CustomizeSidebarProps) {
   const [tab, setTab] = useState("widgets");
   const widgetDragRef = useRef<number | null>(null);
   const kpiDragRef = useRef<number | null>(null);
+  const filterDragRef = useRef<number | null>(null);
   const [dragOver, setDragOver] = useState<number | null>(null);
   const [dragging, setDragging] = useState<number | null>(null);
   const [dragGroup, setDragGroup] = useState<string | null>(null);
 
   const visibleCount = widgets.filter(w => w.checked).length;
   const allHidden = visibleCount === 0;
+
+  // Determine active item list based on tab
+  const tabItems = tab === "widgets" ? widgets : tab === "kpi" ? kpiCards : filters;
+  const tabDragRef = tab === "widgets" ? widgetDragRef : tab === "kpi" ? kpiDragRef : filterDragRef;
+  const tabToggle = (id: string) => {
+    if (tab === "widgets") onToggleWidget(id);
+    else if (tab === "kpi") onToggleKpi(id);
+    else onToggleFilter(id);
+  };
+  const tabReorder = (from: number, to: number) => {
+    if (tab === "widgets") onReorderWidgets(from, to);
+    else if (tab === "kpi") onReorderKpis(from, to);
+    else onReorderFilters(from, to);
+  };
 
   return (
     <div style={{ width: 280, minWidth: 280, background: T.surface, borderLeft: `1px solid ${T.border}`, display: "flex", flexDirection: "column", flexShrink: 0, overflow: "hidden" }}>
@@ -388,43 +409,51 @@ function CustomizeSidebar({ onClose, onSave, kpiCards, widgets, onToggleKpi, onT
         <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 18, color: T.textMuted }}>×</button>
       </div>
       <div style={{ display: "flex", borderBottom: `1px solid ${T.border}`, padding: "0 14px" }}>
-        {["widgets", "kpi"].map(t => (
-          <button key={t} onClick={() => setTab(t)}
-            style={{ flex: 1, padding: "9px 0", fontSize: 11, fontWeight: 600, cursor: "pointer", background: "none", border: "none", borderBottom: tab === t ? `2px solid ${T.blue}` : "2px solid transparent", color: tab === t ? T.blue : T.textMuted, textTransform: "capitalize" }}>
-            {t === "kpi" ? "KPI Cards" : "Widgets"}
+        {[
+          { id: "widgets", label: "Widgets" },
+          { id: "kpi", label: "KPI Cards" },
+          { id: "filters", label: "Filters" },
+        ].map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            style={{ flex: 1, padding: "9px 0", fontSize: 11, fontWeight: 600, cursor: "pointer", background: "none", border: "none", borderBottom: tab === t.id ? `2px solid ${T.blue}` : "2px solid transparent", color: tab === t.id ? T.blue : T.textMuted }}>
+            {t.label}
           </button>
         ))}
       </div>
       <div style={{ flex: 1, overflow: "auto", padding: "12px 14px", display: "flex", flexDirection: "column", gap: 12 }}>
-        <p style={{ margin: 0, fontSize: 10.5, color: T.textFaint }}>Toggle items on/off and drag to reorder.</p>
+        <p style={{ margin: 0, fontSize: 10.5, color: T.textFaint }}>
+          {tab === "filters"
+            ? "Toggle filters on/off and drag to reorder. Mandatory filters cannot be hidden."
+            : "Toggle items on/off and drag to reorder."}
+        </p>
         {allHidden && tab === "widgets" && (
           <div style={{ padding: "10px 12px", background: `${T.amber}15`, border: `1px solid ${T.amber}40`, borderRadius: 8, fontSize: 11, color: T.amber, fontWeight: 600 }}>
             ⚠ All widgets are hidden. Enable at least one widget.
           </div>
         )}
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          {(tab === "widgets" ? widgets : kpiCards).map((item, i) => {
+          {tabItems.map((item, i) => {
             const isOver = dragGroup === tab && dragOver === i && dragging !== i;
             const isDragging = dragGroup === tab && dragging === i;
+            const isMandatory = (item as FilterConfig).mandatory;
             return (
-              <div key={item.id} draggable
-                onDragStart={() => { (tab === "widgets" ? widgetDragRef : kpiDragRef).current = i; setDragging(i); setDragGroup(tab); }}
+              <div key={item.id} draggable={!isMandatory}
+                onDragStart={() => { tabDragRef.current = i; setDragging(i); setDragGroup(tab); }}
                 onDragOver={e => { e.preventDefault(); setDragOver(i); }}
                 onDrop={() => {
-                  const fromRef = tab === "widgets" ? widgetDragRef : kpiDragRef;
-                  if (fromRef.current !== null && fromRef.current !== i) {
-                    if (tab === "widgets") onReorderWidgets(fromRef.current, i);
-                    else onReorderKpis(fromRef.current, i);
+                  if (tabDragRef.current !== null && tabDragRef.current !== i) {
+                    tabReorder(tabDragRef.current, i);
                   }
                   setDragging(null); setDragOver(null); setDragGroup(null);
                 }}
                 onDragEnd={() => { setDragging(null); setDragOver(null); setDragGroup(null); }}
-                style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 9px", borderRadius: 7, background: isOver ? T.hoverBg : item.checked ? T.dragChecked : T.dragUnchecked, border: `1px solid ${isOver ? T.blue : item.checked ? T.dragCheckedBorder : T.border}`, opacity: isDragging ? 0.4 : 1, cursor: "grab", userSelect: "none" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: 7, cursor: "pointer", flex: 1 }}>
-                  <input type="checkbox" checked={item.checked} onChange={() => tab === "widgets" ? onToggleWidget(item.id) : onToggleKpi(item.id)} style={{ accentColor: T.blue, width: 13, height: 13 }} />
+                style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 9px", borderRadius: 7, background: isOver ? T.hoverBg : item.checked ? T.dragChecked : T.dragUnchecked, border: `1px solid ${isOver ? T.blue : item.checked ? T.dragCheckedBorder : T.border}`, opacity: isDragging ? 0.4 : 1, cursor: isMandatory ? "default" : "grab", userSelect: "none" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: 7, cursor: isMandatory ? "default" : "pointer", flex: 1 }}>
+                  <input type="checkbox" checked={item.checked} disabled={isMandatory} onChange={() => tabToggle(item.id)} style={{ accentColor: T.blue, width: 13, height: 13 }} />
                   <span style={{ fontSize: 10.5, color: T.textSec, fontWeight: 500 }}>{item.label}</span>
+                  {isMandatory && <span style={{ fontSize: 9, color: T.textFaint, background: `${T.blue}15`, borderRadius: 4, padding: "1px 5px" }}>required</span>}
                 </label>
-                <span style={{ fontSize: 13, color: T.textMuted }}>⠿</span>
+                {!isMandatory && <span style={{ fontSize: 13, color: T.textMuted }}>⠿</span>}
               </div>
             );
           })}
@@ -437,7 +466,7 @@ function CustomizeSidebar({ onClose, onSave, kpiCards, widgets, onToggleKpi, onT
           onClick={onSave}
           disabled={allHidden}
           style={{ width: "100%", padding: "10px 0", fontSize: 12, fontWeight: 700, color: "#fff", background: allHidden ? T.gray : "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)", border: "none", borderRadius: 9, cursor: allHidden ? "not-allowed" : "pointer", boxShadow: allHidden ? "none" : "0 2px 10px rgba(37,99,235,0.3)", opacity: allHidden ? 0.6 : 1 }}>
-          Save & View Dashboard
+          Save Dashboard
         </button>
         {allHidden && <p style={{ margin: "6px 0 0", fontSize: 10, color: T.red, textAlign: "center" }}>Enable at least one widget to save.</p>}
       </div>
@@ -523,6 +552,16 @@ const MY_WIDGET_DEFS: WidgetConfig[] = [
   { id: "my_leave", label: "Leave Summary", checked: true, row: 3 },
 ];
 
+// ─── Default filter definitions (shared across all personas) ─────────────────
+const DEFAULT_FILTERS: FilterConfig[] = [
+  { id: "filter_pillar",        label: "Pillars",        checked: true,  order: 0 },
+  { id: "filter_portfolio",     label: "Portfolio",      checked: true,  order: 1 },
+  { id: "filter_region",        label: "Region",         checked: true,  order: 2 },
+  { id: "filter_department",    label: "Department",     checked: true,  order: 3 },
+  { id: "filter_resource_type", label: "Resource Type",  checked: false, order: 4 },
+  { id: "filter_time_period",   label: "Time Period",    checked: true,  order: 5, mandatory: false },
+];
+
 // ─── Role → dashboard config mapper ──────────────────────────────────────────
 function getRoleDashConfig(role: Role) {
   switch (role) {
@@ -545,7 +584,7 @@ function getDashMeta(role: Role) {
 }
 
 // ─── Widget renderers ─────────────────────────────────────────────────────────
-function renderSAWidget(id: string, axisProps: object) {
+function renderSAWidget(id: string, axisProps: object, navigate: (path: string) => void) {
   switch (id) {
     case "sa_overview": return (
       <CardShell title="System Overview">
@@ -680,10 +719,10 @@ function renderSAWidget(id: string, axisProps: object) {
     case "sa_quick": return (
       <CardShell title="Quick Actions">
         <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-          <QuickActionBtn icon={UserCheck} label="Create User" color={T.blue} />
-          <QuickActionBtn icon={Shield} label="Manage Roles" color={T.green} />
-          <QuickActionBtn icon={Database} label="Import Data" color={T.orange} />
-          <QuickActionBtn icon={FileText} label="View Audit Logs" color={T.gray} />
+          <QuickActionBtn icon={UserCheck} label="Create User" color={T.blue} onClick={() => navigate("/user-management")} />
+          <QuickActionBtn icon={Shield} label="Manage Roles" color={T.green} onClick={() => navigate("/user-management")} />
+          <QuickActionBtn icon={Database} label="Import Data" color={T.orange} onClick={() => navigate("/resources")} />
+          <QuickActionBtn icon={FileText} label="View Audit Logs" color={T.gray} onClick={() => navigate("/audit-log")} />
         </div>
       </CardShell>
     );
@@ -691,7 +730,7 @@ function renderSAWidget(id: string, axisProps: object) {
   }
 }
 
-function renderPMOWidget(id: string, axisProps: object) {
+function renderPMOWidget(id: string, axisProps: object, navigate: (path: string) => void) {
   switch (id) {
     case "pmo_demandcap": return (
       <CardShell title="Demand vs Capacity (Next 6 Months)">
@@ -795,11 +834,11 @@ function renderPMOWidget(id: string, axisProps: object) {
     case "pmo_quick": return (
       <CardShell title="Quick Actions">
         <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-          <QuickActionBtn icon={Plus} label="Create/Import Demand" color={T.blue} />
-          <QuickActionBtn icon={CheckCircle} label="Allocation Review & Approval" color={T.green} />
-          <QuickActionBtn icon={BarChart2} label="Demand Summary" color={T.purple} />
-          <QuickActionBtn icon={Target} label="Capacity Plan" color={T.teal} />
-          <QuickActionBtn icon={Search} label="Resource Search" color={T.gray} />
+          <QuickActionBtn icon={Plus} label="Create/Import Demand" color={T.blue} onClick={() => navigate("/demand/create")} />
+          <QuickActionBtn icon={CheckCircle} label="Allocation Review & Approval" color={T.green} onClick={() => navigate("/resource-review")} />
+          <QuickActionBtn icon={BarChart2} label="Demand Summary" color={T.purple} onClick={() => navigate("/demand")} />
+          <QuickActionBtn icon={Target} label="Capacity Plan" color={T.teal} onClick={() => navigate("/scenario-plannig")} />
+          <QuickActionBtn icon={Search} label="Resource Search" color={T.gray} onClick={() => navigate("/resources")} />
         </div>
       </CardShell>
     );
@@ -807,7 +846,7 @@ function renderPMOWidget(id: string, axisProps: object) {
   }
 }
 
-function renderRMWidget(id: string, axisProps: object) {
+function renderRMWidget(id: string, axisProps: object, navigate: (path: string) => void) {
   function getHeatColor(util: number) {
     if (util > 110) return { bg: "#fef2f2", text: T.red, bar: T.red };
     if (util > 90) return { bg: "#fff7ed", text: T.orange, bar: T.orange };
@@ -949,11 +988,10 @@ function renderRMWidget(id: string, axisProps: object) {
     case "rm_quick": return (
       <CardShell title="Quick Actions">
         <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-          <QuickActionBtn icon={UserCheck} label="Assign Resource" color={T.blue} />
-          <QuickActionBtn icon={Search} label="Resource Search" color={T.green} />
-          <QuickActionBtn icon={Calendar} label="Team Calendar" color={T.purple} />
-          <QuickActionBtn icon={Gauge} label="Capacity View" color={T.orange} />
-          <QuickActionBtn icon={UserX} label="View Bench" color={T.amber} />
+          <QuickActionBtn icon={UserCheck} label="Assign Resource" color={T.blue} onClick={() => navigate("/demand")} />
+          <QuickActionBtn icon={Search} label="Resource Search" color={T.green} onClick={() => navigate("/resources")} />
+          <QuickActionBtn icon={Gauge} label="Capacity View" color={T.orange} onClick={() => navigate("/forecast")} />
+          <QuickActionBtn icon={UserX} label="View Bench" color={T.amber} onClick={() => navigate("/resources")} />
         </div>
       </CardShell>
     );
@@ -961,7 +999,7 @@ function renderRMWidget(id: string, axisProps: object) {
   }
 }
 
-function renderMyWidget(id: string) {
+function renderMyWidget(id: string, navigate: (path: string) => void) {
   switch (id) {
     case "my_assignments": return (
       <CardShell title="My Assignments">
@@ -1086,11 +1124,9 @@ function renderMyWidget(id: string) {
     case "my_quick": return (
       <CardShell title="Quick Actions">
         <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-          <QuickActionBtn icon={Users} label="Update Profile" color={T.blue} />
-          <QuickActionBtn icon={Star} label="Update Skills" color={T.teal} />
-          <QuickActionBtn icon={Calendar} label="Apply Leave" color={T.green} />
-          <QuickActionBtn icon={FileText} label="Submit Timesheet" color={T.orange} />
-          <QuickActionBtn icon={Briefcase} label="View Assignments" color={T.purple} />
+          <QuickActionBtn icon={Users} label="Update Profile" color={T.blue} onClick={() => navigate("/resources")} />
+          <QuickActionBtn icon={Star} label="Update Skills" color={T.teal} onClick={() => navigate("/resources")} />
+          <QuickActionBtn icon={Briefcase} label="View Assignments" color={T.purple} onClick={() => navigate("/allocation")} />
         </div>
       </CardShell>
     );
@@ -1139,6 +1175,7 @@ interface DashboardContentProps {
 
 function DashboardContent({ role, widgets, kpiCards }: DashboardContentProps) {
   const axisProps = { tick: { fontSize: 9, fill: T.textMuted } };
+  const navigate = useNavigate();
 
   // Build KPI defs lookup
   const kpiDefMap = useMemo(() => {
@@ -1170,10 +1207,10 @@ function DashboardContent({ role, widgets, kpiCards }: DashboardContentProps) {
 
   function renderWidget(id: string) {
     switch (role) {
-      case "super_admin": return renderSAWidget(id, axisProps);
-      case "pmo": return renderPMOWidget(id, axisProps);
-      case "resource_manager": return renderRMWidget(id, axisProps);
-      case "resource": return renderMyWidget(id);
+      case "super_admin": return renderSAWidget(id, axisProps, navigate);
+      case "pmo": return renderPMOWidget(id, axisProps, navigate);
+      case "resource_manager": return renderRMWidget(id, axisProps, navigate);
+      case "resource": return renderMyWidget(id, navigate);
       default: return null;
     }
   }
@@ -1209,14 +1246,81 @@ function DashboardContent({ role, widgets, kpiCards }: DashboardContentProps) {
 }
 
 // ─── Role-based Dashboard Shell (uses useDashboardConfig) ─────────────────────
+// ─── Active-view constants ─────────────────────────────────────────────────
+const DEFAULT_VIEW_ID = "default";
+const DEFAULT_VIEW_NAME = "Default View";
+
 function RoleDashboard({ role }: { role: Role }) {
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const { persona, kpiDefs, widgetDefs } = getRoleDashConfig(role);
   const kpiIds = kpiDefs.map(k => k.id);
 
   const {
-    widgets, kpiCards, saveConfig, resetConfig, toggleWidget, toggleKpi, reorderWidgets, reorderKpis,
-  } = useDashboardConfig(persona, widgetDefs, kpiIds);
+    widgets, kpiCards, filters,
+    setWidgets, setKpiCards, setFilters,
+    saveConfig, resetConfig,
+    toggleWidget, toggleKpi, toggleFilter,
+    reorderWidgets, reorderKpis, reorderFilters,
+  } = useDashboardConfig(persona, widgetDefs, kpiIds, DEFAULT_FILTERS);
+
+  // ─── Active View state ────────────────────────────────────────────────────
+  // "default" means the Default View (system baseline, never modified).
+  // Any other value is a SavedDashboard.id.
+  const [activeViewId, setActiveViewId] = useState<string>(DEFAULT_VIEW_ID);
+  const [activeViewName, setActiveViewName] = useState<string>(DEFAULT_VIEW_NAME);
+  const [savedViews, setSavedViews] = useState<SavedDashboard[]>([]);
+
+  // Load saved views list for this user+persona whenever it may change
+  function refreshSavedViews() {
+    if (!user) return;
+    const all = DashboardService.getForUser(user.id).filter(
+      (d) => d.persona === persona
+    );
+    setSavedViews(all);
+  }
+
+  useEffect(() => {
+    refreshSavedViews();
+  }, [user?.id, persona]);
+
+  // ─── Switch view ──────────────────────────────────────────────────────────
+  function handleSelectView(id: string) {
+    if (id === DEFAULT_VIEW_ID) {
+      // Restore Default View: reset to system defaults
+      resetConfig();
+      setActiveViewId(DEFAULT_VIEW_ID);
+      setActiveViewName(DEFAULT_VIEW_NAME);
+      setShowCustomize(false);
+      return;
+    }
+    // Load a saved view
+    const dash = DashboardService.getById(id);
+    if (!dash) return;
+
+    // Apply saved widget / kpi / filter config
+    const mergedWidgets = widgetDefs.map((w, i) => {
+      const saved = dash.widgetConfig.find((s) => s.id === w.id);
+      return saved ? { ...w, checked: saved.checked, order: saved.order ?? i } : { ...w, order: i };
+    }).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+    const mergedKpis = kpiIds.map((id) => {
+      const saved = dash.kpiConfig.find((k) => k.id === id);
+      return { id, checked: saved ? saved.checked : true };
+    });
+
+    const mergedFilters = DEFAULT_FILTERS.map((f, i) => {
+      const saved = dash.filterConfig.find((s) => s.id === f.id);
+      if (saved) return { ...f, checked: f.mandatory ? true : saved.checked, order: saved.order ?? i };
+      return { ...f, order: i };
+    }).sort((a, b) => a.order - b.order);
+
+    setWidgets(mergedWidgets);
+    setKpiCards(mergedKpis);
+    setFilters(mergedFilters);
+    setActiveViewId(id);
+    setActiveViewName(dash.name);
+    setShowCustomize(false);
+  }
 
   // Build kpiCards with labels for sidebar
   const kpiWithLabels = kpiCards.map(k => {
@@ -1225,42 +1329,43 @@ function RoleDashboard({ role }: { role: Role }) {
   });
 
   const [showCustomize, setShowCustomize] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
   const meta = getDashMeta(role);
 
-  const handleSave = () => {
-    saveConfig(widgets, kpiCards);
+  // "Save & View Dashboard" clicked in sidebar → open dialog
+  const handleSaveClick = () => {
     setShowCustomize(false);
-    navigate("/my-dashboard", { state: { fromSave: true, persona } });
+    setShowSaveDialog(true);
+  };
+
+  // Dialog saved successfully → switch to the new saved view (DO NOT modify Default View)
+  const handleDialogSaved = (dashId: string, dashName: string) => {
+    setShowSaveDialog(false);
+    refreshSavedViews();
+    // Switch the active view to the newly saved dashboard
+    setActiveViewId(dashId);
+    setActiveViewName(dashName);
+    // NOTE: We intentionally do NOT call saveConfig() here — the Default View
+    // localStorage config must remain unchanged.  The saved view lives only in
+    // DashboardService (SavedDashboard records).
   };
 
   return (
     <>
       <GlobalStyles />
       <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", background: T.bg, minHeight: "100vh", display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
-        {/* App Header */}
-        <div style={{ background: T.surface, borderBottom: `1px solid ${T.border}`, padding: "8px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0, zIndex: 2 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ fontSize: 14, fontWeight: 800, color: T.text, letterSpacing: "-0.01em" }}>Dashboard</div>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <button onClick={() => setShowCustomize(c => !c)}
-              style={{ display: "flex", alignItems: "center", gap: 5, background: T.blue, border: "none", borderRadius: 8, padding: "6px 14px", fontSize: 11, cursor: "pointer", color: "#fff", fontWeight: 600 }}>
-              ✦ Customize
-            </button>
-          </div>
-        </div>
-
-        {/* Sub-header */}
-        <div style={{ background: T.surface, borderBottom: `1px solid ${T.border}`, padding: "6px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: T.text, letterSpacing: "-0.01em" }}>{meta.title}</div>
-            <div style={{ fontSize: 11, color: T.textFaint, marginTop: 1 }}>{meta.subtitle}</div>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: T.textMuted }}>
-            <Calendar size={12} />
-            <span>Jun 2, 2026</span>
-          </div>
-        </div>
+        {/* Shared header with filters + Active View selector */}
+        <DashboardHeader
+          title={meta.title}
+          subtitle={meta.subtitle}
+          filters={filters}
+          onCustomize={() => setShowCustomize(c => !c)}
+          showCustomize={showCustomize}
+          activeViewId={activeViewId}
+          activeViewName={activeViewName}
+          savedViews={savedViews}
+          onSelectView={handleSelectView}
+        />
 
         {/* Main layout */}
         <div style={{ display: "flex", flex: 1, overflow: "hidden", minHeight: 0 }}>
@@ -1268,17 +1373,35 @@ function RoleDashboard({ role }: { role: Role }) {
           {showCustomize && (
             <CustomizeSidebar
               onClose={() => setShowCustomize(false)}
-              onSave={handleSave}
+              onSave={handleSaveClick}
               kpiCards={kpiWithLabels}
               widgets={widgets}
+              filters={filters}
               onToggleKpi={toggleKpi}
               onToggleWidget={toggleWidget}
+              onToggleFilter={toggleFilter}
               onReset={resetConfig}
               onReorderWidgets={reorderWidgets}
               onReorderKpis={reorderKpis}
+              onReorderFilters={reorderFilters}
             />
           )}
         </div>
+
+        {/* Save Dashboard Dialog */}
+        {showSaveDialog && (
+          <SaveDashboardDialog
+            userId={user?.id ?? "anonymous"}
+            username={user?.username ?? "User"}
+            persona={persona}
+            role={role}
+            widgets={widgets}
+            kpiCards={kpiCards}
+            filters={filters}
+            onSaved={handleDialogSaved}
+            onCancel={() => setShowSaveDialog(false)}
+          />
+        )}
       </div>
     </>
   );

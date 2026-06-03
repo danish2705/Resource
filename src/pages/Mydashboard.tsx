@@ -18,6 +18,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useAuth } from "@/auth/useAuth";
+import { DashboardService } from "@/components/DashboardService";
 
 // ─── CSS custom properties — same system as Dashboard.tsx ─────────────────────
 function GlobalStyles() {
@@ -273,12 +274,16 @@ function DashboardPreview({ widgets }: { widgets: string[] }) {
 }
 
 // ─── Dashboard Card ───────────────────────────────────────────────────────────
+// The Default View card (id "v-default") is the permanent system baseline.
+// It must never be renamed, deleted, or modified via the action menu.
+const DEFAULT_VIEW_CARD_ID = "v-default";
+
 function DashboardCardItem({
   card,
   onStar,
   onDelete,
   onOpen,
-  onDuplicate,
+  onDuplicate
 }: {
   card: DashboardCard;
   onStar: (id: string) => void;
@@ -288,6 +293,9 @@ function DashboardCardItem({
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
+
+  // Is this the permanent Default View? If so, restrict destructive actions.
+  const isDefaultView = card.id === DEFAULT_VIEW_CARD_ID;
 
   const relativeTime = (d: Date) => {
     const diff = Date.now() - d.getTime();
@@ -479,6 +487,7 @@ function DashboardCardItem({
                     icon: Edit3,
                     label: "Open & Edit",
                     action: () => onOpen(card.id),
+                    hidden: false,
                   },
                   {
                     icon: Copy,
@@ -487,6 +496,7 @@ function DashboardCardItem({
                       onDuplicate(card.id);
                       setMenuOpen(false);
                     },
+                    hidden: false,
                   },
                   {
                     icon: Star,
@@ -495,6 +505,7 @@ function DashboardCardItem({
                       onStar(card.id);
                       setMenuOpen(false);
                     },
+                    hidden: false,
                   },
                   {
                     icon: Trash2,
@@ -504,8 +515,10 @@ function DashboardCardItem({
                       setMenuOpen(false);
                     },
                     danger: true,
+                    // Default View must never be deleted
+                    hidden: isDefaultView,
                   },
-                ].map((item) => (
+                ].filter((item) => !item.hidden).map((item) => (
                   <button
                     key={item.label}
                     onClick={item.action}
@@ -758,63 +771,61 @@ function FilterDropdown({
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function Mydashboard() {
   // useDark() only triggers re-renders when theme changes.
-  // All actual colour logic is handled by CSS vars — no JS colour switching needed.
   const dark = useDark();
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
 
-  const [cards, setCards] = useState<DashboardCard[]>(SEED_CARDS);
+  // ─── Load cards from both seed data and DashboardService ────────────────
+  function buildCards(): DashboardCard[] {
+    if (!user) return SEED_CARDS;
+    const saved = DashboardService.getForUser(user.id);
+    if (saved.length === 0) return SEED_CARDS;
+
+    // Convert saved dashboards to card format
+    const savedCards: DashboardCard[] = saved.map((d) => ({
+      id: d.id,
+      name: d.name,
+      owner: d.username,
+      ownerInitials: d.username.slice(0, 2).toUpperCase(),
+      ownerColor: "#2563eb",
+      workspace: "Resource Management",
+      workspaceIcon: "RM",
+      isStarred: d.isStarred,
+      isLocked: false,
+      permission: "owner" as const,
+      lastModified: new Date(d.lastModifiedAt),
+      widgetCount: d.widgetConfig.filter((w) => w.checked).length,
+      kpiCount: d.kpiConfig.filter((k) => k.checked).length,
+      previewWidgets: d.widgetConfig.filter((w) => w.checked).map((w) => w.id),
+      isActive: d.isActive,
+      isSharedWithMe: false,
+    }));
+
+    return savedCards;
+  }
+
+  const [cards, setCards] = useState<DashboardCard[]>(() => buildCards());
   const [search, setSearch] = useState("");
   const [ownerFilter, setOwnerFilter] = useState("All");
   const [notification, setNotification] = useState<string | null>(null);
   const [savedBanner, setSavedBanner] = useState(false);
+  const [savedDashName, setSavedDashName] = useState("");
+
+  // ─── Rename modal state ───────────────────────────────────────────────────
+  const [renameId, setRenameId] = useState<string | null>(null);
+  const [renameName, setRenameName] = useState("");
+  const [renameError, setRenameError] = useState("");
 
   // Detect navigation from Dashboard save flow
   useEffect(() => {
-    const state = location.state as { fromSave?: boolean; persona?: string } | null;
+    const state = location.state as { fromSave?: boolean; dashboardId?: string; dashboardName?: string } | null;
     if (state?.fromSave) {
       setSavedBanner(true);
-      setTimeout(() => setSavedBanner(false), 5000);
-    }
-  }, []);
-
-  useEffect(() => {
-    const newView = (window as any).__newSavedView as
-      | { name: string; widgetCount: number; kpiCount: number }
-      | undefined;
-    if (newView) {
-      const id = `v-${Date.now()}`;
-      setCards((prev) =>
-        prev
-          .map((c) => ({ ...c, isActive: false }))
-          .concat({
-            id,
-            name: newView.name,
-            owner: user?.username ?? "Kantharaja M P",
-            ownerInitials: (user?.username ?? "KM").slice(0, 2).toUpperCase(),
-            ownerColor: "#2563eb",
-            workspace: "Resource Management",
-            workspaceIcon: "RM",
-            isStarred: false,
-            isLocked: false,
-            permission: "owner",
-            lastModified: new Date(),
-            widgetCount: newView.widgetCount ?? 12,
-            kpiCount: newView.kpiCount ?? 7,
-            previewWidgets: [
-              "capTrendLine",
-              "utilDonut",
-              "allocPortfolio",
-              "forecastBar",
-              "staffing",
-              "resourceRisk",
-            ],
-            isActive: true,
-          }),
-      );
-      delete (window as any).__newSavedView;
-      showNotification(`"${newView.name}" saved successfully`);
+      setSavedDashName(state.dashboardName ?? "");
+      // Reload cards to include newly saved dashboard
+      setCards(buildCards());
+      setTimeout(() => setSavedBanner(false), 6000);
     }
   }, []);
 
@@ -823,30 +834,100 @@ export default function Mydashboard() {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const handleStar = (id: string) =>
+  const handleStar = (id: string) => {
+    if (user) {
+      DashboardService.toggleStar(id);
+    }
     setCards((prev) =>
       prev.map((c) => (c.id === id ? { ...c, isStarred: !c.isStarred } : c)),
     );
+  };
+
   const handleDelete = (id: string) => {
+    // Default View is permanent and must never be deleted
+    if (id === "v-default") return;
     const card = cards.find((c) => c.id === id);
+    if (user) {
+      DashboardService.delete(id);
+    }
     setCards((prev) => prev.filter((c) => c.id !== id));
     if (card) showNotification(`"${card.name}" deleted`);
   };
-  const handleOpen = (_id: string) => {
+
+  const handleOpen = (id: string) => {
+    // Mark this dashboard as active so it loads its config
+    if (user) {
+      // Deactivate others for same user, activate this one
+      const saved = DashboardService.getForUser(user.id);
+      saved.forEach((d) => {
+        if (d.id !== id && d.isActive) DashboardService.update(d.id, { isActive: false });
+      });
+      DashboardService.update(id, { isActive: true });
+    }
     navigate("/");
   };
+
   const handleDuplicate = (id: string) => {
     const src = cards.find((c) => c.id === id);
     if (!src) return;
+    const baseName = src.name.replace(/ \(Copy(?: \d+)?\)$/, "");
+    let copyName = `${baseName} (Copy)`;
+    // Find a unique name
+    let count = 1;
+    while (user && DashboardService.nameExists(user.id, copyName)) {
+      count++;
+      copyName = `${baseName} (Copy ${count})`;
+    }
+    if (user) {
+      const savedDash = DashboardService.getById(id);
+      if (savedDash) {
+        const dup = DashboardService.save(
+          user.id, user.username, savedDash.persona, savedDash.role,
+          copyName, savedDash.widgetConfig, savedDash.kpiConfig, savedDash.filterConfig
+        );
+        setCards(buildCards());
+        showNotification(`"${dup.name}" created`);
+        return;
+      }
+    }
+    // Fallback for seed cards
     const copy: DashboardCard = {
       ...src,
       id: `v-${Date.now()}`,
-      name: `${src.name} (Copy)`,
+      name: copyName,
       isActive: false,
       lastModified: new Date(),
     };
     setCards((prev) => [...prev, copy]);
     showNotification(`"${copy.name}" created`);
+  };
+
+  // ─── Rename handlers ──────────────────────────────────────────────────────
+  const openRename = (id: string) => {
+    // Default View is permanent and must never be renamed
+    if (id === "v-default") return;
+    const card = cards.find((c) => c.id === id);
+    if (!card) return;
+    setRenameId(id);
+    setRenameName(card.name);
+    setRenameError("");
+  };
+
+  const submitRename = () => {
+    if (!renameId) return;
+    const trimmed = renameName.trim();
+    if (!trimmed) { setRenameError("Name cannot be blank."); return; }
+    if (trimmed.toLowerCase() === "default view") {
+      setRenameError("\"Default View\" is reserved. Please choose a different name.");
+      return;
+    }
+    if (user && DashboardService.nameExists(user.id, trimmed, renameId)) {
+      setRenameError(`"${trimmed}" already exists.`); return;
+    }
+    if (user) DashboardService.rename(renameId, trimmed);
+    setCards((prev) => prev.map((c) => c.id === renameId ? { ...c, name: trimmed } : c));
+    showNotification(`Renamed to "${trimmed}"`);
+    setRenameId(null);
   };
 
   const filtered = useMemo(() => {
