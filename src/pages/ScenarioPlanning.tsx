@@ -488,7 +488,9 @@ export default function ScenarioPlanning() {
             Best Case scenarios automatically.
           </p>
         </div>
-        
+        <button className="flex items-center gap-2 rounded-lg bg-primary hover:bg-primary/90 px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors shadow-sm">
+          <Users className="h-4 w-4" /> Create Demand
+        </button>
       </div>
 
       {/* ── Owner + Project ── */}
