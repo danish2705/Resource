@@ -17,6 +17,7 @@ import {
   PanelLeft,
   UserCog,
   DollarSign,
+  FolderKanban,
 } from "lucide-react";
 
 import {
@@ -140,7 +141,14 @@ const projectSubItems: NavItem[] = [
   },
 ];
 
-const lowerItems: NavItem[] = [
+const portfolioSubItems: NavItem[] = [
+  {
+    title: "Project Portfolio",
+    url: "/project-portfolio",
+    icon: DollarSign,
+    permission: "view_reporting",
+    excludeRoles: ["resource"],
+  },
   {
     title: "Scenario Planning",
     url: "/scenario-planning",
@@ -148,6 +156,9 @@ const lowerItems: NavItem[] = [
     permission: "view_reporting",
     excludeRoles: ["resource"],
   },
+];
+
+const lowerItems: NavItem[] = [
   {
     title: "Reporting & Analytics",
     url: "/reports",
@@ -200,6 +211,12 @@ export function AppSidebar() {
     location.pathname.startsWith("/task-review-approval");
 
   const [projectOpen, setProjectOpen] = useState(projectActive);
+
+  const portfolioActive =
+    location.pathname.startsWith("/project-portfolio") ||
+    location.pathname.startsWith("/scenario-planning");
+
+  const [portfolioOpen, setPortfolioOpen] = useState(portfolioActive);
 
   const dashboardActive =
     location.pathname === "/" || location.pathname.startsWith("/mydashboard");
@@ -614,6 +631,67 @@ export function AppSidebar() {
               )}
 
               {/* Remaining Lower Items */}
+
+              {/* Portfolio Planning */}
+
+              {can("view_reporting") ? (
+                <Collapsible
+                  open={collapsed ? false : portfolioOpen}
+                  onOpenChange={setPortfolioOpen}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton
+                        tooltip="Portfolio Planning"
+                        className={portfolioActive ? linkActive : linkInactive}
+                      >
+                        <FolderKanban className="h-4 w-4 shrink-0" />
+
+                        {!collapsed && (
+                          <>
+                            <span>Portfolio Planning</span>
+
+                            <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                          </>
+                        )}
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+
+                    {!collapsed && (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {portfolioSubItems.map(renderProjectSubItem)}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    )}
+                  </SidebarMenuItem>
+                </Collapsible>
+              ) : (
+                <SidebarMenuItem>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div
+                        className={`${linkBase} ${linkDisabled} px-2 py-1.5 text-sm text-sidebar-foreground/60`}
+                      >
+                        <FolderKanban className="h-4 w-4 shrink-0" />
+
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1">Portfolio Planning</span>
+
+                            <Lock className="h-3 w-3 ml-auto opacity-60" />
+                          </>
+                        )}
+                      </div>
+                    </TooltipTrigger>
+
+                    <TooltipContent side="right" className="text-xs">
+                      You don't have access to Portfolio Planning
+                    </TooltipContent>
+                  </Tooltip>
+                </SidebarMenuItem>
+              )}
 
               {lowerItems.map(renderNavItem)}
             </SidebarMenu>

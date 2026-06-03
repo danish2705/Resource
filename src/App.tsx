@@ -23,6 +23,7 @@ import ResourceReview from "@/pages/ResourceReview";
 import AuditLog from "@/pages/AuditLog";
 import TaskReviewApproval from "@/pages/TaskReviewApproval";
 import ScenarioPlanning from "@/pages/ScenarioPlanning";
+import ProjectPortfolio from "@/pages/ProjectPortfolio";
 
 import { useAuth } from "@/auth/useAuth";
 
@@ -88,6 +89,14 @@ const App = () => (
                           excludeRoles={["resource"]}
                         >
                           <ScenarioPlanning />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/project-portfolio"
+                      element={
+                        <ProtectedRoute permission="view_reporting">
+                          <ProjectPortfolio />
                         </ProtectedRoute>
                       }
                     />

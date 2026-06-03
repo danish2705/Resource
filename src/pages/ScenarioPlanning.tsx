@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/useAuth";
 import { projectData } from "@/mocks/projects";
 import {
@@ -13,9 +14,11 @@ import {
   Users,
   Sparkles,
   Info,
+  Save,
+  SendHorizonal,
 } from "lucide-react";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type ScenarioType = "worst" | "baseline" | "best";
 
@@ -28,7 +31,7 @@ interface RoleRow {
   billRate: number;
 }
 
-// ─── Role options ─────────────────────────────────────────────────────────────
+// ─── Options ─────────────────────────────────────────────────────────────────
 
 const ROLE_OPTIONS = [
   "Cloud Architect",
@@ -51,6 +54,41 @@ const ROLE_OPTIONS = [
   "Scrum Master",
 ];
 
+const PRIORITY_OPTIONS = [
+  { value: "immediate", label: "Immediate" },
+  { value: "high", label: "High" },
+  { value: "medium", label: "Medium" },
+  { value: "low", label: "Low" },
+];
+
+const PORTFOLIO_OPTIONS = [
+  "Strategic Program",
+  "Product",
+  "Operations",
+  "Innovation",
+  "Infrastructure",
+  "Customer Experience",
+];
+
+const STATUS_OPTIONS = [
+  "Active",
+  "Proposed",
+  "Approved",
+  "Approved - Backlog",
+  "On Hold",
+  "Cancelled",
+  "Completed",
+];
+
+const TYPE_OPTIONS = [
+  "Strategic",
+  "Compliance",
+  "Maintenance",
+  "Financial",
+  "Improvement",
+  "New Product",
+];
+
 // ─── Scenario visual config ───────────────────────────────────────────────────
 
 const SCENARIO_META: Record<
@@ -58,7 +96,6 @@ const SCENARIO_META: Record<
   {
     label: string;
     description: string;
-    // Tailwind classes that work in both light + dark via CSS vars
     headerBg: string;
     badgeClass: string;
     icon: React.ReactNode;
@@ -105,7 +142,6 @@ function makeRow(): RoleRow {
   };
 }
 
-// Count only Mon–Fri working days between two date strings
 function workingDaysBetween(from: string, to: string): number {
   if (!from || !to) return 0;
   let count = 0;
@@ -114,14 +150,13 @@ function workingDaysBetween(from: string, to: string): number {
   cur.setHours(0, 0, 0, 0);
   end.setHours(0, 0, 0, 0);
   while (cur < end) {
-    const day = cur.getDay(); // 0=Sun, 6=Sat
+    const day = cur.getDay();
     if (day !== 0 && day !== 6) count++;
     cur.setDate(cur.getDate() + 1);
   }
   return count;
 }
 
-// Advance a date string by N working days (Mon–Fri only)
 function addWorkingDays(from: string, days: number): string {
   const d = new Date(from);
   let added = 0;
@@ -133,7 +168,6 @@ function addWorkingDays(from: string, days: number): string {
   return d.toISOString().split("T")[0];
 }
 
-// Core formula: Resources × Working Days × 8hrs/day × Bill Rate
 function calcRowCost(row: RoleRow): number {
   return (
     row.noOfResources *
@@ -153,7 +187,7 @@ function usd(n: number) {
   );
 }
 
-// ─── Auto-generate scenarios from filled rows ─────────────────────────────────
+// ─── Scenario generation ──────────────────────────────────────────────────────
 
 interface GeneratedScenario {
   rows: RoleRow[];
@@ -169,7 +203,6 @@ function generateScenarios(
     (r) => r.role && r.fromDate && r.toDate && r.billRate > 0,
   );
 
-  // Build scenario rows by stretching/shrinking working days and adjusting headcount & rate
   function buildRows(
     resourceMult: number,
     wdMult: number,
@@ -191,34 +224,19 @@ function generateScenarios(
     });
   }
 
-  const worstRows = buildRows(1.3, 1.4, 1.2); // More people, longer, pricier
-  const baselineRows = buildRows(1.1, 1.15, 1.05); // Slightly optimised — not just copy of input
-  const bestRows = buildRows(0.8, 0.75, 0.9); // Lean team, shorter, negotiated rates
+  const worstRows = buildRows(1.3, 1.4, 1.2);
+  const baselineRows = buildRows(1.1, 1.15, 1.05);
+  const bestRows = buildRows(0.8, 0.75, 0.9);
 
   const worstCost = calcTotal(worstRows);
   const baselineCost = calcTotal(baselineRows);
   const bestCost = calcTotal(bestRows);
 
-  // Suggested budget = cost + a buffer per scenario
   const worstBudget =
     baseBudget > 0 ? baseBudget : Math.round(worstCost * 1.15);
   const baselineBudget =
     baseBudget > 0 ? baseBudget : Math.round(baselineCost * 1.1);
   const bestBudget = baseBudget > 0 ? baseBudget : Math.round(bestCost * 1.05);
-
-  // Build human-readable rationale with exact numbers per role
-  function buildRationale(rows: RoleRow[], label: string): string[] {
-    const lines: string[] = [
-      `${label} — ${rows.length} role${rows.length !== 1 ? "s" : ""}:`,
-    ];
-    rows.forEach((r) => {
-      const wd = workingDaysBetween(r.fromDate, r.toDate);
-      lines.push(
-        `${r.role}: ${r.noOfResources} resource${r.noOfResources > 1 ? "s" : ""} × ${wd} working days × $${r.billRate}/hr = ${usd(calcRowCost(r))}`,
-      );
-    });
-    return lines;
-  }
 
   return {
     worst: {
@@ -284,15 +302,11 @@ function ScenarioModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-
-      {/* Panel */}
       <div className="relative z-10 w-full max-w-2xl rounded-xl border border-border bg-card shadow-2xl">
-        {/* Header */}
         <div
           className={`flex items-center justify-between px-6 py-4 rounded-t-xl border-b border-border ${meta.headerBg}`}
         >
@@ -318,7 +332,6 @@ function ScenarioModal({
         </div>
 
         <div className="p-6 space-y-5">
-          {/* KPI strip */}
           <div className="grid grid-cols-3 gap-3">
             <div className="rounded-lg border border-border bg-background p-4">
               <p className="text-xs text-muted-foreground mb-1">Total Cost</p>
@@ -339,7 +352,7 @@ function ScenarioModal({
               </p>
             </div>
             <div className="rounded-lg border border-border bg-background p-4">
-              <p className="text-xs text-muted-foreground mb-1">Difference</p>
+              <p className="text-xs text-muted-foreground mb-1">Variance</p>
               <p
                 className={`text-xl font-bold ${diff > 0 ? "text-destructive" : "text-green-600 dark:text-green-400"}`}
               >
@@ -354,7 +367,6 @@ function ScenarioModal({
             </div>
           </div>
 
-          {/* How this scenario was computed */}
           <div className="rounded-lg border border-border bg-muted/40 p-4">
             <div className="flex items-center gap-2 mb-2">
               <Info className="h-3.5 w-3.5 text-muted-foreground" />
@@ -375,7 +387,6 @@ function ScenarioModal({
             </ul>
           </div>
 
-          {/* Rows breakdown */}
           {rows.length > 0 ? (
             <div className="rounded-lg border border-border overflow-hidden">
               <table className="w-full text-sm">
@@ -436,21 +447,31 @@ function ScenarioModal({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function ScenarioPlanning() {
+  const navigate = useNavigate();
   const { user } = useAuth();
-
-  // Resources cannot edit financial fields
   const isReadOnly = user?.role === "resource";
 
+  // ── Project-level selectors ──
+  // ── Project-level selectors ──
+  const [selectedPortfolio, setSelectedPortfolio] = useState("");
   const [selectedProject, setSelectedProject] = useState("");
+  const [selectedPriority, setSelectedPriority] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedType, setSelectedType] = useState("");
+  // ── Resource plan rows ──
   const [rows, setRows] = useState<RoleRow[]>([makeRow(), makeRow()]);
   const [totalBudget, setTotalBudget] = useState<number>(0);
+
+  // ── Projected benefits (project-level, numeric input) ──
+  const [projectedBenefits, setProjectedBenefits] = useState<string>("");
+
+  // ── Scenario generation ──
   const [generated, setGenerated] = useState<Record<
     ScenarioType,
     GeneratedScenario
   > | null>(null);
   const [openModal, setOpenModal] = useState<ScenarioType | null>(null);
 
-  // Live totals from what user has typed
   const liveCost = useMemo(() => calcTotal(rows), [rows]);
   const liveDiff = liveCost - totalBudget;
   const livePct =
@@ -466,13 +487,18 @@ export default function ScenarioPlanning() {
     setRows((prev) => prev.filter((r) => r.id !== id));
   }
 
-  // Check if enough data to generate
   const canGenerate = rows.some(
     (r) => r.role && r.fromDate && r.toDate && r.billRate > 0,
   );
 
   function handleGenerate() {
     setGenerated(generateScenarios(rows, totalBudget));
+  }
+
+  function handleSave(sendForApproval: boolean) {
+    navigate("/project-portfolio", {
+      state: { sendForApproval, projectId: selectedProject },
+    });
   }
 
   return (
@@ -484,8 +510,8 @@ export default function ScenarioPlanning() {
             Scenario Planning
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Enter your resource plan below — then generate Worst, Baseline, and
-            Best Case scenarios automatically.
+            Select a project, configure your resource plan, then generate Worst,
+            Baseline, and Best Case scenarios automatically.
           </p>
         </div>
         <button className="flex items-center gap-2 rounded-lg bg-primary hover:bg-primary/90 px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors shadow-sm">
@@ -493,46 +519,161 @@ export default function ScenarioPlanning() {
         </button>
       </div>
 
-      {/* ── Owner + Project ── */}
-      <div className="flex flex-wrap items-center gap-4 text-sm">
-        <div className="flex items-center gap-2">
-          <span className="text-muted-foreground">Owner</span>
+      {/* ── Project-level selectors + Projected Benefits ── */}
+      {/* ── Project-level selectors + Projected Benefits ── */}
+      <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+        <p className="text-sm font-semibold text-foreground mb-4">
+          Project Details
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Portfolio */}
+          <div className="space-y-1.5">
+            <label className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+              Portfolio
+            </label>
+            <div className="relative">
+              <select
+                value={selectedPortfolio}
+                onChange={(e) => setSelectedPortfolio(e.target.value)}
+                className="w-full appearance-none bg-background border border-input rounded-lg text-foreground pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">Select Portfolio</option>
+                {PORTFOLIO_OPTIONS.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+            </div>
+          </div>
+
+          {/* Project */}
+          <div className="space-y-1.5">
+            <label className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+              Project
+            </label>
+            <div className="relative">
+              <select
+                value={selectedProject}
+                onChange={(e) => setSelectedProject(e.target.value)}
+                className="w-full appearance-none bg-background border border-input rounded-lg text-foreground pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">Select Project</option>
+                {projectData.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.project}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+            </div>
+          </div>
+
+          {/* Priority */}
+          <div className="space-y-1.5">
+            <label className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+              Priority
+            </label>
+            <div className="relative">
+              <select
+                value={selectedPriority}
+                onChange={(e) => setSelectedPriority(e.target.value)}
+                className="w-full appearance-none bg-background border border-input rounded-lg text-foreground pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">Select Priority</option>
+                {PRIORITY_OPTIONS.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {p.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+            </div>
+          </div>
+
+          {/* Status */}
+          <div className="space-y-1.5">
+            <label className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+              Status
+            </label>
+            <div className="relative">
+              <select
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="w-full appearance-none bg-background border border-input rounded-lg text-foreground pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">Select Status</option>
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+            </div>
+          </div>
+
+          {/* Type */}
+          <div className="space-y-1.5">
+            <label className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+              Type
+            </label>
+            <div className="relative">
+              <select
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
+                className="w-full appearance-none bg-background border border-input rounded-lg text-foreground pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">Select Type</option>
+                {TYPE_OPTIONS.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+            </div>
+          </div>
+          {/* Projected Benefits */}
+          <div className="space-y-1.5">
+            <label className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+              Projected Benefits
+            </label>
+            <div className="relative">
+              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                inputMode="numeric"
+                value={projectedBenefits}
+                onChange={(e) =>
+                  setProjectedBenefits(e.target.value.replace(/[^0-9.]/g, ""))
+                }
+                placeholder="0"
+                className="w-full bg-background border border-input rounded-lg text-foreground pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Owner badge */}
+        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
+          <span className="text-xs text-muted-foreground">Owner</span>
           <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary font-semibold text-xs">
             {user?.username ?? "—"}
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-muted-foreground">Project</span>
-          <div className="relative">
-            <select
-              value={selectedProject}
-              onChange={(e) => setSelectedProject(e.target.value)}
-              className="appearance-none bg-background border border-input rounded-lg text-foreground pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-            >
-              <option value="">Select Project</option>
-              {projectData.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.project}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-          </div>
-        </div>
       </div>
 
-      {/* ── Input Table ── */}
+      {/* ── Resource Plan Table ── */}
       <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
-        <div className="px-5 py-3 bg-muted/50 border-b border-border flex items-center justify-between">
-          <div>
-            <p className="text-sm font-semibold text-foreground">
-              Resource Plan
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Fill in roles, headcount, dates, and bill rates. Then click
-              Generate Scenarios.
-            </p>
-          </div>
+        <div className="px-5 py-3 bg-muted/50 border-b border-border">
+          <p className="text-sm font-semibold text-foreground">Resource Plan</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Fill in roles, headcount, dates, and bill rates. Then click Generate
+            Scenarios.
+          </p>
         </div>
 
         <div className="overflow-x-auto">
@@ -542,8 +683,8 @@ export default function ScenarioPlanning() {
                 <th className="px-4 py-3 text-left w-8">Sr</th>
                 <th className="px-4 py-3 text-left min-w-[160px]">Role</th>
                 <th className="px-4 py-3 text-center w-36">No. of Resources</th>
-                <th className="px-4 py-3 text-left min-w-[140px]">From Date</th>
-                <th className="px-4 py-3 text-left min-w-[140px]">To Date</th>
+                <th className="px-4 py-3 text-left min-w-[140px]">Start Date</th>
+                <th className="px-4 py-3 text-left min-w-[140px]">End Date</th>
                 <th className="px-4 py-3 text-left min-w-[130px]">
                   Bill Rate ($/Hr)
                 </th>
@@ -623,7 +764,6 @@ export default function ScenarioPlanning() {
                         onChange={(e) =>
                           updateRow(row.id, {
                             fromDate: e.target.value,
-                            // reset toDate if it's now before the new fromDate
                             ...(row.toDate && e.target.value > row.toDate
                               ? { toDate: "" }
                               : {}),
@@ -758,7 +898,6 @@ export default function ScenarioPlanning() {
                 className="w-full bg-background border border-input rounded-lg text-foreground pl-9 pr-3 py-2 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-muted"
               />
             </div>
-            {/* ── Budget Health Bar ── */}
             {totalBudget > 0 &&
               (() => {
                 const pctUsed = liveCost / totalBudget;
@@ -766,10 +905,10 @@ export default function ScenarioPlanning() {
                 const isOver = pctUsed > 1;
                 const isAmber = !isOver && pctUsed >= 0.9;
                 const barColor = isOver
-                  ? "#ef4444" /* red-500  */
+                  ? "#ef4444"
                   : isAmber
-                    ? "#f59e0b" /* amber-500 */
-                    : "#22c55e"; /* green-500 */
+                    ? "#f59e0b"
+                    : "#22c55e";
                 const label = isOver
                   ? `${((pctUsed - 1) * 100).toFixed(1)}% over`
                   : `${(pctUsed * 100).toFixed(1)}% used`;
@@ -805,10 +944,10 @@ export default function ScenarioPlanning() {
             )}
           </div>
 
-          {/* Difference */}
+          {/* Variance */}
           <div className="space-y-1">
             <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-              Difference
+              Variance
             </p>
             <p
               className={`text-2xl font-bold ${liveDiff > 0 ? "text-destructive" : liveDiff < 0 ? "text-green-600 dark:text-green-400" : "text-foreground"}`}
@@ -876,7 +1015,6 @@ export default function ScenarioPlanning() {
                   onClick={() => setOpenModal(type)}
                   className="text-left rounded-xl border border-border bg-card p-5 hover:shadow-md hover:scale-[1.02] active:scale-[0.99] transition-all cursor-pointer shadow-sm"
                 >
-                  {/* Title */}
                   <div className="flex items-center gap-2 mb-1">
                     <span
                       className={`p-1.5 rounded-md border ${meta.badgeClass}`}
@@ -891,7 +1029,6 @@ export default function ScenarioPlanning() {
                     {meta.description}
                   </p>
 
-                  {/* KPIs */}
                   <div className="space-y-2 text-xs">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Total Cost</span>
@@ -908,7 +1045,7 @@ export default function ScenarioPlanning() {
                       </span>
                     </div>
                     <div className="flex justify-between pt-1.5 border-t border-border">
-                      <span className="text-muted-foreground">Difference</span>
+                      <span className="text-muted-foreground">Variance</span>
                       <span
                         className={`font-bold ${diff > 0 ? "text-destructive" : "text-green-600 dark:text-green-400"}`}
                       >
@@ -918,7 +1055,6 @@ export default function ScenarioPlanning() {
                     </div>
                   </div>
 
-                  {/* Rationale preview */}
                   <div className="mt-3 pt-3 border-t border-border space-y-1">
                     {gen.rationale.slice(0, 3).map((r, i) => (
                       <p
@@ -940,7 +1076,6 @@ export default function ScenarioPlanning() {
           </div>
         </>
       ) : (
-        /* Placeholder state before generating */
         <div className="rounded-xl border border-dashed border-border bg-muted/20 py-12 text-center">
           <Sparkles className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
           <p className="text-sm font-medium text-foreground mb-1">
@@ -953,6 +1088,25 @@ export default function ScenarioPlanning() {
           </p>
         </div>
       )}
+
+      {/* ── Save Actions — bottom right ── */}
+      <div className="flex justify-end gap-3 pt-2 border-t border-border">
+        <button
+          onClick={() => handleSave(false)}
+          className="flex items-center gap-2 rounded-lg border border-input bg-background hover:bg-muted px-4 py-2 text-sm font-semibold text-foreground transition-colors"
+        >
+          <Save className="h-4 w-4" />
+          Save
+        </button>
+
+        <button
+          onClick={() => handleSave(true)}
+          className="flex items-center gap-2 rounded-lg bg-primary hover:bg-primary/90 px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors shadow-sm"
+        >
+          <SendHorizonal className="h-4 w-4" />
+          Save &amp; Send for Approval
+        </button>
+      </div>
 
       {/* ── Modal ── */}
       {openModal && generated && (
