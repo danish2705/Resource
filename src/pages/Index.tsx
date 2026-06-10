@@ -1,16 +1,86 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useMemo, useCallback } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+import DataTable from "@/components/DataTable";
+import { AllocCell } from "../components/allocation/AllocCell";
+import { ProjectCell } from "../components/allocation/ProjectCell";
+import { AllocationDialog } from "../components/allocation/AllocationDialog";
+import { AllocationFilters } from "../components/allocation/AllocationFilters";
+import { useAllocationColumns } from "../hooks/useAllocationColumns";
+import { useAllocationFilters } from "../hooks/useAllocationFilters";
+import { usePillarFilter } from "@/hooks/usePillarFilter";
+import { allocations, type AllocationRow } from "@/mocks/allocation";
+
+export default function ResourceAllocation() {
+  const { filterByPillar } = usePillarFilter();
+
+  // 1. Pillar-scoped rows
+  const visibleAllocations = filterByPillar(allocations);
+
+  // 2. Deduplicate: one row per resource
+  const deduplicatedAllocations = useMemo(() => {
+    const seenIds = new Set<string>();
+    const seenNames = new Set<string>();
+    return visibleAllocations.filter((r) => {
+      if (seenIds.has(r.resourceId) || seenNames.has(r.resource)) return false;
+      seenIds.add(r.resourceId);
+      seenNames.add(r.resource);
+      return true;
+    });
+  }, [visibleAllocations]);
+
+  // 3. Unique project IDs for the dropdown
+  const allProjectIds = useMemo(
+    () => Array.from(new Set(visibleAllocations.map((r) => r.projectId))),
+    [visibleAllocations],
+  );
+
+  // 4. Filter state + derived filtered rows
+  const { filters, updateFilters, filteredData } =
+    useAllocationFilters(deduplicatedAllocations);
+
+  // 5. Dialog state
+  const [dialogRow, setDialogRow] = useState<AllocationRow | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handleOpenDialog = useCallback((row: AllocationRow) => {
+    setDialogRow(row);
+    setDialogOpen(true);
+  }, []);
+
+  // 6. Stable column definitions
+  const columns = useAllocationColumns(handleOpenDialog);
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="h-[calc(100vh-110px)] flex flex-col">
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="shrink-0">
+          <CardTitle className="text-base">Allocation Details</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            {filteredData.length} allocation
+            {filteredData.length !== 1 ? "s" : ""}
+          </p>
+        </CardHeader>
+
+        <CardContent className="flex flex-col flex-1 min-h-0">
+          <AllocationFilters
+            filters={filters}
+            projectIds={allProjectIds}
+            resultCount={filteredData.length}
+            onChange={updateFilters}
+          />
+
+          <div className="flex-1 min-h-0">
+            <DataTable data={filteredData} columns={columns} pageSize={50} />
+          </div>
+        </CardContent>
+      </Card>
+
+      <AllocationDialog
+        row={dialogRow}
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+      />
     </div>
   );
-};
-
-const Index = PlaceholderIndex;
-
-export default Index;
+}
