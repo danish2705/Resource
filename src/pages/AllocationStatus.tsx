@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { usePillarFilter } from "@/hooks/usePillarFilter";
-import { ResourceDialog } from "@/components/resource/ResourceDialog";
+import { ResourceDialog } from "@/components/resourceComponents/ResourceDialog";
 import {
   Select,
   SelectContent,

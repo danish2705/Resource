@@ -34,7 +34,7 @@ import { useNavigate } from "react-router-dom";
 import { type Resource } from "@/mocks/resources";
 import { useAuth } from "@/auth/useAuth";
 import { useStore } from "@/store/useStore";
-import { ResourcePicker } from "@/components/resource/ResourcePicker";;
+import { ResourcePicker } from "@/components/resourceComponents/ResourcePicker";;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
