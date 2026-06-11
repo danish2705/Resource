@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { type AllocationRow } from "@/mocks/allocation";
-import { type AllocationFiltersState } from "../components/allocation/AllocationFilters";
+import { type AllocationFiltersState } from "../components/allocationComponents/AllocationFilters";
 import { getUtilizationStatus } from "../utils/allocationUtils";
 
 const DEFAULT_FILTERS: AllocationFiltersState = {

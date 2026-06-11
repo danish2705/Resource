@@ -4,8 +4,8 @@ import DataTable from "@/components/DataTable";
 import { usePillarFilter } from "@/hooks/usePillarFilter";
 import { allocations, type AllocationRow } from "@/mocks/allocation";
 
-import { AllocationDialog } from "../components/allocation/AllocationDialog";
-import { AllocationFilters } from "../components/allocation/AllocationFilters";
+import { AllocationDialog } from "../components/allocationComponents/AllocationDialog";
+import { AllocationFilters } from "../components/allocationComponents/AllocationFilters";
 import { useAllocationColumns } from "../hooks/useAllocationColumns";
 import { useAllocationFilters } from "../hooks/useAllocationFilters";
 

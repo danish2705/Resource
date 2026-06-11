@@ -2,10 +2,10 @@ import { useState, useMemo, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import DataTable from "@/components/DataTable";
-import { AllocCell } from "../components/allocation/AllocCell";
-import { ProjectCell } from "../components/allocation/ProjectCell";
-import { AllocationDialog } from "../components/allocation/AllocationDialog";
-import { AllocationFilters } from "../components/allocation/AllocationFilters";
+import { AllocCell } from "../components/allocationComponents/AllocCell";
+import { ProjectCell } from "../components/allocationComponents/ProjectCell";
+import { AllocationDialog } from "../components/allocationComponents/AllocationDialog";
+import { AllocationFilters } from "../components/allocationComponents/AllocationFilters";
 import { useAllocationColumns } from "../hooks/useAllocationColumns";
 import { useAllocationFilters } from "../hooks/useAllocationFilters";
 import { usePillarFilter } from "@/hooks/usePillarFilter";

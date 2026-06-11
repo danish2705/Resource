@@ -1,8 +1,8 @@
 import { useMemo, useCallback } from "react";
 import { type Column } from "@/components/DataTable";
 import { type AllocationRow } from "@/mocks/allocation";
-import { AllocCell } from "../components/allocation/AllocCell";
-import { ProjectCell } from "../components/allocation/ProjectCell";
+import { AllocCell } from "../components/allocationComponents/AllocCell";
+import { ProjectCell } from "../components/allocationComponents/ProjectCell";
 
 export function useAllocationColumns(
   onOpenDialog: (row: AllocationRow) => void,
